@@ -34,7 +34,7 @@
 #define EXPLOSION_KILL   10
 #define MAX_ENEMIES     3
 #define PLAYER_HW       6
-#define PLAYER_HH       9
+#define PLAYER_HH       7
 #define BAT_HW          5
 #define BAT_HH          4
 #define MINER_HW        4
@@ -55,11 +55,11 @@
 // Outer cave walls
 #define CAVE_LEFT   -90
 #define CAVE_RIGHT   90
-#define CAVE_TOP     120
-#define CAVE_FLOOR  -85
+#define CAVE_TOP     105
+#define CAVE_FLOOR  -95
 
 // Ledge height (top of ledge surface)
-#define LEDGE_Y      80
+#define LEDGE_Y      65
 
 // Shaft boundaries
 #define SHAFT_LEFT  -25
@@ -69,42 +69,8 @@
 // Vector art data
 // =========================================================================
 
-// Player standing - simple humanoid
-static int8_t player_stand[] = {
-    6,
-    6,   0,     // head up
-    -6,  0,     // back to center
-    -8,  0,     // body down
-    0,   -4,    // left leg
-    8,   4,     // back up to hip
-    -8,  4      // right leg
-};
-
-// Player flying - with propeller
-static int8_t player_fly[] = {
-    8,
-    6,   0,     // head up
-    2,   0,     // to prop base
-    0,   -6,    // prop blade left
-    0,   12,    // prop blade right
-    0,   -6,    // back to center
-    -10, 0,     // body down
-    0,   -4,    // left leg
-    0,   8      // right leg
-};
-
-// Player flying frame 2 - prop rotated
-static int8_t player_fly2[] = {
-    8,
-    6,   0,     // head up
-    2,   0,     // to prop base
-    3,   -5,    // prop blade diagonal
-    -6,  10,    // prop blade other diagonal
-    3,   -5,    // back to center
-    -10, 0,     // body down
-    0,   -4,    // left leg
-    0,   8      // right leg
-};
+// Player sprite drawn procedurally in draw_player() for detailed shape:
+// head, body, backpack, propeller (when flying), legs with feet
 
 // Bat - wings spread
 static int8_t bat_frame1[] = {
@@ -445,9 +411,8 @@ void update_player_physics(void) {
         }
     }
 
-    // Ceiling collision (for right side of cave)
-    if (player_x + PLAYER_HW > SHAFT_LEFT &&
-        player_y + PLAYER_HH > CAVE_TOP) {
+    // Ceiling collision - entire cave
+    if (player_y + PLAYER_HH > CAVE_TOP) {
         player_y = CAVE_TOP - PLAYER_HH;
         player_vy = 0;
     }
@@ -504,7 +469,7 @@ void place_dynamite(void) {
     player_dynamite--;
     dyn_active = 1;
     dyn_x = player_x;
-    dyn_y = player_y - PLAYER_HH;
+    dyn_y = player_y - PLAYER_HH + 4;
     dyn_timer = DYNAMITE_FUSE;
 }
 
@@ -700,15 +665,63 @@ void draw_enemies(void) {
 }
 
 void draw_player(void) {
-    int8_t *shape;
-    if (player_on_ground && !player_thrusting) {
-        shape = player_stand;
-    } else if (anim_tick & 4) {
-        shape = player_fly;
+    zero_beam();
+    set_scale(0x7F);
+    moveto_d(player_y, player_x);
+    set_scale(0x6A);
+    // beam at local (0,0) = player center
+
+    // Head: box y=[5..8] x=[-1..2]
+    moveto_d(5, -1);
+    draw_line_d(3, 0);
+    draw_line_d(0, 3);
+    draw_line_d(-3, 0);
+    draw_line_d(0, -3);
+    // beam at (5, -1)
+
+    // Body: box y=[-3..5] x=[-2..3]
+    moveto_d(0, -1);           // (5, -2)
+    draw_line_d(0, 5);
+    draw_line_d(-8, 0);
+    draw_line_d(0, -5);
+    draw_line_d(8, 0);
+    // beam at (5, -2)
+
+    // Backpack: box y=[0..5] x=[-5..-2]
+    draw_line_d(0, -3);        // (5, -5)
+    draw_line_d(-5, 0);        // (0, -5)
+    draw_line_d(0, 3);         // (0, -2)
+    draw_line_d(5, 0);         // (5, -2)
+
+    if (!player_on_ground || player_thrusting) {
+        // Propeller rod from backpack top center
+        moveto_d(0, -2);       // (5, -4)
+        draw_line_d(6, 0);     // rod up to (11, -4)
+
+        if (anim_tick & 4) {
+            // Frame 1: horizontal blades
+            moveto_d(0, -4);   // (11, -8)
+            draw_line_d(0, 8); // (11, 0)
+            moveto_d(-14, -1); // to (-3, -1)
+        } else {
+            // Frame 2: diagonal blades
+            moveto_d(2, -3);   // (13, -7)
+            draw_line_d(-4, 6);// (9, -1)
+            moveto_d(-12, 0);  // to (-3, -1)
+        }
+        // beam at (-3, -1) - draw hanging legs
+        draw_line_d(-4, 0);    // left leg to (-7, -1)
+        moveto_d(4, 3);        // to (-3, 2)
+        draw_line_d(-4, 0);    // right leg to (-7, 2)
     } else {
-        shape = player_fly2;
+        // Standing: legs with small feet
+        moveto_d(-8, 1);       // to (-3, -1)
+        draw_line_d(-4, 0);    // left leg to (-7, -1)
+        draw_line_d(0, -2);    // left foot to (-7, -3)
+        moveto_d(4, 5);        // to (-3, 2)
+        draw_line_d(-4, 0);    // right leg to (-7, 2)
+        draw_line_d(0, 2);     // right foot to (-7, 4)
     }
-    draw_sprite(player_y, player_x, shape);
 }
 
 void draw_laser_beam(void) {
@@ -726,12 +739,17 @@ void draw_dynamite_and_explosion(void) {
     if (!dyn_active) return;
 
     if (!dyn_exploding) {
-        draw_sprite(dyn_y, dyn_x, dynamite_shape);
+        zero_beam();
+        set_scale(0x7F);
+        moveto_d(dyn_y, dyn_x - 2);
+        set_scale(0x30);
+        draw_line_d(0, 4);
+        draw_line_d(-6, 0);
+        draw_line_d(0, -4);
+        draw_line_d(6, 0);
         if (dyn_timer & 2) {
-            zero_beam();
+            // fuse spark
             intensity_a(0xFF);
-            set_scale(0x20);
-            moveto_d(dyn_y + 4, dyn_x);
             draw_line_d(3, 0);
             intensity_a(0x7F);
         }
@@ -761,10 +779,23 @@ void draw_miner(void) {
 }
 
 void draw_hud(void) {
+    int8_t fw;
+    // Score left
     zero_beam();
     set_scale(0x7F);
-    sprintf(str_buf, "%u  L%d", score, player_lives);
-    print_str_c(120, -125, str_buf);
+    sprintf(str_buf, "%d", (int)score);
+    print_str_c(127, -125, str_buf);
+
+    // Fuel bar center
+    zero_beam();
+    fw = (int8_t)(player_fuel / 5);  // max ~51 units wide
+    moveto_d(127, -(fw / 2));
+    draw_line_d(0, fw);
+
+    // Lives right
+    zero_beam();
+    sprintf(str_buf, "L%d", player_lives);
+    print_str_c(127, 90, str_buf);
 }
 
 // =========================================================================
@@ -875,6 +906,7 @@ int main(void) {
             }
         }
         else if (game_state == STATE_LEVEL_COMPLETE) {
+            draw_cave();
             zero_beam();
             set_scale(0x7F);
             print_str_c(0, -70, "RESCUED!");
