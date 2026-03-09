@@ -179,7 +179,7 @@ uint8_t player_on_ground;
 uint8_t player_thrusting;
 uint8_t anim_tick;
 
-uint16_t score;
+int score;
 
 uint8_t game_state;
 uint8_t current_level;
@@ -671,56 +671,50 @@ void draw_player(void) {
     set_scale(0x6A);
     // beam at local (0,0) = player center
 
-    // Head: box y=[5..8] x=[-1..2]
-    moveto_d(5, -1);
-    draw_line_d(3, 0);
-    draw_line_d(0, 3);
-    draw_line_d(-3, 0);
-    draw_line_d(0, -3);
-    // beam at (5, -1)
+    // Outer silhouette: head + body + backpack as one continuous path
+    // Clockwise from head top-left
+    moveto_d(8, -1);           // (8, -1)
+    draw_line_d(0, 3);         // head top       → (8, 2)
+    draw_line_d(-3, 0);        // head right      → (5, 2)
+    draw_line_d(0, 1);         // shoulder step   → (5, 3)
+    draw_line_d(-8, 0);        // body right      → (-3, 3)
+    draw_line_d(0, -5);        // body bottom     → (-3, -2)
+    draw_line_d(3, 0);         // up to backpack  → (0, -2)
+    draw_line_d(0, -3);        // backpack bottom → (0, -5)
+    draw_line_d(5, 0);         // backpack left   → (5, -5)
+    draw_line_d(0, 4);         // backpack top    → (5, -1)
+    draw_line_d(3, 0);         // head left       → (8, -1)
+    // beam at (8, -1)
 
-    // Body: box y=[-3..5] x=[-2..3]
-    moveto_d(0, -1);           // (5, -2)
-    draw_line_d(0, 5);
-    draw_line_d(-8, 0);
-    draw_line_d(0, -5);
-    draw_line_d(8, 0);
-    // beam at (5, -2)
-
-    // Backpack: box y=[0..5] x=[-5..-2]
-    draw_line_d(0, -3);        // (5, -5)
-    draw_line_d(-5, 0);        // (0, -5)
-    draw_line_d(0, 3);         // (0, -2)
-    draw_line_d(5, 0);         // (5, -2)
+    // Propeller rod (always visible)
+    moveto_d(-3, -3);          // (5, -4)
+    draw_line_d(6, 0);         // rod up → (11, -4)
 
     if (!player_on_ground || player_thrusting) {
-        // Propeller rod from backpack top center
-        moveto_d(0, -2);       // (5, -4)
-        draw_line_d(6, 0);     // rod up to (11, -4)
-
+        // Spinning blades
         if (anim_tick & 4) {
-            // Frame 1: horizontal blades
             moveto_d(0, -4);   // (11, -8)
-            draw_line_d(0, 8); // (11, 0)
+            draw_line_d(0, 8); // blades → (11, 0)
             moveto_d(-14, -1); // to (-3, -1)
         } else {
-            // Frame 2: diagonal blades
             moveto_d(2, -3);   // (13, -7)
-            draw_line_d(-4, 6);// (9, -1)
+            draw_line_d(-4, 6);// blades → (9, -1)
             moveto_d(-12, 0);  // to (-3, -1)
         }
-        // beam at (-3, -1) - draw hanging legs
-        draw_line_d(-4, 0);    // left leg to (-7, -1)
+        draw_line_d(-4, 0);    // left leg  → (-7, -1)
         moveto_d(4, 3);        // to (-3, 2)
-        draw_line_d(-4, 0);    // right leg to (-7, 2)
+        draw_line_d(-4, 0);    // right leg → (-7, 2)
     } else {
-        // Standing: legs with small feet
-        moveto_d(-8, 1);       // to (-3, -1)
-        draw_line_d(-4, 0);    // left leg to (-7, -1)
-        draw_line_d(0, -2);    // left foot to (-7, -3)
+        // Static blades (horizontal)
+        moveto_d(0, -4);       // (11, -8)
+        draw_line_d(0, 8);     // blades → (11, 0)
+        moveto_d(-14, -1);     // to (-3, -1)
+        // Legs with feet
+        draw_line_d(-4, 0);    // left leg  → (-7, -1)
+        draw_line_d(0, -2);    // left foot → (-7, -3)
         moveto_d(4, 5);        // to (-3, 2)
-        draw_line_d(-4, 0);    // right leg to (-7, 2)
-        draw_line_d(0, 2);     // right foot to (-7, 4)
+        draw_line_d(-4, 0);    // right leg → (-7, 2)
+        draw_line_d(0, 2);     // right foot → (-7, 4)
     }
 }
 
@@ -779,23 +773,19 @@ void draw_miner(void) {
 }
 
 void draw_hud(void) {
-    int8_t fw;
-    // Score left
+    int8_t f, l;
+    f = (int8_t)(player_fuel >> 1);
+    l = (int8_t)player_lives;
     zero_beam();
     set_scale(0x7F);
-    sprintf(str_buf, "%d", (int)score);
+    sprintf(str_buf, "%d ", score);
     print_str_c(127, -125, str_buf);
-
-    // Fuel bar center
     zero_beam();
-    fw = (int8_t)(player_fuel / 5);  // max ~51 units wide
-    moveto_d(127, -(fw / 2));
-    draw_line_d(0, fw);
-
-    // Lives right
+    sprintf(str_buf, "%d ", f);
+    print_str_c(127, -20, str_buf);
     zero_beam();
-    sprintf(str_buf, "L%d", player_lives);
-    print_str_c(127, 90, str_buf);
+    sprintf(str_buf, "%d ", l);
+    print_str_c(127, 100, str_buf);
 }
 
 // =========================================================================
@@ -821,7 +811,7 @@ void draw_game_over_screen(void) {
     print_str_c(30, -80, "GAME OVER");
     intensity_a(0x7F);
     zero_beam();
-    sprintf(str_buf, "SCORE %u", score);
+    sprintf(str_buf, "SCORE %d ", score);
     print_str_c(-20, -80, str_buf);
     zero_beam();
     print_str_c(-60, -60, "PRESS BTN");
