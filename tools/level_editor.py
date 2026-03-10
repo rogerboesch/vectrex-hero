@@ -14,6 +14,12 @@ import json
 import math
 import os
 
+try:
+    from PIL import Image, ImageTk
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
+
 # ---------------------------------------------------------------------------
 # Vectrex coordinate system: -128..127 both axes, Y-up
 # Game uses roughly (-90,-95) to (90,105)
@@ -71,8 +77,8 @@ def new_level():
         "cave_constants": {
             "CAVE_LEFT": -90, "CAVE_RIGHT": 90,
             "CAVE_TOP": 105, "CAVE_FLOOR": -95,
-            "LEDGE_Y": 65, "SHAFT_LEFT": -25, "SHAFT_RIGHT": 25,
         },
+        "bg_image": None,       # {"path": str, "x": int, "y": int, "scale": float} or None
     }
 
 
@@ -80,6 +86,7 @@ def new_sprite():
     return {
         "name": "sprite",
         "points": [],  # list of [x, y] -- connected line segments
+        "bg_image": None,       # {"path": str, "x": int, "y": int, "scale": float} or None
     }
 
 
@@ -88,6 +95,28 @@ def new_project():
         "levels": [new_level()],
         "sprites": [new_sprite()],
     }
+
+
+# ---------------------------------------------------------------------------
+# Background image helper
+# ---------------------------------------------------------------------------
+
+def load_bg_image(path, canvas_size, scale=1.0, opacity=0.5):
+    """Load an image, apply scale, apply opacity. Returns PhotoImage or None."""
+    if not HAS_PIL or not path or not os.path.isfile(path):
+        return None
+    try:
+        img = Image.open(path).convert("RGBA")
+        # Apply user scale then clamp to canvas size
+        w = max(1, int(img.width * scale))
+        h = max(1, int(img.height * scale))
+        img = img.resize((w, h), Image.LANCZOS)
+        # Apply opacity by blending with dark background
+        bg = Image.new("RGBA", img.size, (10, 10, 26, 255))  # match canvas bg
+        blended = Image.blend(bg, img, opacity)
+        return ImageTk.PhotoImage(blended)
+    except Exception:
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -113,6 +142,9 @@ class LevelCanvas(tk.Canvas):
         self._wall_rect_id = None
         self._polyline_pts = []      # points being drawn for current polyline
         self._polyline_ids = []      # canvas line ids for preview
+        self._bg_photo = None        # cached PhotoImage for background
+        self._bg_path_loaded = None  # path of currently loaded bg
+        self._bg_scale_loaded = None # scale when last loaded
 
         self.bind("<Motion>", self._on_motion)
         self.bind("<Button-1>", self._on_click)
@@ -147,6 +179,8 @@ class LevelCanvas(tk.Canvas):
         lvl = self.level
         if lvl is None:
             return
+        self._draw_bg_image(lvl)
+        self._draw_cave_from_constants(lvl)
         self._draw_cave_lines(lvl)
         self._draw_walls(lvl)
         self._draw_enemies(lvl)
@@ -172,6 +206,36 @@ class LevelCanvas(tk.Canvas):
         _, gt = self._cx(0, 105)
         _, gb = self._cx(0, -95)
         self.create_rectangle(gl, gt, gr, gb, outline="#333344", dash=(4, 4), tags="bounds")
+
+    def _draw_bg_image(self, lvl):
+        bg = lvl.get("bg_image")
+        if not bg or not bg.get("path"):
+            return
+        path = bg["path"]
+        scale = bg.get("scale", 1.0)
+        # Reload if path or scale changed
+        if path != self._bg_path_loaded or scale != self._bg_scale_loaded:
+            self._bg_photo = load_bg_image(path, CANVAS_SIZE, scale)
+            self._bg_path_loaded = path
+            self._bg_scale_loaded = scale
+        if self._bg_photo:
+            cx, cy = self._cx(bg.get("x", 0), bg.get("y", 0))
+            self.create_image(cx, cy, image=self._bg_photo, anchor="center",
+                              tags="bg_image")
+
+    def _draw_cave_from_constants(self, lvl):
+        """Draw cave bounding box from cave_constants."""
+        c = lvl.get("cave_constants", {})
+        cl = c.get("CAVE_LEFT")
+        cr = c.get("CAVE_RIGHT")
+        ct = c.get("CAVE_TOP")
+        cf = c.get("CAVE_FLOOR")
+        if None in (cl, cr, ct, cf):
+            return
+        x1, y1 = self._cx(cl, ct)
+        x2, y2 = self._cx(cr, cf)
+        self.create_rectangle(x1, y1, x2, y2, outline="#556688", width=1,
+                              dash=(6, 3), tags="cave_const")
 
     def _draw_cave_lines(self, lvl):
         for pi, polyline in enumerate(lvl["cave_lines"]):
@@ -284,6 +348,9 @@ class LevelCanvas(tk.Canvas):
             px, py = self._cx(lvl["player_start"]["x"], lvl["player_start"]["y"])
             if abs(cx - px) < tol + 8 and abs(cy - py) < tol + 8:
                 return ("player_start", 0)
+        # Background image (lowest priority — drag to reposition)
+        if lvl.get("bg_image") and self._bg_photo:
+            return ("bg_image", 0)
         return None
 
     def _selection_info(self):
@@ -305,6 +372,9 @@ class LevelCanvas(tk.Canvas):
         elif self._drag_type == "player_start":
             p = lvl["player_start"]
             return f"Player Start: x={p['x']}, y={p['y']}"
+        elif self._drag_type == "bg_image":
+            bg = lvl.get("bg_image", {})
+            return f"Background: x={bg.get('x', 0)}, y={bg.get('y', 0)}"
         return ""
 
     # ---- Event handlers ----
@@ -366,6 +436,9 @@ class LevelCanvas(tk.Canvas):
             elif self._drag_type == "player_start":
                 lvl["player_start"]["x"] = vx
                 lvl["player_start"]["y"] = vy
+            elif self._drag_type == "bg_image" and lvl.get("bg_image"):
+                lvl["bg_image"]["x"] = vx
+                lvl["bg_image"]["y"] = vy
             self.redraw()
             self.app.update_status(self._selection_info())
 
@@ -531,7 +604,11 @@ class SpriteCanvas(tk.Canvas):
         self.app = app
         self.snap_enabled = True
         self.tool = "draw"
-        self._drag_idx = None  # index of point being dragged
+        self._drag_idx = None      # index of point being dragged
+        self._drag_bg = False      # dragging background image
+        self._bg_photo = None      # cached PhotoImage
+        self._bg_path_loaded = None
+        self._bg_scale_loaded = None
 
         self.bind("<Motion>", self._on_motion)
         self.bind("<Button-1>", self._on_click)
@@ -576,6 +653,7 @@ class SpriteCanvas(tk.Canvas):
         sprite = self.sprite
         if sprite is None:
             return
+        self._draw_bg_image(sprite)
         pts = sprite["points"]
         # Draw lines
         for i in range(len(pts) - 1):
@@ -598,6 +676,21 @@ class SpriteCanvas(tk.Canvas):
                              font=("Courier", 8))
         # Show VLC data
         self._show_vlc_text(sprite)
+
+    def _draw_bg_image(self, sprite):
+        bg = sprite.get("bg_image")
+        if not bg or not bg.get("path"):
+            return
+        path = bg["path"]
+        scale = bg.get("scale", 1.0)
+        if path != self._bg_path_loaded or scale != self._bg_scale_loaded:
+            self._bg_photo = load_bg_image(path, SPRITE_CANVAS_SIZE, scale)
+            self._bg_path_loaded = path
+            self._bg_scale_loaded = scale
+        if self._bg_photo:
+            cx, cy = self._cx(bg.get("x", 0), bg.get("y", 0))
+            self.create_image(cx, cy, image=self._bg_photo, anchor="center",
+                              tags="bg_image")
 
     def _draw_grid(self):
         half = SPRITE_COORD_RANGE // 2
@@ -649,11 +742,21 @@ class SpriteCanvas(tk.Canvas):
         if self.tool == "select":
             hit = self._hit_point(event.x, event.y)
             self._drag_idx = hit
-            self.redraw()
+            self._drag_bg = False
             if hit is not None:
+                self.redraw()
                 pt = sprite["points"][hit]
                 self.app.update_status(
                     f"Sprite point {hit}: ({pt[0]}, {pt[1]})")
+            elif sprite.get("bg_image") and self._bg_photo:
+                # No point hit — grab background
+                self._drag_bg = True
+                self.redraw()
+                bg = sprite["bg_image"]
+                self.app.update_status(
+                    f"Background: x={bg.get('x', 0)}, y={bg.get('y', 0)}")
+            else:
+                self.redraw()
         else:
             # Draw mode: add point
             vx, vy = self._vx(event.x, event.y)
@@ -661,14 +764,21 @@ class SpriteCanvas(tk.Canvas):
             self.redraw()
 
     def _on_drag(self, event):
-        if self.tool == "select" and self._drag_idx is not None:
+        if self.tool == "select":
             sprite = self.sprite
-            if sprite and 0 <= self._drag_idx < len(sprite["points"]):
-                vx, vy = self._vx(event.x, event.y)
+            if not sprite:
+                return
+            vx, vy = self._vx(event.x, event.y)
+            if self._drag_idx is not None and 0 <= self._drag_idx < len(sprite["points"]):
                 sprite["points"][self._drag_idx] = [vx, vy]
                 self.redraw()
                 self.app.update_status(
                     f"Sprite point {self._drag_idx}: ({vx}, {vy})")
+            elif self._drag_bg and sprite.get("bg_image"):
+                sprite["bg_image"]["x"] = vx
+                sprite["bg_image"]["y"] = vy
+                self.redraw()
+                self.app.update_status(f"Background: x={vx}, y={vy}")
 
     def _on_release(self, event):
         pass  # keep selection active after drag
@@ -771,12 +881,28 @@ class App:
         outer = ttk.Frame(parent)
         outer.pack(fill="both", expand=True)
 
-        # Left toolbar
-        toolbar = ttk.Frame(outer, width=160)
-        toolbar.pack(side="left", fill="y", padx=4, pady=4)
+        # -- Left panel: Level selector + Tools --
+        left = ttk.Frame(outer, width=160)
+        left.pack(side="left", fill="y", padx=(4, 0), pady=4)
 
-        ttk.Label(toolbar, text="Tools", font=("Helvetica", 11, "bold")).pack(pady=(4, 8))
+        ttk.Label(left, text="Level", font=("Helvetica", 11, "bold")).pack(pady=(4, 4))
+        self._level_combo = ttk.Combobox(left, state="readonly", width=14)
+        self._level_combo.pack(padx=4, pady=2)
+        self._level_combo.bind("<<ComboboxSelected>>", self._level_selected)
+        self._refresh_level_combo()
 
+        btn_frame = ttk.Frame(left)
+        btn_frame.pack(fill="x", padx=4, pady=4)
+        ttk.Button(btn_frame, text="+", width=3,
+                   command=self._add_level).pack(side="left", padx=2)
+        ttk.Button(btn_frame, text="-", width=3,
+                   command=self._remove_level).pack(side="left", padx=2)
+        ttk.Button(btn_frame, text="Rename", width=6,
+                   command=self._rename_level).pack(side="left", padx=2)
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+
+        ttk.Label(left, text="Tools", font=("Helvetica", 11, "bold")).pack(pady=(0, 4))
         self._tool_var = tk.StringVar(value="select")
         tools = [
             ("Select/Move (S)", "select"),
@@ -787,62 +913,62 @@ class App:
             ("Player Start (P)", "player_start"),
         ]
         for label, val in tools:
-            rb = ttk.Radiobutton(toolbar, text=label, variable=self._tool_var,
+            rb = ttk.Radiobutton(left, text=label, variable=self._tool_var,
                                  value=val, command=self._tool_changed)
             rb.pack(anchor="w", padx=4, pady=2)
 
-        ttk.Separator(toolbar, orient="horizontal").pack(fill="x", pady=8)
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
 
-        # Snap toggle
         self._snap_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(toolbar, text="Snap to Grid",
+        ttk.Checkbutton(left, text="Snap to Grid",
                          variable=self._snap_var,
                          command=self._snap_changed).pack(anchor="w", padx=4)
 
-        ttk.Separator(toolbar, orient="horizontal").pack(fill="x", pady=8)
-
-        # Level selector
-        ttk.Label(toolbar, text="Level:").pack(anchor="w", padx=4)
-        level_sel = ttk.Frame(toolbar)
-        level_sel.pack(fill="x", padx=4, pady=2)
-        self._level_combo = ttk.Combobox(level_sel, state="readonly", width=14)
-        self._level_combo.pack(side="left")
-        self._level_combo.bind("<<ComboboxSelected>>", self._level_selected)
-        self._refresh_level_combo()
-
-        btn_frame = ttk.Frame(toolbar)
-        btn_frame.pack(fill="x", padx=4, pady=4)
-        ttk.Button(btn_frame, text="+", width=3,
-                   command=self._add_level).pack(side="left", padx=2)
-        ttk.Button(btn_frame, text="-", width=3,
-                   command=self._remove_level).pack(side="left", padx=2)
-        ttk.Button(btn_frame, text="Rename", width=6,
-                   command=self._rename_level).pack(side="left", padx=2)
-
-        ttk.Separator(toolbar, orient="horizontal").pack(fill="x", pady=8)
-
-        # Cave constants
-        ttk.Label(toolbar, text="Cave Constants:", font=("Helvetica", 10, "bold")).pack(
-            anchor="w", padx=4, pady=(0, 4))
-        self._const_entries = {}
-        const_frame = ttk.Frame(toolbar)
-        const_frame.pack(fill="x", padx=4)
-        for i, key in enumerate(["CAVE_LEFT", "CAVE_RIGHT", "CAVE_TOP",
-                                   "CAVE_FLOOR", "LEDGE_Y", "SHAFT_LEFT", "SHAFT_RIGHT"]):
-            ttk.Label(const_frame, text=key + ":", font=("Courier", 8)).grid(
-                row=i, column=0, sticky="e", padx=2)
-            ent = ttk.Entry(const_frame, width=6)
-            ent.grid(row=i, column=1, padx=2, pady=1)
-            self._const_entries[key] = ent
-        ttk.Button(toolbar, text="Apply Constants",
-                   command=self._apply_constants).pack(padx=4, pady=4)
-        self._load_constants_to_entries()
-
-        # Canvas
+        # -- Middle: Canvas --
         canvas_frame = ttk.Frame(outer)
         canvas_frame.pack(side="left", fill="both", expand=True, padx=4, pady=4)
         self.level_canvas = LevelCanvas(canvas_frame, self)
         self.level_canvas.pack()
+
+        # -- Right panel: Properties --
+        right = ttk.Frame(outer, width=250)
+        right.pack(side="right", fill="y", padx=(0, 4), pady=4)
+        right.pack_propagate(False)
+
+        # Cave constants
+        ttk.Label(right, text="Cave Constants", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(4, 4))
+        self._const_entries = {}
+        const_frame = ttk.Frame(right)
+        const_frame.pack(fill="x", padx=4)
+        for i, key in enumerate(["CAVE_LEFT", "CAVE_RIGHT", "CAVE_TOP",
+                                   "CAVE_FLOOR"]):
+            ttk.Label(const_frame, text=key + ":", font=("Courier", 8)).grid(
+                row=i, column=0, sticky="e", padx=2)
+            ent = ttk.Entry(const_frame, width=7)
+            ent.grid(row=i, column=1, padx=2, pady=1)
+            self._const_entries[key] = ent
+        ttk.Button(right, text="Apply Constants",
+                   command=self._apply_constants).pack(padx=4, pady=4)
+        self._load_constants_to_entries()
+
+        ttk.Separator(right, orient="horizontal").pack(fill="x", pady=8)
+
+        # Background image
+        ttk.Label(right, text="Background", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(0, 4))
+        ttk.Button(right, text="Load BG",
+                   command=self._load_level_bg).pack(fill="x", padx=4, pady=2)
+        ttk.Button(right, text="Clear BG",
+                   command=self._clear_level_bg).pack(fill="x", padx=4, pady=2)
+        ttk.Label(right, text="BG Scale:", font=("Courier", 8)).pack(
+            anchor="w", padx=4, pady=(4, 0))
+        self._level_bg_scale = tk.DoubleVar(value=1.0)
+        ttk.Scale(right, from_=0.1, to=5.0,
+                  variable=self._level_bg_scale, orient="horizontal",
+                  command=self._on_level_bg_scale).pack(fill="x", padx=4)
+        self._level_bg_scale_label = ttk.Label(right, text="1.0x", font=("Courier", 8))
+        self._level_bg_scale_label.pack(anchor="w", padx=4)
 
         # Keyboard shortcuts
         self.root.bind("<Key>", self._on_key)
@@ -851,18 +977,17 @@ class App:
         outer = ttk.Frame(parent)
         outer.pack(fill="both", expand=True)
 
-        # Left panel
-        panel = ttk.Frame(outer, width=180)
-        panel.pack(side="left", fill="y", padx=4, pady=4)
+        # -- Left panel: Sprite selector + Tools --
+        left = ttk.Frame(outer, width=160)
+        left.pack(side="left", fill="y", padx=(4, 0), pady=4)
 
-        ttk.Label(panel, text="Sprites", font=("Helvetica", 11, "bold")).pack(pady=(4, 8))
-
-        self._sprite_combo = ttk.Combobox(panel, state="readonly", width=16)
+        ttk.Label(left, text="Sprite", font=("Helvetica", 11, "bold")).pack(pady=(4, 4))
+        self._sprite_combo = ttk.Combobox(left, state="readonly", width=14)
         self._sprite_combo.pack(padx=4, pady=2)
         self._sprite_combo.bind("<<ComboboxSelected>>", self._sprite_selected)
         self._refresh_sprite_combo()
 
-        btn_frame = ttk.Frame(panel)
+        btn_frame = ttk.Frame(left)
         btn_frame.pack(fill="x", padx=4, pady=4)
         ttk.Button(btn_frame, text="+", width=3,
                    command=self._add_sprite).pack(side="left", padx=2)
@@ -871,40 +996,61 @@ class App:
         ttk.Button(btn_frame, text="Rename", width=6,
                    command=self._rename_sprite).pack(side="left", padx=2)
 
-        ttk.Separator(panel, orient="horizontal").pack(fill="x", pady=8)
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
 
-        ttk.Label(panel, text="Tools", font=("Helvetica", 10, "bold")).pack(
+        ttk.Label(left, text="Tools", font=("Helvetica", 10, "bold")).pack(
             anchor="w", padx=4, pady=(0, 4))
         self._sprite_tool_var = tk.StringVar(value="draw")
         for label, val in [("Draw Points (D)", "draw"), ("Select/Move (S)", "select")]:
-            ttk.Radiobutton(panel, text=label, variable=self._sprite_tool_var,
+            ttk.Radiobutton(left, text=label, variable=self._sprite_tool_var,
                             value=val, command=self._sprite_tool_changed).pack(
-                anchor="w", padx=4, pady=1)
+                anchor="w", padx=4, pady=2)
 
-        ttk.Separator(panel, orient="horizontal").pack(fill="x", pady=8)
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
 
-        ttk.Label(panel, text="Draw: click to add.\nSelect: drag to move,\n  Del to remove point.\nRight-click: undo last.",
+        ttk.Label(left, text="Draw: click to add.\nSelect: drag to move,\n  Del to remove.\nRight-click: undo.",
                   font=("Courier", 9), justify="left").pack(padx=4, anchor="w")
 
-        ttk.Separator(panel, orient="horizontal").pack(fill="x", pady=8)
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
 
-        ttk.Button(panel, text="Clear Points",
+        ttk.Button(left, text="Clear Points",
                    command=self._clear_sprite_points).pack(padx=4, pady=4)
 
-        ttk.Separator(panel, orient="horizontal").pack(fill="x", pady=8)
-
-        # VLC data display
-        ttk.Label(panel, text="VLC Array:", font=("Helvetica", 10, "bold")).pack(
-            anchor="w", padx=4, pady=(0, 4))
-        self._vlc_text = tk.Text(panel, width=22, height=12, bg="#0a0a1a", fg="#88aaff",
-                                 font=("Courier", 9), state="disabled")
-        self._vlc_text.pack(padx=4, fill="x")
-
-        # Canvas
+        # -- Middle: Canvas --
         canvas_frame = ttk.Frame(outer)
         canvas_frame.pack(side="left", fill="both", expand=True, padx=4, pady=4)
         self.sprite_canvas = SpriteCanvas(canvas_frame, self)
         self.sprite_canvas.pack()
+
+        # -- Right panel: Background + VLC --
+        right = ttk.Frame(outer, width=250)
+        right.pack(side="right", fill="y", padx=(0, 4), pady=4)
+        right.pack_propagate(False)
+
+        # Background image
+        ttk.Label(right, text="Background", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(4, 4))
+        ttk.Button(right, text="Load BG",
+                   command=self._load_sprite_bg).pack(fill="x", padx=4, pady=2)
+        ttk.Button(right, text="Clear BG",
+                   command=self._clear_sprite_bg).pack(fill="x", padx=4, pady=2)
+        ttk.Label(right, text="BG Scale:", font=("Courier", 8)).pack(
+            anchor="w", padx=4, pady=(4, 0))
+        self._sprite_bg_scale = tk.DoubleVar(value=1.0)
+        ttk.Scale(right, from_=0.1, to=5.0,
+                  variable=self._sprite_bg_scale, orient="horizontal",
+                  command=self._on_sprite_bg_scale).pack(fill="x", padx=4)
+        self._sprite_bg_scale_label = ttk.Label(right, text="1.0x", font=("Courier", 8))
+        self._sprite_bg_scale_label.pack(anchor="w", padx=4)
+
+        ttk.Separator(right, orient="horizontal").pack(fill="x", pady=8)
+
+        # VLC data display
+        ttk.Label(right, text="VLC Array", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(0, 4))
+        self._vlc_text = tk.Text(right, width=22, height=14, bg="#0a0a1a", fg="#88aaff",
+                                 font=("Courier", 9), state="disabled")
+        self._vlc_text.pack(padx=4, fill="both", expand=True)
 
         # Update VLC text when switching to sprite tab
         self.notebook.bind("<<NotebookTabChanged>>", self._on_tab_changed)
@@ -958,7 +1104,19 @@ class App:
     def _level_selected(self, event=None):
         self._current_level_idx = self._level_combo.current()
         self._load_constants_to_entries()
+        self._sync_level_bg_scale()
+        self.level_canvas._bg_path_loaded = None  # force reload for new level
         self.level_canvas.redraw()
+
+    def _sync_level_bg_scale(self):
+        lvl = self.current_level_data()
+        if lvl and lvl.get("bg_image"):
+            s = lvl["bg_image"].get("scale", 1.0)
+            self._level_bg_scale.set(s)
+            self._level_bg_scale_label.config(text=f"{s:.1f}x")
+        else:
+            self._level_bg_scale.set(1.0)
+            self._level_bg_scale_label.config(text="1.0x")
 
     def _add_level(self):
         n = len(self.project["levels"]) + 1
@@ -1035,8 +1193,20 @@ class App:
 
     def _sprite_selected(self, event=None):
         self._current_sprite_idx = self._sprite_combo.current()
+        self._sync_sprite_bg_scale()
+        self.sprite_canvas._bg_path_loaded = None  # force reload for new sprite
         self.sprite_canvas.redraw()
         self._update_vlc_text()
+
+    def _sync_sprite_bg_scale(self):
+        sprite = self.current_sprite_data()
+        if sprite and sprite.get("bg_image"):
+            s = sprite["bg_image"].get("scale", 1.0)
+            self._sprite_bg_scale.set(s)
+            self._sprite_bg_scale_label.config(text=f"{s:.1f}x")
+        else:
+            self._sprite_bg_scale.set(1.0)
+            self._sprite_bg_scale_label.config(text="1.0x")
 
     def _add_sprite(self):
         s = new_sprite()
@@ -1072,6 +1242,76 @@ class App:
         self.sprite_canvas.tool = self._sprite_tool_var.get()
         self.sprite_canvas._drag_idx = None
         self.sprite_canvas.redraw()
+
+    # ---- Background image ----
+
+    def _load_bg_image_for(self, target, canvas):
+        """Prompt user to load a background image into target dict."""
+        if not HAS_PIL:
+            messagebox.showinfo("PIL Required",
+                                "Install Pillow to use background images:\n  pip install Pillow")
+            return
+        path = filedialog.askopenfilename(
+            filetypes=[("Images", "*.png *.jpg *.jpeg *.bmp *.gif"), ("All files", "*.*")],
+            title="Load Background Image",
+        )
+        if not path:
+            return
+        target["bg_image"] = {"path": path, "x": 0, "y": 0, "scale": 1.0}
+        canvas._bg_path_loaded = None  # force reload
+        canvas.redraw()
+
+    def _load_level_bg(self):
+        lvl = self.current_level_data()
+        if lvl:
+            self._load_bg_image_for(lvl, self.level_canvas)
+            if lvl.get("bg_image"):
+                self._level_bg_scale.set(lvl["bg_image"].get("scale", 1.0))
+                self._level_bg_scale_label.config(text=f"{lvl['bg_image']['scale']:.1f}x")
+
+    def _clear_level_bg(self):
+        lvl = self.current_level_data()
+        if lvl:
+            lvl["bg_image"] = None
+            self.level_canvas._bg_photo = None
+            self.level_canvas._bg_path_loaded = None
+            self.level_canvas.redraw()
+            self._level_bg_scale.set(1.0)
+            self._level_bg_scale_label.config(text="1.0x")
+
+    def _on_level_bg_scale(self, val=None):
+        lvl = self.current_level_data()
+        s = round(self._level_bg_scale.get(), 1)
+        self._level_bg_scale_label.config(text=f"{s:.1f}x")
+        if lvl and lvl.get("bg_image"):
+            lvl["bg_image"]["scale"] = s
+            self.level_canvas.redraw()
+
+    def _load_sprite_bg(self):
+        sprite = self.current_sprite_data()
+        if sprite:
+            self._load_bg_image_for(sprite, self.sprite_canvas)
+            if sprite.get("bg_image"):
+                self._sprite_bg_scale.set(sprite["bg_image"].get("scale", 1.0))
+                self._sprite_bg_scale_label.config(text=f"{sprite['bg_image']['scale']:.1f}x")
+
+    def _clear_sprite_bg(self):
+        sprite = self.current_sprite_data()
+        if sprite:
+            sprite["bg_image"] = None
+            self.sprite_canvas._bg_photo = None
+            self.sprite_canvas._bg_path_loaded = None
+            self.sprite_canvas.redraw()
+            self._sprite_bg_scale.set(1.0)
+            self._sprite_bg_scale_label.config(text="1.0x")
+
+    def _on_sprite_bg_scale(self, val=None):
+        sprite = self.current_sprite_data()
+        s = round(self._sprite_bg_scale.get(), 1)
+        self._sprite_bg_scale_label.config(text=f"{s:.1f}x")
+        if sprite and sprite.get("bg_image"):
+            sprite["bg_image"]["scale"] = s
+            self.sprite_canvas.redraw()
 
     def _clear_sprite_points(self):
         sprite = self.current_sprite_data()
@@ -1218,8 +1458,7 @@ class App:
             lines.append("")
 
             # Cave constants
-            for key in ["CAVE_LEFT", "CAVE_RIGHT", "CAVE_TOP", "CAVE_FLOOR",
-                         "LEDGE_Y", "SHAFT_LEFT", "SHAFT_RIGHT"]:
+            for key in ["CAVE_LEFT", "CAVE_RIGHT", "CAVE_TOP", "CAVE_FLOOR"]:
                 val = consts.get(key, 0)
                 lines.append(f"#define {PREFIX}_{key}  {val}")
             lines.append("")
@@ -1302,8 +1541,8 @@ class App:
 
 def main():
     root = tk.Tk()
-    root.geometry("850x660")
-    root.minsize(750, 600)
+    root.geometry("1100x680")
+    root.minsize(1000, 640)
     app = App(root)
 
     # Override sprite canvas redraw to also update VLC text
