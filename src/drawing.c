@@ -18,6 +18,7 @@ void draw_cave(void) {
 
     // Left wall path: top-left -> ledge -> shaft left -> floor
     zero_beam();
+    intensity_a(INTENSITY_NORMAL);
     set_scale(0x7F);
     moveto_d(CAVE_TOP, CAVE_LEFT);
     draw_line_d(LEDGE_Y - CAVE_TOP, 0);
@@ -28,6 +29,7 @@ void draw_cave(void) {
 
     // Right wall path: ceiling -> right wall -> ledge -> shaft right
     zero_beam();
+    intensity_a(INTENSITY_NORMAL);
     moveto_d(CAVE_TOP, SHAFT_LEFT);
     draw_line_d(0, CAVE_RIGHT - SHAFT_LEFT);
     draw_line_d(LEDGE_Y - CAVE_TOP, 0);
@@ -40,6 +42,7 @@ void draw_cave(void) {
         if (walls_destroyed & (1 << i)) continue;
         if (current_level == 1 && i == 3) {
             zero_beam();
+            intensity_a(INTENSITY_NORMAL);
             moveto_d(wall_y(i) + wall_h(i), wall_x(i));
             draw_line_d(0, wall_w(i));
             draw_line_d(-wall_h(i) * 2, 0);
@@ -62,11 +65,11 @@ void draw_enemies(void) {
 void draw_laser_beam(void) {
     if (!laser_active) return;
     zero_beam();
-    intensity_a(0xFF);
+    intensity_a(INTENSITY_BRIGHT);
     set_scale(0x7F);
     moveto_d(laser_y, laser_x);
     draw_line_d(0, laser_dir * LASER_LENGTH);
-    intensity_a(0x7F);
+    intensity_a(INTENSITY_NORMAL);
 }
 
 void draw_dynamite_and_explosion(void) {
@@ -83,15 +86,15 @@ void draw_dynamite_and_explosion(void) {
         draw_line_d(0, -4);
         draw_line_d(6, 0);
         if (dyn_timer & 2) {
-            intensity_a(0xFF);
+            intensity_a(INTENSITY_BRIGHT);
             draw_line_d(3, 0);
-            intensity_a(0x7F);
+            intensity_a(INTENSITY_NORMAL);
         }
     } else {
         r = (EXPLOSION_TIME - dyn_expl_timer) * 3;
         if (r > EXPLOSION_RADIUS) r = EXPLOSION_RADIUS;
         zero_beam();
-        intensity_a(0xFF);
+        intensity_a(INTENSITY_BRIGHT);
         set_scale(0x7F);
         moveto_d(dyn_y + r, dyn_x - r);
         draw_line_d(-r, r);
@@ -100,16 +103,16 @@ void draw_dynamite_and_explosion(void) {
         moveto_d(dyn_y + r, dyn_x + r);
         draw_line_d(-r, -r);
         draw_line_d(-r, -r);
-        intensity_a(0x7F);
+        intensity_a(INTENSITY_NORMAL);
     }
 }
 
 void draw_miner(void) {
     if (anim_tick & 8) {
-        intensity_a(0xFF);
+        intensity_a(INTENSITY_BRIGHT);
     }
     draw_sprite(cur_miner_y, cur_miner_x, miner_shape);
-    intensity_a(0x7F);
+    intensity_a(INTENSITY_NORMAL);
 }
 
 void draw_hud(void) {
@@ -131,9 +134,9 @@ void draw_hud(void) {
 void draw_title_screen(void) {
     zero_beam();
     set_scale(0x7F);
-    intensity_a(0xFF);
+    intensity_a(INTENSITY_BRIGHT);
     print_str_c(40, -60, "HERO");
-    intensity_a(0x7F);
+    intensity_a(INTENSITY_NORMAL);
     zero_beam();
     print_str_c(-10, -80, "FOR VECTREX");
     zero_beam();
@@ -143,9 +146,9 @@ void draw_title_screen(void) {
 void draw_game_over_screen(void) {
     zero_beam();
     set_scale(0x7F);
-    intensity_a(0xFF);
+    intensity_a(INTENSITY_BRIGHT);
     print_str_c(30, -80, "GAME OVER");
-    intensity_a(0x7F);
+    intensity_a(INTENSITY_NORMAL);
     zero_beam();
     sprintf(str_buf, "SCORE %d ", score);
     print_str_c(-20, -80, str_buf);

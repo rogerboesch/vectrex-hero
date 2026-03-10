@@ -100,7 +100,7 @@ uint8_t player_hits_wall(uint8_t i) {
 // =========================================================================
 
 void vectrex_init(void) {
-    set_beam_intensity(0x7F);
+    set_beam_intensity(INTENSITY_NORMAL);
     set_scale(0x7F);
     stop_music();
     stop_sound();
@@ -118,7 +118,7 @@ int main(void) {
 
     while (TRUE) {
         wait_recal();
-        intensity_a(0x7F);
+        intensity_a(INTENSITY_NORMAL);
         controller_check_buttons();
 
         if (game_state == STATE_TITLE) {

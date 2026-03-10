@@ -37,6 +37,10 @@
 #define MINER_HH        5
 #define NONE            255
 
+// Beam intensity
+#define INTENSITY_NORMAL 0x5F
+#define INTENSITY_BRIGHT 0x7F
+
 // Cave geometry
 #define CAVE_LEFT   -90
 #define CAVE_RIGHT   90
