@@ -16,7 +16,7 @@ import math
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from vec2x_py.emulator import Emulator
+from vec2x_py.emulator import Emulator, EMU_TIMER
 from vec2x_py.renderer import SCREEN_WIDTH, SCREEN_HEIGHT
 
 try:
@@ -1103,6 +1103,8 @@ class App:
             fill="x", pady=2)
         ttk.Button(btn_frame, text="Stop", command=self._emu_stop).pack(
             fill="x", pady=2)
+        self._emu_pause_btn = ttk.Button(btn_frame, text="Pause", command=self._emu_pause)
+        self._emu_pause_btn.pack(fill="x", pady=2)
         ttk.Button(btn_frame, text="Reset", command=self._emu_reset).pack(
             fill="x", pady=2)
 
@@ -1113,9 +1115,22 @@ class App:
         ttk.Label(left, text="Arrows: Move").pack(anchor="w", padx=8)
         ttk.Label(left, text="A/S/D/F: Btn 1-4").pack(anchor="w", padx=8)
 
-        # Right area: emulator canvas container
+        # Center: emulator canvas container
         self._emu_container = tk.Frame(outer, bg="black")
         self._emu_container.pack(side="left", fill="both", expand=True, padx=4, pady=4)
+
+        # Right panel: CPU state
+        right = ttk.Frame(outer, width=160)
+        right.pack(side="left", fill="y", padx=(0, 4), pady=4)
+
+        ttk.Label(right, text="CPU State", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(8, 4))
+
+        self._emu_state_text = tk.Text(
+            right, width=18, height=20, bg="#0a0a1a", fg="#88aaff",
+            font=("Courier", 10), state="disabled", borderwidth=1, relief="sunken")
+        self._emu_state_text.pack(padx=4, fill="both", expand=True)
+        self._emu_state_timer = None
 
     def _emu_browse_rom(self):
         path = filedialog.askopenfilename(
@@ -1141,22 +1156,68 @@ class App:
         try:
             self._emu = Emulator(rom, cart, parent=self._emu_container)
             self._emu.start()
+            self._emu_pause_btn.config(text="Pause")
+            self._emu_state_update()
             self.update_status("Emulator running")
         except Exception as e:
             messagebox.showerror("Emulator Error", str(e))
             self._emu = None
 
     def _emu_stop(self):
+        if self._emu_state_timer is not None:
+            self.root.after_cancel(self._emu_state_timer)
+            self._emu_state_timer = None
         if self._emu is not None:
             self._emu.stop()
             self._emu.canvas.destroy()
             self._emu = None
             self.update_status("Emulator stopped")
 
+    def _emu_pause(self):
+        if self._emu is None:
+            return
+        if self._emu._after_id is not None:
+            self._emu.stop()
+            self._emu_pause_btn.config(text="Resume")
+            self.update_status("Emulator paused")
+        else:
+            self._emu._after_id = self._emu.root.after(EMU_TIMER, self._emu._tick)
+            self._emu_pause_btn.config(text="Pause")
+            self.update_status("Emulator running")
+
     def _emu_reset(self):
         if self._emu is not None:
             self._emu.reset()
             self.update_status("Emulator reset")
+
+    def _emu_state_update(self):
+        if self._emu is None:
+            return
+        state = self._emu.get_state()
+        if state:
+            cc = state["CC"]
+            flags = "".join(c if cc & b else "." for c, b in
+                            [("E",0x80),("F",0x40),("H",0x20),("I",0x10),
+                             ("N",0x08),("Z",0x04),("V",0x02),("C",0x01)])
+            lines = [
+                f"PC  ${state['PC']:04X}",
+                f"A   ${state['A']:02X}",
+                f"B   ${state['B']:02X}",
+                f"D   ${(state['A']<<8|state['B']):04X}",
+                f"X   ${state['X']:04X}",
+                f"Y   ${state['Y']:04X}",
+                f"U   ${state['U']:04X}",
+                f"S   ${state['S']:04X}",
+                f"DP  ${state['DP']:02X}",
+                f"CC  ${cc:02X} {flags}",
+                "",
+                f"Vectors {state['vectors']}",
+            ]
+            self._emu_state_text.config(state="normal")
+            self._emu_state_text.delete("1.0", "end")
+            self._emu_state_text.insert("1.0", "\n".join(lines))
+            self._emu_state_text.config(state="disabled")
+        self._emu_state_timer = self.root.after(200, self._emu_state_update)
 
     # ---- Status ----
 

@@ -2,6 +2,7 @@
 #include <Python.h>
 #include <string.h>
 #include "vec2x.h"
+#include "e6809.h"
 
 /* ---- frame callback state ---- */
 
@@ -112,6 +113,22 @@ vec2x_set_input(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+vec2x_get_state(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("{s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:l}",
+        "A",  reg_a,
+        "B",  reg_b,
+        "X",  reg_x,
+        "Y",  reg_y,
+        "U",  reg_u,
+        "S",  reg_s,
+        "PC", reg_pc,
+        "DP", reg_dp,
+        "CC", reg_cc,
+        "vectors", frame_vector_count);
+}
+
 /* ---- module definition ---- */
 
 static PyMethodDef vec2x_methods[] = {
@@ -119,6 +136,7 @@ static PyMethodDef vec2x_methods[] = {
     {"reset",     vec2x_reset_py,  METH_NOARGS,  "reset() -> None"},
     {"emu_tick",  vec2x_emu_tick,  METH_VARARGS, "emu_tick(cycles) -> list or None"},
     {"set_input", vec2x_set_input, METH_VARARGS, "set_input(buttons, jx, jy) -> None"},
+    {"get_state", vec2x_get_state, METH_NOARGS,  "get_state() -> dict"},
     {NULL, NULL, 0, NULL}
 };
 

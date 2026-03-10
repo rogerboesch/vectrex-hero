@@ -28,33 +28,33 @@ enum {
 
 /* index registers */
 
-static unsigned reg_x;
-static unsigned reg_y;
+unsigned reg_x;
+unsigned reg_y;
 
 /* user stack pointer */
 
-static unsigned reg_u;
+unsigned reg_u;
 
 /* hardware stack pointer */
 
-static unsigned reg_s;
+unsigned reg_s;
 
 /* program counter */
 
-static unsigned reg_pc;
+unsigned reg_pc;
 
 /* accumulators */
 
-static unsigned reg_a;
-static unsigned reg_b;
+unsigned reg_a;
+unsigned reg_b;
 
 /* direct page register */
 
-static unsigned reg_dp;
+unsigned reg_dp;
 
 /* condition codes */
 
-static unsigned reg_cc;
+unsigned reg_cc;
 
 /* flag to see if interrupts should be handled (sync/cwai). */
 

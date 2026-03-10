@@ -166,6 +166,11 @@ class Emulator:
 
         self._after_id = self.root.after(EMU_TIMER, self._tick)
 
+    def get_state(self):
+        if _USE_C_EXT:
+            return _vec2x.get_state()
+        return None
+
     def start(self):
         self.reset()
         self._after_id = self.root.after(EMU_TIMER, self._tick)
