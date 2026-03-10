@@ -7,3 +7,8 @@
 *.map
 *.s
 .DS_Store
+__pycache__/
+*.so
+*.pyc
+build/
+*.egg-info/
