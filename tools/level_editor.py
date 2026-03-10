@@ -8,11 +8,16 @@ Exports data as .h header files ready to #include in main.c.
 Usage: python3 tools/level_editor.py
 """
 
+import sys
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import math
 import os
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from vec2x_py.emulator import Emulator
+from vec2x_py.renderer import SCREEN_WIDTH, SCREEN_HEIGHT
 
 try:
     from PIL import Image, ImageTk
@@ -853,6 +858,7 @@ class App:
                               command=self._clear_cave_lines)
         menubar.add_cascade(label="Edit", menu=edit_menu)
 
+
     # ---- UI ----
 
     def _build_ui(self):
@@ -869,6 +875,11 @@ class App:
         sprite_frame = ttk.Frame(self.notebook)
         self.notebook.add(sprite_frame, text="Sprite Editor")
         self._build_sprite_tab(sprite_frame)
+
+        # Emulator tab
+        emu_frame = ttk.Frame(self.notebook)
+        self.notebook.add(emu_frame, text="Emulator")
+        self._build_emulator_tab(emu_frame)
 
         # Status bar
         self.status_var = tk.StringVar(value="Ready")
@@ -1055,6 +1066,98 @@ class App:
         # Update VLC text when switching to sprite tab
         self.notebook.bind("<<NotebookTabChanged>>", self._on_tab_changed)
 
+    def _build_emulator_tab(self, parent):
+        self._emu = None
+
+        outer = ttk.Frame(parent)
+        outer.pack(fill="both", expand=True)
+
+        # Left panel: controls
+        left = ttk.Frame(outer, width=180)
+        left.pack(side="left", fill="y", padx=(4, 0), pady=4)
+
+        ttk.Label(left, text="ROM Path", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(8, 2))
+        self._emu_rom_var = tk.StringVar(
+            value=os.path.expanduser("~/retro-tools/vectrec/roms/romfast.bin"))
+        rom_entry = ttk.Entry(left, textvariable=self._emu_rom_var, width=22)
+        rom_entry.pack(padx=4, fill="x")
+        ttk.Button(left, text="Browse...", command=self._emu_browse_rom).pack(
+            padx=4, pady=(2, 8), anchor="w")
+
+        ttk.Label(left, text="Cart Path", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(0, 2))
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self._emu_cart_var = tk.StringVar(
+            value=os.path.join(project_root, "bin", "main.bin"))
+        cart_entry = ttk.Entry(left, textvariable=self._emu_cart_var, width=22)
+        cart_entry.pack(padx=4, fill="x")
+        ttk.Button(left, text="Browse...", command=self._emu_browse_cart).pack(
+            padx=4, pady=(2, 8), anchor="w")
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=4)
+
+        btn_frame = ttk.Frame(left)
+        btn_frame.pack(fill="x", padx=4, pady=4)
+        ttk.Button(btn_frame, text="Start", command=self._emu_start).pack(
+            fill="x", pady=2)
+        ttk.Button(btn_frame, text="Stop", command=self._emu_stop).pack(
+            fill="x", pady=2)
+        ttk.Button(btn_frame, text="Reset", command=self._emu_reset).pack(
+            fill="x", pady=2)
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+
+        ttk.Label(left, text="Controls", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(0, 4))
+        ttk.Label(left, text="Arrows: Move").pack(anchor="w", padx=8)
+        ttk.Label(left, text="A/S/D/F: Btn 1-4").pack(anchor="w", padx=8)
+
+        # Right area: emulator canvas container
+        self._emu_container = tk.Frame(outer, bg="black")
+        self._emu_container.pack(side="left", fill="both", expand=True, padx=4, pady=4)
+
+    def _emu_browse_rom(self):
+        path = filedialog.askopenfilename(
+            title="Select ROM", filetypes=[("BIN files", "*.bin"), ("All", "*.*")])
+        if path:
+            self._emu_rom_var.set(path)
+
+    def _emu_browse_cart(self):
+        path = filedialog.askopenfilename(
+            title="Select Cart", filetypes=[("BIN files", "*.bin"), ("All", "*.*")])
+        if path:
+            self._emu_cart_var.set(path)
+
+    def _emu_start(self):
+        self._emu_stop()
+        rom = self._emu_rom_var.get()
+        cart = self._emu_cart_var.get()
+        if not os.path.isfile(rom):
+            messagebox.showerror("Error", f"ROM not found: {rom}")
+            return
+        if not cart or not os.path.isfile(cart):
+            cart = None
+        try:
+            self._emu = Emulator(rom, cart, parent=self._emu_container)
+            self._emu.start()
+            self.update_status("Emulator running")
+        except Exception as e:
+            messagebox.showerror("Emulator Error", str(e))
+            self._emu = None
+
+    def _emu_stop(self):
+        if self._emu is not None:
+            self._emu.stop()
+            self._emu.canvas.destroy()
+            self._emu = None
+            self.update_status("Emulator stopped")
+
+    def _emu_reset(self):
+        if self._emu is not None:
+            self._emu.reset()
+            self.update_status("Emulator reset")
+
     # ---- Status ----
 
     def update_status(self, text):
@@ -1064,8 +1167,11 @@ class App:
 
     def _on_key(self, event):
         key = event.char.lower()
-        # Check which tab is active
-        if self.notebook.index("current") == 1:
+        tab = self.notebook.index("current")
+        if tab == 2:
+            # Emulator tab — let emulator handle keys
+            return
+        if tab == 1:
             # Sprite tab
             sprite_mapping = {"d": "draw", "s": "select"}
             if key in sprite_mapping:
@@ -1339,11 +1445,11 @@ class App:
 
     def _on_tab_changed(self, event=None):
         idx = self.notebook.index("current")
-        if idx == 1:  # Sprite tab
+        if idx == 0:
+            self.level_canvas.redraw()
+        elif idx == 1:
             self.sprite_canvas.redraw()
             self._update_vlc_text()
-        else:
-            self.level_canvas.redraw()
 
     # ---- Shared dialogs ----
 
@@ -1540,9 +1646,15 @@ class App:
 # ---------------------------------------------------------------------------
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Vectrex H.E.R.O. Level & Sprite Editor")
+    parser.add_argument('--rom', default=None, help='Path to Vectrex system ROM')
+    parser.add_argument('--cart', default=None, help='Path to cartridge ROM')
+    args = parser.parse_args()
+
     root = tk.Tk()
-    root.geometry("1100x680")
-    root.minsize(1000, 640)
+    root.geometry("1100x700")
+    root.minsize(1000, 660)
     app = App(root)
 
     # Override sprite canvas redraw to also update VLC text
@@ -1551,6 +1663,14 @@ def main():
         orig_sprite_redraw()
         app._update_vlc_text()
     app.sprite_canvas.redraw = sprite_redraw_with_vlc
+
+    if args.rom:
+        app._emu_rom_var.set(args.rom)
+    if args.cart:
+        app._emu_cart_var.set(args.cart)
+    if args.rom:
+        app.notebook.select(2)
+        root.after(100, app._emu_start)
 
     root.mainloop()
 

@@ -22,7 +22,7 @@ $(BINDIR):
 	mkdir -p $(BINDIR)
 
 run: $(BIN)
-	$(VEC2X) right $(ROM) $(BIN) $(OVERLAY)
+	python3 tools/level_editor.py --rom $(ROM) --cart $(BIN)
 
 clean:
 	rm -f $(BINDIR)/*.bin $(BINDIR)/*.link $(BINDIR)/*.map *.lst *.i *.asm *.o *.s *.link *.map

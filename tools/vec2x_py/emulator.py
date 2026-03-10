@@ -1,6 +1,5 @@
 """Main emulator loop, Tk window, and keyboard input."""
 
-import time
 import tkinter as tk
 
 from .renderer import VectrexRenderer, SCREEN_WIDTH, SCREEN_HEIGHT
@@ -19,7 +18,7 @@ FCYCLES_INIT = VECTREX_MHZ // VECTREX_PDECAY  # 50000 — frame swap interval
 
 
 class Emulator:
-    def __init__(self, rom_path, cart_path=None):
+    def __init__(self, rom_path, cart_path=None, parent=None):
         # Read ROM/cart as bytes for both paths
         with open(rom_path, 'rb') as f:
             rom_data = f.read()
@@ -31,7 +30,6 @@ class Emulator:
 
         if _USE_C_EXT:
             _vec2x.init(rom_data, cart_data)
-            # Local input state for C ext path
             self._buttons = 0xFF
             self._jx = 0x80
             self._jy = 0x80
@@ -51,13 +49,20 @@ class Emulator:
 
             self.fcycles = FCYCLES_INIT
 
-        # Tk setup
-        self.root = tk.Tk()
-        self.root.title('Vec2X-Py')
-        self.root.resizable(False, False)
+        self._standalone = (parent is None)
+        self._after_id = None
+
+        if self._standalone:
+            self.root = tk.Tk()
+            self.root.title('Vec2X-Py')
+            self.root.resizable(False, False)
+            container = self.root
+        else:
+            self.root = parent.winfo_toplevel()
+            container = parent
 
         self.canvas = tk.Canvas(
-            self.root, width=SCREEN_WIDTH, height=SCREEN_HEIGHT,
+            container, width=SCREEN_WIDTH, height=SCREEN_HEIGHT,
             bg='black', highlightthickness=0)
         self.canvas.pack()
 
@@ -68,7 +73,7 @@ class Emulator:
 
     def _key_down(self, event):
         k = event.keysym.lower()
-        if k == 'escape':
+        if k == 'escape' and self._standalone:
             self.root.destroy()
             return
 
@@ -131,36 +136,6 @@ class Emulator:
         if _USE_C_EXT:
             vectors = _vec2x.emu_tick(CYCLES_PER_TICK)
             if vectors is not None:
-                # DEBUG: dump vectors every ~2s
-                if not hasattr(self, '_dbg_cnt'):
-                    self._dbg_cnt = 0
-                self._dbg_cnt += 1
-                if self._dbg_cnt % 100 == 1:
-                    colors = {}
-                    for v in vectors:
-                        c = v[4]
-                        colors[c] = colors.get(c, 0) + 1
-                    print(f'[frame {self._dbg_cnt}] {len(vectors)} vectors, colors: {dict(sorted(colors.items()))}')
-                    scl = self.renderer.scl_factor
-                    ox, oy = self.renderer.offx, self.renderer.offy
-                    # Show ALL color-95 vectors for one frame
-                    c95 = [(v, ox+v[0]/scl, oy+v[1]/scl, ox+v[2]/scl, oy+v[3]/scl) for v in vectors if v[4] == 95]
-                    c127 = [(v, ox+v[0]/scl, oy+v[1]/scl, ox+v[2]/scl, oy+v[3]/scl) for v in vectors if v[4] == 127]
-                    print(f'  c95 ({len(c95)} vecs):')
-                    for v, sx0, sy0, sx1, sy1 in c95[:8]:
-                        length = ((sx1-sx0)**2 + (sy1-sy0)**2)**0.5
-                        print(f'    scr=({sx0:.1f},{sy0:.1f})->({sx1:.1f},{sy1:.1f}) len={length:.1f}')
-                    print(f'  c127 ({len(c127)} vecs):')
-                    for v, sx0, sy0, sx1, sy1 in c127[:5]:
-                        length = ((sx1-sx0)**2 + (sy1-sy0)**2)**0.5
-                        print(f'    scr=({sx0:.1f},{sy0:.1f})->({sx1:.1f},{sy1:.1f}) len={length:.1f}')
-                    # Show longest color-0 vectors (likely cave walls at wrong intensity)
-                    c0 = [(v, ox+v[0]/scl, oy+v[1]/scl, ox+v[2]/scl, oy+v[3]/scl) for v in vectors if v[4] == 0]
-                    c0_with_len = [(t, ((t[3]-t[1])**2 + (t[4]-t[2])**2)**0.5) for t in c0]
-                    c0_with_len.sort(key=lambda x: -x[1])
-                    print(f'  c0 longest ({len(c0)} vecs):')
-                    for (v, sx0, sy0, sx1, sy1), length in c0_with_len[:8]:
-                        print(f'    scr=({sx0:.1f},{sy0:.1f})->({sx1:.1f},{sy1:.1f}) len={length:.1f} raw=({v[0]},{v[1]})->({v[2]},{v[3]})')
                 self.renderer.render(vectors, len(vectors))
                 self.canvas.update_idletasks()
         else:
@@ -189,9 +164,18 @@ class Emulator:
             if rendered:
                 self.canvas.update_idletasks()
 
-        self.root.after(EMU_TIMER, self._tick)
+        self._after_id = self.root.after(EMU_TIMER, self._tick)
+
+    def start(self):
+        self.reset()
+        self._after_id = self.root.after(EMU_TIMER, self._tick)
+
+    def stop(self):
+        if self._after_id is not None:
+            self.root.after_cancel(self._after_id)
+            self._after_id = None
 
     def run(self):
-        self.reset()
-        self.root.after(EMU_TIMER, self._tick)
-        self.root.mainloop()
+        self.start()
+        if self._standalone:
+            self.root.mainloop()
