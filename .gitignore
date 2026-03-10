@@ -6,3 +6,4 @@
 *.link
 *.map
 *.s
+.DS_Store

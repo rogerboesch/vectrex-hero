@@ -6,12 +6,12 @@ ROM = $(VECTREC)/roms/romfast.bin
 OVERLAY = $(VECTREC)/roms/empty.png
 
 TARGET = main
-SRC = main.c
+SRC = main.c player.c enemies.c drawing.c levels.c
 BIN = $(TARGET).bin
 
 all: $(BIN)
 
-$(BIN): $(SRC)
+$(BIN): $(SRC) hero.h sprites.h levels.h
 	$(CMOC) -I$(STDLIB) -L$(STDLIB) --vectrex --verbose -o $(BIN) $(SRC)
 
 run: $(BIN)
