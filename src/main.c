@@ -176,8 +176,7 @@ int main(void) {
 
             if (level_msg_timer > 0) {
                 zero_beam();
-                sprintf(str_buf, "LEVEL %d", current_level + 1);
-                print_str_c(0, -50, str_buf);
+                print_str_c(100, cur_level_name_x, cur_level_name);
                 level_msg_timer--;
             }
         }
@@ -202,7 +201,7 @@ int main(void) {
             draw_cave();
             zero_beam();
             set_scale(0x7F);
-            print_str_c(0, -70, "RESCUED!");
+            print_str_c(100, -63, "RESCUED");
 
             level_msg_timer--;
             if (level_msg_timer == 0) {

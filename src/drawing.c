@@ -15,7 +15,9 @@ void draw_sprite(int8_t y, int8_t x, int8_t *shape) {
 
 void draw_cave(void) {
     uint8_t i;
-    uint8_t cave_int = dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_DIM;
+    uint8_t cave_int = (dyn_exploding ||
+                        (game_state == STATE_LEVEL_COMPLETE && (level_msg_timer & 4)))
+                       ? INTENSITY_BRIGHT : INTENSITY_DIM;
 
     // Left wall path: top-left -> ledge -> shaft left -> floor
     zero_beam();

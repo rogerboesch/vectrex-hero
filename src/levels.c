@@ -14,6 +14,8 @@ int8_t room_starts[MAX_ROOMS * 2];
 int8_t room_miners[MAX_ROOMS * 2];
 uint8_t room_exits[MAX_ROOMS * 4];
 int8_t room_bounds[MAX_ROOMS * 4];
+const char *cur_level_name;
+int8_t cur_level_name_x;
 
 static uint8_t num_rooms;
 
@@ -21,6 +23,8 @@ void set_level_data(void) {
     uint8_t i;
     if (current_level == 0) {
         num_rooms = 1;
+        cur_level_name = (char *)l1_name;
+        cur_level_name_x = L1_NAME_X;
         for (i = 0; i < num_rooms; i++) {
             room_walls[i] = l1_room_walls[i];
             room_wall_counts[i] = l1_room_wall_counts[i];
@@ -41,6 +45,8 @@ void set_level_data(void) {
         }
     } else {
         num_rooms = 1;
+        cur_level_name = (char *)l2_name;
+        cur_level_name_x = L2_NAME_X;
         for (i = 0; i < num_rooms; i++) {
             room_walls[i] = l2_room_walls[i];
             room_wall_counts[i] = l2_room_wall_counts[i];

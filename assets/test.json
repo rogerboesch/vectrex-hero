@@ -1,7 +1,7 @@
 {
   "levels": [
     {
-      "name": "Level1",
+      "name": "START",
       "rooms": [
         {
           "cave_lines": [
@@ -154,7 +154,8 @@
             "x": 0,
             "y": -25,
             "scale": 1.77,
-            "locked": true
+            "locked": true,
+            "show": false
           },
           "number": 1,
           "name": "R1",
@@ -278,7 +279,8 @@
             "x": 0,
             "y": 75,
             "scale": 1.77,
-            "locked": true
+            "locked": true,
+            "show": true
           },
           "number": 2,
           "name": "R2",

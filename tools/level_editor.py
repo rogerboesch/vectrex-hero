@@ -216,7 +216,8 @@ class LevelCanvas(tk.Canvas):
         lvl = self.level
         if lvl is None:
             return
-        self._draw_bg_image(lvl)
+        if self.app._level_bg_show_var.get():
+            self._draw_bg_image(lvl)
         self._draw_cave_from_constants(lvl)
         self._draw_cave_lines(lvl)
         self._draw_walls(lvl)
@@ -876,7 +877,7 @@ class SpriteCanvas(tk.Canvas):
 class App:
     def __init__(self, root):
         self.root = root
-        self.root.title("Vectrex H.E.R.O. Level & Sprite Editor")
+        self.root.title("CMOC Studio — Vectrex Level & Sprite Editor")
         self.root.configure(bg="#1a1a2e")
         self.project = new_project()
         self._current_level_idx = 0
@@ -1087,6 +1088,10 @@ class App:
                    command=self._load_level_bg).pack(fill="x", padx=4, pady=2)
         ttk.Button(right, text="Clear BG",
                    command=self._clear_level_bg).pack(fill="x", padx=4, pady=2)
+        self._level_bg_show_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(right, text="Show BG",
+                        variable=self._level_bg_show_var,
+                        command=self._on_level_bg_show).pack(fill="x", padx=4, pady=2)
         self._level_bg_lock_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(right, text="Lock BG",
                         variable=self._level_bg_lock_var,
@@ -1243,8 +1248,9 @@ class App:
         self._emu_container.pack(side="left", fill="both", expand=True, padx=4, pady=4)
 
         # Right panel: CPU state
-        right = ttk.Frame(outer, width=160)
-        right.pack(side="left", fill="y", padx=(0, 4), pady=4)
+        right = ttk.Frame(outer, width=250)
+        right.pack(side="right", fill="y", padx=(0, 4), pady=4)
+        right.pack_propagate(False)
 
         ttk.Label(right, text="CPU State", font=("Helvetica", 10, "bold")).pack(
             anchor="w", padx=4, pady=(8, 4))
@@ -1408,10 +1414,12 @@ class App:
             self._level_bg_scale.set(s)
             self._level_bg_scale_label.config(text=f"{s:.1f}x")
             self._level_bg_lock_var.set(room["bg_image"].get("locked", False))
+            self._level_bg_show_var.set(room["bg_image"].get("show", True))
         else:
             self._level_bg_scale.set(1.0)
             self._level_bg_scale_label.config(text="1.0x")
             self._level_bg_lock_var.set(False)
+            self._level_bg_show_var.set(True)
 
     def _add_level(self):
         n = len(self.project["levels"]) + 1
@@ -1694,6 +1702,12 @@ class App:
             self.level_canvas.redraw()
             self._level_bg_scale.set(1.0)
             self._level_bg_scale_label.config(text="1.0x")
+
+    def _on_level_bg_show(self):
+        room = self.current_room_data()
+        if room and room.get("bg_image"):
+            room["bg_image"]["show"] = self._level_bg_show_var.get()
+        self.level_canvas.redraw()
 
     def _on_level_bg_lock(self):
         room = self.current_room_data()
@@ -2149,7 +2163,7 @@ int main(void) {{
         for ri, rm in enumerate(rooms):
             dc.append(f'static void draw_cave_room{ri}(void) {{')
             dc.append('    uint8_t i;')
-            dc.append('    uint8_t cave_int = dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_DIM;')
+            dc.append('    uint8_t cave_int = (dyn_exploding || (game_state == STATE_LEVEL_COMPLETE && (level_msg_timer & 4))) ? INTENSITY_BRIGHT : INTENSITY_DIM;')
             cave_lines = rm.get("cave_lines", [])
             for polyline in cave_lines:
                 if len(polyline) < 2:
@@ -2415,6 +2429,7 @@ void start_new_game(void) {{
 #pragma vx_title "LEVEL TEST"
 #pragma vx_music vx_music_1
 
+static const char level_name[] = "{lvl['name'].upper()}";
 {mc_miner_extern}int8_t player_x, player_y, player_vx, player_vy, player_facing;
 uint8_t player_fuel, player_dynamite, player_lives;
 uint8_t player_on_ground, player_thrusting, anim_tick;
@@ -2518,8 +2533,7 @@ int main(void) {{
 
             if (level_msg_timer > 0) {{
                 zero_beam();
-                sprintf(str_buf, "TEST");
-                print_str_c(0, -30, str_buf);
+                print_str_c(100, {-len(lvl['name']) * 9 // 2}, (char *)level_name);
                 level_msg_timer--;
             }}
         }}
@@ -2541,7 +2555,7 @@ int main(void) {{
             draw_cave();
             zero_beam();
             set_scale(0x7F);
-            print_str_c(0, -70, "RESCUED!");
+            print_str_c(100, -63, "RESCUED");
             level_msg_timer--;
             if (level_msg_timer == 0) {{
                 init_level();
@@ -2873,6 +2887,12 @@ int main(void) {{
                 bf = max(-128, min(127, int(rc.get("CAVE_FLOOR", -95))))
                 lines.append(f"    {bl}, {br}, {bt}, {bf},   // room {ri}")
             lines.append("};")
+
+            # Level name
+            name = lvl["name"].upper()
+            name_x = -(len(name) * 9 // 2)
+            lines.append(f'static const char {lp}_name[] = "{name}";')
+            lines.append(f"#define {lp.upper()}_NAME_X {name_x}")
             lines.append("")
 
         lines.append("#endif")
@@ -2919,8 +2939,8 @@ def main():
     args = parser.parse_args()
 
     root = tk.Tk()
-    root.geometry("1100x700")
-    root.minsize(1000, 660)
+    root.geometry("1300x700")
+    root.minsize(1200, 660)
     app = App(root)
 
     # Override sprite canvas redraw to also update VLC text

@@ -47,6 +47,8 @@ static const uint8_t l1_room_exits[] = {
 static const int8_t l1_room_bounds[] = {
     CAVE_LEFT, CAVE_RIGHT, CAVE_TOP, CAVE_FLOOR   // room 0
 };
+static const char l1_name[] = "LEVEL 1";
+#define L1_NAME_X -31  // -(7 * 9 / 2)
 
 // =========================================================================
 // Level 2, Room 1
@@ -88,5 +90,7 @@ static const uint8_t l2_room_exits[] = {
 static const int8_t l2_room_bounds[] = {
     CAVE_LEFT, CAVE_RIGHT, CAVE_TOP, CAVE_FLOOR   // room 0
 };
+static const char l2_name[] = "LEVEL 2";
+#define L2_NAME_X -31  // -(7 * 9 / 2)
 
 #endif
