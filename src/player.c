@@ -68,6 +68,10 @@ void update_player_physics(void) {
     for (i = 0; i < cur_wall_count; i++) {
         if (walls_destroyed & (1 << i)) continue;
         if (player_hits_wall(i)) {
+            wl = wall_x(i);
+            wr = wall_x(i) + wall_w(i);
+            // Skip if only touching edge (X collision already resolved)
+            if (player_x + PLAYER_HW <= wl || player_x - PLAYER_HW >= wr) continue;
             wt = wall_y(i) + wall_h(i);
             wb = wall_y(i) - wall_h(i);
             if (player_vy <= 0) {
@@ -80,6 +84,21 @@ void update_player_physics(void) {
                 player_y = wb - PLAYER_HH;
                 player_vy = 0;
             }
+        }
+    }
+
+    // Ledge / cave floor collision
+    if (player_x <= SHAFT_LEFT || player_x >= SHAFT_RIGHT) {
+        if (player_y - PLAYER_HH < LEDGE_Y) {
+            player_y = LEDGE_Y + PLAYER_HH;
+            player_vy = 0;
+            player_on_ground = 1;
+        }
+    } else {
+        if (player_y - PLAYER_HH < CAVE_FLOOR) {
+            player_y = CAVE_FLOOR + PLAYER_HH;
+            player_vy = 0;
+            player_on_ground = 1;
         }
     }
 

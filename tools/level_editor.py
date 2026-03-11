@@ -8,6 +8,7 @@ Exports data as .h header files ready to #include in main.c.
 Usage: python3 tools/level_editor.py
 """
 
+import subprocess
 import sys
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -935,6 +936,10 @@ class App:
                          variable=self._snap_var,
                          command=self._snap_changed).pack(anchor="w", padx=4)
 
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+        ttk.Button(left, text="Run in Emulator",
+                   command=self._run_level_test).pack(padx=4, pady=4, fill="x")
+
         # -- Middle: Canvas --
         canvas_frame = ttk.Frame(outer)
         canvas_frame.pack(side="left", fill="both", expand=True, padx=4, pady=4)
@@ -1026,6 +1031,10 @@ class App:
 
         ttk.Button(left, text="Clear Points",
                    command=self._clear_sprite_points).pack(padx=4, pady=4)
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+        ttk.Button(left, text="Run in Emulator",
+                   command=self._run_sprite_test).pack(padx=4, pady=4, fill="x")
 
         # -- Middle: Canvas --
         canvas_frame = ttk.Frame(outer)
@@ -1487,6 +1496,739 @@ class App:
             self.sprite_canvas.redraw()
             self._update_vlc_text()
 
+    def _run_sprite_test(self):
+        sprite = self.current_sprite_data()
+        if not sprite:
+            messagebox.showerror("Error", "No sprite selected")
+            return
+        vlc = self.sprite_canvas._compute_vlc(sprite)
+        if not vlc:
+            messagebox.showerror("Error", "Sprite needs at least 2 points")
+            return
+
+        # Generate VLC array literal
+        name = sprite["name"]
+        vlc_lines = [f"    {vlc[0]},"]
+        for i in range(1, len(vlc), 2):
+            vlc_lines.append(f"    {vlc[i]:4d}, {vlc[i+1]:4d},")
+
+        n_points = vlc[0]
+        buf_size = n_points * 2
+
+        src = f"""\
+#include <vectrex.h>
+#include <vectrex/stdlib.h>
+
+#pragma vx_copyright "2026"
+#pragma vx_title "SPRITE"
+#pragma vx_music vx_music_1
+
+static int8_t shape[] = {{
+{chr(10).join(vlc_lines)}
+}};
+
+static int8_t rotbuf[{buf_size}];
+
+int main(void) {{
+    int8_t x = 0, y = 0;
+    uint8_t scale = 0x60;
+    int8_t angle = 0;
+
+    set_beam_intensity(0x7F);
+    set_scale(0x7F);
+    stop_music();
+    stop_sound();
+    controller_enable_1_x();
+    controller_enable_1_y();
+
+    while (TRUE) {{
+        wait_recal();
+        controller_check_buttons();
+        controller_check_joysticks();
+
+        if (controller_joystick_1_left()) x -= 2;
+        if (controller_joystick_1_right()) x += 2;
+        if (controller_joystick_1_up()) y += 2;
+        if (controller_joystick_1_down()) y -= 2;
+
+        if (controller_button_1_1_held() && scale < 0xFF) scale += 1;
+        if (controller_button_1_2_held() && scale > 0x10) scale -= 1;
+        if (controller_button_1_3_held()) angle += 2;
+        if (controller_button_1_4_held()) angle -= 2;
+
+        zero_beam();
+        intensity_a(0x7F);
+        set_scale(0x7F);
+        moveto_d(y, x);
+
+        if (angle != 0) {{
+            rot_vl_ab(angle, shape[0], &shape[1], rotbuf);
+            set_scale(scale);
+            draw_vl_a(shape[0], rotbuf);
+        }} else {{
+            set_scale(scale);
+            draw_vlc(shape);
+        }}
+    }}
+
+    return 0;
+}}
+"""
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        test_dir = os.path.join(project_root, "test_sprite")
+        os.makedirs(test_dir, exist_ok=True)
+        src_path = os.path.join(test_dir, "sprite_test.c")
+        bin_path = os.path.join(test_dir, "sprite_test.bin")
+
+        with open(src_path, "w") as f:
+            f.write(src)
+
+        # Build with CMOC
+        vectrec = os.path.expanduser("~/retro-tools/vectrec")
+        cmoc = os.path.join(vectrec, "cmoc")
+        stdlib = os.path.join(vectrec, "stdlib")
+
+        if os.path.isfile(bin_path):
+            os.remove(bin_path)
+        self.update_status("Building sprite test...")
+        self.root.update_idletasks()
+        try:
+            result = subprocess.run(
+                [cmoc, f"-I{stdlib}", f"-L{stdlib}", "--vectrex",
+                 "-o", bin_path, src_path],
+                cwd=project_root, capture_output=True, text=True, timeout=30)
+        except Exception as e:
+            messagebox.showerror("Build Error", str(e))
+            return
+        if not os.path.isfile(bin_path):
+            messagebox.showerror("Build Failed", result.stderr or result.stdout)
+            self.update_status("Build failed")
+            return
+
+        # Run in emulator
+        rom = self._emu_rom_var.get()
+        if not os.path.isfile(rom):
+            messagebox.showerror("Error", f"ROM not found: {rom}")
+            return
+        self._emu_stop()
+        try:
+            self._emu_cart_var.set(bin_path)
+            self._emu = Emulator(rom, bin_path, parent=self._emu_container)
+            self._emu.start()
+            self._emu_pause_btn.config(text="Pause")
+            self._emu_state_update()
+            self.notebook.select(2)
+            self.update_status(f"Running sprite test: {name}")
+        except Exception as e:
+            messagebox.showerror("Emulator Error", str(e))
+            self._emu = None
+
+    def _run_level_test(self):
+        import re
+
+        lvl = self.current_level_data()
+        if not lvl:
+            messagebox.showerror("Error", "No level selected")
+            return
+
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        src_dir = os.path.join(project_root, "src")
+        test_dir = os.path.join(project_root, "test_level")
+        os.makedirs(test_dir, exist_ok=True)
+
+        # Generate test_level/hero.h with cave constants from current level.
+        # Use wide-open collision boundaries so cave-boundary physics
+        # effectively never trigger — cave lines are visual-only for now.
+        consts = dict(lvl["cave_constants"])
+        cave_lines = lvl.get("cave_lines", [])
+        if cave_lines:
+            consts["CAVE_LEFT"] = -128
+            consts["CAVE_RIGHT"] = 127
+            consts["CAVE_TOP"] = 127
+            consts["CAVE_FLOOR"] = -128
+            consts["SHAFT_LEFT"] = -128
+            consts["SHAFT_RIGHT"] = 127
+            consts["LEDGE_Y"] = -128
+
+        with open(os.path.join(src_dir, "hero.h"), "r") as f:
+            hero_h = f.read()
+        for key in ["CAVE_LEFT", "CAVE_RIGHT", "CAVE_TOP", "CAVE_FLOOR",
+                     "LEDGE_Y", "SHAFT_LEFT", "SHAFT_RIGHT"]:
+            if key in consts:
+                hero_h = re.sub(
+                    rf"#define\s+{key}\s+[-\d]+",
+                    f"#define {key}   {consts[key]}",
+                    hero_h)
+        with open(os.path.join(test_dir, "hero.h"), "w") as f:
+            f.write(hero_h)
+
+        # Extract level data used by multiple generators below
+        miner = lvl.get("miner")
+
+        # Generate wrapper .c files so src/ code picks up test_level/hero.h.
+        # The #include "hero.h" in the wrapper finds test_level/hero.h (same dir),
+        # setting the HERO_H include guard. When the src file's own #include "hero.h"
+        # is reached, the guard prevents src/hero.h from being loaded.
+        # enemies.c: override update_enemies with cave segment collision
+        if cave_lines:
+            segments = []
+            for polyline in cave_lines:
+                if len(polyline) < 2:
+                    continue
+                for j in range(1, len(polyline)):
+                    x1, y1 = int(polyline[j-1][0]), int(polyline[j-1][1])
+                    x2, y2 = int(polyline[j][0]), int(polyline[j][1])
+                    segments.append((x1, y1, x2, y2))
+
+            ec = ['#include "hero.h"', '',
+                  '#define update_enemies _orig_update_enemies',
+                  '#define update_dynamite _orig_update_dynamite',
+                  '#include "../src/enemies.c"',
+                  '#undef update_enemies',
+                  '#undef update_dynamite', '',
+                  f'#define CAVE_SEG_COUNT {len(segments)}',
+                  'static const int8_t cave_segments[] = {']
+            for s in segments:
+                ec.append(f'    {s[0]}, {s[1]}, {s[2]}, {s[3]},')
+            ec.extend(['};', '',
+                'void update_enemies(void) {',
+                '    uint8_t i, j;',
+                '    int8_t x1, y1, x2, y2, seg_min, seg_max;',
+                '',
+                '    _orig_update_enemies();',
+                '',
+                '    // Bounce bats off vertical cave segments',
+                '    for (i = 0; i < enemy_count; i++) {',
+                '        if (!enemies[i].alive) continue;',
+                '        for (j = 0; j < CAVE_SEG_COUNT; j++) {',
+                '            x1 = cave_segments[j * 4];',
+                '            y1 = cave_segments[j * 4 + 1];',
+                '            x2 = cave_segments[j * 4 + 2];',
+                '            y2 = cave_segments[j * 4 + 3];',
+                '            if (x1 != x2) continue;',
+                '            seg_min = y1 < y2 ? y1 : y2;',
+                '            seg_max = y1 > y2 ? y1 : y2;',
+                '            if (enemies[i].y + BAT_HH > seg_min &&',
+                '                enemies[i].y - BAT_HH < seg_max) {',
+                '                if (enemies[i].x + BAT_HW > x1 &&',
+                '                    enemies[i].x < x1) {',
+                '                    enemies[i].x = x1 - BAT_HW;',
+                '                    enemies[i].vx = -enemies[i].vx;',
+                '                } else if (enemies[i].x - BAT_HW < x1 &&',
+                '                           enemies[i].x > x1) {',
+                '                    enemies[i].x = x1 + BAT_HW;',
+                '                    enemies[i].vx = -enemies[i].vx;',
+                '                }',
+                '            }',
+                '        }',
+                '    }',
+                '}', ''])
+            # update_dynamite: all walls destroyable (start at 0, not 3)
+            ec.extend([
+                'void update_dynamite(void) {',
+                '    uint8_t i;',
+                '    int8_t wcx, wcy;',
+                '    if (dyn_active && !dyn_exploding) {',
+                '        dyn_timer--;',
+                '        if (dyn_timer == 0) {',
+                '            dyn_exploding = 1;',
+                '            dyn_expl_timer = EXPLOSION_TIME;',
+                '        }',
+                '        return;',
+                '    }',
+                '    if (dyn_exploding) {',
+                '        dyn_expl_timer--;',
+                '        if (dyn_expl_timer == EXPLOSION_TIME - 1) {',
+                '            for (i = 0; i < cur_wall_count; i++) {',
+                '                if (walls_destroyed & (1 << i)) continue;',
+                '                wcx = wall_x(i) + (wall_w(i) / 2);',
+                '                wcy = wall_y(i);',
+                '                if (box_overlap(dyn_x, dyn_y, EXPLOSION_RADIUS, EXPLOSION_RADIUS,',
+                '                                wcx, wcy, wall_w(i) / 2, wall_h(i))) {',
+                '                    walls_destroyed = walls_destroyed | (uint8_t)(1 << i);',
+                '                    score += 75;',
+                '                }',
+                '            }',
+                '            for (i = 0; i < enemy_count; i++) {',
+                '                if (!enemies[i].alive) continue;',
+                '                if (box_overlap(dyn_x, dyn_y, EXPLOSION_RADIUS, EXPLOSION_RADIUS,',
+                '                                enemies[i].x, enemies[i].y, BAT_HW, BAT_HH)) {',
+                '                    enemies[i].alive = 0;',
+                '                    score += 50;',
+                '                }',
+                '            }',
+                '            if (box_overlap(dyn_x, dyn_y, EXPLOSION_KILL, EXPLOSION_KILL,',
+                '                            player_x, player_y, PLAYER_HW, PLAYER_HH)) {',
+                '                game_state = STATE_DYING;',
+                '                death_timer = 30;',
+                '            }',
+                '        }',
+                '        if (dyn_expl_timer == 0) {',
+                '            dyn_active = 0;',
+                '            dyn_exploding = 0;',
+                '        }',
+                '    }',
+                '}'])
+            with open(os.path.join(test_dir, "enemies.c"), "w") as f:
+                f.write('\n'.join(ec) + '\n')
+        else:
+            ec = ['#include "hero.h"', '',
+                  '#define update_dynamite _orig_update_dynamite',
+                  '#include "../src/enemies.c"',
+                  '#undef update_dynamite', '',
+                  'void update_dynamite(void) {',
+                  '    uint8_t i;',
+                  '    int8_t wcx, wcy;',
+                  '    if (dyn_active && !dyn_exploding) {',
+                  '        dyn_timer--;',
+                  '        if (dyn_timer == 0) {',
+                  '            dyn_exploding = 1;',
+                  '            dyn_expl_timer = EXPLOSION_TIME;',
+                  '        }',
+                  '        return;',
+                  '    }',
+                  '    if (dyn_exploding) {',
+                  '        dyn_expl_timer--;',
+                  '        if (dyn_expl_timer == EXPLOSION_TIME - 1) {',
+                  '            for (i = 0; i < cur_wall_count; i++) {',
+                  '                if (walls_destroyed & (1 << i)) continue;',
+                  '                wcx = wall_x(i) + (wall_w(i) / 2);',
+                  '                wcy = wall_y(i);',
+                  '                if (box_overlap(dyn_x, dyn_y, EXPLOSION_RADIUS, EXPLOSION_RADIUS,',
+                  '                                wcx, wcy, wall_w(i) / 2, wall_h(i))) {',
+                  '                    walls_destroyed = walls_destroyed | (uint8_t)(1 << i);',
+                  '                    score += 75;',
+                  '                }',
+                  '            }',
+                  '            for (i = 0; i < enemy_count; i++) {',
+                  '                if (!enemies[i].alive) continue;',
+                  '                if (box_overlap(dyn_x, dyn_y, EXPLOSION_RADIUS, EXPLOSION_RADIUS,',
+                  '                                enemies[i].x, enemies[i].y, BAT_HW, BAT_HH)) {',
+                  '                    enemies[i].alive = 0;',
+                  '                    score += 50;',
+                  '                }',
+                  '            }',
+                  '            if (box_overlap(dyn_x, dyn_y, EXPLOSION_KILL, EXPLOSION_KILL,',
+                  '                            player_x, player_y, PLAYER_HW, PLAYER_HH)) {',
+                  '                game_state = STATE_DYING;',
+                  '                death_timer = 30;',
+                  '            }',
+                  '        }',
+                  '        if (dyn_expl_timer == 0) {',
+                  '            dyn_active = 0;',
+                  '            dyn_exploding = 0;',
+                  '        }',
+                  '    }',
+                  '}']
+            with open(os.path.join(test_dir, "enemies.c"), "w") as f:
+                f.write('\n'.join(ec) + '\n')
+
+        # player.c: override update_player_physics with cave segment collision
+        if cave_lines:
+            # Extract line segments from polylines
+            segments = []
+            for polyline in cave_lines:
+                if len(polyline) < 2:
+                    continue
+                for j in range(1, len(polyline)):
+                    x1, y1 = int(polyline[j-1][0]), int(polyline[j-1][1])
+                    x2, y2 = int(polyline[j][0]), int(polyline[j][1])
+                    segments.append((x1, y1, x2, y2))
+
+            pc = ['#include "hero.h"', '',
+                  '#define update_player_physics _orig_update_player_physics',
+                  '#include "../src/player.c"',
+                  '#undef update_player_physics', '',
+                  f'#define CAVE_SEG_COUNT {len(segments)}',
+                  'static const int8_t cave_segments[] = {']
+            for s in segments:
+                pc.append(f'    {s[0]}, {s[1]}, {s[2]}, {s[3]},')
+            pc.extend(['};', '',
+                'void update_player_physics(void) {',
+                '    uint8_t i;',
+                '    int8_t x1, y1, x2, y2, seg_min, seg_max;',
+                '',
+                '    _orig_update_player_physics();',
+                '',
+                '    for (i = 0; i < CAVE_SEG_COUNT; i++) {',
+                '        x1 = cave_segments[i * 4];',
+                '        y1 = cave_segments[i * 4 + 1];',
+                '        x2 = cave_segments[i * 4 + 2];',
+                '        y2 = cave_segments[i * 4 + 3];',
+                '',
+                '        if (y1 == y2) {',
+                '            // Horizontal segment: floor or ceiling',
+                '            seg_min = x1 < x2 ? x1 : x2;',
+                '            seg_max = x1 > x2 ? x1 : x2;',
+                '            if (player_x + PLAYER_HW > seg_min &&',
+                '                player_x - PLAYER_HW < seg_max) {',
+                '                if (player_y > y1 &&',
+                '                    player_y - PLAYER_HH < y1) {',
+                '                    player_y = y1 + PLAYER_HH;',
+                '                    player_vy = 0;',
+                '                    player_on_ground = 1;',
+                '                } else if (player_y < y1 &&',
+                '                           player_y + PLAYER_HH > y1) {',
+                '                    player_y = y1 - PLAYER_HH;',
+                '                    player_vy = 0;',
+                '                }',
+                '            }',
+                '        } else if (x1 == x2) {',
+                '            // Vertical segment: side wall',
+                '            seg_min = y1 < y2 ? y1 : y2;',
+                '            seg_max = y1 > y2 ? y1 : y2;',
+                '            if (player_y + PLAYER_HH > seg_min &&',
+                '                player_y - PLAYER_HH < seg_max) {',
+                '                if (player_x < x1 &&',
+                '                    player_x + PLAYER_HW > x1) {',
+                '                    player_x = x1 - PLAYER_HW;',
+                '                    player_vx = 0;',
+                '                } else if (player_x > x1 &&',
+                '                           player_x - PLAYER_HW < x1) {',
+                '                    player_x = x1 + PLAYER_HW;',
+                '                    player_vx = 0;',
+                '                }',
+                '            }',
+                '        }',
+                '    }',
+                '}'])
+            with open(os.path.join(test_dir, "player.c"), "w") as f:
+                f.write('\n'.join(pc) + '\n')
+        else:
+            wrapper = '#include "hero.h"\n#include "../src/player.c"\n'
+            with open(os.path.join(test_dir, "player.c"), "w") as f:
+                f.write(wrapper)
+
+        # Generate custom drawing.c: override draw_cave() to draw
+        # editor cave lines + wall rectangles, override draw_miner()
+        # to be a no-op when no miner was placed.
+        dc = ['#include "hero.h"', '',
+              '// Rename originals so we can override them',
+              '#define draw_cave _orig_draw_cave',
+              '#define draw_miner _orig_draw_miner',
+              '#include "../src/drawing.c"',
+              '#undef draw_cave',
+              '#undef draw_miner', '']
+
+        # Custom draw_cave: editor cave lines + wall rectangles
+        dc.append('void draw_cave(void) {')
+        dc.append('    uint8_t i;')
+        cave_lines = lvl.get("cave_lines", [])
+        for polyline in cave_lines:
+            if len(polyline) < 2:
+                continue
+            dc.append('    zero_beam();')
+            dc.append('    intensity_a(INTENSITY_NORMAL);')
+            dc.append('    set_scale(0x7F);')
+            x0, y0 = polyline[0]
+            dc.append(f'    moveto_d({int(y0)}, {int(x0)});')
+            for j in range(1, len(polyline)):
+                dy = int(polyline[j][1] - polyline[j - 1][1])
+                dx = int(polyline[j][0] - polyline[j - 1][0])
+                # draw_line_d takes int8_t (-128..127); split long segments
+                while dy != 0 or dx != 0:
+                    sy = max(-128, min(127, dy))
+                    sx = max(-128, min(127, dx))
+                    dc.append(f'    draw_line_d({sy}, {sx});')
+                    dy -= sy
+                    dx -= sx
+        # Draw all walls as visible rectangles
+        dc.append('    for (i = 0; i < cur_wall_count; i++) {')
+        dc.append('        if (walls_destroyed & (1 << i)) continue;')
+        dc.append('        zero_beam();')
+        dc.append('        intensity_a(INTENSITY_NORMAL);')
+        dc.append('        set_scale(0x7F);')
+        dc.append('        moveto_d(wall_y(i) + wall_h(i), wall_x(i));')
+        dc.append('        draw_line_d(0, wall_w(i));')
+        dc.append('        draw_line_d(-wall_h(i) * 2, 0);')
+        dc.append('        draw_line_d(0, -wall_w(i));')
+        dc.append('        draw_line_d(wall_h(i) * 2, 0);')
+        dc.append('    }')
+        dc.append('}')
+        dc.append('')
+
+        # Custom draw_miner: only if user placed one
+        if miner:
+            dc.append('void draw_miner(void) { _orig_draw_miner(); }')
+        else:
+            dc.append('void draw_miner(void) {}')
+        dc.append('')
+
+        with open(os.path.join(test_dir, "drawing.c"), "w") as f:
+            f.write('\n'.join(dc) + '\n')
+
+        # Generate test_level/levels.h with only the current level
+        walls = lvl["walls"]
+        enemies = lvl["enemies"]
+        ps = lvl.get("player_start")
+        lh = ["// Generated by level_editor.py — test level", "",
+              "#ifndef LEVELS_H", "#define LEVELS_H", "#include \"hero.h\"", ""]
+        lh.append(f"#define L1_WALL_COUNT {len(walls)}")
+        if walls:
+            lh.append("static const int8_t l1_walls[] = {")
+            for w in walls:
+                lh.append(f"    {w['y']}, {w['x']}, {w['h']}, {w['w']},")
+            lh.append("};")
+        else:
+            lh.append("static const int8_t l1_walls[] = { 0, 0, 0, 0 };")
+        lh.append(f"#define L1_ENEMY_COUNT {len(enemies)}")
+        if enemies:
+            lh.append("static const int8_t l1_enemies[] = {")
+            for e in enemies:
+                lh.append(f"    {e['x']}, {e['y']}, {e['vx']},")
+            lh.append("};")
+        else:
+            lh.append("static const int8_t l1_enemies[] = { 0, 0, 0 };")
+        start_x = ps["x"] if ps else consts.get("CAVE_LEFT", -90) + 15
+        start_y = ps["y"] if ps else consts.get("CAVE_TOP", 105) - 2
+        miner_x = miner["x"] if miner else 0
+        miner_y = miner["y"] if miner else consts.get("CAVE_FLOOR", -95) + 8
+        lh.append(f"#define L1_START_X  {start_x}")
+        lh.append(f"#define L1_START_Y  {start_y}")
+        lh.append(f"#define L1_MINER_X  {miner_x}")
+        lh.append(f"#define L1_MINER_Y  {miner_y}")
+        lh.extend(["", "#endif", ""])
+        with open(os.path.join(test_dir, "levels.h"), "w") as f:
+            f.write("\n".join(lh))
+
+        # Generate test_level/levels.c
+        lc = """\
+#include "hero.h"
+#include "levels.h"
+
+void set_level_data(void) {
+    cur_walls = l1_walls;
+    cur_wall_count = L1_WALL_COUNT;
+    cur_enemies_data = l1_enemies;
+    cur_enemy_count = L1_ENEMY_COUNT;
+    cur_miner_x = L1_MINER_X;
+    cur_miner_y = L1_MINER_Y;
+}
+
+void load_enemies(void) {
+    uint8_t i;
+    enemy_count = cur_enemy_count;
+    for (i = 0; i < MAX_ENEMIES; i++) {
+        if (i < enemy_count) {
+            enemies[i].x = cur_enemies_data[i * 3];
+            enemies[i].y = cur_enemies_data[i * 3 + 1];
+            enemies[i].vx = cur_enemies_data[i * 3 + 2];
+            enemies[i].alive = 1;
+            enemies[i].anim = 0;
+        } else {
+            enemies[i].alive = 0;
+        }
+    }
+    walls_destroyed = 0;
+}
+
+void init_level(void) {
+    set_level_data();
+    player_x = L1_START_X;
+    player_y = L1_START_Y;
+    player_vx = 0;
+    player_vy = 0;
+    player_facing = 1;
+    player_on_ground = 0;
+    player_thrusting = 0;
+    laser_active = 0;
+    dyn_active = 0;
+    dyn_exploding = 0;
+    anim_tick = 0;
+    load_enemies();
+    level_msg_timer = 30;
+}
+
+void start_new_game(void) {
+    score = 0;
+    player_lives = START_LIVES;
+    player_fuel = START_FUEL;
+    player_dynamite = START_DYNAMITE;
+    current_level = 0;
+    init_level();
+    game_state = STATE_PLAYING;
+}
+"""
+        with open(os.path.join(test_dir, "levels.c"), "w") as f:
+            f.write(lc)
+
+        # Generate test_level/main.c — starts directly in STATE_PLAYING
+        mc_miner_rescue = "            check_miner_rescue();\n" if miner else ""
+        mc_draw_miner = "            draw_miner();\n" if miner else ""
+        mc = f"""\
+#include "hero.h"
+
+#pragma vx_copyright "2026"
+#pragma vx_title "LEVEL TEST"
+#pragma vx_music vx_music_1
+
+int8_t player_x, player_y, player_vx, player_vy, player_facing;
+uint8_t player_fuel, player_dynamite, player_lives;
+uint8_t player_on_ground, player_thrusting, anim_tick;
+int score;
+uint8_t game_state, current_level, death_timer, level_msg_timer;
+Enemy enemies[MAX_ENEMIES];
+uint8_t enemy_count;
+uint8_t laser_active;
+int8_t laser_x, laser_y, laser_dir;
+uint8_t laser_timer;
+uint8_t dyn_active;
+int8_t dyn_x, dyn_y;
+uint8_t dyn_timer, dyn_exploding, dyn_expl_timer;
+uint8_t walls_destroyed;
+const int8_t *cur_walls;
+uint8_t cur_wall_count;
+const int8_t *cur_enemies_data;
+uint8_t cur_enemy_count;
+int8_t cur_miner_x, cur_miner_y;
+char str_buf[16];
+
+uint8_t box_overlap(int8_t ax, int8_t ay, int8_t ahw, int8_t ahh,
+                    int8_t bx, int8_t by, int8_t bhw, int8_t bhh) {{
+    if (ax + ahw < bx - bhw) return 0;
+    if (ax - ahw > bx + bhw) return 0;
+    if (ay + ahh < by - bhh) return 0;
+    if (ay - ahh > by + bhh) return 0;
+    return 1;
+}}
+
+int8_t wall_y(uint8_t i)  {{ return cur_walls[i * 4]; }}
+int8_t wall_x(uint8_t i)  {{ return cur_walls[i * 4 + 1]; }}
+int8_t wall_h(uint8_t i)  {{ return cur_walls[i * 4 + 2]; }}
+int8_t wall_w(uint8_t i)  {{ return cur_walls[i * 4 + 3]; }}
+
+uint8_t player_hits_wall(uint8_t i) {{
+    int8_t wcx = wall_x(i) + (wall_w(i) / 2);
+    int8_t wcy = wall_y(i);
+    int8_t whw = wall_w(i) / 2;
+    int8_t whh = wall_h(i);
+    return box_overlap(player_x, player_y, PLAYER_HW, PLAYER_HH,
+                       wcx, wcy, whw, whh);
+}}
+
+void vectrex_init(void) {{
+    set_beam_intensity(INTENSITY_NORMAL);
+    set_scale(0x7F);
+    stop_music();
+    stop_sound();
+    controller_enable_1_x();
+    controller_enable_1_y();
+}}
+
+int main(void) {{
+    vectrex_init();
+    start_new_game();
+
+    while (TRUE) {{
+        wait_recal();
+        intensity_a(INTENSITY_NORMAL);
+        controller_check_buttons();
+
+        if (game_state == STATE_PLAYING) {{
+            anim_tick++;
+            handle_input();
+            update_player_physics();
+            update_laser();
+            update_dynamite();
+            update_enemies();
+{mc_miner_rescue}
+            draw_cave();
+            draw_enemies();
+            draw_dynamite_and_explosion();
+            draw_laser_beam();
+            draw_player();
+{mc_draw_miner}            draw_hud();
+
+            if (level_msg_timer > 0) {{
+                zero_beam();
+                sprintf(str_buf, "TEST");
+                print_str_c(0, -30, str_buf);
+                level_msg_timer--;
+            }}
+        }}
+        else if (game_state == STATE_DYING) {{
+            death_timer--;
+            if (death_timer & 2) draw_player();
+            draw_cave();
+            if (death_timer == 0) {{
+                player_lives--;
+                if (player_lives == 0) {{
+                    start_new_game();
+                }} else {{
+                    init_level();
+                    game_state = STATE_PLAYING;
+                }}
+            }}
+        }}
+        else if (game_state == STATE_LEVEL_COMPLETE) {{
+            draw_cave();
+            zero_beam();
+            set_scale(0x7F);
+            print_str_c(0, -70, "RESCUED!");
+            level_msg_timer--;
+            if (level_msg_timer == 0) {{
+                init_level();
+                game_state = STATE_PLAYING;
+            }}
+        }}
+        else if (game_state == STATE_GAME_OVER) {{
+            start_new_game();
+        }}
+    }}
+    return 0;
+}}
+"""
+        with open(os.path.join(test_dir, "main.c"), "w") as f:
+            f.write(mc)
+
+        # Build
+        vectrec = os.path.expanduser("~/retro-tools/vectrec")
+        cmoc = os.path.join(vectrec, "cmoc")
+        stdlib = os.path.join(vectrec, "stdlib")
+        bin_path = os.path.join(test_dir, "test.bin")
+        cmd = [cmoc, f"-I{test_dir}", f"-I{src_dir}",
+               f"-I{stdlib}", f"-L{stdlib}", "--vectrex",
+               "-o", bin_path,
+               os.path.join(test_dir, "main.c"),
+               os.path.join(test_dir, "player.c"),
+               os.path.join(test_dir, "enemies.c"),
+               os.path.join(test_dir, "drawing.c"),
+               os.path.join(test_dir, "levels.c")]
+
+        if os.path.isfile(bin_path):
+            os.remove(bin_path)
+        self.update_status("Building level test...")
+        self.root.update_idletasks()
+        try:
+            result = subprocess.run(
+                cmd, cwd=project_root,
+                capture_output=True, text=True, timeout=30)
+        except Exception as e:
+            messagebox.showerror("Build Error", str(e))
+            return
+        if not os.path.isfile(bin_path):
+            messagebox.showerror("Build Failed", result.stderr or result.stdout)
+            self.update_status("Build failed")
+            return
+
+        # Run in emulator
+        rom = self._emu_rom_var.get()
+        if not os.path.isfile(rom):
+            messagebox.showerror("Error", f"ROM not found: {rom}")
+            return
+        self._emu_stop()
+        try:
+            self._emu_cart_var.set(bin_path)
+            self._emu = Emulator(rom, bin_path, parent=self._emu_container)
+            self._emu.start()
+            self._emu_pause_btn.config(text="Pause")
+            self._emu_state_update()
+            self.notebook.select(2)
+            self.update_status(f"Running level test: {lvl['name']}")
+        except Exception as e:
+            messagebox.showerror("Emulator Error", str(e))
+            self._emu = None
+
     def _update_vlc_text(self):
         sprite = self.current_sprite_data()
         self._vlc_text.config(state="normal")
@@ -1677,6 +2419,7 @@ class App:
         with open(path, "w") as f:
             f.write("\n".join(lines) + "\n")
 
+    # Default sprite data for required game shapes
     def _export_sprites_h(self, path):
         lines = [
             "// Generated by level_editor.py",

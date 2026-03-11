@@ -11,4 +11,6 @@ __pycache__/
 *.so
 *.pyc
 build/
+test_level/
+test_sprite/
 *.egg-info/
