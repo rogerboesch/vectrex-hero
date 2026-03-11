@@ -8,6 +8,7 @@ Exports data as .h header files ready to #include in main.c.
 Usage: python3 tools/level_editor.py
 """
 
+import bisect
 import subprocess
 import sys
 import tkinter as tk
@@ -25,6 +26,158 @@ try:
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
+
+# ---------------------------------------------------------------------------
+# BIOS function names (from vectrec/stdlib/std.inc)
+# ---------------------------------------------------------------------------
+
+BIOS_FUNCTIONS = {
+    0xF000: "Cold_Start",
+    0xF06C: "Warm_Start",
+    0xF14C: "Init_VIA",
+    0xF164: "Init_OS_RAM",
+    0xF18B: "Init_OS",
+    0xF192: "Wait_Recal",
+    0xF1A2: "Set_Refresh",
+    0xF1AA: "DP_to_D0",
+    0xF1AF: "DP_to_C8",
+    0xF1B4: "Read_Btns_Mask",
+    0xF1BA: "Read_Btns",
+    0xF1F5: "Joy_Analog",
+    0xF1F8: "Joy_Digital",
+    0xF256: "Sound_Byte",
+    0xF259: "Sound_Byte_x",
+    0xF25B: "Sound_Byte_raw",
+    0xF272: "Clear_Sound",
+    0xF27D: "Sound_Bytes",
+    0xF284: "Sound_Bytes_x",
+    0xF289: "Do_Sound",
+    0xF28C: "Do_Sound_x",
+    0xF29D: "Intensity_1F",
+    0xF2A1: "Intensity_3F",
+    0xF2A5: "Intensity_5F",
+    0xF2A9: "Intensity_7F",
+    0xF2AB: "Intensity_a",
+    0xF2BE: "Dot_ix_b",
+    0xF2C1: "Dot_ix",
+    0xF2C3: "Dot_d",
+    0xF2C5: "Dot_here",
+    0xF2D5: "Dot_List",
+    0xF2DE: "Dot_List_Reset",
+    0xF2E6: "Recalibrate",
+    0xF2F2: "Moveto_x_7F",
+    0xF2FC: "Moveto_d_7F",
+    0xF308: "Moveto_ix_FF",
+    0xF30C: "Moveto_ix_7F",
+    0xF30E: "Moveto_ix_b",
+    0xF310: "Moveto_ix",
+    0xF312: "Moveto_d",
+    0xF34A: "Reset0Ref_D0",
+    0xF34F: "Check0Ref",
+    0xF354: "Reset0Ref",
+    0xF35B: "Reset_Pen",
+    0xF36B: "Reset0Int",
+    0xF373: "Print_Str_hwyx",
+    0xF378: "Print_Str_yx",
+    0xF37A: "Print_Str_d",
+    0xF385: "Print_List_hw",
+    0xF38A: "Print_List",
+    0xF38C: "Print_List_chk",
+    0xF391: "Print_Ships_x",
+    0xF393: "Print_Ships",
+    0xF3AD: "Mov_Draw_VLc_a",
+    0xF3B1: "Mov_Draw_VL_b",
+    0xF3B5: "Mov_Draw_VLcs",
+    0xF3B7: "Mov_Draw_VL_ab",
+    0xF3B9: "Mov_Draw_VL_a",
+    0xF3BC: "Mov_Draw_VL",
+    0xF3BE: "Mov_Draw_VL_d",
+    0xF3CE: "Draw_VLc",
+    0xF3D2: "Draw_VL_b",
+    0xF3D6: "Draw_VLcs",
+    0xF3D8: "Draw_VL_ab",
+    0xF3DA: "Draw_VL_a",
+    0xF3DD: "Draw_VL",
+    0xF3DF: "Draw_Line_d",
+    0xF404: "Draw_VLp_FF",
+    0xF408: "Draw_VLp_7F",
+    0xF40C: "Draw_VLp_scale",
+    0xF40E: "Draw_VLp_b",
+    0xF410: "Draw_VLp",
+    0xF434: "Draw_Pat_VL_a",
+    0xF437: "Draw_Pat_VL",
+    0xF439: "Draw_Pat_VL_d",
+    0xF46E: "Draw_VL_mode",
+    0xF495: "Print_Str",
+    0xF511: "Random_3",
+    0xF517: "Random",
+    0xF533: "Init_Music_Buf",
+    0xF53F: "Clear_x_b",
+    0xF542: "Clear_C8_RAM",
+    0xF545: "Clear_x_256",
+    0xF548: "Clear_x_d",
+    0xF550: "Clear_x_b_80",
+    0xF552: "Clear_x_b_a",
+    0xF55A: "Dec_3_Counters",
+    0xF55E: "Dec_6_Counters",
+    0xF563: "Dec_Counters",
+    0xF56D: "Delay_3",
+    0xF571: "Delay_2",
+    0xF575: "Delay_1",
+    0xF579: "Delay_0",
+    0xF57A: "Delay_b",
+    0xF57D: "Delay_RTS",
+    0xF57E: "Bitmask_a",
+    0xF584: "Abs_a_b",
+    0xF58B: "Abs_b",
+    0xF593: "Rise_Run_Angle",
+    0xF5D9: "Get_Rise_Idx",
+    0xF5DB: "Get_Run_Idx",
+    0xF5EF: "Get_Rise_Run",
+    0xF5FF: "Rise_Run_X",
+    0xF601: "Rise_Run_Y",
+    0xF603: "Rise_Run_Len",
+    0xF610: "Rot_VL_ab",
+    0xF616: "Rot_VL",
+    0xF61F: "Rot_VL_Mode_a",
+    0xF62B: "Rot_VL_Mode",
+    0xF637: "Rot_VL_dft",
+    0xF65B: "Xform_Run_a",
+    0xF65D: "Xform_Run",
+    0xF661: "Xform_Rise_a",
+    0xF663: "Xform_Rise",
+    0xF67F: "Move_Mem_a_1",
+    0xF683: "Move_Mem_a",
+    0xF687: "Init_Music_chk",
+    0xF68D: "Init_Music",
+    0xF692: "Init_Music_x",
+    0xF7A9: "Select_Game",
+    0xF84F: "Clear_Score",
+    0xF85E: "Add_Score_a",
+    0xF87C: "Add_Score_d",
+    0xF8B7: "Strip_Zeros",
+    0xF8C7: "Compare_Score",
+    0xF8D8: "New_High_Score",
+    0xF8E5: "Obj_Will_Hit_u",
+    0xF8F3: "Obj_Will_Hit",
+    0xF8FF: "Obj_Hit",
+    0xF92E: "Explosion_Snd",
+    0xF9F4: "Char_Table",
+    0xFBD4: "Char_Table_End",
+    0xFF9F: "Draw_Grid_VL",
+}
+_BIOS_ADDRS = sorted(BIOS_FUNCTIONS.keys())
+
+
+def _bios_name(pc):
+    """Return the BIOS function name for a PC in ROM space, or None."""
+    if pc < 0xF000:
+        return None
+    idx = bisect.bisect_right(_BIOS_ADDRS, pc) - 1
+    if idx >= 0:
+        return BIOS_FUNCTIONS[_BIOS_ADDRS[idx]]
+    return None
+
 
 # ---------------------------------------------------------------------------
 # Vectrex coordinate system: -128..127 both axes, Y-up
@@ -677,6 +830,9 @@ class SpriteCanvas(tk.Canvas):
         self.tool = "draw"
         self._drag_idx = None      # index of point being dragged
         self._drag_bg = False      # dragging background image
+        self._drag_bg_resize = False  # dragging resize handle
+        self._bg_resize_start_scale = 1.0
+        self._bg_resize_start_y = 0
         self._bg_photo = None      # cached PhotoImage
         self._bg_path_loaded = None
         self._bg_scale_loaded = None
@@ -724,7 +880,8 @@ class SpriteCanvas(tk.Canvas):
         sprite = self.sprite
         if sprite is None:
             return
-        self._draw_bg_image(sprite)
+        if self.app._sprite_bg_show_var.get():
+            self._draw_bg_image(sprite)
         pts = sprite["points"]
         # Draw lines
         for i in range(len(pts) - 1):
@@ -762,6 +919,13 @@ class SpriteCanvas(tk.Canvas):
             cx, cy = self._cx(bg.get("x", 0), bg.get("y", 0))
             self.create_image(cx, cy, image=self._bg_photo, anchor="center",
                               tags="bg_image")
+            # Resize handle at bottom-left corner (hidden when locked)
+            if not bg.get("locked", False):
+                hw = self._bg_photo.width() // 2
+                hh = self._bg_photo.height() // 2
+                hx, hy = cx - hw, cy + hh
+                self.create_rectangle(hx - 4, hy - 4, hx + 4, hy + 4,
+                                      outline="#888", fill="#444", tags="bg_handle")
 
     def _draw_grid(self):
         half = SPRITE_COORD_RANGE // 2
@@ -814,18 +978,31 @@ class SpriteCanvas(tk.Canvas):
             hit = self._hit_point(event.x, event.y)
             self._drag_idx = hit
             self._drag_bg = False
+            self._drag_bg_resize = False
             if hit is not None:
                 self.redraw()
                 pt = sprite["points"][hit]
                 self.app.update_status(
                     f"Sprite point {hit}: ({pt[0]}, {pt[1]})")
-            elif sprite.get("bg_image") and self._bg_photo:
-                # No point hit — grab background
-                self._drag_bg = True
-                self.redraw()
+            elif sprite.get("bg_image") and self._bg_photo and not sprite["bg_image"].get("locked", False):
                 bg = sprite["bg_image"]
-                self.app.update_status(
-                    f"Background: x={bg.get('x', 0)}, y={bg.get('y', 0)}")
+                # Check resize handle (bottom-left corner)
+                bcx, bcy = self._cx(bg.get("x", 0), bg.get("y", 0))
+                hw = self._bg_photo.width() // 2
+                hh = self._bg_photo.height() // 2
+                hx, hy = bcx - hw, bcy + hh
+                tol = CLICK_TOLERANCE + 6
+                if abs(event.x - hx) < tol and abs(event.y - hy) < tol:
+                    self._drag_bg_resize = True
+                    self._bg_resize_start_scale = bg.get("scale", 1.0)
+                    self._bg_resize_start_y = event.y
+                    self.app.update_status(
+                        f"Background resize: scale={bg.get('scale', 1.0):.2f}")
+                else:
+                    self._drag_bg = True
+                    self.app.update_status(
+                        f"Background: x={bg.get('x', 0)}, y={bg.get('y', 0)}")
+                self.redraw()
             else:
                 self.redraw()
         else:
@@ -845,6 +1022,15 @@ class SpriteCanvas(tk.Canvas):
                 self.redraw()
                 self.app.update_status(
                     f"Sprite point {self._drag_idx}: ({vx}, {vy})")
+            elif self._drag_bg_resize and sprite.get("bg_image"):
+                dy = event.y - self._bg_resize_start_y
+                new_scale = max(0.1, self._bg_resize_start_scale + dy * 0.005)
+                new_scale = round(new_scale, 2)
+                sprite["bg_image"]["scale"] = new_scale
+                self.app._sprite_bg_scale.set(new_scale)
+                self.app._sprite_bg_scale_label.config(text=f"{new_scale:.1f}x")
+                self.redraw()
+                self.app.update_status(f"Background resize: scale={new_scale:.2f}")
             elif self._drag_bg and sprite.get("bg_image"):
                 sprite["bg_image"]["x"] = vx
                 sprite["bg_image"]["y"] = vy
@@ -1173,6 +1359,14 @@ class App:
                    command=self._load_sprite_bg).pack(fill="x", padx=4, pady=2)
         ttk.Button(right, text="Clear BG",
                    command=self._clear_sprite_bg).pack(fill="x", padx=4, pady=2)
+        self._sprite_bg_show_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(right, text="Show BG",
+                        variable=self._sprite_bg_show_var,
+                        command=self._on_sprite_bg_show).pack(fill="x", padx=4, pady=2)
+        self._sprite_bg_lock_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(right, text="Lock BG",
+                        variable=self._sprite_bg_lock_var,
+                        command=self._on_sprite_bg_lock).pack(fill="x", padx=4, pady=2)
         ttk.Label(right, text="BG Scale:", font=("Courier", 8)).pack(
             anchor="w", padx=4, pady=(4, 0))
         self._sprite_bg_scale = tk.DoubleVar(value=1.0)
@@ -1330,6 +1524,11 @@ class App:
                              ("N",0x08),("Z",0x04),("V",0x02),("C",0x01)])
             lines = [
                 f"PC  ${state['PC']:04X}",
+            ]
+            bios = _bios_name(state['PC'])
+            if bios:
+                lines.append(f"> {bios}")
+            lines.extend([
                 f"A   ${state['A']:02X}",
                 f"B   ${state['B']:02X}",
                 f"D   ${(state['A']<<8|state['B']):04X}",
@@ -1341,7 +1540,7 @@ class App:
                 f"CC  ${cc:02X} {flags}",
                 "",
                 f"Vectors {state['vectors']}",
-            ]
+            ])
             self._emu_state_text.config(state="normal")
             self._emu_state_text.delete("1.0", "end")
             self._emu_state_text.insert("1.0", "\n".join(lines))
@@ -1628,9 +1827,13 @@ class App:
             s = sprite["bg_image"].get("scale", 1.0)
             self._sprite_bg_scale.set(s)
             self._sprite_bg_scale_label.config(text=f"{s:.1f}x")
+            self._sprite_bg_lock_var.set(sprite["bg_image"].get("locked", False))
+            self._sprite_bg_show_var.set(sprite["bg_image"].get("show", True))
         else:
             self._sprite_bg_scale.set(1.0)
             self._sprite_bg_scale_label.config(text="1.0x")
+            self._sprite_bg_lock_var.set(False)
+            self._sprite_bg_show_var.set(True)
 
     def _add_sprite(self):
         s = new_sprite()
@@ -1740,6 +1943,18 @@ class App:
             self.sprite_canvas.redraw()
             self._sprite_bg_scale.set(1.0)
             self._sprite_bg_scale_label.config(text="1.0x")
+
+    def _on_sprite_bg_show(self):
+        sprite = self.current_sprite_data()
+        if sprite and sprite.get("bg_image"):
+            sprite["bg_image"]["show"] = self._sprite_bg_show_var.get()
+        self.sprite_canvas.redraw()
+
+    def _on_sprite_bg_lock(self):
+        sprite = self.current_sprite_data()
+        if sprite and sprite.get("bg_image"):
+            sprite["bg_image"]["locked"] = self._sprite_bg_lock_var.get()
+            self.sprite_canvas.redraw()
 
     def _on_sprite_bg_scale(self, val=None):
         sprite = self.current_sprite_data()
