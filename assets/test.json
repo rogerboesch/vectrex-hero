@@ -1,0 +1,97 @@
+{
+  "levels": [
+    {
+      "name": "Level 1",
+      "cave_lines": [
+        [
+          [
+            -75,
+            70
+          ],
+          [
+            -10,
+            70
+          ]
+        ],
+        [
+          [
+            -5,
+            5
+          ],
+          [
+            80,
+            5
+          ]
+        ],
+        [
+          [
+            -90,
+            -95
+          ],
+          [
+            90,
+            -95
+          ]
+        ],
+        [
+          [
+            -90,
+            -95
+          ],
+          [
+            -90,
+            105
+          ]
+        ],
+        [
+          [
+            90,
+            -95
+          ],
+          [
+            90,
+            105
+          ]
+        ]
+      ],
+      "walls": [
+        {
+          "y": 20,
+          "x": 0,
+          "h": 15,
+          "w": 5,
+          "destroyable": true
+        }
+      ],
+      "enemies": [
+        {
+          "x": 10,
+          "y": -65,
+          "vx": 1
+        }
+      ],
+      "miner": {
+        "x": -75,
+        "y": -80
+      },
+      "player_start": {
+        "x": -60,
+        "y": 95
+      },
+      "cave_constants": {
+        "CAVE_LEFT": -90,
+        "CAVE_RIGHT": 90,
+        "CAVE_TOP": 105,
+        "CAVE_FLOOR": -95
+      },
+      "bg_image": null
+    }
+  ],
+  "sprites": [
+    {
+      "name": "sprite",
+      "points": [],
+      "bg_image": null
+    }
+  ]
+}
