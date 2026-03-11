@@ -43,7 +43,7 @@ void draw_cave(void) {
         if (walls_destroyed & (1 << i)) continue;
         if (current_level == 1 && i == 3) {
             zero_beam();
-            intensity_a(cave_int);
+            intensity_a(dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_HI);
             moveto_d(wall_y(i) + wall_h(i), wall_x(i));
             draw_line_d(0, wall_w(i));
             draw_line_d(-wall_h(i) * 2, 0);
@@ -64,12 +64,28 @@ void draw_enemies(void) {
 }
 
 void draw_laser_beam(void) {
+    int8_t seg, remaining, len;
+    uint8_t on;
     if (!laser_active) return;
     zero_beam();
-    intensity_a(INTENSITY_HI);
     set_scale(0x7F);
     moveto_d(laser_y, laser_x);
-    draw_line_d(0, laser_dir * LASER_LENGTH);
+    // Flickering segmented beam
+    remaining = LASER_LENGTH;
+    on = anim_tick & 1;
+    while (remaining > 0) {
+        seg = remaining > 8 ? 8 : remaining;
+        len = laser_dir * seg;
+        if (on) {
+            intensity_a(INTENSITY_HI);
+            draw_line_d(0, len);
+        } else {
+            intensity_a(0);
+            draw_line_d(0, len);
+        }
+        on = !on;
+        remaining -= seg;
+    }
     intensity_a(INTENSITY_NORMAL);
 }
 
@@ -130,11 +146,7 @@ void draw_dynamite_and_explosion(void) {
 }
 
 void draw_miner(void) {
-    if (anim_tick & 8) {
-        intensity_a(INTENSITY_HI);
-    }
     draw_sprite(cur_miner_y, cur_miner_x, miner_shape);
-    intensity_a(INTENSITY_NORMAL);
 }
 
 void draw_hud(void) {

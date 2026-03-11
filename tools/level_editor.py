@@ -228,6 +228,13 @@ class LevelCanvas(tk.Canvas):
             cx, cy = self._cx(bg.get("x", 0), bg.get("y", 0))
             self.create_image(cx, cy, image=self._bg_photo, anchor="center",
                               tags="bg_image")
+            # Resize handle at bottom-left corner (hidden when locked)
+            if not bg.get("locked", False):
+                hw = self._bg_photo.width() // 2
+                hh = self._bg_photo.height() // 2
+                hx, hy = cx - hw, cy + hh
+                self.create_rectangle(hx - 4, hy - 4, hx + 4, hy + 4,
+                                      outline="#888", fill="#444", tags="bg_handle")
 
     def _draw_cave_from_constants(self, lvl):
         """Draw cave bounding box from cave_constants."""
@@ -354,9 +361,19 @@ class LevelCanvas(tk.Canvas):
             px, py = self._cx(lvl["player_start"]["x"], lvl["player_start"]["y"])
             if abs(cx - px) < tol + 8 and abs(cy - py) < tol + 8:
                 return ("player_start", 0)
-        # Background image (lowest priority — drag to reposition)
+        # Background (skip if locked)
         if lvl.get("bg_image") and self._bg_photo:
-            return ("bg_image", 0)
+            if not lvl["bg_image"].get("locked", False):
+                # Resize handle (bottom-left corner)
+                bg = lvl["bg_image"]
+                bcx, bcy = self._cx(bg.get("x", 0), bg.get("y", 0))
+                hw = self._bg_photo.width() // 2
+                hh = self._bg_photo.height() // 2
+                hx, hy = bcx - hw, bcy + hh
+                if abs(cx - hx) < tol + 6 and abs(cy - hy) < tol + 6:
+                    return ("bg_resize", 0)
+                # Drag to reposition (lowest priority)
+                return ("bg_image", 0)
         return None
 
     def _selection_info(self):
@@ -381,6 +398,9 @@ class LevelCanvas(tk.Canvas):
         elif self._drag_type == "bg_image":
             bg = lvl.get("bg_image", {})
             return f"Background: x={bg.get('x', 0)}, y={bg.get('y', 0)}"
+        elif self._drag_type == "bg_resize":
+            bg = lvl.get("bg_image", {})
+            return f"Background resize: scale={bg.get('scale', 1.0):.2f}"
         return ""
 
     # ---- Event handlers ----
@@ -398,6 +418,10 @@ class LevelCanvas(tk.Canvas):
             if hit:
                 self._drag_type, self._drag_idx = hit
                 self._drag_offset = (event.x, event.y)
+                if self._drag_type == "bg_resize":
+                    bg = self.level.get("bg_image", {})
+                    self._bg_resize_start_scale = bg.get("scale", 1.0)
+                    self._bg_resize_start_y = event.y
                 self.app.update_status(self._selection_info())
             else:
                 self._drag_type = None
@@ -442,6 +466,14 @@ class LevelCanvas(tk.Canvas):
             elif self._drag_type == "player_start":
                 lvl["player_start"]["x"] = vx
                 lvl["player_start"]["y"] = vy
+            elif self._drag_type == "bg_resize" and lvl.get("bg_image"):
+                # Drag down = grow, drag up = shrink
+                dy = event.y - self._bg_resize_start_y
+                new_scale = max(0.1, self._bg_resize_start_scale + dy * 0.005)
+                new_scale = round(new_scale, 2)
+                lvl["bg_image"]["scale"] = new_scale
+                self.app._level_bg_scale.set(new_scale)
+                self.app._level_bg_scale_label.config(text=f"{new_scale:.1f}x")
             elif self._drag_type == "bg_image" and lvl.get("bg_image"):
                 lvl["bg_image"]["x"] = vx
                 lvl["bg_image"]["y"] = vy
@@ -483,8 +515,9 @@ class LevelCanvas(tk.Canvas):
             self.redraw()
 
         if self.tool == "select":
-            self._drag_type = None
-            self._drag_idx = None
+            # Keep selection alive so Delete key works;
+            # selection is cleared on next click on empty space
+            pass
 
     def _on_right_click(self, event):
         if self.tool == "cave_line" and self._polyline_pts:
@@ -977,6 +1010,10 @@ class App:
                    command=self._load_level_bg).pack(fill="x", padx=4, pady=2)
         ttk.Button(right, text="Clear BG",
                    command=self._clear_level_bg).pack(fill="x", padx=4, pady=2)
+        self._level_bg_lock_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(right, text="Lock BG",
+                        variable=self._level_bg_lock_var,
+                        command=self._on_level_bg_lock).pack(fill="x", padx=4, pady=2)
         ttk.Label(right, text="BG Scale:", font=("Courier", 8)).pack(
             anchor="w", padx=4, pady=(4, 0))
         self._level_bg_scale = tk.DoubleVar(value=1.0)
@@ -1290,9 +1327,11 @@ class App:
             s = lvl["bg_image"].get("scale", 1.0)
             self._level_bg_scale.set(s)
             self._level_bg_scale_label.config(text=f"{s:.1f}x")
+            self._level_bg_lock_var.set(lvl["bg_image"].get("locked", False))
         else:
             self._level_bg_scale.set(1.0)
             self._level_bg_scale_label.config(text="1.0x")
+            self._level_bg_lock_var.set(False)
 
     def _add_level(self):
         n = len(self.project["levels"]) + 1
@@ -1454,6 +1493,12 @@ class App:
             self.level_canvas.redraw()
             self._level_bg_scale.set(1.0)
             self._level_bg_scale_label.config(text="1.0x")
+
+    def _on_level_bg_lock(self):
+        lvl = self.current_level_data()
+        if lvl and lvl.get("bg_image"):
+            lvl["bg_image"]["locked"] = self._level_bg_lock_var.get()
+            self.level_canvas.redraw()
 
     def _on_level_bg_scale(self, val=None):
         lvl = self.current_level_data()
@@ -1937,7 +1982,7 @@ int main(void) {{
         dc.append('    for (i = 0; i < cur_wall_count; i++) {')
         dc.append('        if (walls_destroyed & (1 << i)) continue;')
         dc.append('        zero_beam();')
-        dc.append('        intensity_a(cave_int);')
+        dc.append('        intensity_a(dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_HI);')
         dc.append('        set_scale(0x7F);')
         dc.append('        moveto_d(wall_y(i) + wall_h(i), wall_x(i));')
         dc.append('        draw_line_d(0, wall_w(i));')
