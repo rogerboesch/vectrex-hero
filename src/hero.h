@@ -38,7 +38,9 @@
 #define NONE            255
 
 // Beam intensity
+#define INTENSITY_DIM    0x3F
 #define INTENSITY_NORMAL 0x5F
+#define INTENSITY_HI     0x6F
 #define INTENSITY_BRIGHT 0x7F
 
 // Cave geometry

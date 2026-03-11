@@ -15,10 +15,11 @@ void draw_sprite(int8_t y, int8_t x, int8_t *shape) {
 
 void draw_cave(void) {
     uint8_t i;
+    uint8_t cave_int = dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_DIM;
 
     // Left wall path: top-left -> ledge -> shaft left -> floor
     zero_beam();
-    intensity_a(INTENSITY_NORMAL);
+    intensity_a(cave_int);
     set_scale(0x7F);
     moveto_d(CAVE_TOP, CAVE_LEFT);
     draw_line_d(LEDGE_Y - CAVE_TOP, 0);
@@ -29,7 +30,7 @@ void draw_cave(void) {
 
     // Right wall path: ceiling -> right wall -> ledge -> shaft right
     zero_beam();
-    intensity_a(INTENSITY_NORMAL);
+    intensity_a(cave_int);
     moveto_d(CAVE_TOP, SHAFT_LEFT);
     draw_line_d(0, CAVE_RIGHT - SHAFT_LEFT);
     draw_line_d(LEDGE_Y - CAVE_TOP, 0);
@@ -42,7 +43,7 @@ void draw_cave(void) {
         if (walls_destroyed & (1 << i)) continue;
         if (current_level == 1 && i == 3) {
             zero_beam();
-            intensity_a(INTENSITY_NORMAL);
+            intensity_a(cave_int);
             moveto_d(wall_y(i) + wall_h(i), wall_x(i));
             draw_line_d(0, wall_w(i));
             draw_line_d(-wall_h(i) * 2, 0);
@@ -65,7 +66,7 @@ void draw_enemies(void) {
 void draw_laser_beam(void) {
     if (!laser_active) return;
     zero_beam();
-    intensity_a(INTENSITY_BRIGHT);
+    intensity_a(INTENSITY_HI);
     set_scale(0x7F);
     moveto_d(laser_y, laser_x);
     draw_line_d(0, laser_dir * LASER_LENGTH);
@@ -86,30 +87,51 @@ void draw_dynamite_and_explosion(void) {
         draw_line_d(0, -4);
         draw_line_d(6, 0);
         if (dyn_timer & 2) {
-            intensity_a(INTENSITY_BRIGHT);
+            intensity_a(INTENSITY_HI);
             draw_line_d(3, 0);
             intensity_a(INTENSITY_NORMAL);
         }
     } else {
         r = (EXPLOSION_TIME - dyn_expl_timer) * 3;
         if (r > EXPLOSION_RADIUS) r = EXPLOSION_RADIUS;
-        zero_beam();
-        intensity_a(INTENSITY_BRIGHT);
-        set_scale(0x7F);
-        moveto_d(dyn_y + r, dyn_x - r);
-        draw_line_d(-r, r);
-        draw_line_d(-r, r);
-        zero_beam();
-        moveto_d(dyn_y + r, dyn_x + r);
-        draw_line_d(-r, -r);
-        draw_line_d(-r, -r);
+
+        // Flash: bright burst that fades over time
+        {
+            uint8_t age = EXPLOSION_TIME - dyn_expl_timer;
+            uint8_t inten = INTENSITY_BRIGHT - age * 3;
+            if (inten < INTENSITY_NORMAL) inten = INTENSITY_NORMAL;
+
+            // First few frames: draw extra starburst rays
+            if (age < 4) {
+                zero_beam();
+                intensity_a(INTENSITY_BRIGHT);
+                set_scale(0x7F);
+                moveto_d(dyn_y, dyn_x - r);
+                draw_line_d(0, r + r);
+                zero_beam();
+                moveto_d(dyn_y + r, dyn_x);
+                draw_line_d(-r - r, 0);
+            }
+
+            // X pattern with fading intensity
+            zero_beam();
+            intensity_a(inten);
+            set_scale(0x7F);
+            moveto_d(dyn_y + r, dyn_x - r);
+            draw_line_d(-r, r);
+            draw_line_d(-r, r);
+            zero_beam();
+            moveto_d(dyn_y + r, dyn_x + r);
+            draw_line_d(-r, -r);
+            draw_line_d(-r, -r);
+        }
         intensity_a(INTENSITY_NORMAL);
     }
 }
 
 void draw_miner(void) {
     if (anim_tick & 8) {
-        intensity_a(INTENSITY_BRIGHT);
+        intensity_a(INTENSITY_HI);
     }
     draw_sprite(cur_miner_y, cur_miner_x, miner_shape);
     intensity_a(INTENSITY_NORMAL);
@@ -134,7 +156,7 @@ void draw_hud(void) {
 void draw_title_screen(void) {
     zero_beam();
     set_scale(0x7F);
-    intensity_a(INTENSITY_BRIGHT);
+    intensity_a(INTENSITY_HI);
     print_str_c(40, -60, "HERO");
     intensity_a(INTENSITY_NORMAL);
     zero_beam();
@@ -146,7 +168,7 @@ void draw_title_screen(void) {
 void draw_game_over_screen(void) {
     zero_beam();
     set_scale(0x7F);
-    intensity_a(INTENSITY_BRIGHT);
+    intensity_a(INTENSITY_HI);
     print_str_c(30, -80, "GAME OVER");
     intensity_a(INTENSITY_NORMAL);
     zero_beam();

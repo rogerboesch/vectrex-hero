@@ -1913,12 +1913,13 @@ int main(void) {{
         # Custom draw_cave: editor cave lines + wall rectangles
         dc.append('void draw_cave(void) {')
         dc.append('    uint8_t i;')
+        dc.append('    uint8_t cave_int = dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_DIM;')
         cave_lines = lvl.get("cave_lines", [])
         for polyline in cave_lines:
             if len(polyline) < 2:
                 continue
             dc.append('    zero_beam();')
-            dc.append('    intensity_a(INTENSITY_NORMAL);')
+            dc.append('    intensity_a(cave_int);')
             dc.append('    set_scale(0x7F);')
             x0, y0 = polyline[0]
             dc.append(f'    moveto_d({int(y0)}, {int(x0)});')
@@ -1936,7 +1937,7 @@ int main(void) {{
         dc.append('    for (i = 0; i < cur_wall_count; i++) {')
         dc.append('        if (walls_destroyed & (1 << i)) continue;')
         dc.append('        zero_beam();')
-        dc.append('        intensity_a(INTENSITY_NORMAL);')
+        dc.append('        intensity_a(cave_int);')
         dc.append('        set_scale(0x7F);')
         dc.append('        moveto_d(wall_y(i) + wall_h(i), wall_x(i));')
         dc.append('        draw_line_d(0, wall_w(i));')
@@ -2318,8 +2319,10 @@ int main(void) {{
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
             title="Open Project",
         )
-        if not path:
-            return
+        if path:
+            self._load_project_file(path)
+
+    def _load_project_file(self, path):
         try:
             with open(path, "r") as f:
                 data = json.load(f)
@@ -2452,6 +2455,7 @@ int main(void) {{
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Vectrex H.E.R.O. Level & Sprite Editor")
+    parser.add_argument('--project', default=None, help='Path to project JSON file to load at startup')
     parser.add_argument('--rom', default=None, help='Path to Vectrex system ROM')
     parser.add_argument('--cart', default=None, help='Path to cartridge ROM')
     args = parser.parse_args()
@@ -2468,6 +2472,8 @@ def main():
         app._update_vlc_text()
     app.sprite_canvas.redraw = sprite_redraw_with_vlc
 
+    if args.project:
+        app._load_project_file(os.path.abspath(args.project))
     if args.rom:
         app._emu_rom_var.set(args.rom)
     if args.cart:
