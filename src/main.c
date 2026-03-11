@@ -32,6 +32,7 @@ int score;
 
 uint8_t game_state;
 uint8_t current_level;
+uint8_t current_room;
 uint8_t death_timer;
 uint8_t level_msg_timer;
 
@@ -139,6 +140,30 @@ int main(void) {
             update_dynamite();
             update_enemies();
             check_miner_rescue();
+
+            // Check room exits using per-room cave bounds
+            {
+                uint8_t exit_room = NONE;
+                if (player_x <= room_bounds[current_room * 4 + 0]) {
+                    exit_room = room_exits[current_room * 4 + 0];
+                    if (exit_room != NONE) player_x = room_bounds[exit_room * 4 + 1];
+                } else if (player_x >= room_bounds[current_room * 4 + 1]) {
+                    exit_room = room_exits[current_room * 4 + 1];
+                    if (exit_room != NONE) player_x = room_bounds[exit_room * 4 + 0];
+                } else if (player_y >= room_bounds[current_room * 4 + 2]) {
+                    exit_room = room_exits[current_room * 4 + 2];
+                    if (exit_room != NONE) player_y = room_bounds[exit_room * 4 + 3];
+                } else if (player_y <= room_bounds[current_room * 4 + 3]) {
+                    exit_room = room_exits[current_room * 4 + 3];
+                    if (exit_room != NONE) player_y = room_bounds[exit_room * 4 + 2];
+                }
+                if (exit_room != NONE) {
+                    current_room = exit_room;
+                    set_room_data();
+                    load_enemies();
+                    walls_destroyed = 0;
+                }
+            }
 
             // Draw everything (minimal zero_beam calls)
             draw_cave();

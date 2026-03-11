@@ -29,6 +29,7 @@
 #define EXPLOSION_RADIUS 25
 #define EXPLOSION_KILL   10
 #define MAX_ENEMIES     3
+#define MAX_ROOMS       8
 #define PLAYER_HW       6
 #define PLAYER_HH       7
 #define BAT_HW          5
@@ -91,6 +92,7 @@ extern int score;
 
 extern uint8_t game_state;
 extern uint8_t current_level;
+extern uint8_t current_room;
 extern uint8_t death_timer;
 extern uint8_t level_msg_timer;
 
@@ -118,6 +120,15 @@ extern const int8_t *cur_enemies_data;
 extern uint8_t cur_enemy_count;
 extern int8_t cur_miner_x;
 extern int8_t cur_miner_y;
+
+extern const int8_t *room_walls[MAX_ROOMS];
+extern uint8_t room_wall_counts[MAX_ROOMS];
+extern const int8_t *room_enemies_data[MAX_ROOMS];
+extern uint8_t room_enemy_counts[MAX_ROOMS];
+extern int8_t room_starts[MAX_ROOMS * 2];
+extern int8_t room_miners[MAX_ROOMS * 2];
+extern uint8_t room_exits[MAX_ROOMS * 4];
+extern int8_t room_bounds[MAX_ROOMS * 4];  // left, right, top, floor per room
 
 extern char str_buf[16];
 
@@ -161,6 +172,7 @@ void draw_game_over_screen(void);
 
 // levels.c
 void set_level_data(void);
+void set_room_data(void);
 void load_enemies(void);
 void init_level(void);
 void start_new_game(void);
