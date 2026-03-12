@@ -9,7 +9,7 @@ SRCDIR = src
 BINDIR = bin
 
 TARGET = main
-SRC = $(SRCDIR)/main.c $(SRCDIR)/player.c $(SRCDIR)/enemies.c $(SRCDIR)/drawing.c $(SRCDIR)/levels.c
+SRC = $(SRCDIR)/main.c $(SRCDIR)/player.c $(SRCDIR)/enemies.c $(SRCDIR)/drawing.c $(SRCDIR)/levels.c $(SRCDIR)/sprites.c
 HDR = $(SRCDIR)/hero.h $(SRCDIR)/sprites.h $(SRCDIR)/levels.h
 BIN = $(BINDIR)/$(TARGET).bin
 

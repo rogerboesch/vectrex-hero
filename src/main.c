@@ -57,14 +57,20 @@ uint8_t dyn_expl_timer;
 
 // Destroyed walls (bitfield)
 uint8_t walls_destroyed;
+uint8_t room_walls_destroyed[MAX_ROOMS];
 
 // Current level pointers
+const int8_t *cur_cave_lines;
+int8_t cur_cave_left, cur_cave_right, cur_cave_top, cur_cave_floor;
 const int8_t *cur_walls;
 uint8_t cur_wall_count;
 const int8_t *cur_enemies_data;
 uint8_t cur_enemy_count;
+const int8_t *cur_cave_segs;
+uint8_t cur_seg_count;
 int8_t cur_miner_x;
 int8_t cur_miner_y;
+uint8_t cur_has_miner;
 
 char str_buf[16];
 
@@ -158,10 +164,11 @@ int main(void) {
                     if (exit_room != NONE) player_y = room_bounds[exit_room * 4 + 2];
                 }
                 if (exit_room != NONE) {
+                    room_walls_destroyed[current_room] = walls_destroyed;
                     current_room = exit_room;
                     set_room_data();
                     load_enemies();
-                    walls_destroyed = 0;
+                    walls_destroyed = room_walls_destroyed[current_room];
                 }
             }
 

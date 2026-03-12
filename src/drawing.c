@@ -14,44 +14,32 @@ void draw_sprite(int8_t y, int8_t x, int8_t *shape) {
 }
 
 void draw_cave(void) {
-    uint8_t i;
-    uint8_t cave_int = (dyn_exploding ||
-                        (game_state == STATE_LEVEL_COMPLETE && (level_msg_timer & 4)))
-                       ? INTENSITY_BRIGHT : INTENSITY_DIM;
+    const int8_t *p = cur_cave_lines;
+    uint8_t n, i;
+    uint8_t cave_int = (dyn_exploding || (game_state == STATE_LEVEL_COMPLETE && (level_msg_timer & 4))) ? INTENSITY_BRIGHT : INTENSITY_DIM;
 
-    // Left wall path: top-left -> ledge -> shaft left -> floor
-    zero_beam();
-    intensity_a(cave_int);
-    set_scale(0x7F);
-    moveto_d(CAVE_TOP, CAVE_LEFT);
-    draw_line_d(LEDGE_Y - CAVE_TOP, 0);
-    draw_line_d(0, SHAFT_LEFT - CAVE_LEFT);
-    draw_line_d(-40, 0);
-    draw_line_d(CAVE_FLOOR - LEDGE_Y + 40, 0);
-    draw_line_d(0, SHAFT_RIGHT - SHAFT_LEFT);
+    while ((n = (uint8_t)*p++) != 0) {
+        zero_beam();
+        intensity_a(cave_int);
+        set_scale(0x7F);
+        moveto_d(p[0], p[1]);
+        p += 2;
+        for (i = 0; i < n; i++) {
+            draw_line_d(p[0], p[1]);
+            p += 2;
+        }
+    }
 
-    // Right wall path: ceiling -> right wall -> ledge -> shaft right
-    zero_beam();
-    intensity_a(cave_int);
-    moveto_d(CAVE_TOP, SHAFT_LEFT);
-    draw_line_d(0, CAVE_RIGHT - SHAFT_LEFT);
-    draw_line_d(LEDGE_Y - CAVE_TOP, 0);
-    draw_line_d(0, SHAFT_RIGHT - CAVE_RIGHT);
-    draw_line_d(-40, 0);
-    draw_line_d(CAVE_FLOOR - LEDGE_Y + 40, 0);
-
-    // Draw any destroyable walls that still exist
     for (i = 0; i < cur_wall_count; i++) {
         if (walls_destroyed & (1 << i)) continue;
-        if (current_level == 1 && i == 3) {
-            zero_beam();
-            intensity_a(dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_HI);
-            moveto_d(wall_y(i) + wall_h(i), wall_x(i));
-            draw_line_d(0, wall_w(i));
-            draw_line_d(-wall_h(i) * 2, 0);
-            draw_line_d(0, -wall_w(i));
-            draw_line_d(wall_h(i) * 2, 0);
-        }
+        zero_beam();
+        intensity_a(dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_HI);
+        set_scale(0x7F);
+        moveto_d(wall_y(i) + wall_h(i), wall_x(i));
+        draw_line_d(0, wall_w(i));
+        draw_line_d(-wall_h(i) * 2, 0);
+        draw_line_d(0, -wall_w(i));
+        draw_line_d(wall_h(i) * 2, 0);
     }
 }
 
@@ -60,7 +48,7 @@ void draw_enemies(void) {
     int8_t *frame;
     for (i = 0; i < enemy_count; i++) {
         if (!enemies[i].alive) continue;
-        frame = (enemies[i].anim & 8) ? bat_frame1 : bat_frame2;
+        frame = (enemies[i].anim & 8) ? bat_f0 : bat_f1;
         draw_sprite(enemies[i].y, enemies[i].x, frame);
     }
 }
@@ -98,12 +86,9 @@ void draw_dynamite_and_explosion(void) {
     if (!dyn_exploding) {
         zero_beam();
         set_scale(0x7F);
-        moveto_d(dyn_y, dyn_x - 2);
+        moveto_d(dyn_y, dyn_x);
         set_scale(0x30);
-        draw_line_d(0, 4);
-        draw_line_d(-6, 0);
-        draw_line_d(0, -4);
-        draw_line_d(6, 0);
+        draw_vlc(dynamite);
         if (dyn_timer & 2) {
             intensity_a(INTENSITY_HI);
             draw_line_d(3, 0);
@@ -148,7 +133,8 @@ void draw_dynamite_and_explosion(void) {
 }
 
 void draw_miner(void) {
-    draw_sprite(cur_miner_y, cur_miner_x, miner_shape);
+    if (!cur_has_miner) return;
+    draw_sprite(cur_miner_y, cur_miner_x, miner);
 }
 
 void draw_hud(void) {

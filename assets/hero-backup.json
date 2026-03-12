@@ -155,7 +155,7 @@
             "y": -25,
             "scale": 1.77,
             "locked": true,
-            "show": false
+            "show": true
           },
           "number": 1,
           "name": "R1",
@@ -294,7 +294,7 @@
   ],
   "sprites": [
     {
-      "name": "hero",
+      "name": "player",
       "bg_image": {
         "path": "/Users/roger/projects/vectrex-hero/assets/hero2.png",
         "x": 0,

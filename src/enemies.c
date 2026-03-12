@@ -68,8 +68,8 @@ void update_dynamite(void) {
         dyn_expl_timer--;
 
         if (dyn_expl_timer == EXPLOSION_TIME - 1) {
-            // Destroy nearby walls (skip first 3 = permanent structure)
-            for (i = 3; i < cur_wall_count; i++) {
+            // Destroy nearby walls
+            for (i = 0; i < cur_wall_count; i++) {
                 if (walls_destroyed & (1 << i)) continue;
                 wcx = wall_x(i) + (wall_w(i) / 2);
                 wcy = wall_y(i);
@@ -106,17 +106,44 @@ void update_dynamite(void) {
 }
 
 void update_enemies(void) {
-    uint8_t i;
+    uint8_t i, j;
+    int8_t x1, y1, y2, seg_min, seg_max;
+    const int8_t *segs;
 
     for (i = 0; i < enemy_count; i++) {
         if (!enemies[i].alive) continue;
 
         enemies[i].x += enemies[i].vx;
 
-        // Bounce off shaft walls
-        if (enemies[i].x > SHAFT_RIGHT - BAT_HW ||
-            enemies[i].x < SHAFT_LEFT + BAT_HW) {
+        // Bounce off room bounds
+        if (enemies[i].x > cur_cave_right - BAT_HW ||
+            enemies[i].x < cur_cave_left + BAT_HW) {
             enemies[i].vx = -enemies[i].vx;
+        }
+
+        // Bounce off vertical cave segments
+        segs = cur_cave_segs;
+        for (j = 0; j < cur_seg_count; j++) {
+            if (segs[j * 4] != segs[j * 4 + 2]) continue;  // not vertical
+            x1 = segs[j * 4];
+            y1 = segs[j * 4 + 1];
+            y2 = segs[j * 4 + 3];
+            seg_min = y1 < y2 ? y1 : y2;
+            seg_max = y1 > y2 ? y1 : y2;
+            if (enemies[i].y + BAT_HH > seg_min &&
+                enemies[i].y - BAT_HH < seg_max) {
+                if (enemies[i].vx > 0 &&
+                    enemies[i].x + BAT_HW > x1 &&
+                    enemies[i].x < x1) {
+                    enemies[i].x = x1 - BAT_HW;
+                    enemies[i].vx = -enemies[i].vx;
+                } else if (enemies[i].vx < 0 &&
+                           enemies[i].x - BAT_HW < x1 &&
+                           enemies[i].x > x1) {
+                    enemies[i].x = x1 + BAT_HW;
+                    enemies[i].vx = -enemies[i].vx;
+                }
+            }
         }
 
         enemies[i].anim++;
@@ -131,6 +158,7 @@ void update_enemies(void) {
 }
 
 void check_miner_rescue(void) {
+    if (!cur_has_miner) return;
     if (box_overlap(player_x, player_y, PLAYER_HW, PLAYER_HH,
                     cur_miner_x, cur_miner_y, MINER_HW, MINER_HH)) {
         score += 1000;

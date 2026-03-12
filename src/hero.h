@@ -115,14 +115,21 @@ extern uint8_t dyn_exploding;
 extern uint8_t dyn_expl_timer;
 
 extern uint8_t walls_destroyed;
+extern uint8_t room_walls_destroyed[MAX_ROOMS];
 
+extern const int8_t *cur_cave_lines;
+extern int8_t cur_cave_left, cur_cave_right, cur_cave_top, cur_cave_floor;
 extern const int8_t *cur_walls;
 extern uint8_t cur_wall_count;
 extern const int8_t *cur_enemies_data;
 extern uint8_t cur_enemy_count;
+extern const int8_t *cur_cave_segs;
+extern uint8_t cur_seg_count;
 extern int8_t cur_miner_x;
 extern int8_t cur_miner_y;
+extern uint8_t cur_has_miner;
 
+extern const int8_t *room_cave_lines[MAX_ROOMS];
 extern const int8_t *room_walls[MAX_ROOMS];
 extern uint8_t room_wall_counts[MAX_ROOMS];
 extern const int8_t *room_enemies_data[MAX_ROOMS];
@@ -130,6 +137,9 @@ extern uint8_t room_enemy_counts[MAX_ROOMS];
 extern int8_t room_starts[MAX_ROOMS * 2];
 extern int8_t room_miners[MAX_ROOMS * 2];
 extern uint8_t room_exits[MAX_ROOMS * 4];
+extern const int8_t *room_cave_segs[MAX_ROOMS];
+extern uint8_t room_seg_counts[MAX_ROOMS];
+extern uint8_t room_has_miner[MAX_ROOMS];
 extern int8_t room_bounds[MAX_ROOMS * 4];  // left, right, top, floor per room
 
 extern char str_buf[16];

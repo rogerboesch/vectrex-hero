@@ -221,14 +221,57 @@ def clamp(val, lo=-128, hi=127):
     return max(lo, min(hi, int(val)))
 
 
+def extract_segments(cave_lines):
+    """Extract axis-aligned line segments from cave polylines as (x1, y1, x2, y2)."""
+    segments = []
+    for polyline in cave_lines:
+        if len(polyline) < 2:
+            continue
+        for j in range(1, len(polyline)):
+            x1, y1 = int(polyline[j-1][0]), int(polyline[j-1][1])
+            x2, y2 = int(polyline[j][0]), int(polyline[j][1])
+            segments.append((x1, y1, x2, y2))
+    return segments
+
+
+def cave_room_data(cave_lines):
+    """Build flat int8_t data for a room's cave polylines.
+
+    Format: for each polyline: num_segments, start_y, start_x, dy, dx, ...
+    Terminated by a 0 byte.
+    """
+    data = []
+    for polyline in cave_lines:
+        if len(polyline) < 2:
+            continue
+        segments = []
+        for j in range(1, len(polyline)):
+            dy = int(polyline[j][1] - polyline[j - 1][1])
+            dx = int(polyline[j][0] - polyline[j - 1][0])
+            while dy != 0 or dx != 0:
+                sy = max(-128, min(127, dy))
+                sx = max(-128, min(127, dx))
+                segments.append((sy, sx))
+                dy -= sy
+                dx -= sx
+        x0, y0 = polyline[0]
+        data.append(len(segments))
+        data.append(int(y0))
+        data.append(int(x0))
+        for sy, sx in segments:
+            data.append(sy)
+            data.append(sx)
+    data.append(0)  # terminator
+    return data
+
+
 # ---------------------------------------------------------------------------
 # Data model
 # ---------------------------------------------------------------------------
 
-def new_room(number=1, name=None):
+def new_room(number=1):
     return {
         "number": number,
-        "name": name or f"Room {number}",
         "exit_left": None,
         "exit_right": None,
         "exit_top": None,
@@ -275,7 +318,7 @@ def migrate_project(data):
             # Old format: level dict has room data directly
             room = {k: v for k, v in lvl.items() if k != "name"}
             room["number"] = 1
-            room["name"] = "Room 1"
+            room.pop("name", None)
             for exit_key in ("exit_left", "exit_right", "exit_top", "exit_bottom"):
                 if exit_key not in room:
                     room[exit_key] = None
@@ -1220,21 +1263,22 @@ class App:
 
         # Room selector
         ttk.Label(left, text="Room", font=("Helvetica", 11, "bold")).pack(pady=(4, 4))
-        self._room_combo = ttk.Combobox(left, state="readonly", width=14)
-        self._room_combo.pack(padx=4, pady=2)
-        self._room_combo.bind("<<ComboboxSelected>>", self._room_selected)
-        self._refresh_room_combo()
+        self._room_label = ttk.Label(left, text="Room 1 / 1", font=("Courier", 9))
+        self._room_label.pack(anchor="w", padx=4)
+        self._update_room_label()
 
         room_btn_frame = ttk.Frame(left)
         room_btn_frame.pack(fill="x", padx=4, pady=4)
-        ttk.Button(room_btn_frame, text="+", width=3,
-                   command=self._add_room).pack(side="left", padx=2)
-        ttk.Button(room_btn_frame, text="-", width=3,
-                   command=self._remove_room).pack(side="left", padx=2)
+        ttk.Button(room_btn_frame, text="<", width=2,
+                   command=self._prev_room).pack(side="left", padx=1)
+        ttk.Button(room_btn_frame, text=">", width=2,
+                   command=self._next_room).pack(side="left", padx=1)
+        ttk.Button(room_btn_frame, text="+", width=2,
+                   command=self._add_room).pack(side="left", padx=1)
+        ttk.Button(room_btn_frame, text="-", width=2,
+                   command=self._remove_room).pack(side="left", padx=1)
         ttk.Button(room_btn_frame, text="Copy", width=4,
-                   command=self._copy_room).pack(side="left", padx=2)
-        ttk.Button(room_btn_frame, text="Rename", width=6,
-                   command=self._rename_room).pack(side="left", padx=2)
+                   command=self._copy_room).pack(side="left", padx=1)
 
         # Room exits
         exit_frame = ttk.LabelFrame(left, text="Room Exits")
@@ -1679,7 +1723,7 @@ class App:
     def _level_selected(self, event=None):
         self._current_level_idx = self._level_combo.current()
         self._current_room_idx = 0
-        self._refresh_room_combo()
+        self._update_room_label()
         self._load_exit_fields()
         self._load_constants_to_entries()
         self._sync_level_bg_scale()
@@ -1707,7 +1751,7 @@ class App:
         self._current_level_idx = len(self.project["levels"]) - 1
         self._current_room_idx = 0
         self._refresh_level_combo()
-        self._refresh_room_combo()
+        self._update_room_label()
         self._load_exit_fields()
         self._load_constants_to_entries()
         self.level_canvas.redraw()
@@ -1720,7 +1764,7 @@ class App:
         self._current_level_idx = max(0, self._current_level_idx - 1)
         self._current_room_idx = 0
         self._refresh_level_combo()
-        self._refresh_room_combo()
+        self._update_room_label()
         self._load_exit_fields()
         self._load_constants_to_entries()
         self.level_canvas.redraw()
@@ -1737,24 +1781,34 @@ class App:
 
     # ---- Room management ----
 
-    def _refresh_room_combo(self):
+    def _update_room_label(self):
         lvl = self.current_level_data()
-        if lvl is None:
-            self._room_combo["values"] = []
-            return
-        rooms = lvl.get("rooms", [])
-        names = [f"Room {r['number']}: {r['name']}" for r in rooms]
-        self._room_combo["values"] = names
-        if names:
-            self._room_combo.current(self._current_room_idx)
+        if lvl:
+            n = len(lvl.get("rooms", []))
+            self._room_label.config(text=f"Room {self._current_room_idx + 1} / {n}")
+        else:
+            self._room_label.config(text="Room - / -")
 
-    def _room_selected(self, event=None):
-        self._current_room_idx = self._room_combo.current()
-        self._load_exit_fields()
-        self._load_constants_to_entries()
-        self._sync_level_bg_scale()
-        self.level_canvas._bg_path_loaded = None
-        self.level_canvas.redraw()
+    def _prev_room(self):
+        if self._current_room_idx > 0:
+            self._current_room_idx -= 1
+            self._update_room_label()
+            self._load_exit_fields()
+            self._load_constants_to_entries()
+            self._sync_level_bg_scale()
+            self.level_canvas._bg_path_loaded = None
+            self.level_canvas.redraw()
+
+    def _next_room(self):
+        lvl = self.current_level_data()
+        if lvl and self._current_room_idx < len(lvl.get("rooms", [])) - 1:
+            self._current_room_idx += 1
+            self._update_room_label()
+            self._load_exit_fields()
+            self._load_constants_to_entries()
+            self._sync_level_bg_scale()
+            self.level_canvas._bg_path_loaded = None
+            self.level_canvas.redraw()
 
     def _add_room(self):
         lvl = self.current_level_data()
@@ -1766,7 +1820,7 @@ class App:
         room = new_room(max_num + 1)
         rooms.append(room)
         self._current_room_idx = len(rooms) - 1
-        self._refresh_room_combo()
+        self._update_room_label()
         self._load_exit_fields()
         self._load_constants_to_entries()
         self.level_canvas.redraw()
@@ -1781,7 +1835,7 @@ class App:
         max_num = max(r["number"] for r in rooms) if rooms else 0
         room = copy.deepcopy(src)
         room["number"] = max_num + 1
-        room["name"] = f"Room {room['number']}"
+        room.pop("name", None)
         # Clear exits — they reference the source room's neighbours
         room["exit_left"] = None
         room["exit_right"] = None
@@ -1789,7 +1843,7 @@ class App:
         room["exit_bottom"] = None
         rooms.append(room)
         self._current_room_idx = len(rooms) - 1
-        self._refresh_room_combo()
+        self._update_room_label()
         self._load_exit_fields()
         self._load_constants_to_entries()
         self.level_canvas.redraw()
@@ -1802,9 +1856,10 @@ class App:
         if len(rooms) <= 1:
             messagebox.showinfo("Info", "Cannot remove the last room.")
             return
-        removed_num = rooms[self._current_room_idx]["number"]
+        idx = self._current_room_idx
+        removed_num = rooms[idx]["number"]
         if not messagebox.askyesno("Remove Room",
-                                    f"Remove room {removed_num}? Exit references will be cleared."):
+                                    f"Remove room {idx + 1}? Exit references will be cleared."):
             return
         del rooms[self._current_room_idx]
         # Clean up exit references to removed room
@@ -1813,24 +1868,10 @@ class App:
                 if r.get(exit_key) == removed_num:
                     r[exit_key] = None
         self._current_room_idx = max(0, self._current_room_idx - 1)
-        self._refresh_room_combo()
+        self._update_room_label()
         self._load_exit_fields()
         self._load_constants_to_entries()
         self.level_canvas.redraw()
-
-    def _rename_room(self):
-        room = self.current_room_data()
-        if room is None:
-            return
-        self._simple_rename_dialog(
-            "Rename Room", room["name"],
-            lambda name: self._do_rename_room(name))
-
-    def _do_rename_room(self, name):
-        room = self.current_room_data()
-        if room:
-            room["name"] = name
-            self._refresh_room_combo()
 
     def _load_exit_fields(self):
         room = self.current_room_data()
@@ -2149,23 +2190,77 @@ class App:
 
     def _run_sprite_test(self):
         sprite = self.current_sprite_data()
-        frame = self.current_frame_data()
-        if not sprite or not frame:
-            messagebox.showerror("Error", "No sprite/frame selected")
-            return
-        vlc = self.sprite_canvas._compute_vlc(frame)
-        if not vlc:
-            messagebox.showerror("Error", "Sprite needs at least 2 points")
+        if not sprite:
+            messagebox.showerror("Error", "No sprite selected")
             return
 
-        # Generate VLC array literal
-        name = sprite["name"]
-        vlc_lines = [f"    {vlc[0]},"]
-        for i in range(1, len(vlc), 2):
-            vlc_lines.append(f"    {vlc[i]:4d}, {vlc[i+1]:4d},")
+        frames = sprite["frames"]
+        num_frames = len(frames)
 
-        n_points = vlc[0]
-        buf_size = n_points * 2
+        # Compute VLC for all frames
+        all_vlcs = []
+        max_points = 0
+        for fi, fr in enumerate(frames):
+            vlc = self.sprite_canvas._compute_vlc(fr)
+            if not vlc:
+                messagebox.showerror("Error",
+                                     f"Frame {fi + 1} needs at least 2 points")
+                return
+            all_vlcs.append(vlc)
+            if vlc[0] > max_points:
+                max_points = vlc[0]
+
+        # Generate shape arrays
+        shape_decls = []
+        for fi, vlc in enumerate(all_vlcs):
+            lines = [f"    {vlc[0]},"]
+            for i in range(1, len(vlc), 2):
+                lines.append(f"    {vlc[i]:4d}, {vlc[i+1]:4d},")
+            shape_decls.append(
+                f"static int8_t shape_{fi}[] = {{\n"
+                + "\n".join(lines)
+                + "\n};"
+            )
+
+        shapes_code = "\n\n".join(shape_decls)
+        buf_size = max_points * 2
+
+        if num_frames > 1:
+            anim_vars = f"\n#define ANIM_SPEED 8"
+
+            # Generate frame selection using if/else chain
+            sel_lines = ["        anim_tick++;",
+                         f"        switch ((anim_tick / ANIM_SPEED) % {num_frames}) {{"]
+            for fi in range(num_frames):
+                sel_lines.append(f"            case {fi}: cur_shape = shape_{fi}; break;")
+            sel_lines.append(f"            default: cur_shape = shape_0; break;")
+            sel_lines.append("        }")
+            anim_logic = "\n".join(sel_lines)
+
+            draw_logic = """\
+        if (angle != 0) {
+            rot_vl_ab(angle, cur_shape[0], &cur_shape[1], rotbuf);
+            set_scale(scale);
+            draw_vl_a(cur_shape[0], rotbuf);
+        } else {
+            set_scale(scale);
+            draw_vlc(cur_shape);
+        }"""
+
+            extra_vars = "    int8_t *cur_shape;\n    uint8_t anim_tick = 0;\n"
+        else:
+            anim_vars = ""
+            anim_logic = ""
+            draw_logic = """\
+        if (angle != 0) {
+            rot_vl_ab(angle, shape_0[0], &shape_0[1], rotbuf);
+            set_scale(scale);
+            draw_vl_a(shape_0[0], rotbuf);
+        } else {
+            set_scale(scale);
+            draw_vlc(shape_0);
+        }"""
+            extra_vars = ""
 
         src = f"""\
 #include <vectrex.h>
@@ -2175,9 +2270,8 @@ class App:
 #pragma vx_title "SPRITE"
 #pragma vx_music vx_music_1
 
-static int8_t shape[] = {{
-{chr(10).join(vlc_lines)}
-}};
+{shapes_code}
+{anim_vars}
 
 static int8_t rotbuf[{buf_size}];
 
@@ -2185,7 +2279,7 @@ int main(void) {{
     int8_t x = 0, y = 0;
     uint8_t scale = 0x60;
     int8_t angle = 0;
-
+{extra_vars}
     set_beam_intensity(0x7F);
     set_scale(0x7F);
     stop_music();
@@ -2208,19 +2302,14 @@ int main(void) {{
         if (controller_button_1_3_held()) angle += 2;
         if (controller_button_1_4_held()) angle -= 2;
 
+{anim_logic}
+
         zero_beam();
         intensity_a(0x7F);
         set_scale(0x7F);
         moveto_d(y, x);
 
-        if (angle != 0) {{
-            rot_vl_ab(angle, shape[0], &shape[1], rotbuf);
-            set_scale(scale);
-            draw_vl_a(shape[0], rotbuf);
-        }} else {{
-            set_scale(scale);
-            draw_vlc(shape);
-        }}
+{draw_logic}
     }}
 
     return 0;
@@ -2270,7 +2359,7 @@ int main(void) {{
             self._emu_pause_btn.config(text="Pause")
             self._emu_state_update()
             self.notebook.select(2)
-            self.update_status(f"Running sprite test: {name}")
+            self.update_status(f"Running sprite test: {sprite['name']}")
         except Exception as e:
             messagebox.showerror("Emulator Error", str(e))
             self._emu = None
@@ -2359,11 +2448,6 @@ int main(void) {{
         # Check if any room has cave_lines
         any_cave_lines = any(rm.get("cave_lines") for rm in rooms)
 
-        # Build per-room segment lists
-        room_segments = []
-        for rm in rooms:
-            room_segments.append(self._extract_segments(rm.get("cave_lines", [])))
-
         # Generate test_level/hero.h with cave constants from first room.
         # Use wide-open collision boundaries when cave lines exist.
         consts = dict(rooms[0].get("cave_constants", {}))
@@ -2388,232 +2472,26 @@ int main(void) {{
         with open(os.path.join(test_dir, "hero.h"), "w") as f:
             f.write(hero_h)
 
-        # Check if any room has a miner
-        any_miner = any(rm.get("miner") for rm in rooms)
-
         # Build room number -> 0-based index mapping
         room_num_to_idx = {}
         for ri, rm in enumerate(rooms):
             room_num_to_idx[rm["number"]] = ri
 
         # ---- enemies.c ----
-        if any_cave_lines:
-            ec = ['#include "hero.h"', '',
-                  '#define update_enemies _orig_update_enemies',
-                  '#define update_dynamite _orig_update_dynamite',
-                  '#include "../src/enemies.c"',
-                  '#undef update_enemies',
-                  '#undef update_dynamite', '']
-            # Per-room cave segment arrays
-            for ri, segs in enumerate(room_segments):
-                if segs:
-                    ec.append(f'static const int8_t room{ri}_cave_segs[] = {{')
-                    for s in segs:
-                        ec.append(f'    {s[0]}, {s[1]}, {s[2]}, {s[3]},')
-                    ec.append('};')
-                    ec.append(f'#define ROOM{ri}_SEG_COUNT {len(segs)}')
-                else:
-                    ec.append(f'static const int8_t room{ri}_cave_segs[] = {{ 0, 0, 0, 0 }};')
-                    ec.append(f'#define ROOM{ri}_SEG_COUNT 0')
-                ec.append('')
-            # Lookup tables
-            ec.append('const int8_t * const cave_seg_tables[] = {')
-            for ri in range(num_rooms):
-                ec.append(f'    room{ri}_cave_segs,')
-            ec.extend(['};', ''])
-            ec.append('const uint8_t cave_seg_counts[] = {')
-            for ri in range(num_rooms):
-                ec.append(f'    ROOM{ri}_SEG_COUNT,')
-            ec.extend(['};', ''])
-            # update_enemies override
-            ec.extend([
-                'void update_enemies(void) {',
-                '    uint8_t i, j, seg_count;',
-                '    int8_t x1, y1, x2, y2, seg_min, seg_max;',
-                '    const int8_t *segs;',
-                '',
-                '    _orig_update_enemies();',
-                '',
-                '    seg_count = cave_seg_counts[current_room];',
-                '    if (seg_count == 0) return;',
-                '    segs = cave_seg_tables[current_room];',
-                '',
-                '    for (i = 0; i < enemy_count; i++) {',
-                '        if (!enemies[i].alive) continue;',
-                '        for (j = 0; j < seg_count; j++) {',
-                '            x1 = segs[j * 4];',
-                '            y1 = segs[j * 4 + 1];',
-                '            x2 = segs[j * 4 + 2];',
-                '            y2 = segs[j * 4 + 3];',
-                '            if (x1 != x2) continue;',
-                '            seg_min = y1 < y2 ? y1 : y2;',
-                '            seg_max = y1 > y2 ? y1 : y2;',
-                '            if (enemies[i].y + BAT_HH > seg_min &&',
-                '                enemies[i].y - BAT_HH < seg_max) {',
-                '                if (enemies[i].x + BAT_HW > x1 &&',
-                '                    enemies[i].x < x1) {',
-                '                    enemies[i].x = x1 - BAT_HW;',
-                '                    enemies[i].vx = -enemies[i].vx;',
-                '                } else if (enemies[i].x - BAT_HW < x1 &&',
-                '                           enemies[i].x > x1) {',
-                '                    enemies[i].x = x1 + BAT_HW;',
-                '                    enemies[i].vx = -enemies[i].vx;',
-                '                }',
-                '            }',
-                '        }',
-                '    }',
-                '}', ''])
-            ec.extend(self._gen_dynamite_code())
-            with open(os.path.join(test_dir, "enemies.c"), "w") as f:
-                f.write('\n'.join(ec) + '\n')
-        else:
-            ec = ['#include "hero.h"', '',
-                  '#define update_dynamite _orig_update_dynamite',
-                  '#include "../src/enemies.c"',
-                  '#undef update_dynamite', '']
-            ec.extend(self._gen_dynamite_code())
-            with open(os.path.join(test_dir, "enemies.c"), "w") as f:
-                f.write('\n'.join(ec) + '\n')
+        # src/enemies.c now handles segment collision, miner checking, and
+        # all-walls-destroyable dynamite natively — no overrides needed.
+        with open(os.path.join(test_dir, "enemies.c"), "w") as f:
+            f.write('#include "hero.h"\n#include "../src/enemies.c"\n')
 
         # ---- player.c ----
-        if any_cave_lines:
-            pc = ['#include "hero.h"', '',
-                  '#define update_player_physics _orig_update_player_physics',
-                  '#include "../src/player.c"',
-                  '#undef update_player_physics', '']
-            # Reuse same per-room segment arrays (declare extern)
-            pc.extend([
-                'extern const int8_t * const cave_seg_tables[];',
-                'extern const uint8_t cave_seg_counts[];', '',
-                'void update_player_physics(void) {',
-                '    uint8_t i, seg_count;',
-                '    int8_t x1, y1, x2, y2, seg_min, seg_max;',
-                '    const int8_t *segs;',
-                '',
-                '    _orig_update_player_physics();',
-                '',
-                '    seg_count = cave_seg_counts[current_room];',
-                '    if (seg_count == 0) return;',
-                '    segs = cave_seg_tables[current_room];',
-                '',
-                '    for (i = 0; i < seg_count; i++) {',
-                '        x1 = segs[i * 4];',
-                '        y1 = segs[i * 4 + 1];',
-                '        x2 = segs[i * 4 + 2];',
-                '        y2 = segs[i * 4 + 3];',
-                '',
-                '        if (y1 == y2) {',
-                '            seg_min = x1 < x2 ? x1 : x2;',
-                '            seg_max = x1 > x2 ? x1 : x2;',
-                '            if (player_x + PLAYER_HW > seg_min &&',
-                '                player_x - PLAYER_HW < seg_max) {',
-                '                if (player_y > y1 &&',
-                '                    player_y - PLAYER_HH < y1) {',
-                '                    player_y = y1 + PLAYER_HH;',
-                '                    player_vy = 0;',
-                '                    player_on_ground = 1;',
-                '                } else if (player_y < y1 &&',
-                '                           player_y + PLAYER_HH > y1) {',
-                '                    player_y = y1 - PLAYER_HH;',
-                '                    player_vy = 0;',
-                '                }',
-                '            }',
-                '        } else if (x1 == x2) {',
-                '            seg_min = y1 < y2 ? y1 : y2;',
-                '            seg_max = y1 > y2 ? y1 : y2;',
-                '            if (player_y + PLAYER_HH > seg_min &&',
-                '                player_y - PLAYER_HH < seg_max) {',
-                '                if (player_x < x1 &&',
-                '                    player_x + PLAYER_HW > x1) {',
-                '                    player_x = x1 - PLAYER_HW;',
-                '                    player_vx = 0;',
-                '                } else if (player_x > x1 &&',
-                '                           player_x - PLAYER_HW < x1) {',
-                '                    player_x = x1 + PLAYER_HW;',
-                '                    player_vx = 0;',
-                '                }',
-                '            }',
-                '        }',
-                '    }',
-                '}'])
-            with open(os.path.join(test_dir, "player.c"), "w") as f:
-                f.write('\n'.join(pc) + '\n')
-        else:
-            wrapper = '#include "hero.h"\n#include "../src/player.c"\n'
-            with open(os.path.join(test_dir, "player.c"), "w") as f:
-                f.write(wrapper)
+        # src/player.c now handles segment collision and per-room bounds natively.
+        with open(os.path.join(test_dir, "player.c"), "w") as f:
+            f.write('#include "hero.h"\n#include "../src/player.c"\n')
 
         # ---- drawing.c ----
-        dc = ['#include "hero.h"', '',
-              '#define draw_cave _orig_draw_cave',
-              '#define draw_miner _orig_draw_miner',
-              '#include "../src/drawing.c"',
-              '#undef draw_cave',
-              '#undef draw_miner', '']
-
-        # Generate per-room draw functions
-        for ri, rm in enumerate(rooms):
-            dc.append(f'static void draw_cave_room{ri}(void) {{')
-            dc.append('    uint8_t i;')
-            dc.append('    uint8_t cave_int = (dyn_exploding || (game_state == STATE_LEVEL_COMPLETE && (level_msg_timer & 4))) ? INTENSITY_BRIGHT : INTENSITY_DIM;')
-            cave_lines = rm.get("cave_lines", [])
-            for polyline in cave_lines:
-                if len(polyline) < 2:
-                    continue
-                dc.append('    zero_beam();')
-                dc.append('    intensity_a(cave_int);')
-                dc.append('    set_scale(0x7F);')
-                x0, y0 = polyline[0]
-                dc.append(f'    moveto_d({int(y0)}, {int(x0)});')
-                for j in range(1, len(polyline)):
-                    dy = int(polyline[j][1] - polyline[j - 1][1])
-                    dx = int(polyline[j][0] - polyline[j - 1][0])
-                    while dy != 0 or dx != 0:
-                        sy = max(-128, min(127, dy))
-                        sx = max(-128, min(127, dx))
-                        dc.append(f'    draw_line_d({sy}, {sx});')
-                        dy -= sy
-                        dx -= sx
-            dc.append('    for (i = 0; i < cur_wall_count; i++) {')
-            dc.append('        if (walls_destroyed & (1 << i)) continue;')
-            dc.append('        zero_beam();')
-            dc.append('        intensity_a(dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_HI);')
-            dc.append('        set_scale(0x7F);')
-            dc.append('        moveto_d(wall_y(i) + wall_h(i), wall_x(i));')
-            dc.append('        draw_line_d(0, wall_w(i));')
-            dc.append('        draw_line_d(-wall_h(i) * 2, 0);')
-            dc.append('        draw_line_d(0, -wall_w(i));')
-            dc.append('        draw_line_d(wall_h(i) * 2, 0);')
-            dc.append('    }')
-            dc.append('}')
-            dc.append('')
-
-        # Dispatch draw_cave by current_room
-        dc.append('void draw_cave(void) {')
-        if num_rooms == 1:
-            dc.append('    draw_cave_room0();')
-        else:
-            for ri in range(num_rooms):
-                kw = 'if' if ri == 0 else '} else if'
-                dc.append(f'    {kw} (current_room == {ri}) {{')
-                dc.append(f'        draw_cave_room{ri}();')
-            dc.append('    }')
-        dc.append('}')
-        dc.append('')
-
-        # Custom draw_miner — only draw when current room has a miner
-        if any_miner:
-            dc.append('const uint8_t room_has_miner[] = {')
-            for rm in rooms:
-                dc.append(f'    {1 if rm.get("miner") else 0},')
-            dc.append('};')
-            dc.append('void draw_miner(void) { if (room_has_miner[current_room]) _orig_draw_miner(); }')
-        else:
-            dc.append('void draw_miner(void) {}')
-        dc.append('')
-
+        # src/drawing.c draw_miner() already checks cur_has_miner — no override needed.
         with open(os.path.join(test_dir, "drawing.c"), "w") as f:
-            f.write('\n'.join(dc) + '\n')
+            f.write('#include "hero.h"\n#include "../src/drawing.c"\n')
 
         # ---- levels.h ----
         lh = ["// Generated by level_editor.py — test level", "",
@@ -2653,11 +2531,35 @@ int main(void) {{
             lh.append(f"#define {PREFIX}_START_Y  {start_y}")
             lh.append(f"#define {PREFIX}_MINER_X  {miner_x}")
             lh.append(f"#define {PREFIX}_MINER_Y  {miner_y}")
+
+            # Cave polyline data
+            cave_lines = rm.get("cave_lines", [])
+            data = cave_room_data(cave_lines)
+            lh.append(f"static const int8_t {prefix}_cave[] = {{")
+            for k in range(0, len(data), 12):
+                chunk = data[k:k+12]
+                lh.append("    " + ", ".join(str(v) for v in chunk) + ",")
+            lh.append("};")
+
+            # Cave segments (for collision)
+            segs = extract_segments(cave_lines)
+            lh.append(f"#define {PREFIX}_SEG_COUNT {len(segs)}")
+            if segs:
+                lh.append(f"static const int8_t {prefix}_cave_segs[] = {{")
+                for s in segs:
+                    lh.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
+                lh.append("};")
+            else:
+                lh.append(f"static const int8_t {prefix}_cave_segs[] = {{ 0, 0, 0, 0 }};")
             lh.append("")
 
         # Room lookup tables
         lh.append("// Room lookup tables")
         lh.append(f"#define NUM_ROOMS {num_rooms}")
+        lh.append("static const int8_t * const l1_room_caves[] = {")
+        for ri in range(num_rooms):
+            lh.append(f"    l1r{ri+1}_cave,")
+        lh.append("};")
         lh.append("static const int8_t * const l1_room_walls[] = {")
         for ri in range(num_rooms):
             lh.append(f"    l1r{ri+1}_walls,")
@@ -2681,6 +2583,18 @@ int main(void) {{
         lh.append("static const int8_t l1_room_miners[] = {")
         for ri in range(num_rooms):
             lh.append(f"    L1R{ri+1}_MINER_X, L1R{ri+1}_MINER_Y,")
+        lh.append("};")
+        lh.append("static const int8_t * const l1_room_cave_segs[] = {")
+        for ri in range(num_rooms):
+            lh.append(f"    l1r{ri+1}_cave_segs,")
+        lh.append("};")
+        lh.append("static const uint8_t l1_room_seg_counts[] = {")
+        for ri in range(num_rooms):
+            lh.append(f"    L1R{ri+1}_SEG_COUNT,")
+        lh.append("};")
+        lh.append("static const uint8_t l1_room_has_miner[] = {")
+        for ri, rm in enumerate(rooms):
+            lh.append(f"    {1 if rm.get('miner') else 0},")
         lh.append("};")
 
         # Room exits table (convert 1-based room numbers to 0-based indices)
@@ -2716,6 +2630,10 @@ int main(void) {{
 #include "hero.h"
 #include "levels.h"
 
+const int8_t *room_cave_lines[MAX_ROOMS];
+const int8_t *room_cave_segs[MAX_ROOMS];
+uint8_t room_seg_counts[MAX_ROOMS];
+uint8_t room_has_miner[MAX_ROOMS];
 const int8_t *room_walls[MAX_ROOMS];
 uint8_t room_wall_counts[MAX_ROOMS];
 const int8_t *room_enemies_data[MAX_ROOMS];
@@ -2728,6 +2646,10 @@ int8_t room_bounds[MAX_ROOMS * 4];
 void set_level_data(void) {{
     uint8_t i;
     for (i = 0; i < NUM_ROOMS; i++) {{
+        room_cave_lines[i] = l1_room_caves[i];
+        room_cave_segs[i] = l1_room_cave_segs[i];
+        room_seg_counts[i] = l1_room_seg_counts[i];
+        room_has_miner[i] = l1_room_has_miner[i];
         room_walls[i] = l1_room_walls[i];
         room_wall_counts[i] = l1_room_wall_counts[i];
         room_enemies_data[i] = l1_room_enemies[i];
@@ -2749,6 +2671,14 @@ void set_level_data(void) {{
 }}
 
 void set_room_data(void) {{
+    cur_cave_lines = room_cave_lines[current_room];
+    cur_cave_segs = room_cave_segs[current_room];
+    cur_seg_count = room_seg_counts[current_room];
+    cur_cave_left = room_bounds[current_room * 4];
+    cur_cave_right = room_bounds[current_room * 4 + 1];
+    cur_cave_top = room_bounds[current_room * 4 + 2];
+    cur_cave_floor = room_bounds[current_room * 4 + 3];
+    cur_has_miner = room_has_miner[current_room];
     cur_walls = room_walls[current_room];
     cur_wall_count = room_wall_counts[current_room];
     cur_enemies_data = room_enemies_data[current_room];
@@ -2775,7 +2705,9 @@ void load_enemies(void) {{
 }}
 
 void init_level(void) {{
+    uint8_t j;
     current_room = 0;
+    for (j = 0; j < MAX_ROOMS; j++) room_walls_destroyed[j] = 0;
     set_level_data();
     player_x = room_starts[0];
     player_y = room_starts[1];
@@ -2806,14 +2738,9 @@ void start_new_game(void) {{
             f.write(lc)
 
         # ---- main.c ----
-        if any_miner:
-            mc_miner_extern = "extern const uint8_t room_has_miner[];\n"
-            mc_miner_rescue = "            if (room_has_miner[current_room]) check_miner_rescue();\n"
-            mc_draw_miner = "            draw_miner();\n"
-        else:
-            mc_miner_extern = ""
-            mc_miner_rescue = ""
-            mc_draw_miner = ""
+        # src functions already check cur_has_miner internally
+        mc_miner_rescue = "            check_miner_rescue();\n"
+        mc_draw_miner = "            draw_miner();\n"
         mc = f"""\
 #include "hero.h"
 
@@ -2822,7 +2749,7 @@ void start_new_game(void) {{
 #pragma vx_music vx_music_1
 
 static const char level_name[] = "{lvl['name'].upper()}";
-{mc_miner_extern}int8_t player_x, player_y, player_vx, player_vy, player_facing;
+int8_t player_x, player_y, player_vx, player_vy, player_facing;
 uint8_t player_fuel, player_dynamite, player_lives;
 uint8_t player_on_ground, player_thrusting, anim_tick;
 int score;
@@ -2836,11 +2763,19 @@ uint8_t dyn_active;
 int8_t dyn_x, dyn_y;
 uint8_t dyn_timer, dyn_exploding, dyn_expl_timer;
 uint8_t walls_destroyed;
+uint8_t room_walls_destroyed[MAX_ROOMS];
+const int8_t *cur_cave_lines;
+const int8_t *cur_cave_segs;
+uint8_t cur_seg_count;
+int8_t cur_cave_left, cur_cave_right, cur_cave_top, cur_cave_floor;
+uint8_t cur_has_miner;
 const int8_t *cur_walls;
 uint8_t cur_wall_count;
 const int8_t *cur_enemies_data;
 uint8_t cur_enemy_count;
 int8_t cur_miner_x, cur_miner_y;
+const char *cur_level_name;
+int8_t cur_level_name_x;
 char str_buf[16];
 
 uint8_t box_overlap(int8_t ax, int8_t ay, int8_t ahw, int8_t ahh,
@@ -2909,10 +2844,11 @@ int main(void) {{
                     if (exit_room != NONE) player_y = room_bounds[exit_room * 4 + 2];
                 }}
                 if (exit_room != NONE) {{
+                    room_walls_destroyed[current_room] = walls_destroyed;
                     current_room = exit_room;
                     set_room_data();
                     load_enemies();
-                    walls_destroyed = 0;
+                    walls_destroyed = room_walls_destroyed[current_room];
                 }}
             }}
 
@@ -2976,7 +2912,8 @@ int main(void) {{
                os.path.join(test_dir, "player.c"),
                os.path.join(test_dir, "enemies.c"),
                os.path.join(test_dir, "drawing.c"),
-               os.path.join(test_dir, "levels.c")]
+               os.path.join(test_dir, "levels.c"),
+               os.path.join(src_dir, "sprites.c")]
 
         if os.path.isfile(bin_path):
             os.remove(bin_path)
@@ -3074,7 +3011,7 @@ int main(void) {{
         self._current_frame_idx = 0
         self._save_path = None
         self._refresh_level_combo()
-        self._refresh_room_combo()
+        self._update_room_label()
         self._load_exit_fields()
         self._refresh_sprite_combo()
         self._load_constants_to_entries()
@@ -3123,7 +3060,7 @@ int main(void) {{
             self._current_sprite_idx = 0
             self._current_frame_idx = 0
             self._refresh_level_combo()
-            self._refresh_room_combo()
+            self._update_room_label()
             self._load_exit_fields()
             self._refresh_sprite_combo()
             self._load_constants_to_entries()
@@ -3220,19 +3157,36 @@ int main(void) {{
                 lines.append(f"#define {PREFIX}_MINER_Y  {miner_y}")
                 lines.append("")
 
-                # Cave lines as comments
+                # Cave polyline data (for drawing)
                 cave_lines = rm.get("cave_lines", [])
-                if cave_lines:
-                    lines.append(f"// Cave outline polylines for {rm['name']}:")
-                    for j, poly in enumerate(cave_lines):
-                        pts_str = " -> ".join(f"({p[0]},{p[1]})" for p in poly)
-                        lines.append(f"//   path {j}: {pts_str}")
-                    lines.append("")
+                data = cave_room_data(cave_lines)
+                lines.append(f"static const int8_t {prefix}_cave[] = {{")
+                for k in range(0, len(data), 12):
+                    chunk = data[k:k+12]
+                    lines.append("    " + ", ".join(str(v) for v in chunk) + ",")
+                lines.append("};")
+
+                # Cave segments (for collision): x1, y1, x2, y2 per segment
+                segs = extract_segments(cave_lines)
+                lines.append(f"#define {PREFIX}_SEG_COUNT {len(segs)}")
+                if segs:
+                    lines.append(f"static const int8_t {prefix}_cave_segs[] = {{")
+                    for s in segs:
+                        lines.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
+                    lines.append("};")
+                else:
+                    lines.append(f"static const int8_t {prefix}_cave_segs[] = {{ 0, 0, 0, 0 }};")
+                lines.append("")
 
             # Room lookup tables for this level
             lp = f"l{li}"
             nr = len(rooms)
             lines.append(f"// Room lookup tables for {lvl['name']}")
+            lines.append(f"static const int8_t * const {lp}_room_caves[] = {{")
+            for ri in range(nr):
+                lines.append(f"    {lp}r{ri+1}_cave,")
+            lines.append("};")
+
             lines.append(f"static const int8_t * const {lp}_room_walls[] = {{")
             for ri in range(nr):
                 lines.append(f"    {lp}r{ri+1}_walls,")
@@ -3261,6 +3215,21 @@ int main(void) {{
             lines.append(f"static const int8_t {lp}_room_miners[] = {{")
             for ri in range(nr):
                 lines.append(f"    L{li}R{ri+1}_MINER_X, L{li}R{ri+1}_MINER_Y,")
+            lines.append("};")
+
+            lines.append(f"static const int8_t * const {lp}_room_cave_segs[] = {{")
+            for ri in range(nr):
+                lines.append(f"    {lp}r{ri+1}_cave_segs,")
+            lines.append("};")
+
+            lines.append(f"static const uint8_t {lp}_room_seg_counts[] = {{")
+            for ri in range(nr):
+                lines.append(f"    L{li}R{ri+1}_SEG_COUNT,")
+            lines.append("};")
+
+            lines.append(f"static const uint8_t {lp}_room_has_miner[] = {{")
+            for ri, rm in enumerate(rooms):
+                lines.append(f"    {1 if rm.get('miner') else 0},")
             lines.append("};")
 
             # Room exits
