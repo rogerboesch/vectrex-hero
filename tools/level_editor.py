@@ -1406,6 +1406,17 @@ class App:
         ttk.Button(mirror_row, text="Mirror V",
                    command=self._mirror_sprite_v).pack(side="left", padx=2)
 
+        move_row = ttk.Frame(left)
+        move_row.pack(padx=4, pady=4)
+        ttk.Button(move_row, text="\u2190",
+                   command=self._move_sprite_left, width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2192",
+                   command=self._move_sprite_right, width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2191",
+                   command=self._move_sprite_up, width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2193",
+                   command=self._move_sprite_down, width=3).pack(side="left", padx=1)
+
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
         ttk.Button(left, text="Run in Emulator",
                    command=self._run_sprite_test).pack(padx=4, pady=4, fill="x")
@@ -2114,6 +2125,27 @@ class App:
                 pt[1] = -pt[1]
             self.sprite_canvas.redraw()
             self._update_vlc_text()
+
+    def _move_sprite_points(self, dx, dy):
+        frame = self.current_frame_data()
+        if frame:
+            for pt in frame["points"]:
+                pt[0] += dx
+                pt[1] += dy
+            self.sprite_canvas.redraw()
+            self._update_vlc_text()
+
+    def _move_sprite_left(self):
+        self._move_sprite_points(-1, 0)
+
+    def _move_sprite_right(self):
+        self._move_sprite_points(1, 0)
+
+    def _move_sprite_up(self):
+        self._move_sprite_points(0, -1)
+
+    def _move_sprite_down(self):
+        self._move_sprite_points(0, 1)
 
     def _run_sprite_test(self):
         sprite = self.current_sprite_data()
