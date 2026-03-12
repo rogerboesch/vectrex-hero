@@ -140,7 +140,4 @@ static const int8_t l1_room_bounds[] = {
     -128, 127, 50, -50,   // room 0
     -128, 127, 50, -50,   // room 1
 };
-static const char l1_name[] = "START";
-#define L1_NAME_X -22
-
 #endif

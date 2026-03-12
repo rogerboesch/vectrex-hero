@@ -184,7 +184,8 @@ int main(void) {
 
             if (level_msg_timer > 0) {
                 zero_beam();
-                print_str_c(100, cur_level_name_x, cur_level_name);
+                sprintf(str_buf, "LEVEL %d", current_level + 1);
+                print_str_c(100, -40, str_buf);
                 level_msg_timer--;
             }
         }

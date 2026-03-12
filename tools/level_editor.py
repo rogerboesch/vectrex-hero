@@ -1268,8 +1268,6 @@ class App:
                    command=self._add_level).pack(side="left", padx=2)
         ttk.Button(btn_frame, text="-", width=3,
                    command=self._remove_level).pack(side="left", padx=2)
-        ttk.Button(btn_frame, text="Rename", width=6,
-                   command=self._rename_level).pack(side="left", padx=2)
 
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=4)
 
@@ -1727,9 +1725,9 @@ class App:
     # ---- Level management ----
 
     def _refresh_level_combo(self):
-        names = [lvl["name"] for lvl in self.project["levels"]]
-        self._level_combo["values"] = names
-        if names:
+        labels = [f"Level {i+1}" for i in range(len(self.project["levels"]))]
+        self._level_combo["values"] = labels
+        if labels:
             self._level_combo.current(self._current_level_idx)
 
     def _level_selected(self, event=None):
@@ -1757,8 +1755,7 @@ class App:
             self._level_bg_show_var.set(True)
 
     def _add_level(self):
-        n = len(self.project["levels"]) + 1
-        lvl = new_level(f"Level {n}")
+        lvl = new_level()
         self.project["levels"].append(lvl)
         self._current_level_idx = len(self.project["levels"]) - 1
         self._current_room_idx = 0
@@ -1780,16 +1777,6 @@ class App:
         self._load_exit_fields()
         self._load_constants_to_entries()
         self.level_canvas.redraw()
-
-    def _rename_level(self):
-        self._simple_rename_dialog(
-            "Rename Level",
-            self.project["levels"][self._current_level_idx]["name"],
-            lambda name: self._do_rename_level(name))
-
-    def _do_rename_level(self, name):
-        self.project["levels"][self._current_level_idx]["name"] = name
-        self._refresh_level_combo()
 
     # ---- Room management ----
 
@@ -2766,7 +2753,6 @@ void start_new_game(void) {{
 #pragma vx_title "LEVEL TEST"
 #pragma vx_music vx_music_1
 
-static const char level_name[] = "{lvl['name'].upper()}";
 int8_t player_x, player_y, player_vx, player_vy, player_facing;
 uint8_t player_fuel, player_dynamite, player_lives;
 uint8_t player_on_ground, player_thrusting, anim_tick;
@@ -2792,8 +2778,6 @@ uint8_t cur_wall_count;
 const int8_t *cur_enemies_data;
 uint8_t cur_enemy_count;
 int8_t cur_miner_x, cur_miner_y;
-const char *cur_level_name;
-int8_t cur_level_name_x;
 char str_buf[16];
 
 uint8_t box_overlap(int8_t ax, int8_t ay, int8_t ahw, int8_t ahh,
@@ -2879,7 +2863,8 @@ int main(void) {{
 
             if (level_msg_timer > 0) {{
                 zero_beam();
-                print_str_c(100, {-len(lvl['name']) * 9 // 2}, (char *)level_name);
+                sprintf(str_buf, "LEVEL %d", current_level + 1);
+                print_str_c(100, -40, str_buf);
                 level_msg_timer--;
             }}
         }}
@@ -2962,7 +2947,7 @@ int main(void) {{
             self._emu_pause_btn.config(text="Pause")
             self._emu_state_update()
             self.notebook.select(2)
-            self.update_status(f"Running level test: {lvl['name']}")
+            self.update_status(f"Running level test: Level {self._current_level_idx + 1}")
         except Exception as e:
             messagebox.showerror("Emulator Error", str(e))
             self._emu = None
@@ -3128,7 +3113,7 @@ int main(void) {{
             li = i + 1  # 1-based level number
             rooms = lvl.get("rooms", [])
             lines.append(f"// {'=' * 60}")
-            lines.append(f"// {lvl['name']} ({len(rooms)} room(s))")
+            lines.append(f"// Level {li} ({len(rooms)} room(s))")
             lines.append(f"// {'=' * 60}")
             lines.append("")
 
@@ -3209,7 +3194,7 @@ int main(void) {{
             # Room lookup tables for this level
             lp = f"l{li}"
             nr = len(rooms)
-            lines.append(f"// Room lookup tables for {lvl['name']}")
+            lines.append(f"// Room lookup tables for level {li}")
             lines.append(f"static const int8_t * const {lp}_room_caves[] = {{")
             for ri in range(nr):
                 lines.append(f"    {lp}r{ri+1}_cave,")
@@ -3284,12 +3269,6 @@ int main(void) {{
                 lines.append(f"    {bl}, {br}, {bt}, {bf},   // room {ri}")
             lines.append("};")
 
-            # Level name
-            name = lvl["name"].upper()
-            name_x = -(len(name) * 9 // 2)
-            lines.append(f'static const char {lp}_name[] = "{name}";')
-            lines.append(f"#define {lp.upper()}_NAME_X {name_x}")
-            lines.append("")
 
         lines.append("#endif")
 

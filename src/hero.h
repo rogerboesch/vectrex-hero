@@ -98,8 +98,6 @@ extern uint8_t current_level;
 extern uint8_t current_room;
 extern uint8_t death_timer;
 extern uint8_t level_msg_timer;
-extern const char *cur_level_name;
-extern int8_t cur_level_name_x;
 
 extern Enemy enemies[MAX_ENEMIES];
 extern uint8_t enemy_count;
