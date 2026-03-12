@@ -5,6 +5,7 @@
 //
 
 #include "hero.h"
+#include "sprites.h"
 
 #pragma vx_copyright "2026"
 #pragma vx_title_pos 0,-80
@@ -98,7 +99,7 @@ uint8_t player_hits_wall(uint8_t i) {
     int8_t wcy = wall_y(i);
     int8_t whw = wall_w(i) / 2;
     int8_t whh = wall_h(i);
-    return box_overlap(player_x, player_y, PLAYER_HW, PLAYER_HH,
+    return box_overlap(player_x, player_y, SPRITE_HW(player), SPRITE_HH(player),
                        wcx, wcy, whw, whh);
 }
 

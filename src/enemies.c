@@ -3,6 +3,7 @@
 //
 
 #include "hero.h"
+#include "sprites.h"
 
 void fire_laser(void) {
     if (laser_active) return;
@@ -31,10 +32,10 @@ void update_laser(void) {
 
     for (i = 0; i < enemy_count; i++) {
         if (!enemies[i].alive) continue;
-        if (enemies[i].x + BAT_HW >= lx_min &&
-            enemies[i].x - BAT_HW <= lx_max &&
-            enemies[i].y + BAT_HH >= laser_y - 3 &&
-            enemies[i].y - BAT_HH <= laser_y + 3) {
+        if (enemies[i].x + SPRITE_HW(bat_f0) >= lx_min &&
+            enemies[i].x - SPRITE_HW(bat_f0) <= lx_max &&
+            enemies[i].y + SPRITE_HH(bat_f0) >= laser_y - 3 &&
+            enemies[i].y - SPRITE_HH(bat_f0) <= laser_y + 3) {
             enemies[i].alive = 0;
             score += 50;
         }
@@ -47,7 +48,7 @@ void place_dynamite(void) {
     player_dynamite--;
     dyn_active = 1;
     dyn_x = player_x;
-    dyn_y = player_y - PLAYER_HH + 4;
+    dyn_y = player_y - SPRITE_HH(player) + 4;
     dyn_timer = DYNAMITE_FUSE;
 }
 
@@ -84,7 +85,7 @@ void update_dynamite(void) {
             for (i = 0; i < enemy_count; i++) {
                 if (!enemies[i].alive) continue;
                 if (box_overlap(dyn_x, dyn_y, EXPLOSION_RADIUS, EXPLOSION_RADIUS,
-                                enemies[i].x, enemies[i].y, BAT_HW, BAT_HH)) {
+                                enemies[i].x, enemies[i].y, SPRITE_HW(bat_f0), SPRITE_HH(bat_f0))) {
                     enemies[i].alive = 0;
                     score += 50;
                 }
@@ -92,7 +93,7 @@ void update_dynamite(void) {
 
             // Kill player if too close (smaller radius)
             if (box_overlap(dyn_x, dyn_y, EXPLOSION_KILL, EXPLOSION_KILL,
-                            player_x, player_y, PLAYER_HW, PLAYER_HH)) {
+                            player_x, player_y, SPRITE_HW(player), SPRITE_HH(player))) {
                 game_state = STATE_DYING;
                 death_timer = 30;
             }
@@ -116,8 +117,8 @@ void update_enemies(void) {
         enemies[i].x += enemies[i].vx;
 
         // Bounce off room bounds
-        if (enemies[i].x > cur_cave_right - BAT_HW ||
-            enemies[i].x < cur_cave_left + BAT_HW) {
+        if (enemies[i].x > cur_cave_right - SPRITE_HW(bat_f0) ||
+            enemies[i].x < cur_cave_left + SPRITE_HW(bat_f0)) {
             enemies[i].vx = -enemies[i].vx;
         }
 
@@ -130,17 +131,17 @@ void update_enemies(void) {
             y2 = segs[j * 4 + 3];
             seg_min = y1 < y2 ? y1 : y2;
             seg_max = y1 > y2 ? y1 : y2;
-            if (enemies[i].y + BAT_HH > seg_min &&
-                enemies[i].y - BAT_HH < seg_max) {
+            if (enemies[i].y + SPRITE_HH(bat_f0) > seg_min &&
+                enemies[i].y - SPRITE_HH(bat_f0) < seg_max) {
                 if (enemies[i].vx > 0 &&
-                    enemies[i].x + BAT_HW > x1 &&
+                    enemies[i].x + SPRITE_HW(bat_f0) > x1 &&
                     enemies[i].x < x1) {
-                    enemies[i].x = x1 - BAT_HW;
+                    enemies[i].x = x1 - SPRITE_HW(bat_f0);
                     enemies[i].vx = -enemies[i].vx;
                 } else if (enemies[i].vx < 0 &&
-                           enemies[i].x - BAT_HW < x1 &&
+                           enemies[i].x - SPRITE_HW(bat_f0) < x1 &&
                            enemies[i].x > x1) {
-                    enemies[i].x = x1 + BAT_HW;
+                    enemies[i].x = x1 + SPRITE_HW(bat_f0);
                     enemies[i].vx = -enemies[i].vx;
                 }
             }
@@ -149,8 +150,8 @@ void update_enemies(void) {
         enemies[i].anim++;
 
         // Check collision with player
-        if (box_overlap(player_x, player_y, PLAYER_HW, PLAYER_HH,
-                        enemies[i].x, enemies[i].y, BAT_HW, BAT_HH)) {
+        if (box_overlap(player_x, player_y, SPRITE_HW(player), SPRITE_HH(player),
+                        enemies[i].x, enemies[i].y, SPRITE_HW(bat_f0), SPRITE_HH(bat_f0))) {
             game_state = STATE_DYING;
             death_timer = 30;
         }
@@ -159,8 +160,8 @@ void update_enemies(void) {
 
 void check_miner_rescue(void) {
     if (!cur_has_miner) return;
-    if (box_overlap(player_x, player_y, PLAYER_HW, PLAYER_HH,
-                    cur_miner_x, cur_miner_y, MINER_HW, MINER_HH)) {
+    if (box_overlap(player_x, player_y, SPRITE_HW(player), SPRITE_HH(player),
+                    cur_miner_x, cur_miner_y, SPRITE_HW(miner), SPRITE_HH(miner))) {
         score += 1000;
         score += player_fuel;
         score += player_dynamite * 50;

@@ -4,6 +4,7 @@
 #include <vectrex.h>
 
 int8_t player[] = {
+    8, 11,  // hw, hh (scaled: raw 9,13 × 0x6A/0x7F)
     35,  // 36 vectors (VLC count-1)
        0,   -4,
       -1,   -2,
@@ -44,6 +45,7 @@ int8_t player[] = {
 };
 
 int8_t bat_f0[] = {
+    6, 5,  // hw, hh (scaled: raw 8,7 × 0x60/0x7F)
     7,  // 8 vectors (VLC count-1)
        2,    4,
        0,    2,
@@ -56,6 +58,7 @@ int8_t bat_f0[] = {
 };
 
 int8_t bat_f1[] = {
+    6, 5,  // hw, hh (scaled: raw 8,7 × 0x60/0x7F)
     7,  // 8 vectors (VLC count-1)
        2,    4,
        0,    2,
@@ -68,6 +71,7 @@ int8_t bat_f1[] = {
 };
 
 int8_t miner[] = {
+    6, 6,  // hw, hh (scaled: raw 8,8 × 0x60/0x7F)
     24,  // 25 vectors (VLC count-1)
        0,   -4,
       -4,    0,
@@ -97,9 +101,11 @@ int8_t miner[] = {
 };
 
 int8_t dynamite[] = {
+    1, 2,  // hw, hh (scaled: raw 2,5 × 0x30/0x7F)
     3,  // 4 vectors (VLC count-1)
        0,    4,
      -10,    0,
        0,   -4,
       10,    0,
 };
+

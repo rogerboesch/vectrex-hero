@@ -11,3 +11,4 @@ extern int8_t miner[];
 extern int8_t dynamite[];
 
 #endif
+

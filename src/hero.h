@@ -8,6 +8,7 @@
 
 #include <vectrex.h>
 #include <vectrex/stdlib.h>
+#include "sprites.h"
 
 // =========================================================================
 // Constants
@@ -30,13 +31,12 @@
 #define EXPLOSION_KILL   10
 #define MAX_ENEMIES     3
 #define MAX_ROOMS       8
-#define PLAYER_HW       6
-#define PLAYER_HH       7
-#define BAT_HW          5
-#define BAT_HH          4
-#define MINER_HW        4
-#define MINER_HH        5
 #define NONE            255
+
+// Sprite data access: arrays are [hw, hh, count-1, dy1, dx1, ...]
+#define SPRITE_HW(s)   ((s)[0])
+#define SPRITE_HH(s)   ((s)[1])
+#define SPRITE_VLC(s)  (&(s)[2])
 
 // Beam intensity
 #define INTENSITY_DIM    0x3F

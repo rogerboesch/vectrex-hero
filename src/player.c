@@ -21,13 +21,13 @@ void update_player_physics(void) {
 
     // Horizontal boundaries — per-room bounds (skip if exit exists)
     if (room_exits[current_room * 4 + 0] == NONE &&
-        player_x < cur_cave_left + PLAYER_HW) {
-        player_x = cur_cave_left + PLAYER_HW;
+        player_x < cur_cave_left + SPRITE_HW(player)) {
+        player_x = cur_cave_left + SPRITE_HW(player);
         player_vx = 0;
     }
     if (room_exits[current_room * 4 + 1] == NONE &&
-        player_x > cur_cave_right - PLAYER_HW) {
-        player_x = cur_cave_right - PLAYER_HW;
+        player_x > cur_cave_right - SPRITE_HW(player)) {
+        player_x = cur_cave_right - SPRITE_HW(player);
         player_vx = 0;
     }
 
@@ -40,9 +40,9 @@ void update_player_physics(void) {
                 wl = wall_x(i);
                 wr = wall_x(i) + wall_w(i);
                 if (player_vx > 0) {
-                    player_x = wl - PLAYER_HW;
+                    player_x = wl - SPRITE_HW(player);
                 } else if (player_vx < 0) {
-                    player_x = wr + PLAYER_HW;
+                    player_x = wr + SPRITE_HW(player);
                 }
                 player_vx = 0;
             }
@@ -61,17 +61,17 @@ void update_player_physics(void) {
             wl = wall_x(i);
             wr = wall_x(i) + wall_w(i);
             // Skip if only touching edge (X collision already resolved)
-            if (player_x + PLAYER_HW <= wl || player_x - PLAYER_HW >= wr) continue;
+            if (player_x + SPRITE_HW(player) <= wl || player_x - SPRITE_HW(player) >= wr) continue;
             wt = wall_y(i) + wall_h(i);
             wb = wall_y(i) - wall_h(i);
             if (player_vy <= 0) {
                 // Falling - land on top
-                player_y = wt + PLAYER_HH;
+                player_y = wt + SPRITE_HH(player);
                 player_vy = 0;
                 player_on_ground = 1;
             } else {
                 // Rising - hit underside
-                player_y = wb - PLAYER_HH;
+                player_y = wb - SPRITE_HH(player);
                 player_vy = 0;
             }
         }
@@ -79,16 +79,16 @@ void update_player_physics(void) {
 
     // Floor collision — per-room bounds (skip if bottom exit exists)
     if (room_exits[current_room * 4 + 3] == NONE &&
-        player_y - PLAYER_HH < cur_cave_floor) {
-        player_y = cur_cave_floor + PLAYER_HH;
+        player_y - SPRITE_HH(player) < cur_cave_floor) {
+        player_y = cur_cave_floor + SPRITE_HH(player);
         player_vy = 0;
         player_on_ground = 1;
     }
 
     // Ceiling collision — per-room bounds (skip if top exit exists)
     if (room_exits[current_room * 4 + 2] == NONE &&
-        player_y + PLAYER_HH > cur_cave_top) {
-        player_y = cur_cave_top - PLAYER_HH;
+        player_y + SPRITE_HH(player) > cur_cave_top) {
+        player_y = cur_cave_top - SPRITE_HH(player);
         player_vy = 0;
     }
 
@@ -104,16 +104,16 @@ void update_player_physics(void) {
             // Horizontal segment
             seg_min = x1 < x2 ? x1 : x2;
             seg_max = x1 > x2 ? x1 : x2;
-            if (player_x + PLAYER_HW > seg_min &&
-                player_x - PLAYER_HW < seg_max) {
+            if (player_x + SPRITE_HW(player) > seg_min &&
+                player_x - SPRITE_HW(player) < seg_max) {
                 if (player_y > y1 &&
-                    player_y - PLAYER_HH < y1) {
-                    player_y = y1 + PLAYER_HH;
+                    player_y - SPRITE_HH(player) < y1) {
+                    player_y = y1 + SPRITE_HH(player);
                     player_vy = 0;
                     player_on_ground = 1;
                 } else if (player_y < y1 &&
-                           player_y + PLAYER_HH > y1) {
-                    player_y = y1 - PLAYER_HH;
+                           player_y + SPRITE_HH(player) > y1) {
+                    player_y = y1 - SPRITE_HH(player);
                     player_vy = 0;
                 }
             }
@@ -121,15 +121,15 @@ void update_player_physics(void) {
             // Vertical segment
             seg_min = y1 < y2 ? y1 : y2;
             seg_max = y1 > y2 ? y1 : y2;
-            if (player_y + PLAYER_HH > seg_min &&
-                player_y - PLAYER_HH < seg_max) {
+            if (player_y + SPRITE_HH(player) > seg_min &&
+                player_y - SPRITE_HH(player) < seg_max) {
                 if (player_x < x1 &&
-                    player_x + PLAYER_HW > x1) {
-                    player_x = x1 - PLAYER_HW;
+                    player_x + SPRITE_HW(player) > x1) {
+                    player_x = x1 - SPRITE_HW(player);
                     player_vx = 0;
                 } else if (player_x > x1 &&
-                           player_x - PLAYER_HW < x1) {
-                    player_x = x1 + PLAYER_HW;
+                           player_x - SPRITE_HW(player) < x1) {
+                    player_x = x1 + SPRITE_HW(player);
                     player_vx = 0;
                 }
             }
@@ -177,7 +177,7 @@ void draw_player(void) {
     set_scale(0x7F);
     moveto_d(player_y, player_x);
     set_scale(0x6A);
-    draw_vlc(player);
+    draw_vlc(SPRITE_VLC(player));
 
     // Propeller rod (always visible)
     // VLC is a closed shape so beam is back at player center
