@@ -1028,7 +1028,7 @@ class SpriteCanvas(tk.Canvas):
         if len(pts) < 2:
             return None
         count = len(pts) - 1
-        data = [count]
+        data = [count - 1]  # VLC format: count-1 for draw_vlc BIOS call
         for i in range(1, len(pts)):
             dy = pts[i][1] - pts[i - 1][1]
             dx = pts[i][0] - pts[i - 1][0]
@@ -2239,9 +2239,9 @@ class App:
 
             draw_logic = """\
         if (angle != 0) {
-            rot_vl_ab(angle, cur_shape[0], &cur_shape[1], rotbuf);
+            rot_vl_ab(angle, cur_shape[0] + 1, &cur_shape[1], rotbuf);
             set_scale(scale);
-            draw_vl_a(cur_shape[0], rotbuf);
+            draw_vl_a(cur_shape[0] + 1, rotbuf);
         } else {
             set_scale(scale);
             draw_vlc(cur_shape);
@@ -2253,9 +2253,9 @@ class App:
             anim_logic = ""
             draw_logic = """\
         if (angle != 0) {
-            rot_vl_ab(angle, shape_0[0], &shape_0[1], rotbuf);
+            rot_vl_ab(angle, shape_0[0] + 1, &shape_0[1], rotbuf);
             set_scale(scale);
-            draw_vl_a(shape_0[0], rotbuf);
+            draw_vl_a(shape_0[0] + 1, rotbuf);
         } else {
             set_scale(scale);
             draw_vlc(shape_0);
@@ -3286,7 +3286,7 @@ int main(void) {{
                 arr_name = f"{name}_f{fi}" if multi else name
                 count = len(pts) - 1
                 lines.append(f"static int8_t {arr_name}[] = {{")
-                lines.append(f"    {count},")
+                lines.append(f"    {count - 1},  // {count} vectors (VLC count-1)")
                 for j in range(1, len(pts)):
                     dy = clamp(pts[j][1] - pts[j - 1][1])
                     dx = clamp(pts[j][0] - pts[j - 1][0])

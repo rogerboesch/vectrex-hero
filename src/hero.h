@@ -15,7 +15,7 @@
 
 #define GRAVITY         1
 #define THRUST          3
-#define MAX_VEL_Y       2
+#define MAX_VEL_Y       4
 #define MAX_VEL_X       3
 #define WALK_SPEED      2
 #define FUEL_DRAIN      1
