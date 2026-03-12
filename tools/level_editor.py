@@ -1572,7 +1572,7 @@ class App:
         ttk.Label(left, text="A/S/D/F: Btn 1-4").pack(anchor="w", padx=8)
 
         # Center: emulator canvas container
-        self._emu_container = tk.Frame(outer, bg="black")
+        self._emu_container = tk.Frame(outer, bg="#333333")
         self._emu_container.pack(side="left", fill="both", expand=True, padx=4, pady=4)
 
         # Right panel: CPU state
