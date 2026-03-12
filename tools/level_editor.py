@@ -1399,6 +1399,13 @@ class App:
         ttk.Button(left, text="Clear Points",
                    command=self._clear_sprite_points).pack(padx=4, pady=4)
 
+        mirror_row = ttk.Frame(left)
+        mirror_row.pack(padx=4, pady=4)
+        ttk.Button(mirror_row, text="Mirror H",
+                   command=self._mirror_sprite_h).pack(side="left", padx=2)
+        ttk.Button(mirror_row, text="Mirror V",
+                   command=self._mirror_sprite_v).pack(side="left", padx=2)
+
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
         ttk.Button(left, text="Run in Emulator",
                    command=self._run_sprite_test).pack(padx=4, pady=4, fill="x")
@@ -2089,6 +2096,22 @@ class App:
         frame = self.current_frame_data()
         if frame:
             frame["points"].clear()
+            self.sprite_canvas.redraw()
+            self._update_vlc_text()
+
+    def _mirror_sprite_h(self):
+        frame = self.current_frame_data()
+        if frame:
+            for pt in frame["points"]:
+                pt[0] = -pt[0]
+            self.sprite_canvas.redraw()
+            self._update_vlc_text()
+
+    def _mirror_sprite_v(self):
+        frame = self.current_frame_data()
+        if frame:
+            for pt in frame["points"]:
+                pt[1] = -pt[1]
             self.sprite_canvas.redraw()
             self._update_vlc_text()
 
