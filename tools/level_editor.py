@@ -2222,10 +2222,10 @@ class App:
             if vlc[0] > max_points:
                 max_points = vlc[0]
 
-        # Generate shape arrays with hw, hh prefix
+        # Generate shape arrays with hw, hh, oy, ox prefix
         shape_decls = []
         for fi, vlc in enumerate(all_vlcs):
-            lines = [f"    0, 0,  // hw, hh (sprite test placeholder)",
+            lines = [f"    0, 0, 0, 0,  // hw, hh, oy, ox (sprite test placeholder)",
                      f"    {vlc[0]},"]
             for i in range(1, len(vlc), 2):
                 lines.append(f"    {vlc[i]:4d}, {vlc[i+1]:4d},")
@@ -2252,12 +2252,12 @@ class App:
 
             draw_logic = """\
         if (angle != 0) {
-            rot_vl_ab(angle, cur_shape[2] + 1, &cur_shape[3], rotbuf);
+            rot_vl_ab(angle, cur_shape[4] + 1, &cur_shape[5], rotbuf);
             set_scale(scale);
-            draw_vl_a(cur_shape[2] + 1, rotbuf);
+            draw_vl_a(cur_shape[4] + 1, rotbuf);
         } else {
             set_scale(scale);
-            draw_vlc(&cur_shape[2]);
+            draw_vlc(&cur_shape[4]);
         }"""
 
             extra_vars = "    int8_t *cur_shape;\n    uint8_t anim_tick = 0;\n"
@@ -2266,12 +2266,12 @@ class App:
             anim_logic = ""
             draw_logic = """\
         if (angle != 0) {
-            rot_vl_ab(angle, shape_0[2] + 1, &shape_0[3], rotbuf);
+            rot_vl_ab(angle, shape_0[4] + 1, &shape_0[5], rotbuf);
             set_scale(scale);
-            draw_vl_a(shape_0[2] + 1, rotbuf);
+            draw_vl_a(shape_0[4] + 1, rotbuf);
         } else {
             set_scale(scale);
-            draw_vlc(&shape_0[2]);
+            draw_vlc(&shape_0[4]);
         }"""
             extra_vars = ""
 
@@ -3314,7 +3314,7 @@ int main(void) {{
             "",
         ]
         # Scale mapping: sprite name -> draw scale
-        scale_map = {"player": 0x6A}
+        scale_map = {"player": 0x6A, "dynamite": 0x30}
         default_scale = 0x60
 
         for sprite in self.project["sprites"]:
@@ -3350,8 +3350,11 @@ int main(void) {{
                 arr_name = f"{name}_f{fi}" if multi else name
                 count = len(pts) - 1
                 h_lines.append(f"extern int8_t {arr_name}[];")
+                oy = clamp(pts[0][1])  # offset from center to VLC start
+                ox = clamp(pts[0][0])
                 c_lines.append(f"int8_t {arr_name}[] = {{")
-                c_lines.append(f"    {hw}, {hh},  // hw, hh (scaled: raw {raw_hw},{raw_hh} × 0x{draw_scale:02X}/0x7F)")
+                c_lines.append(f"    {hw}, {hh},  // hw, hh (scaled: raw {raw_hw},{raw_hh} x 0x{draw_scale:02X}/0x7F)")
+                c_lines.append(f"    {oy}, {ox},  // oy, ox (center to VLC start)")
                 c_lines.append(f"    {count - 1},  // {count} vectors (VLC count-1)")
                 for j in range(1, len(pts)):
                     dy = clamp(pts[j][1] - pts[j - 1][1])

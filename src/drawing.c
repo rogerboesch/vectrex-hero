@@ -10,6 +10,7 @@ void draw_sprite(int8_t y, int8_t x, int8_t *shape) {
     set_scale(0x7F);
     moveto_d(y, x);
     set_scale(0x60);
+    moveto_d(SPRITE_OY(shape), SPRITE_OX(shape));
     draw_vlc(SPRITE_VLC(shape));
 }
 
@@ -88,6 +89,7 @@ void draw_dynamite_and_explosion(void) {
         set_scale(0x7F);
         moveto_d(dyn_y, dyn_x);
         set_scale(0x30);
+        moveto_d(SPRITE_OY(dynamite), SPRITE_OX(dynamite));
         draw_vlc(SPRITE_VLC(dynamite));
         if (dyn_timer & 2) {
             intensity_a(INTENSITY_HI);

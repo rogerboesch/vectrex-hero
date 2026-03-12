@@ -33,10 +33,13 @@
 #define MAX_ROOMS       8
 #define NONE            255
 
-// Sprite data access: arrays are [hw, hh, count-1, dy1, dx1, ...]
+// Sprite data access: arrays are [hw, hh, oy, ox, count-1, dy1, dx1, ...]
+// oy,ox = offset from logical center to VLC draw origin (at sprite scale)
 #define SPRITE_HW(s)   ((s)[0])
 #define SPRITE_HH(s)   ((s)[1])
-#define SPRITE_VLC(s)  (&(s)[2])
+#define SPRITE_OY(s)   ((s)[2])
+#define SPRITE_OX(s)   ((s)[3])
+#define SPRITE_VLC(s)  (&(s)[4])
 
 // Beam intensity
 #define INTENSITY_DIM    0x3F
