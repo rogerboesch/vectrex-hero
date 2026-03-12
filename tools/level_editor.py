@@ -256,7 +256,7 @@ def new_level(name="Level 1"):
 def new_sprite():
     return {
         "name": "sprite",
-        "points": [],  # list of [x, y] -- connected line segments
+        "frames": [{"points": []}],  # list of frames, each with [x, y] line segments
         "bg_image": None,       # {"path": str, "x": int, "y": int, "scale": float} or None
     }
 
@@ -284,6 +284,32 @@ def migrate_project(data):
             for k in list(room.keys()):
                 if k in lvl and k not in ("name", "rooms"):
                     del lvl[k]
+
+    # Migrate sprites: old "points" format → "frames" format
+    for sprite in data.get("sprites", []):
+        if "points" in sprite and "frames" not in sprite:
+            sprite["frames"] = [{"points": sprite.pop("points")}]
+
+    # Merge bat_frame1 + bat_frame2 into single "bat" sprite
+    sprites = data.get("sprites", [])
+    bat_frames = {}
+    bat_indices = []
+    for i, s in enumerate(sprites):
+        if s["name"].startswith("bat_frame"):
+            bat_frames[s["name"]] = s
+            bat_indices.append(i)
+    if "bat_frame1" in bat_frames and "bat_frame2" in bat_frames:
+        merged = {
+            "name": "bat",
+            "frames": bat_frames["bat_frame1"]["frames"] + bat_frames["bat_frame2"]["frames"],
+            "bg_image": bat_frames["bat_frame1"].get("bg_image") or bat_frames["bat_frame2"].get("bg_image"),
+        }
+        # Remove old entries (reverse order to preserve indices)
+        for i in sorted(bat_indices, reverse=True):
+            sprites.pop(i)
+        # Insert merged sprite at first bat position
+        sprites.insert(min(bat_indices), merged)
+
     return data
 
 
@@ -851,6 +877,10 @@ class SpriteCanvas(tk.Canvas):
     def sprite(self):
         return self.app.current_sprite_data()
 
+    @property
+    def frame(self):
+        return self.app.current_frame_data()
+
     def _vx(self, cx, cy):
         half = SPRITE_COORD_RANGE // 2
         vx, vy = canvas_to_vx(cx, cy, SPRITE_CANVAS_SIZE, -half, half)
@@ -864,11 +894,11 @@ class SpriteCanvas(tk.Canvas):
 
     def _hit_point(self, cx, cy):
         """Return index of point near canvas coords, or None."""
-        sprite = self.sprite
-        if not sprite:
+        frame = self.frame
+        if not frame:
             return None
         tol = CLICK_TOLERANCE + 4
-        for i, pt in enumerate(sprite["points"]):
+        for i, pt in enumerate(frame["points"]):
             px, py = self._cx(pt[0], pt[1])
             if abs(cx - px) < tol and abs(cy - py) < tol:
                 return i
@@ -882,7 +912,8 @@ class SpriteCanvas(tk.Canvas):
             return
         if self.app._sprite_bg_show_var.get():
             self._draw_bg_image(sprite)
-        pts = sprite["points"]
+        frame = self.frame
+        pts = frame["points"] if frame else []
         # Draw lines
         for i in range(len(pts) - 1):
             x1, y1 = self._cx(pts[i][0], pts[i][1])
@@ -941,14 +972,16 @@ class SpriteCanvas(tk.Canvas):
         self.create_line(0, cy0, SPRITE_CANVAS_SIZE, cy0, fill="#333355", dash=(2, 4))
 
     def _show_vlc_text(self, sprite):
-        vlc = self._compute_vlc(sprite)
+        vlc = self._compute_vlc(self.frame)
         if vlc:
             txt = "VLC: " + ", ".join(str(v) for v in vlc)
             self.create_text(10, SPRITE_CANVAS_SIZE - 15, text=txt,
                              fill="#666688", font=("Courier", 9), anchor="w")
 
-    def _compute_vlc(self, sprite):
-        pts = sprite["points"]
+    def _compute_vlc(self, frame):
+        if not frame:
+            return None
+        pts = frame["points"]
         if len(pts) < 2:
             return None
         count = len(pts) - 1
@@ -963,8 +996,8 @@ class SpriteCanvas(tk.Canvas):
         vx, vy = self._vx(event.x, event.y)
         tool_str = f"  |  Tool: {self.tool}" if self.tool == "select" else ""
         sel_str = ""
-        if self._drag_idx is not None and self.sprite:
-            pt = self.sprite["points"][self._drag_idx]
+        if self._drag_idx is not None and self.frame:
+            pt = self.frame["points"][self._drag_idx]
             sel_str = f"  |  Point {self._drag_idx}: ({pt[0]}, {pt[1]})"
         self.app.update_status(f"Sprite: ({vx}, {vy}){tool_str}{sel_str}")
 
@@ -981,7 +1014,7 @@ class SpriteCanvas(tk.Canvas):
             self._drag_bg_resize = False
             if hit is not None:
                 self.redraw()
-                pt = sprite["points"][hit]
+                pt = self.frame["points"][hit]
                 self.app.update_status(
                     f"Sprite point {hit}: ({pt[0]}, {pt[1]})")
             elif sprite.get("bg_image") and self._bg_photo and not sprite["bg_image"].get("locked", False):
@@ -1008,7 +1041,9 @@ class SpriteCanvas(tk.Canvas):
         else:
             # Draw mode: add point
             vx, vy = self._vx(event.x, event.y)
-            sprite["points"].append([vx, vy])
+            frame = self.frame
+            if frame is not None:
+                frame["points"].append([vx, vy])
             self.redraw()
 
     def _on_drag(self, event):
@@ -1017,8 +1052,9 @@ class SpriteCanvas(tk.Canvas):
             if not sprite:
                 return
             vx, vy = self._vx(event.x, event.y)
-            if self._drag_idx is not None and 0 <= self._drag_idx < len(sprite["points"]):
-                sprite["points"][self._drag_idx] = [vx, vy]
+            frame = self.frame
+            if frame and self._drag_idx is not None and 0 <= self._drag_idx < len(frame["points"]):
+                frame["points"][self._drag_idx] = [vx, vy]
                 self.redraw()
                 self.app.update_status(
                     f"Sprite point {self._drag_idx}: ({vx}, {vy})")
@@ -1042,17 +1078,17 @@ class SpriteCanvas(tk.Canvas):
 
     def _on_delete(self, event):
         if self._drag_idx is not None:
-            sprite = self.sprite
-            if sprite and 0 <= self._drag_idx < len(sprite["points"]):
-                del sprite["points"][self._drag_idx]
+            frame = self.frame
+            if frame and 0 <= self._drag_idx < len(frame["points"]):
+                del frame["points"][self._drag_idx]
                 self._drag_idx = None
                 self.redraw()
 
     def _on_right_click(self, event):
         """Remove last point."""
-        sprite = self.sprite
-        if sprite and sprite["points"]:
-            sprite["points"].pop()
+        frame = self.frame
+        if frame and frame["points"]:
+            frame["points"].pop()
             self.redraw()
 
 
@@ -1069,6 +1105,7 @@ class App:
         self._current_level_idx = 0
         self._current_room_idx = 0
         self._current_sprite_idx = 0
+        self._current_frame_idx = 0
 
         self._build_menu()
         self._build_ui()
@@ -1094,6 +1131,12 @@ class App:
         idx = self._current_sprite_idx
         if 0 <= idx < len(self.project["sprites"]):
             return self.project["sprites"][idx]
+        return None
+
+    def current_frame_data(self):
+        sprite = self.current_sprite_data()
+        if sprite and 0 <= self._current_frame_idx < len(sprite["frames"]):
+            return sprite["frames"][self._current_frame_idx]
         return None
 
     # ---- Menu ----
@@ -1316,6 +1359,25 @@ class App:
                    command=self._remove_sprite).pack(side="left", padx=2)
         ttk.Button(btn_frame, text="Rename", width=6,
                    command=self._rename_sprite).pack(side="left", padx=2)
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+
+        ttk.Label(left, text="Frame", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(0, 4))
+        self._frame_label = ttk.Label(left, text="Frame 1 / 1", font=("Courier", 9))
+        self._frame_label.pack(anchor="w", padx=4)
+        frame_btn = ttk.Frame(left)
+        frame_btn.pack(fill="x", padx=4, pady=4)
+        ttk.Button(frame_btn, text="<", width=2,
+                   command=self._prev_frame).pack(side="left", padx=1)
+        ttk.Button(frame_btn, text=">", width=2,
+                   command=self._next_frame).pack(side="left", padx=1)
+        ttk.Button(frame_btn, text="+", width=2,
+                   command=self._add_frame).pack(side="left", padx=1)
+        ttk.Button(frame_btn, text="-", width=2,
+                   command=self._remove_frame).pack(side="left", padx=1)
+        ttk.Button(frame_btn, text="Copy", width=4,
+                   command=self._copy_frame).pack(side="left", padx=1)
 
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
 
@@ -1816,10 +1878,12 @@ class App:
 
     def _sprite_selected(self, event=None):
         self._current_sprite_idx = self._sprite_combo.current()
+        self._current_frame_idx = 0
         self._sync_sprite_bg_scale()
         self.sprite_canvas._bg_path_loaded = None  # force reload for new sprite
         self.sprite_canvas.redraw()
         self._update_vlc_text()
+        self._update_frame_label()
 
     def _sync_sprite_bg_scale(self):
         sprite = self.current_sprite_data()
@@ -1835,13 +1899,68 @@ class App:
             self._sprite_bg_lock_var.set(False)
             self._sprite_bg_show_var.set(True)
 
+    # ---- Frame management ----
+
+    def _update_frame_label(self):
+        sprite = self.current_sprite_data()
+        if sprite:
+            n = len(sprite["frames"])
+            self._frame_label.config(text=f"Frame {self._current_frame_idx + 1} / {n}")
+        else:
+            self._frame_label.config(text="Frame - / -")
+
+    def _prev_frame(self):
+        if self._current_frame_idx > 0:
+            self._current_frame_idx -= 1
+            self._update_frame_label()
+            self.sprite_canvas.redraw()
+
+    def _next_frame(self):
+        sprite = self.current_sprite_data()
+        if sprite and self._current_frame_idx < len(sprite["frames"]) - 1:
+            self._current_frame_idx += 1
+            self._update_frame_label()
+            self.sprite_canvas.redraw()
+
+    def _add_frame(self):
+        sprite = self.current_sprite_data()
+        if sprite:
+            sprite["frames"].append({"points": []})
+            self._current_frame_idx = len(sprite["frames"]) - 1
+            self._update_frame_label()
+            self.sprite_canvas.redraw()
+
+    def _remove_frame(self):
+        sprite = self.current_sprite_data()
+        if not sprite or len(sprite["frames"]) <= 1:
+            messagebox.showinfo("Info", "Cannot remove the last frame.")
+            return
+        del sprite["frames"][self._current_frame_idx]
+        if self._current_frame_idx >= len(sprite["frames"]):
+            self._current_frame_idx = len(sprite["frames"]) - 1
+        self._update_frame_label()
+        self.sprite_canvas.redraw()
+
+    def _copy_frame(self):
+        import copy
+        frame = self.current_frame_data()
+        sprite = self.current_sprite_data()
+        if sprite and frame:
+            new_frame = {"points": copy.deepcopy(frame["points"])}
+            sprite["frames"].append(new_frame)
+            self._current_frame_idx = len(sprite["frames"]) - 1
+            self._update_frame_label()
+            self.sprite_canvas.redraw()
+
     def _add_sprite(self):
         s = new_sprite()
         n = len(self.project["sprites"]) + 1
         s["name"] = f"sprite_{n}"
         self.project["sprites"].append(s)
         self._current_sprite_idx = len(self.project["sprites"]) - 1
+        self._current_frame_idx = 0
         self._refresh_sprite_combo()
+        self._update_frame_label()
         self.sprite_canvas.redraw()
         self._update_vlc_text()
 
@@ -1851,7 +1970,9 @@ class App:
             return
         del self.project["sprites"][self._current_sprite_idx]
         self._current_sprite_idx = max(0, self._current_sprite_idx - 1)
+        self._current_frame_idx = 0
         self._refresh_sprite_combo()
+        self._update_frame_label()
         self.sprite_canvas.redraw()
         self._update_vlc_text()
 
@@ -1965,18 +2086,19 @@ class App:
             self.sprite_canvas.redraw()
 
     def _clear_sprite_points(self):
-        sprite = self.current_sprite_data()
-        if sprite:
-            sprite["points"].clear()
+        frame = self.current_frame_data()
+        if frame:
+            frame["points"].clear()
             self.sprite_canvas.redraw()
             self._update_vlc_text()
 
     def _run_sprite_test(self):
         sprite = self.current_sprite_data()
-        if not sprite:
-            messagebox.showerror("Error", "No sprite selected")
+        frame = self.current_frame_data()
+        if not sprite or not frame:
+            messagebox.showerror("Error", "No sprite/frame selected")
             return
-        vlc = self.sprite_canvas._compute_vlc(sprite)
+        vlc = self.sprite_canvas._compute_vlc(frame)
         if not vlc:
             messagebox.showerror("Error", "Sprite needs at least 2 points")
             return
@@ -2837,12 +2959,15 @@ int main(void) {{
 
     def _update_vlc_text(self):
         sprite = self.current_sprite_data()
+        frame = self.current_frame_data()
         self._vlc_text.config(state="normal")
         self._vlc_text.delete("1.0", "end")
-        if sprite:
-            vlc = self.sprite_canvas._compute_vlc(sprite)
+        if sprite and frame:
+            vlc = self.sprite_canvas._compute_vlc(frame)
             if vlc:
                 name = sprite["name"]
+                if len(sprite["frames"]) > 1:
+                    name = f"{name}_f{self._current_frame_idx}"
                 lines = [f"static int8_t {name}[] = {{"]
                 lines.append(f"    {vlc[0]},")
                 for i in range(1, len(vlc), 2):
@@ -2891,6 +3016,7 @@ int main(void) {{
         self._current_level_idx = 0
         self._current_room_idx = 0
         self._current_sprite_idx = 0
+        self._current_frame_idx = 0
         self._save_path = None
         self._refresh_level_combo()
         self._refresh_room_combo()
@@ -2899,6 +3025,7 @@ int main(void) {{
         self._load_constants_to_entries()
         self.level_canvas.redraw()
         self.sprite_canvas.redraw()
+        self._update_frame_label()
 
     def _save_project(self):
         path = self._project_path()
@@ -2939,6 +3066,7 @@ int main(void) {{
             self._current_level_idx = 0
             self._current_room_idx = 0
             self._current_sprite_idx = 0
+            self._current_frame_idx = 0
             self._refresh_level_combo()
             self._refresh_room_combo()
             self._load_exit_fields()
@@ -2946,6 +3074,7 @@ int main(void) {{
             self._load_constants_to_entries()
             self.level_canvas.redraw()
             self.sprite_canvas.redraw()
+            self._update_frame_label()
             self.update_status(f"Loaded: {path}")
         except Exception as e:
             messagebox.showerror("Load Error", str(e))
@@ -3123,19 +3252,23 @@ int main(void) {{
             "",
         ]
         for sprite in self.project["sprites"]:
-            pts = sprite["points"]
-            if len(pts) < 2:
-                continue
             name = sprite["name"]
-            count = len(pts) - 1
-            lines.append(f"static int8_t {name}[] = {{")
-            lines.append(f"    {count},")
-            for j in range(1, len(pts)):
-                dy = clamp(pts[j][1] - pts[j - 1][1])
-                dx = clamp(pts[j][0] - pts[j - 1][0])
-                lines.append(f"    {dy:4d}, {dx:4d},")
-            lines.append("};")
-            lines.append("")
+            frames = sprite.get("frames", [])
+            multi = len(frames) > 1
+            for fi, frame in enumerate(frames):
+                pts = frame["points"]
+                if len(pts) < 2:
+                    continue
+                arr_name = f"{name}_f{fi}" if multi else name
+                count = len(pts) - 1
+                lines.append(f"static int8_t {arr_name}[] = {{")
+                lines.append(f"    {count},")
+                for j in range(1, len(pts)):
+                    dy = clamp(pts[j][1] - pts[j - 1][1])
+                    dx = clamp(pts[j][0] - pts[j - 1][0])
+                    lines.append(f"    {dy:4d}, {dx:4d},")
+                lines.append("};")
+                lines.append("")
 
         with open(path, "w") as f:
             f.write("\n".join(lines) + "\n")
