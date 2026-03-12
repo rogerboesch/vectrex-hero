@@ -29,6 +29,7 @@
 #define EXPLOSION_TIME  20
 #define EXPLOSION_RADIUS 25
 #define EXPLOSION_KILL   10
+#define LAVA_HEIGHT      3
 #define MAX_ENEMIES     3
 #define MAX_ROOMS       8
 #define NONE            255
@@ -129,6 +130,7 @@ extern uint8_t cur_seg_count;
 extern int8_t cur_miner_x;
 extern int8_t cur_miner_y;
 extern uint8_t cur_has_miner;
+extern uint8_t cur_has_lava;
 
 extern const int8_t *room_cave_lines[MAX_ROOMS];
 extern const int8_t *room_walls[MAX_ROOMS];
@@ -141,6 +143,7 @@ extern uint8_t room_exits[MAX_ROOMS * 4];
 extern const int8_t *room_cave_segs[MAX_ROOMS];
 extern uint8_t room_seg_counts[MAX_ROOMS];
 extern uint8_t room_has_miner[MAX_ROOMS];
+extern uint8_t room_has_lava[MAX_ROOMS];
 extern int8_t room_bounds[MAX_ROOMS * 4];  // left, right, top, floor per room
 
 extern char str_buf[16];
@@ -179,6 +182,7 @@ void draw_enemies(void);
 void draw_laser_beam(void);
 void draw_dynamite_and_explosion(void);
 void draw_miner(void);
+void draw_lava(void);
 void draw_hud(void);
 void draw_title_screen(void);
 void draw_game_over_screen(void);

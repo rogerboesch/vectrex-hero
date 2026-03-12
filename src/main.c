@@ -72,6 +72,7 @@ uint8_t cur_seg_count;
 int8_t cur_miner_x;
 int8_t cur_miner_y;
 uint8_t cur_has_miner;
+uint8_t cur_has_lava;
 
 char str_buf[16];
 
@@ -148,6 +149,12 @@ int main(void) {
             update_enemies();
             check_miner_rescue();
 
+            // Lava death check
+            if (cur_has_lava && player_y - SPRITE_HH(player) <= cur_cave_floor + LAVA_HEIGHT) {
+                game_state = STATE_DYING;
+                death_timer = 30;
+            }
+
             // Check room exits using per-room cave bounds
             {
                 uint8_t exit_room = NONE;
@@ -175,6 +182,7 @@ int main(void) {
 
             // Draw everything (minimal zero_beam calls)
             draw_cave();
+            draw_lava();
             draw_enemies();
             draw_dynamite_and_explosion();
             draw_laser_beam();
@@ -195,6 +203,7 @@ int main(void) {
                 draw_player();
             }
             draw_cave();
+            draw_lava();
 
             if (death_timer == 0) {
                 player_lives--;
@@ -208,6 +217,7 @@ int main(void) {
         }
         else if (game_state == STATE_LEVEL_COMPLETE) {
             draw_cave();
+            draw_lava();
             zero_beam();
             set_scale(0x7F);
             print_str_c(100, -63, "RESCUED");

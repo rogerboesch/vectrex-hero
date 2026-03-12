@@ -132,6 +132,10 @@ static const uint8_t l1_room_has_miner[] = {
     0,
     1,
 };
+static const uint8_t l1_room_has_lava[] = {
+    0,
+    1,
+};
 static const uint8_t l1_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
     NONE, NONE, 0, NONE,   // room 1

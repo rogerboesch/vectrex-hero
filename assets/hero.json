@@ -162,7 +162,8 @@
           "exit_left": null,
           "exit_right": null,
           "exit_top": null,
-          "exit_bottom": 2
+          "exit_bottom": 2,
+          "has_lava": false
         },
         {
           "cave_lines": [
@@ -280,14 +281,15 @@
             "y": 75,
             "scale": 1.77,
             "locked": true,
-            "show": false
+            "show": true
           },
           "number": 2,
           "name": "R2",
           "exit_left": null,
           "exit_right": null,
           "exit_top": 1,
-          "exit_bottom": null
+          "exit_bottom": null,
+          "has_lava": true
         }
       ]
     }

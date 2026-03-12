@@ -10,6 +10,7 @@ const int8_t *room_cave_lines[MAX_ROOMS];
 const int8_t *room_cave_segs[MAX_ROOMS];
 uint8_t room_seg_counts[MAX_ROOMS];
 uint8_t room_has_miner[MAX_ROOMS];
+uint8_t room_has_lava[MAX_ROOMS];
 const int8_t *room_walls[MAX_ROOMS];
 uint8_t room_wall_counts[MAX_ROOMS];
 const int8_t *room_enemies_data[MAX_ROOMS];
@@ -28,6 +29,7 @@ void set_level_data(void) {
         room_cave_segs[i] = l1_room_cave_segs[i];
         room_seg_counts[i] = l1_room_seg_counts[i];
         room_has_miner[i] = l1_room_has_miner[i];
+        room_has_lava[i] = l1_room_has_lava[i];
         room_walls[i] = l1_room_walls[i];
         room_wall_counts[i] = l1_room_wall_counts[i];
         room_enemies_data[i] = l1_room_enemies[i];
@@ -57,6 +59,7 @@ void set_room_data(void) {
     cur_cave_top = room_bounds[current_room * 4 + 2];
     cur_cave_floor = room_bounds[current_room * 4 + 3];
     cur_has_miner = room_has_miner[current_room];
+    cur_has_lava = room_has_lava[current_room];
     cur_walls = room_walls[current_room];
     cur_wall_count = room_wall_counts[current_room];
     cur_enemies_data = room_enemies_data[current_room];

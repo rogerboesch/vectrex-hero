@@ -134,6 +134,34 @@ void draw_dynamite_and_explosion(void) {
     }
 }
 
+static const int8_t lava_sin[] = {0, 3, 4, 3, 0, -3, -4, -3};
+
+void draw_lava(void) {
+    uint8_t i, phase;
+    int8_t step, dy;
+    if (!cur_has_lava) return;
+    step = (int8_t)(((int)cur_cave_right - (int)cur_cave_left) / 8);
+    phase = (anim_tick >> 1) & 7;
+    // Upper wave
+    zero_beam();
+    intensity_a(INTENSITY_HI);
+    set_scale(0x7F);
+    moveto_d(cur_cave_floor + lava_sin[phase], cur_cave_left);
+    for (i = 0; i < 8; i++) {
+        dy = lava_sin[(phase + i + 1) & 7] - lava_sin[(phase + i) & 7];
+        draw_line_d(dy, step);
+    }
+    // Lower wave (offset phase, 5 units below)
+    zero_beam();
+    intensity_a(INTENSITY_NORMAL);
+    set_scale(0x7F);
+    moveto_d(cur_cave_floor - 5 + lava_sin[(phase + 4) & 7], cur_cave_left);
+    for (i = 0; i < 8; i++) {
+        dy = lava_sin[(phase + 4 + i + 1) & 7] - lava_sin[(phase + 4 + i) & 7];
+        draw_line_d(dy, step);
+    }
+}
+
 void draw_miner(void) {
     if (!cur_has_miner) return;
     draw_sprite(cur_miner_y, cur_miner_x, miner);

@@ -285,6 +285,7 @@ def new_room(number=1):
             "CAVE_LEFT": -90, "CAVE_RIGHT": 90,
             "CAVE_TOP": 105, "CAVE_FLOOR": -95,
         },
+        "has_lava": False,
         "bg_image": None,       # {"path": str, "x": int, "y": int, "scale": float} or None
     }
 
@@ -327,6 +328,12 @@ def migrate_project(data):
             for k in list(room.keys()):
                 if k in lvl and k not in ("name", "rooms"):
                     del lvl[k]
+
+    # Migrate rooms: add has_lava default
+    for lvl in data.get("levels", []):
+        for room in lvl.get("rooms", []):
+            if "has_lava" not in room:
+                room["has_lava"] = False
 
     # Migrate sprites: old "points" format → "frames" format
     for sprite in data.get("sprites", []):
@@ -503,6 +510,20 @@ class LevelCanvas(tk.Canvas):
         x2, y2 = self._cx(cr, cf)
         self.create_rectangle(x1, y1, x2, y2, outline="#556688", width=1,
                               dash=(6, 3), tags="cave_const")
+
+        # Draw lava indicator if room has lava
+        if lvl.get("has_lava"):
+            lava_sin = [0, 3, 4, 3, 0, -3, -4, -3]
+            step = (cr - cl) / 8
+            points = []
+            for i in range(9):
+                wx = cl + step * i
+                wy = cf + lava_sin[i & 7]
+                px, py = self._cx(wx, wy)
+                points.extend([px, py])
+            if len(points) >= 4:
+                self.create_line(*points, fill="#ff6600", width=2,
+                                 smooth=True, tags="lava")
 
     def _draw_cave_lines(self, lvl):
         for pi, polyline in enumerate(lvl["cave_lines"]):
@@ -1306,6 +1327,14 @@ class App:
             var.trace_add("write", lambda *a, d=exit_dir: self._on_exit_changed(d))
         self._load_exit_fields()
 
+        # Room properties
+        prop_frame = ttk.LabelFrame(left, text="Room Properties")
+        prop_frame.pack(fill="x", padx=4, pady=4)
+        self._lava_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(prop_frame, text="Has Lava",
+                         variable=self._lava_var,
+                         command=self._on_lava_changed).pack(anchor="w", padx=2, pady=1)
+
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=4)
 
         ttk.Label(left, text="Tools", font=("Helvetica", 11, "bold")).pack(pady=(0, 4))
@@ -1877,6 +1906,15 @@ class App:
         for exit_dir, var in self._exit_vars.items():
             val = room.get(f"exit_{exit_dir}") if room else None
             var.set(str(val) if val is not None else "")
+        # Load lava state
+        if hasattr(self, '_lava_var'):
+            self._lava_var.set(room.get("has_lava", False) if room else False)
+
+    def _on_lava_changed(self):
+        room = self.current_room_data()
+        if room is not None:
+            room["has_lava"] = self._lava_var.get()
+            self.level_canvas.redraw()
 
     def _on_exit_changed(self, exit_dir):
         room = self.current_room_data()
@@ -2601,6 +2639,10 @@ int main(void) {{
         for ri, rm in enumerate(rooms):
             lh.append(f"    {1 if rm.get('miner') else 0},")
         lh.append("};")
+        lh.append("static const uint8_t l1_room_has_lava[] = {")
+        for ri, rm in enumerate(rooms):
+            lh.append(f"    {1 if rm.get('has_lava') else 0},")
+        lh.append("};")
 
         # Room exits table (convert 1-based room numbers to 0-based indices)
         lh.append("static const uint8_t l1_room_exits[] = {")
@@ -2639,6 +2681,7 @@ const int8_t *room_cave_lines[MAX_ROOMS];
 const int8_t *room_cave_segs[MAX_ROOMS];
 uint8_t room_seg_counts[MAX_ROOMS];
 uint8_t room_has_miner[MAX_ROOMS];
+uint8_t room_has_lava[MAX_ROOMS];
 const int8_t *room_walls[MAX_ROOMS];
 uint8_t room_wall_counts[MAX_ROOMS];
 const int8_t *room_enemies_data[MAX_ROOMS];
@@ -2655,6 +2698,7 @@ void set_level_data(void) {{
         room_cave_segs[i] = l1_room_cave_segs[i];
         room_seg_counts[i] = l1_room_seg_counts[i];
         room_has_miner[i] = l1_room_has_miner[i];
+        room_has_lava[i] = l1_room_has_lava[i];
         room_walls[i] = l1_room_walls[i];
         room_wall_counts[i] = l1_room_wall_counts[i];
         room_enemies_data[i] = l1_room_enemies[i];
@@ -2684,6 +2728,7 @@ void set_room_data(void) {{
     cur_cave_top = room_bounds[current_room * 4 + 2];
     cur_cave_floor = room_bounds[current_room * 4 + 3];
     cur_has_miner = room_has_miner[current_room];
+    cur_has_lava = room_has_lava[current_room];
     cur_walls = room_walls[current_room];
     cur_wall_count = room_wall_counts[current_room];
     cur_enemies_data = room_enemies_data[current_room];
@@ -2745,7 +2790,15 @@ void start_new_game(void) {{
         # ---- main.c ----
         # src functions already check cur_has_miner internally
         mc_miner_rescue = "            check_miner_rescue();\n"
+        mc_lava_death = """\
+            // Lava death check
+            if (cur_has_lava && player_y - SPRITE_HH(player) <= cur_cave_floor + LAVA_HEIGHT) {{
+                game_state = STATE_DYING;
+                death_timer = 30;
+            }}
+"""
         mc_draw_miner = "            draw_miner();\n"
+        mc_draw_lava = "            draw_lava();\n"
         mc = f"""\
 #include "hero.h"
 
@@ -2773,6 +2826,7 @@ const int8_t *cur_cave_segs;
 uint8_t cur_seg_count;
 int8_t cur_cave_left, cur_cave_right, cur_cave_top, cur_cave_floor;
 uint8_t cur_has_miner;
+uint8_t cur_has_lava;
 const int8_t *cur_walls;
 uint8_t cur_wall_count;
 const int8_t *cur_enemies_data;
@@ -2828,7 +2882,7 @@ int main(void) {{
             update_laser();
             update_dynamite();
             update_enemies();
-{mc_miner_rescue}
+{mc_miner_rescue}{mc_lava_death}
             // Check room exits using per-room cave bounds
             {{
                 uint8_t exit_room = NONE;
@@ -2855,7 +2909,7 @@ int main(void) {{
             }}
 
             draw_cave();
-            draw_enemies();
+{mc_draw_lava}            draw_enemies();
             draw_dynamite_and_explosion();
             draw_laser_beam();
             draw_player();
@@ -2872,6 +2926,7 @@ int main(void) {{
             death_timer--;
             if (death_timer & 2) draw_player();
             draw_cave();
+            draw_lava();
             if (death_timer == 0) {{
                 player_lives--;
                 if (player_lives == 0) {{
@@ -2884,6 +2939,7 @@ int main(void) {{
         }}
         else if (game_state == STATE_LEVEL_COMPLETE) {{
             draw_cave();
+            draw_lava();
             zero_beam();
             set_scale(0x7F);
             print_str_c(100, -63, "RESCUED");
@@ -3243,6 +3299,11 @@ int main(void) {{
             lines.append(f"static const uint8_t {lp}_room_has_miner[] = {{")
             for ri, rm in enumerate(rooms):
                 lines.append(f"    {1 if rm.get('miner') else 0},")
+            lines.append("};")
+
+            lines.append(f"static const uint8_t {lp}_room_has_lava[] = {{")
+            for ri, rm in enumerate(rooms):
+                lines.append(f"    {1 if rm.get('has_lava') else 0},")
             lines.append("};")
 
             # Room exits
