@@ -56,8 +56,8 @@ void draw_enemies(void) {
             set_scale(0x7F);
             moveto_d(enemies[i].home_y, enemies[i].x);
             draw_line_d(enemies[i].y - enemies[i].home_y, 0);
-            // Draw spider sprite
-            frame = (enemies[i].anim & 8) ? spider_f0 : spider_f1;
+            // Draw spider sprite (single frame)
+            frame = spider;
         } else {
             frame = (enemies[i].anim & 8) ? bat_f0 : bat_f1;
         }

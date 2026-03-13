@@ -34,7 +34,7 @@ void update_laser(void) {
         int8_t ehw, ehh;
         if (!enemies[i].alive) continue;
         if (enemies[i].type == ENEMY_SPIDER) {
-            ehw = SPRITE_HW(spider_f0); ehh = SPRITE_HH(spider_f0);
+            ehw = SPRITE_HW(spider); ehh = SPRITE_HH(spider);
         } else {
             ehw = SPRITE_HW(bat_f0); ehh = SPRITE_HH(bat_f0);
         }
@@ -92,7 +92,7 @@ void update_dynamite(void) {
                 int8_t ehw, ehh;
                 if (!enemies[i].alive) continue;
                 if (enemies[i].type == ENEMY_SPIDER) {
-                    ehw = SPRITE_HW(spider_f0); ehh = SPRITE_HH(spider_f0);
+                    ehw = SPRITE_HW(spider); ehh = SPRITE_HH(spider);
                 } else {
                     ehw = SPRITE_HW(bat_f0); ehh = SPRITE_HH(bat_f0);
                 }
@@ -137,8 +137,8 @@ void update_enemies(void) {
                 enemies[i].y = enemies[i].home_y;
                 enemies[i].vx = -enemies[i].vx;
             }
-            ehw = SPRITE_HW(spider_f0);
-            ehh = SPRITE_HH(spider_f0);
+            ehw = SPRITE_HW(spider);
+            ehh = SPRITE_HH(spider);
         } else {
             // Bat: horizontal movement
             enemies[i].x += enemies[i].vx;
