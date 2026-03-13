@@ -12,11 +12,13 @@
 static int frame_ready = 0;
 static vector_t frame_copy[FRAME_VECTOR_MAX];
 static long frame_vector_count = 0;
+static long frame_cycles_snapshot = 0;
 
 static void py_frame_callback(void)
 {
     frame_ready = 1;
     frame_vector_count = vector_draw_cnt;
+    frame_cycles_snapshot = frame_cycle_count;
     /* Snapshot the vector data now, before the frame swap in vec2x_emu()
      * invalidates entries via alg_addline deduplication. */
     if (frame_vector_count > 0)
@@ -95,7 +97,7 @@ vec2x_emu_tick(PyObject *self, PyObject *args)
         PyList_SET_ITEM(list, i, tup);  /* steals ref */
     }
 
-    return list;
+    return Py_BuildValue("(Nl)", list, frame_cycles_snapshot);
 }
 
 static PyObject *

@@ -1763,6 +1763,10 @@ class App:
                 f"CC  ${cc:02X} {flags}",
                 "",
                 f"Vectors {state['vectors']}",
+                "",
+                f"Cycles  {state['cycles']}",
+                f"Min     {state['cycles_min']}",
+                f"Max     {state['cycles_max']}",
             ])
             self._emu_state_text.config(state="normal")
             self._emu_state_text.delete("1.0", "end")

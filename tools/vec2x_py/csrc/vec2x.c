@@ -105,6 +105,8 @@ vector_t *vectors_erse;
 static long vector_hash[VECTOR_HASH];
 
 static long fcycles;
+static long frame_cycle_acc;
+long frame_cycle_count;
 
 /* update the snd chips internal registers when via_ora/via_orb changes */
 
@@ -602,6 +604,8 @@ void vec2x_reset (void)
 	vectors_erse = vectors_set + VECTOR_CNT;
 
 	fcycles = FCYCLES_INIT;
+	frame_cycle_acc = 0;
+	frame_cycle_count = 0;
 
 	e6809_read8 = read8;
 	e6809_write8 = write8;
@@ -943,6 +947,7 @@ void vec2x_emu (long cycles)
 		}
 
 		cycles -= (long) icycles;
+		frame_cycle_acc += (long) icycles;
 
 		fcycles -= (long) icycles;
 
@@ -950,6 +955,8 @@ void vec2x_emu (long cycles)
 			vector_t *tmp;
 
 			fcycles += FCYCLES_INIT;
+			frame_cycle_count = frame_cycle_acc;
+			frame_cycle_acc = 0;
 			if (vec2x_frame_callback) vec2x_frame_callback();
 
 			/* everything that was drawn during this pass now now enters

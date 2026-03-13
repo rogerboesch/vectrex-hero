@@ -32,6 +32,7 @@ extern long vector_draw_cnt;
 extern long vector_erse_cnt;
 extern vector_t *vectors_draw;
 extern vector_t *vectors_erse;
+extern long frame_cycle_count;
 
 /* frame callback — called by vec2x_emu() at each frame boundary */
 extern void (*vec2x_frame_callback)(void);
