@@ -179,12 +179,10 @@ void draw_player(void) {
     set_scale(0x6A);
     moveto_d(SPRITE_OY(player), SPRITE_OX(player));
     draw_vlc(SPRITE_VLC(player));
-    // VLC is a closed shape so beam is back at VLC start; undo offset
-    moveto_d(-SPRITE_OY(player), -SPRITE_OX(player));
+    // VLC is a closed shape so beam is back at VLC start; undo offset + propeller mount
+    moveto_d(-SPRITE_OY(player) + 5, -SPRITE_OX(player) - 4);
 
     // Propeller rod (always visible)
-    // Beam is now back at player center
-    moveto_d(5, -4);
     draw_line_d(6, 0);
 
     if (!player_on_ground || player_thrusting) {

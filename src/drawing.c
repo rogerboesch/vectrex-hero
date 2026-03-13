@@ -59,16 +59,18 @@ void draw_cave(void) {
         }
     }
 
-    for (i = 0; i < cur_wall_count; i++) {
-        if (walls_destroyed & (1 << i)) continue;
-        zero_beam();
+    if (cur_wall_count > 0) {
         intensity_a(dyn_exploding ? INTENSITY_BRIGHT : INTENSITY_HI);
-        set_scale(0x7F);
-        moveto_d(wall_y(i) + wall_h(i), wall_x(i));
-        draw_line_d(0, wall_w(i));
-        draw_line_d(-wall_h(i) * 2, 0);
-        draw_line_d(0, -wall_w(i));
-        draw_line_d(wall_h(i) * 2, 0);
+        for (i = 0; i < cur_wall_count; i++) {
+            if (walls_destroyed & (1 << i)) continue;
+            zero_beam();
+            set_scale(0x7F);
+            moveto_d(wall_y(i) + wall_h(i), wall_x(i));
+            draw_line_d(0, wall_w(i));
+            draw_line_d(-wall_h(i) * 2, 0);
+            draw_line_d(0, -wall_w(i));
+            draw_line_d(wall_h(i) * 2, 0);
+        }
     }
 }
 
@@ -157,30 +159,30 @@ void draw_dynamite_and_explosion(void) {
     }
 }
 
-static const int8_t lava_sin[] = {0, 3, 4, 3, 0, -3, -4, -3};
+static const int8_t lava_sin[] = {0, 4, 0, -4};
 
 void draw_lava(void) {
     uint8_t i, phase;
     int8_t step, dy;
     if (!cur_has_lava) return;
-    step = (int8_t)(((int)cur_cave_right - (int)cur_cave_left) / 8);
-    phase = (anim_tick >> 1) & 7;
+    step = (int8_t)(((int)cur_cave_right - (int)cur_cave_left) / 4);
+    phase = (anim_tick >> 1) & 3;
     // Upper wave
     zero_beam();
     intensity_a(INTENSITY_HI);
     set_scale(0x7F);
     moveto_d(cur_cave_floor + lava_sin[phase], cur_cave_left);
-    for (i = 0; i < 8; i++) {
-        dy = lava_sin[(phase + i + 1) & 7] - lava_sin[(phase + i) & 7];
+    for (i = 0; i < 4; i++) {
+        dy = lava_sin[(phase + i + 1) & 3] - lava_sin[(phase + i) & 3];
         draw_line_d(dy, step);
     }
     // Lower wave (offset phase, 5 units below)
     zero_beam();
     intensity_a(INTENSITY_NORMAL);
     set_scale(0x7F);
-    moveto_d(cur_cave_floor - 5 + lava_sin[(phase + 4) & 7], cur_cave_left);
-    for (i = 0; i < 8; i++) {
-        dy = lava_sin[(phase + 4 + i + 1) & 7] - lava_sin[(phase + 4 + i) & 7];
+    moveto_d(cur_cave_floor - 5 + lava_sin[(phase + 2) & 3], cur_cave_left);
+    for (i = 0; i < 4; i++) {
+        dy = lava_sin[(phase + 2 + i + 1) & 3] - lava_sin[(phase + 2 + i) & 3];
         draw_line_d(dy, step);
     }
 }

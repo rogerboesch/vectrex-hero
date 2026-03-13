@@ -54,9 +54,9 @@ static const int8_t * const font_table[36] = {
     glyph_A, glyph_B, glyph_C, glyph_D, glyph_E,  // A=10..E=14
     glyph_F, glyph_G, glyph_H, glyph_I, glyph_J,  // F=15..J=19
     glyph_K, glyph_L, glyph_M, glyph_N, glyph_O,  // K=20..O=24
-    glyph_P, glyph_Q, glyph_R, glyph_S, glyph_T,    // P=25..T=29
+    glyph_P, glyph_Q, glyph_R, glyph_S, glyph_T,  // P=25..T=29
     glyph_U, glyph_V, glyph_W, glyph_X, glyph_Y,  // U=30..Y=34
-    glyph_Z                                            // Z=35
+    glyph_Z                                          // Z=35
 };
 
 const int8_t *font_glyph(char c) {
