@@ -189,6 +189,7 @@ int main(void) {
             draw_player();
             draw_miner();
             draw_hud();
+            draw_fuel_bar();
 
             if (level_msg_timer > 0) {
                 zero_beam();
@@ -210,6 +211,7 @@ int main(void) {
                 if (player_lives == 0) {
                     game_state = STATE_GAME_OVER;
                 } else {
+                    player_fuel = START_FUEL;
                     init_level();
                     game_state = STATE_PLAYING;
                 }

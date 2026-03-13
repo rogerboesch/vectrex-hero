@@ -179,19 +179,57 @@ void draw_miner(void) {
 }
 
 void draw_hud(void) {
-    int8_t f, l;
-    f = (int8_t)(player_fuel >> 1);
+    int8_t l;
     l = (int8_t)player_lives;
     zero_beam();
     set_scale(0x7F);
     sprintf(str_buf, "%d ", score);
     print_str_c(127, -125, str_buf);
     zero_beam();
-    sprintf(str_buf, "%d ", f);
+    sprintf(str_buf, "%d ", player_dynamite);
     print_str_c(127, -20, str_buf);
     zero_beam();
     sprintf(str_buf, "%d ", l);
     print_str_c(127, 100, str_buf);
+}
+
+void draw_fuel_bar(void) {
+    int8_t bar_y, bar_len, used_len;
+    int max_w, fuel_w;
+    int8_t bar_left;
+
+    bar_y = cur_cave_floor - 20;
+    max_w = ((int)cur_cave_right - (int)cur_cave_left) / 2;
+    bar_left = (int8_t)(-max_w / 2);
+
+    // Bar length proportional to fuel remaining
+    fuel_w = ((int)player_fuel * max_w) / START_FUEL;
+
+    // Fill animation during level start timer
+    if (level_msg_timer > 0) {
+        fuel_w = (fuel_w * (30 - (int)level_msg_timer)) / 30;
+    }
+
+    bar_len = (int8_t)fuel_w;
+
+    // Draw fuel remaining (bright)
+    if (bar_len > 0) {
+        zero_beam();
+        intensity_a(INTENSITY_BRIGHT);
+        set_scale(0x7F);
+        moveto_d(bar_y, bar_left);
+        draw_line_d(0, bar_len);
+    }
+
+    // Draw fuel used (dim)
+    used_len = (int8_t)(max_w - bar_len);
+    if (used_len > 0) {
+        zero_beam();
+        intensity_a(INTENSITY_DIM);
+        set_scale(0x7F);
+        moveto_d(bar_y, (int8_t)(bar_left + bar_len));
+        draw_line_d(0, used_len);
+    }
 }
 
 void draw_title_screen(void) {

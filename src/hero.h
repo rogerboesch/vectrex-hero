@@ -191,6 +191,7 @@ void draw_dynamite_and_explosion(void);
 void draw_miner(void);
 void draw_lava(void);
 void draw_hud(void);
+void draw_fuel_bar(void);
 void draw_title_screen(void);
 void draw_game_over_screen(void);
 

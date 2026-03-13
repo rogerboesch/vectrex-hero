@@ -2977,6 +2977,7 @@ int main(void) {{
             draw_laser_beam();
             draw_player();
 {mc_draw_miner}            draw_hud();
+            draw_fuel_bar();
 
             if (level_msg_timer > 0) {{
                 zero_beam();
