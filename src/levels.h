@@ -15,7 +15,7 @@ static const int8_t l1r1_walls[] = {
 };
 
 #define L1R1_ENEMY_COUNT 0
-static const int8_t l1r1_enemies[] = { 0, 0, 0 };
+static const int8_t l1r1_enemies[] = { 0, 0, 0, 0 };
 
 #define L1R1_START_X  -60
 #define L1R1_START_Y  40
@@ -28,9 +28,9 @@ static const int8_t l1r1_cave[] = {
     0, 127, 0, 8, -35, 0, 0, -85, -35, 0, 4, 50,
     -35, 0, 127, 0, 33, -100, 0, 0, -110, 1, 20, -125,
     0, 25, 1, -15, -125, 0, 25, 1, 20, 100, 0, 25,
-    1, -15, 100, 0, 25, 0,
+    0,
 };
-#define L1R1_SEG_COUNT 20
+#define L1R1_SEG_COUNT 19
 static const int8_t l1r1_cave_segs[] = {
     -85, 50, -85, 20,
     -85, 20, -100, 20,
@@ -51,7 +51,6 @@ static const int8_t l1r1_cave_segs[] = {
     -125, 20, -100, 20,
     -125, -15, -100, -15,
     100, 20, 125, 20,
-    100, -15, 125, -15,
 };
 
 #define L1R2_WALL_COUNT 0
@@ -59,7 +58,7 @@ static const int8_t l1r2_walls[] = { 0, 0, 0, 0 };
 
 #define L1R2_ENEMY_COUNT 1
 static const int8_t l1r2_enemies[] = {
-    -45, 15, 1,   // enemy 0
+    -40, 15, 1, 1,   // enemy 0 (spider)
 };
 
 #define L1R2_START_X  -113

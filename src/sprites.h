@@ -9,6 +9,7 @@ extern int8_t bat_f0[];
 extern int8_t bat_f1[];
 extern int8_t miner[];
 extern int8_t dynamite[];
+extern int8_t spider[];
 
 #endif
 

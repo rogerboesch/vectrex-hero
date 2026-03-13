@@ -97,3 +97,17 @@ int8_t dynamite[] = {
       10,    0,
 };
 
+int8_t spider[] = {
+    5, 4,  // hw, hh (scaled: raw 6,5 x 0x60/0x7F)
+    3, -5,  // oy, ox (center to VLC start)
+    7,  // 8 vectors (VLC count-1)
+       2,    2,
+       0,    2,
+      -2,    0,
+       0,    3,
+       2,    0,
+       0,   -3,
+       0,    6,
+      -2,    1,
+};
+

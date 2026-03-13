@@ -335,6 +335,13 @@ def migrate_project(data):
             if "has_lava" not in room:
                 room["has_lava"] = False
 
+    # Migrate enemies: add type field
+    for lvl in data.get("levels", []):
+        for room in lvl.get("rooms", []):
+            for e in room.get("enemies", []):
+                if "type" not in e:
+                    e["type"] = "bat"
+
     # Migrate sprites: old "points" format → "frames" format
     for sprite in data.get("sprites", []):
         if "points" in sprite and "frames" not in sprite:
@@ -565,20 +572,35 @@ class LevelCanvas(tk.Canvas):
         for i, e in enumerate(lvl["enemies"]):
             cx, cy = self._cx(e["x"], e["y"])
             r = 8
+            is_spider = e.get("type", "bat") == "spider"
+            color = "#cc33ff" if is_spider else "#ff3333"
             self.create_oval(cx - r, cy - r, cx + r, cy + r,
-                             outline="#ff3333", width=2, tags=("enemy", f"enemy_{i}"))
-            # Bat wings
-            self.create_line(cx - r, cy, cx - r - 5, cy - 4, fill="#ff3333",
-                             tags=("enemy", f"enemy_{i}"))
-            self.create_line(cx + r, cy, cx + r + 5, cy - 4, fill="#ff3333",
-                             tags=("enemy", f"enemy_{i}"))
-            # Direction arrow
-            arrow_dx = 12 if e["vx"] > 0 else -12 if e["vx"] < 0 else 0
-            if arrow_dx:
-                self.create_line(cx, cy + r + 4, cx + arrow_dx, cy + r + 4,
-                                 fill="#ff6666", arrow=tk.LAST, width=2,
+                             outline=color, width=2, tags=("enemy", f"enemy_{i}"))
+            if is_spider:
+                # Thread line going up from spider
+                self.create_line(cx, cy - r, cx, cy - r - 12, fill=color,
+                                 width=1, dash=(2, 2),
                                  tags=("enemy", f"enemy_{i}"))
-            self.create_text(cx, cy, text="B", fill="#ff3333",
+                # Direction arrow (vertical)
+                arrow_dy = -12 if e["vx"] > 0 else 12 if e["vx"] < 0 else 0
+                if arrow_dy:
+                    self.create_line(cx + r + 4, cy, cx + r + 4, cy + arrow_dy,
+                                     fill="#dd66ff", arrow=tk.LAST, width=2,
+                                     tags=("enemy", f"enemy_{i}"))
+            else:
+                # Bat wings
+                self.create_line(cx - r, cy, cx - r - 5, cy - 4, fill=color,
+                                 tags=("enemy", f"enemy_{i}"))
+                self.create_line(cx + r, cy, cx + r + 5, cy - 4, fill=color,
+                                 tags=("enemy", f"enemy_{i}"))
+                # Direction arrow (horizontal)
+                arrow_dx = 12 if e["vx"] > 0 else -12 if e["vx"] < 0 else 0
+                if arrow_dx:
+                    self.create_line(cx, cy + r + 4, cx + arrow_dx, cy + r + 4,
+                                     fill="#ff6666", arrow=tk.LAST, width=2,
+                                     tags=("enemy", f"enemy_{i}"))
+            label = "S" if is_spider else "B"
+            self.create_text(cx, cy, text=label, fill=color,
                              font=("Courier", 8, "bold"), tags=("enemy", f"enemy_{i}"))
 
     def _draw_miner(self, lvl):
@@ -660,7 +682,7 @@ class LevelCanvas(tk.Canvas):
             return f"Cave point [line {pi}, pt {vi}]: ({pt[0]}, {pt[1]})"
         elif self._drag_type == "enemy":
             e = lvl["enemies"][self._drag_idx]
-            return f"Enemy {self._drag_idx}: x={e['x']}, y={e['y']}, vx={e['vx']}"
+            return f"Enemy {self._drag_idx} ({e.get('type', 'bat')}): x={e['x']}, y={e['y']}, vx={e['vx']}"
         elif self._drag_type == "wall":
             w = lvl["walls"][self._drag_idx]
             return f"Wall {self._drag_idx}: y={w['y']}, x={w['x']}, h={w['h']}, w={w['w']}"
@@ -707,7 +729,7 @@ class LevelCanvas(tk.Canvas):
             self._redraw_polyline_preview()
 
         elif self.tool == "enemy":
-            self.level["enemies"].append({"x": vx, "y": vy, "vx": 1})
+            self.level["enemies"].append({"x": vx, "y": vy, "vx": 1, "type": "bat"})
             self.redraw()
 
         elif self.tool == "miner":
@@ -862,9 +884,7 @@ class LevelCanvas(tk.Canvas):
         lvl = self.level
         if obj_type == "enemy":
             e = lvl["enemies"][idx]
-            self._prop_dialog("Enemy Properties", [
-                ("x", e["x"]), ("y", e["y"]), ("vx", e["vx"]),
-            ], lambda vals: e.update({"x": int(vals[0]), "y": int(vals[1]), "vx": int(vals[2])}))
+            self._enemy_prop_dialog(e)
         elif obj_type == "wall":
             w = lvl["walls"][idx]
             self._prop_dialog("Wall Properties", [
@@ -876,6 +896,46 @@ class LevelCanvas(tk.Canvas):
                 "h": int(vals[2]), "w": int(vals[3]),
                 "destroyable": bool(int(vals[4])),
             }))
+
+    def _enemy_prop_dialog(self, e):
+        dlg = tk.Toplevel(self)
+        dlg.title("Enemy Properties")
+        dlg.transient(self.winfo_toplevel())
+        dlg.grab_set()
+        tk.Label(dlg, text="x:").grid(row=0, column=0, padx=5, pady=2, sticky="e")
+        ent_x = tk.Entry(dlg, width=10)
+        ent_x.insert(0, str(e["x"]))
+        ent_x.grid(row=0, column=1, padx=5, pady=2)
+        tk.Label(dlg, text="y:").grid(row=1, column=0, padx=5, pady=2, sticky="e")
+        ent_y = tk.Entry(dlg, width=10)
+        ent_y.insert(0, str(e["y"]))
+        ent_y.grid(row=1, column=1, padx=5, pady=2)
+        tk.Label(dlg, text="vx:").grid(row=2, column=0, padx=5, pady=2, sticky="e")
+        ent_vx = tk.Entry(dlg, width=10)
+        ent_vx.insert(0, str(e["vx"]))
+        ent_vx.grid(row=2, column=1, padx=5, pady=2)
+        tk.Label(dlg, text="type:").grid(row=3, column=0, padx=5, pady=2, sticky="e")
+        type_var = tk.StringVar(value=e.get("type", "bat"))
+        type_combo = ttk.Combobox(dlg, textvariable=type_var, values=["bat", "spider"],
+                                  state="readonly", width=8)
+        type_combo.grid(row=3, column=1, padx=5, pady=2)
+
+        def apply():
+            try:
+                e.update({
+                    "x": int(ent_x.get()),
+                    "y": int(ent_y.get()),
+                    "vx": int(ent_vx.get()),
+                    "type": type_var.get(),
+                })
+                dlg.destroy()
+                self.redraw()
+            except ValueError:
+                messagebox.showerror("Invalid input", "Please enter valid integers.")
+
+        tk.Button(dlg, text="OK", command=apply).grid(row=4, column=0, columnspan=2, pady=8)
+        ent_x.focus_set()
+        dlg.bind("<Return>", lambda ev: apply())
 
     def _prop_dialog(self, title, fields, on_ok):
         dlg = tk.Toplevel(self)
@@ -2561,10 +2621,11 @@ int main(void) {{
             if enemies:
                 lh.append(f"static const int8_t {prefix}_enemies[] = {{")
                 for e in enemies:
-                    lh.append(f"    {e['x']}, {e['y']}, {e['vx']},")
+                    type_int = 1 if e.get("type", "bat") == "spider" else 0
+                    lh.append(f"    {e['x']}, {e['y']}, {e['vx']}, {type_int},")
                 lh.append("};")
             else:
-                lh.append(f"static const int8_t {prefix}_enemies[] = {{ 0, 0, 0 }};")
+                lh.append(f"static const int8_t {prefix}_enemies[] = {{ 0, 0, 0, 0 }};")
 
             start_x = ps["x"] if ps else consts.get("CAVE_LEFT", -90) + 15
             start_y = ps["y"] if ps else consts.get("CAVE_TOP", 105) - 2
@@ -2742,9 +2803,11 @@ void load_enemies(void) {{
     enemy_count = cur_enemy_count;
     for (i = 0; i < MAX_ENEMIES; i++) {{
         if (i < enemy_count) {{
-            enemies[i].x = cur_enemies_data[i * 3];
-            enemies[i].y = cur_enemies_data[i * 3 + 1];
-            enemies[i].vx = cur_enemies_data[i * 3 + 2];
+            enemies[i].x = cur_enemies_data[i * 4];
+            enemies[i].y = cur_enemies_data[i * 4 + 1];
+            enemies[i].vx = cur_enemies_data[i * 4 + 2];
+            enemies[i].type = (uint8_t)cur_enemies_data[i * 4 + 3];
+            enemies[i].home_y = enemies[i].y;
             enemies[i].alive = 1;
             enemies[i].anim = 0;
         }} else {{
@@ -3204,10 +3267,12 @@ int main(void) {{
                 if enemies:
                     lines.append(f"static const int8_t {prefix}_enemies[] = {{")
                     for j, e in enumerate(enemies):
-                        lines.append(f"    {e['x']}, {e['y']}, {e['vx']},   // enemy {j}")
+                        etype = e.get("type", "bat")
+                        type_int = 1 if etype == "spider" else 0
+                        lines.append(f"    {e['x']}, {e['y']}, {e['vx']}, {type_int},   // enemy {j} ({etype})")
                     lines.append("};")
                 else:
-                    lines.append(f"static const int8_t {prefix}_enemies[] = {{ 0, 0, 0 }};")
+                    lines.append(f"static const int8_t {prefix}_enemies[] = {{ 0, 0, 0, 0 }};")
                 lines.append("")
 
                 # Player start

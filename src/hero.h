@@ -34,6 +34,11 @@
 #define MAX_ROOMS       8
 #define NONE            255
 
+// Enemy types
+#define ENEMY_BAT       0
+#define ENEMY_SPIDER    1
+#define SPIDER_PATROL   20
+
 // Sprite data access: arrays are [hw, hh, oy, ox, count-1, dy1, dx1, ...]
 // oy,ox = offset from logical center to VLC draw origin (at sprite scale)
 #define SPRITE_HW(s)   ((s)[0])
@@ -71,9 +76,11 @@
 typedef struct {
     int8_t x;
     int8_t y;
-    int8_t vx;
+    int8_t vx;       // velocity: horizontal for bat, vertical for spider
     uint8_t alive;
     uint8_t anim;
+    uint8_t type;    // ENEMY_BAT or ENEMY_SPIDER
+    int8_t home_y;   // spider: anchor Y for thread/patrol
 } Enemy;
 
 // =========================================================================

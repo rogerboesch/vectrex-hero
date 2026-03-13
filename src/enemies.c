@@ -31,11 +31,17 @@ void update_laser(void) {
     else { lx_min = lx_end; lx_max = laser_x; }
 
     for (i = 0; i < enemy_count; i++) {
+        int8_t ehw, ehh;
         if (!enemies[i].alive) continue;
-        if (enemies[i].x + SPRITE_HW(bat_f0) >= lx_min &&
-            enemies[i].x - SPRITE_HW(bat_f0) <= lx_max &&
-            enemies[i].y + SPRITE_HH(bat_f0) >= laser_y - 3 &&
-            enemies[i].y - SPRITE_HH(bat_f0) <= laser_y + 3) {
+        if (enemies[i].type == ENEMY_SPIDER) {
+            ehw = SPRITE_HW(spider_f0); ehh = SPRITE_HH(spider_f0);
+        } else {
+            ehw = SPRITE_HW(bat_f0); ehh = SPRITE_HH(bat_f0);
+        }
+        if (enemies[i].x + ehw >= lx_min &&
+            enemies[i].x - ehw <= lx_max &&
+            enemies[i].y + ehh >= laser_y - 3 &&
+            enemies[i].y - ehh <= laser_y + 3) {
             enemies[i].alive = 0;
             score += 50;
         }
@@ -83,9 +89,15 @@ void update_dynamite(void) {
 
             // Kill nearby enemies
             for (i = 0; i < enemy_count; i++) {
+                int8_t ehw, ehh;
                 if (!enemies[i].alive) continue;
+                if (enemies[i].type == ENEMY_SPIDER) {
+                    ehw = SPRITE_HW(spider_f0); ehh = SPRITE_HH(spider_f0);
+                } else {
+                    ehw = SPRITE_HW(bat_f0); ehh = SPRITE_HH(bat_f0);
+                }
                 if (box_overlap(dyn_x, dyn_y, EXPLOSION_RADIUS, EXPLOSION_RADIUS,
-                                enemies[i].x, enemies[i].y, SPRITE_HW(bat_f0), SPRITE_HH(bat_f0))) {
+                                enemies[i].x, enemies[i].y, ehw, ehh)) {
                     enemies[i].alive = 0;
                     score += 50;
                 }
@@ -109,49 +121,67 @@ void update_dynamite(void) {
 void update_enemies(void) {
     uint8_t i, j;
     int8_t x1, y1, y2, seg_min, seg_max;
+    int8_t ehw, ehh;
     const int8_t *segs;
 
     for (i = 0; i < enemy_count; i++) {
         if (!enemies[i].alive) continue;
 
-        enemies[i].x += enemies[i].vx;
+        if (enemies[i].type == ENEMY_SPIDER) {
+            // Spider: vertical patrol from home_y downward
+            enemies[i].y += enemies[i].vx;
+            if (enemies[i].home_y - enemies[i].y >= SPIDER_PATROL) {
+                enemies[i].y = enemies[i].home_y - SPIDER_PATROL;
+                enemies[i].vx = -enemies[i].vx;
+            } else if (enemies[i].y > enemies[i].home_y) {
+                enemies[i].y = enemies[i].home_y;
+                enemies[i].vx = -enemies[i].vx;
+            }
+            ehw = SPRITE_HW(spider_f0);
+            ehh = SPRITE_HH(spider_f0);
+        } else {
+            // Bat: horizontal movement
+            enemies[i].x += enemies[i].vx;
 
-        // Bounce off room bounds
-        if (enemies[i].x > cur_cave_right - SPRITE_HW(bat_f0) ||
-            enemies[i].x < cur_cave_left + SPRITE_HW(bat_f0)) {
-            enemies[i].vx = -enemies[i].vx;
-        }
+            // Bounce off room bounds
+            if (enemies[i].x > cur_cave_right - SPRITE_HW(bat_f0) ||
+                enemies[i].x < cur_cave_left + SPRITE_HW(bat_f0)) {
+                enemies[i].vx = -enemies[i].vx;
+            }
 
-        // Bounce off vertical cave segments
-        segs = cur_cave_segs;
-        for (j = 0; j < cur_seg_count; j++) {
-            if (segs[j * 4] != segs[j * 4 + 2]) continue;  // not vertical
-            x1 = segs[j * 4];
-            y1 = segs[j * 4 + 1];
-            y2 = segs[j * 4 + 3];
-            seg_min = y1 < y2 ? y1 : y2;
-            seg_max = y1 > y2 ? y1 : y2;
-            if (enemies[i].y + SPRITE_HH(bat_f0) > seg_min &&
-                enemies[i].y - SPRITE_HH(bat_f0) < seg_max) {
-                if (enemies[i].vx > 0 &&
-                    enemies[i].x + SPRITE_HW(bat_f0) > x1 &&
-                    enemies[i].x < x1) {
-                    enemies[i].x = x1 - SPRITE_HW(bat_f0);
-                    enemies[i].vx = -enemies[i].vx;
-                } else if (enemies[i].vx < 0 &&
-                           enemies[i].x - SPRITE_HW(bat_f0) < x1 &&
-                           enemies[i].x > x1) {
-                    enemies[i].x = x1 + SPRITE_HW(bat_f0);
-                    enemies[i].vx = -enemies[i].vx;
+            // Bounce off vertical cave segments
+            segs = cur_cave_segs;
+            for (j = 0; j < cur_seg_count; j++) {
+                if (segs[j * 4] != segs[j * 4 + 2]) continue;  // not vertical
+                x1 = segs[j * 4];
+                y1 = segs[j * 4 + 1];
+                y2 = segs[j * 4 + 3];
+                seg_min = y1 < y2 ? y1 : y2;
+                seg_max = y1 > y2 ? y1 : y2;
+                if (enemies[i].y + SPRITE_HH(bat_f0) > seg_min &&
+                    enemies[i].y - SPRITE_HH(bat_f0) < seg_max) {
+                    if (enemies[i].vx > 0 &&
+                        enemies[i].x + SPRITE_HW(bat_f0) > x1 &&
+                        enemies[i].x < x1) {
+                        enemies[i].x = x1 - SPRITE_HW(bat_f0);
+                        enemies[i].vx = -enemies[i].vx;
+                    } else if (enemies[i].vx < 0 &&
+                               enemies[i].x - SPRITE_HW(bat_f0) < x1 &&
+                               enemies[i].x > x1) {
+                        enemies[i].x = x1 + SPRITE_HW(bat_f0);
+                        enemies[i].vx = -enemies[i].vx;
+                    }
                 }
             }
+            ehw = SPRITE_HW(bat_f0);
+            ehh = SPRITE_HH(bat_f0);
         }
 
         enemies[i].anim++;
 
         // Check collision with player
         if (box_overlap(player_x, player_y, SPRITE_HW(player), SPRITE_HH(player),
-                        enemies[i].x, enemies[i].y, SPRITE_HW(bat_f0), SPRITE_HH(bat_f0))) {
+                        enemies[i].x, enemies[i].y, ehw, ehh)) {
             game_state = STATE_DYING;
             death_timer = 30;
         }

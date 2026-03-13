@@ -49,7 +49,18 @@ void draw_enemies(void) {
     int8_t *frame;
     for (i = 0; i < enemy_count; i++) {
         if (!enemies[i].alive) continue;
-        frame = (enemies[i].anim & 8) ? bat_f0 : bat_f1;
+        if (enemies[i].type == ENEMY_SPIDER) {
+            // Draw thread line from anchor to current position
+            zero_beam();
+            intensity_a(INTENSITY_DIM);
+            set_scale(0x7F);
+            moveto_d(enemies[i].home_y, enemies[i].x);
+            draw_line_d(enemies[i].y - enemies[i].home_y, 0);
+            // Draw spider sprite
+            frame = (enemies[i].anim & 8) ? spider_f0 : spider_f1;
+        } else {
+            frame = (enemies[i].anim & 8) ? bat_f0 : bat_f1;
+        }
         draw_sprite(enemies[i].y, enemies[i].x, frame);
     }
 }

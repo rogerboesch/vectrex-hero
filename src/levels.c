@@ -73,9 +73,11 @@ void load_enemies(void) {
     enemy_count = cur_enemy_count;
     for (i = 0; i < MAX_ENEMIES; i++) {
         if (i < enemy_count) {
-            enemies[i].x = cur_enemies_data[i * 3];
-            enemies[i].y = cur_enemies_data[i * 3 + 1];
-            enemies[i].vx = cur_enemies_data[i * 3 + 2];
+            enemies[i].x = cur_enemies_data[i * 4];
+            enemies[i].y = cur_enemies_data[i * 4 + 1];
+            enemies[i].vx = cur_enemies_data[i * 4 + 2];
+            enemies[i].type = (uint8_t)cur_enemies_data[i * 4 + 3];
+            enemies[i].home_y = enemies[i].y;
             enemies[i].alive = 1;
             enemies[i].anim = 0;
         } else {
