@@ -190,10 +190,7 @@ void draw_miner(void) {
     draw_sprite(cur_miner_y, cur_miner_x, miner);
 }
 
-#define FONT_SCALE    0x50
-#define FONT_CHAR_ADV 10
-
-void draw_text(int8_t y, int8_t x, const char *str) {
+void draw_text(int8_t y, int8_t x, const char *str, uint8_t scale, uint8_t advance) {
     const int8_t *g;
     int cx = (int)x;
     uint8_t i;
@@ -203,11 +200,11 @@ void draw_text(int8_t y, int8_t x, const char *str) {
             zero_beam();
             set_scale(0x7F);
             moveto_d(y, (int8_t)cx);
-            set_scale(FONT_SCALE);
+            set_scale(scale);
             moveto_d(g[0], g[1]);
             draw_vlc((char *)&g[2]);
         }
-        cx += FONT_CHAR_ADV;
+        cx += advance;
     }
 }
 
@@ -216,15 +213,15 @@ void draw_hud(void) {
     // Score — left
     p = int_to_str(score, 0);
     str_buf[p - 1] = '\0';  // remove trailing space
-    draw_text(127, -125, str_buf);
+    draw_text(127, -125, str_buf, 0x50, 10);
     // Dynamite — center
     p = int_to_str((int)player_dynamite, 0);
     str_buf[p - 1] = '\0';
-    draw_text(127, -5, str_buf);
+    draw_text(127, -5, str_buf, 0x50, 10);
     // Lives — right
     p = int_to_str((int)player_lives, 0);
     str_buf[p - 1] = '\0';
-    draw_text(127, 115, str_buf);
+    draw_text(127, 115, str_buf, 0x50, 10);
 }
 
 void draw_fuel_bar(void) {
@@ -266,25 +263,25 @@ void draw_title_screen(void) {
     zero_beam();
     set_scale(0x7F);
     intensity_a(INTENSITY_HI);
-    draw_text(40, -20, "HERO");
+    draw_text(50, -48, "HERO", 0xF0, 24);
     intensity_a(INTENSITY_NORMAL);
     zero_beam();
-    draw_text(-10, -55, "FOR VECTREX");
+    draw_text(-20, -70, "FOR VECTREX", 0x70, 13);
     zero_beam();
-    draw_text(-50, -45, "PRESS BTN");
+    draw_text(-55, -58, "PRESS BTN", 0x70, 13);
 }
 
 void draw_game_over_screen(void) {
     zero_beam();
     set_scale(0x7F);
     intensity_a(INTENSITY_HI);
-    draw_text(30, -45, "GAME OVER");
+    draw_text(30, -45, "GAME OVER", 0x50, 10);
     intensity_a(INTENSITY_NORMAL);
     zero_beam();
     str_buf[0] = 'S'; str_buf[1] = 'C'; str_buf[2] = 'O';
     str_buf[3] = 'R'; str_buf[4] = 'E'; str_buf[5] = ' ';
     int_to_str(score, 6);
-    draw_text(-20, -45, str_buf);
+    draw_text(-20, -45, str_buf, 0x50, 10);
     zero_beam();
-    draw_text(-60, -45, "PRESS BTN");
+    draw_text(-60, -45, "PRESS BTN", 0x50, 10);
 }

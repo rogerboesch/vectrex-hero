@@ -196,7 +196,7 @@ int main(void) {
                 str_buf[0] = 'L'; str_buf[1] = 'E'; str_buf[2] = 'V';
                 str_buf[3] = 'E'; str_buf[4] = 'L'; str_buf[5] = ' ';
                 int_to_str((int)(current_level + 1), 6);
-                draw_text(100, -35, str_buf);
+                draw_text(100, -35, str_buf, 0x50, 10);
                 level_msg_timer--;
             }
         }
@@ -224,7 +224,7 @@ int main(void) {
             draw_lava();
             zero_beam();
             set_scale(0x7F);
-            draw_text(100, -35, "RESCUED");
+            draw_text(100, -35, "RESCUED", 0x50, 10);
 
             level_msg_timer--;
             if (level_msg_timer == 0) {
