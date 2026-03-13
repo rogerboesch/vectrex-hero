@@ -4,6 +4,7 @@
 
 #include "hero.h"
 #include "sprites.h"
+#include "font.h"
 
 // Fast int-to-string into str_buf at offset pos.
 // Appends trailing space (to clear old digits on screen).
@@ -189,17 +190,41 @@ void draw_miner(void) {
     draw_sprite(cur_miner_y, cur_miner_x, miner);
 }
 
+#define FONT_SCALE    0x50
+#define FONT_CHAR_ADV 10
+
+void draw_text(int8_t y, int8_t x, const char *str) {
+    const int8_t *g;
+    int cx = (int)x;
+    uint8_t i;
+    for (i = 0; str[i] != '\0'; i++) {
+        g = font_glyph(str[i]);
+        if (g != 0) {
+            zero_beam();
+            set_scale(0x7F);
+            moveto_d(y, (int8_t)cx);
+            set_scale(FONT_SCALE);
+            moveto_d(g[0], g[1]);
+            draw_vlc((char *)&g[2]);
+        }
+        cx += FONT_CHAR_ADV;
+    }
+}
+
 void draw_hud(void) {
     uint8_t p;
+    // Score — left
     p = int_to_str(score, 0);
-    // Pad to fixed width so dynamite/lives stay in position
-    while (p < 7) str_buf[p++] = ' ';
-    p = int_to_str((int)player_dynamite, p);
-    while (p < 12) str_buf[p++] = ' ';
-    int_to_str((int)player_lives, p);
-    zero_beam();
-    set_scale(0x7F);
-    print_str_c(127, -125, str_buf);
+    str_buf[p - 1] = '\0';  // remove trailing space
+    draw_text(127, -125, str_buf);
+    // Dynamite — center
+    p = int_to_str((int)player_dynamite, 0);
+    str_buf[p - 1] = '\0';
+    draw_text(127, -5, str_buf);
+    // Lives — right
+    p = int_to_str((int)player_lives, 0);
+    str_buf[p - 1] = '\0';
+    draw_text(127, 115, str_buf);
 }
 
 void draw_fuel_bar(void) {
@@ -241,25 +266,25 @@ void draw_title_screen(void) {
     zero_beam();
     set_scale(0x7F);
     intensity_a(INTENSITY_HI);
-    print_str_c(40, -60, "HERO");
+    draw_text(40, -20, "HERO");
     intensity_a(INTENSITY_NORMAL);
     zero_beam();
-    print_str_c(-10, -80, "FOR VECTREX");
+    draw_text(-10, -55, "FOR VECTREX");
     zero_beam();
-    print_str_c(-50, -60, "PRESS BTN");
+    draw_text(-50, -45, "PRESS BTN");
 }
 
 void draw_game_over_screen(void) {
     zero_beam();
     set_scale(0x7F);
     intensity_a(INTENSITY_HI);
-    print_str_c(30, -80, "GAME OVER");
+    draw_text(30, -45, "GAME OVER");
     intensity_a(INTENSITY_NORMAL);
     zero_beam();
     str_buf[0] = 'S'; str_buf[1] = 'C'; str_buf[2] = 'O';
     str_buf[3] = 'R'; str_buf[4] = 'E'; str_buf[5] = ' ';
     int_to_str(score, 6);
-    print_str_c(-20, -80, str_buf);
+    draw_text(-20, -45, str_buf);
     zero_beam();
-    print_str_c(-60, -60, "PRESS BTN");
+    draw_text(-60, -45, "PRESS BTN");
 }

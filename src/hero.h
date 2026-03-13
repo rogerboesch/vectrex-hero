@@ -9,6 +9,7 @@
 #include <vectrex.h>
 #include <vectrex/stdlib.h>
 #include "sprites.h"
+#include "font.h"
 
 // =========================================================================
 // Constants

@@ -3041,7 +3041,7 @@ int main(void) {{
                 str_buf[0] = 'L'; str_buf[1] = 'E'; str_buf[2] = 'V';
                 str_buf[3] = 'E'; str_buf[4] = 'L'; str_buf[5] = ' ';
                 int_to_str((int)(current_level + 1), 6);
-                print_str_c(100, -40, str_buf);
+                draw_text(100, -35, str_buf);
                 level_msg_timer--;
             }}
         }}
@@ -3065,7 +3065,7 @@ int main(void) {{
             draw_lava();
             zero_beam();
             set_scale(0x7F);
-            print_str_c(100, -63, "RESCUED");
+            draw_text(100, -35, "RESCUED");
             level_msg_timer--;
             if (level_msg_timer == 0) {{
                 init_level();
@@ -3095,7 +3095,8 @@ int main(void) {{
                os.path.join(test_dir, "enemies.c"),
                os.path.join(test_dir, "drawing.c"),
                os.path.join(test_dir, "levels.c"),
-               os.path.join(src_dir, "sprites.c")]
+               os.path.join(src_dir, "sprites.c"),
+               os.path.join(src_dir, "font.c")]
 
         if os.path.isfile(bin_path):
             os.remove(bin_path)

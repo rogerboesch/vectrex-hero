@@ -9,8 +9,8 @@ SRCDIR = src
 BINDIR = bin
 
 TARGET = main
-SRC = $(SRCDIR)/main.c $(SRCDIR)/player.c $(SRCDIR)/enemies.c $(SRCDIR)/drawing.c $(SRCDIR)/levels.c $(SRCDIR)/sprites.c
-HDR = $(SRCDIR)/hero.h $(SRCDIR)/sprites.h $(SRCDIR)/levels.h
+SRC = $(SRCDIR)/main.c $(SRCDIR)/player.c $(SRCDIR)/enemies.c $(SRCDIR)/drawing.c $(SRCDIR)/levels.c $(SRCDIR)/sprites.c $(SRCDIR)/font.c
+HDR = $(SRCDIR)/hero.h $(SRCDIR)/sprites.h $(SRCDIR)/levels.h $(SRCDIR)/font.h
 BIN = $(BINDIR)/$(TARGET).bin
 
 all: $(BIN)
