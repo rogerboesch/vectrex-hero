@@ -49,6 +49,7 @@ class Emulator:
 
             self.fcycles = FCYCLES_INIT
             self._py_cycle_acc = 0
+            self._py_in_wait_recal = False
 
         self._standalone = (parent is None)
         self._after_id = None
@@ -140,17 +141,13 @@ class Emulator:
             self.cpu.reset()
             self.fcycles = FCYCLES_INIT
             self._py_cycle_acc = 0
+            self._py_in_wait_recal = False
 
     def _tick(self):
         if _USE_C_EXT:
             result = _vec2x.emu_tick(CYCLES_PER_TICK)
             if result is not None:
-                vectors, cycles = result
-                self._frame_cycles = cycles
-                if cycles < self._frame_cycles_min:
-                    self._frame_cycles_min = cycles
-                if cycles > self._frame_cycles_max:
-                    self._frame_cycles_max = cycles
+                vectors, _ = result
                 self.renderer.render(vectors, len(vectors))
                 self.canvas.update_idletasks()
         else:
@@ -163,7 +160,22 @@ class Emulator:
                 irq = 1 if (via.ifr & 0x80) else 0
                 cycles = cpu.sstep(irq, 0)
                 remaining -= cycles
-                self._py_cycle_acc += cycles
+
+                # Track game code cycles between wait_recal calls
+                if cpu.reg_pc == 0xF192 and not self._py_in_wait_recal:
+                    self._frame_cycles = self._py_cycle_acc
+                    if self._py_cycle_acc > 0:
+                        if self._py_cycle_acc < self._frame_cycles_min:
+                            self._frame_cycles_min = self._py_cycle_acc
+                        if self._py_cycle_acc > self._frame_cycles_max:
+                            self._frame_cycles_max = self._py_cycle_acc
+                    self._py_in_wait_recal = True
+                if self._py_in_wait_recal:
+                    if cpu.reg_pc < 0x8000:
+                        self._py_cycle_acc = 0
+                        self._py_in_wait_recal = False
+                elif not self._py_in_wait_recal:
+                    self._py_cycle_acc += cycles
 
                 for _ in range(cycles):
                     via.sstep0()
@@ -173,12 +185,6 @@ class Emulator:
                 self.fcycles -= cycles
                 if self.fcycles < 0:
                     self.fcycles += FCYCLES_INIT
-                    self._frame_cycles = self._py_cycle_acc
-                    if self._py_cycle_acc < self._frame_cycles_min:
-                        self._frame_cycles_min = self._py_cycle_acc
-                    if self._py_cycle_acc > self._frame_cycles_max:
-                        self._frame_cycles_max = self._py_cycle_acc
-                    self._py_cycle_acc = 0
                     self.renderer.render(via.vectors_draw, via.vector_draw_cnt)
                     via.swap_frame()
                     rendered = True
@@ -191,10 +197,16 @@ class Emulator:
     def get_state(self):
         if _USE_C_EXT:
             state = _vec2x.get_state()
+            cycles = state.get('game_cycles', 0)
         else:
-            state = None
-        if state is None:
             state = {}
+            cycles = self._frame_cycles
+        if cycles > 0:
+            self._frame_cycles = cycles
+            if cycles < self._frame_cycles_min:
+                self._frame_cycles_min = cycles
+            if cycles > self._frame_cycles_max:
+                self._frame_cycles_max = cycles
         state['cycles'] = self._frame_cycles
         state['cycles_min'] = self._frame_cycles_min if self._frame_cycles_max > 0 else 0
         state['cycles_max'] = self._frame_cycles_max

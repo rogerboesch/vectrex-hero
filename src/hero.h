@@ -183,6 +183,7 @@ void update_enemies(void);
 void check_miner_rescue(void);
 
 // drawing.c
+uint8_t int_to_str(int val, uint8_t pos);
 void draw_sprite(int8_t y, int8_t x, int8_t *shape);
 void draw_cave(void);
 void draw_enemies(void);

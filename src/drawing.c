@@ -5,6 +5,33 @@
 #include "hero.h"
 #include "sprites.h"
 
+// Fast int-to-string into str_buf at offset pos.
+// Appends trailing space (to clear old digits on screen).
+// Returns position after the space.
+uint8_t int_to_str(int val, uint8_t pos) {
+    char tmp[6];
+    uint8_t i = 0;
+
+    if (val < 0) {
+        str_buf[pos++] = '-';
+        val = -val;
+    }
+    if (val == 0) {
+        tmp[i++] = '0';
+    } else {
+        while (val > 0) {
+            tmp[i++] = (char)('0' + val % 10);
+            val = val / 10;
+        }
+    }
+    while (i > 0) {
+        str_buf[pos++] = tmp[--i];
+    }
+    str_buf[pos++] = ' ';
+    str_buf[pos] = '\0';
+    return pos;
+}
+
 void draw_sprite(int8_t y, int8_t x, int8_t *shape) {
     zero_beam();
     set_scale(0x7F);
@@ -19,10 +46,10 @@ void draw_cave(void) {
     uint8_t n, i;
     uint8_t cave_int = (dyn_exploding || (game_state == STATE_LEVEL_COMPLETE && (level_msg_timer & 4))) ? INTENSITY_BRIGHT : INTENSITY_DIM;
 
+    intensity_a(cave_int);
+    set_scale(0x7F);
     while ((n = (uint8_t)*p++) != 0) {
         zero_beam();
-        intensity_a(cave_int);
-        set_scale(0x7F);
         moveto_d(p[0], p[1]);
         p += 2;
         for (i = 0; i < n; i++) {
@@ -66,29 +93,13 @@ void draw_enemies(void) {
 }
 
 void draw_laser_beam(void) {
-    int8_t seg, remaining, len;
-    uint8_t on;
     if (!laser_active) return;
     zero_beam();
     set_scale(0x7F);
     moveto_d(laser_y, laser_x);
-    // Flickering segmented beam
-    remaining = LASER_LENGTH;
-    on = anim_tick & 1;
-    while (remaining > 0) {
-        seg = remaining > 8 ? 8 : remaining;
-        len = laser_dir * seg;
-        if (on) {
-            intensity_a(INTENSITY_HI);
-            draw_line_d(0, len);
-        } else {
-            intensity_a(0);
-            draw_line_d(0, len);
-        }
-        on = !on;
-        remaining -= seg;
-    }
-    intensity_a(INTENSITY_NORMAL);
+    // Per-frame flicker instead of spatial segmentation
+    intensity_a((anim_tick & 1) ? INTENSITY_HI : INTENSITY_NORMAL);
+    draw_line_d(0, laser_dir * LASER_LENGTH);
 }
 
 void draw_dynamite_and_explosion(void) {
@@ -179,18 +190,16 @@ void draw_miner(void) {
 }
 
 void draw_hud(void) {
-    int8_t l;
-    l = (int8_t)player_lives;
+    uint8_t p;
+    p = int_to_str(score, 0);
+    // Pad to fixed width so dynamite/lives stay in position
+    while (p < 7) str_buf[p++] = ' ';
+    p = int_to_str((int)player_dynamite, p);
+    while (p < 12) str_buf[p++] = ' ';
+    int_to_str((int)player_lives, p);
     zero_beam();
     set_scale(0x7F);
-    sprintf(str_buf, "%d ", score);
     print_str_c(127, -125, str_buf);
-    zero_beam();
-    sprintf(str_buf, "%d ", player_dynamite);
-    print_str_c(127, -20, str_buf);
-    zero_beam();
-    sprintf(str_buf, "%d ", l);
-    print_str_c(127, 100, str_buf);
 }
 
 void draw_fuel_bar(void) {
@@ -211,23 +220,19 @@ void draw_fuel_bar(void) {
     }
 
     bar_len = (int8_t)fuel_w;
+    used_len = (int8_t)(max_w - bar_len);
+    if (bar_len <= 0 && used_len <= 0) return;
 
-    // Draw fuel remaining (bright)
+    zero_beam();
+    set_scale(0x7F);
+    moveto_d(bar_y, bar_left);
+
     if (bar_len > 0) {
-        zero_beam();
         intensity_a(INTENSITY_BRIGHT);
-        set_scale(0x7F);
-        moveto_d(bar_y, bar_left);
         draw_line_d(0, bar_len);
     }
-
-    // Draw fuel used (dim)
-    used_len = (int8_t)(max_w - bar_len);
     if (used_len > 0) {
-        zero_beam();
         intensity_a(INTENSITY_DIM);
-        set_scale(0x7F);
-        moveto_d(bar_y, (int8_t)(bar_left + bar_len));
         draw_line_d(0, used_len);
     }
 }
@@ -251,7 +256,9 @@ void draw_game_over_screen(void) {
     print_str_c(30, -80, "GAME OVER");
     intensity_a(INTENSITY_NORMAL);
     zero_beam();
-    sprintf(str_buf, "SCORE %d ", score);
+    str_buf[0] = 'S'; str_buf[1] = 'C'; str_buf[2] = 'O';
+    str_buf[3] = 'R'; str_buf[4] = 'E'; str_buf[5] = ' ';
+    int_to_str(score, 6);
     print_str_c(-20, -80, str_buf);
     zero_beam();
     print_str_c(-60, -60, "PRESS BTN");

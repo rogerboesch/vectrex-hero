@@ -105,7 +105,8 @@ vector_t *vectors_erse;
 static long vector_hash[VECTOR_HASH];
 
 static long fcycles;
-static long frame_cycle_acc;
+static long game_cycle_acc;
+static unsigned in_wait_recal;
 long frame_cycle_count;
 
 /* update the snd chips internal registers when via_ora/via_orb changes */
@@ -604,7 +605,8 @@ void vec2x_reset (void)
 	vectors_erse = vectors_set + VECTOR_CNT;
 
 	fcycles = FCYCLES_INIT;
-	frame_cycle_acc = 0;
+	game_cycle_acc = 0;
+	in_wait_recal = 0;
 	frame_cycle_count = 0;
 
 	e6809_read8 = read8;
@@ -947,7 +949,24 @@ void vec2x_emu (long cycles)
 		}
 
 		cycles -= (long) icycles;
-		frame_cycle_acc += (long) icycles;
+
+		/* Track game code cycles between wait_recal calls.
+		 * When PC hits $F192 (wait_recal entry): snapshot and stop counting.
+		 * When PC returns to cartridge space (< $8000): resume counting.
+		 * BIOS draw calls during game code are counted (in_wait_recal == 0).
+		 */
+		if (reg_pc == 0xF192 && !in_wait_recal) {
+			frame_cycle_count = game_cycle_acc;
+			in_wait_recal = 1;
+		}
+		if (in_wait_recal) {
+			if (reg_pc < 0x8000) {
+				game_cycle_acc = 0;
+				in_wait_recal = 0;
+			}
+		} else {
+			game_cycle_acc += (long) icycles;
+		}
 
 		fcycles -= (long) icycles;
 
@@ -955,8 +974,6 @@ void vec2x_emu (long cycles)
 			vector_t *tmp;
 
 			fcycles += FCYCLES_INIT;
-			frame_cycle_count = frame_cycle_acc;
-			frame_cycle_acc = 0;
 			if (vec2x_frame_callback) vec2x_frame_callback();
 
 			/* everything that was drawn during this pass now now enters

@@ -234,31 +234,85 @@ def extract_segments(cave_lines):
     return segments
 
 
+def _polyline_segments(polyline):
+    """Convert a polyline (list of [x,y] points) into (dy,dx) segments,
+    clamped to int8_t range."""
+    segments = []
+    for j in range(1, len(polyline)):
+        dy = int(polyline[j][1] - polyline[j - 1][1])
+        dx = int(polyline[j][0] - polyline[j - 1][0])
+        while dy != 0 or dx != 0:
+            sy = max(-128, min(127, dy))
+            sx = max(-128, min(127, dx))
+            segments.append((sy, sx))
+            dy -= sy
+            dx -= sx
+    return segments
+
+
 def cave_room_data(cave_lines):
     """Build flat int8_t data for a room's cave polylines.
 
     Format: for each polyline: num_segments, start_y, start_x, dy, dx, ...
     Terminated by a 0 byte.
+
+    Merges polylines that share an endpoint (start==end or start==start etc.)
+    into a single group to reduce zero_beam overhead.
     """
-    data = []
+    # Build list of (start, end, segments) for each polyline
+    polys = []
     for polyline in cave_lines:
         if len(polyline) < 2:
             continue
-        segments = []
-        for j in range(1, len(polyline)):
-            dy = int(polyline[j][1] - polyline[j - 1][1])
-            dx = int(polyline[j][0] - polyline[j - 1][0])
-            while dy != 0 or dx != 0:
-                sy = max(-128, min(127, dy))
-                sx = max(-128, min(127, dx))
-                segments.append((sy, sx))
-                dy -= sy
-                dx -= sx
-        x0, y0 = polyline[0]
-        data.append(len(segments))
-        data.append(int(y0))
-        data.append(int(x0))
-        for sy, sx in segments:
+        segs = _polyline_segments(polyline)
+        if not segs:
+            continue
+        start = (int(polyline[0][0]), int(polyline[0][1]))
+        end = (int(polyline[-1][0]), int(polyline[-1][1]))
+        polys.append([start, end, segs])
+
+    # Greedily merge polylines that share an endpoint
+    merged = True
+    while merged:
+        merged = False
+        for i in range(len(polys)):
+            for j in range(i + 1, len(polys)):
+                si, ei, segi = polys[i]
+                sj, ej, segj = polys[j]
+                if ei == sj:
+                    # i's end == j's start: append j to i
+                    polys[i] = [si, ej, segi + segj]
+                    polys.pop(j)
+                    merged = True
+                    break
+                elif ei == ej:
+                    # i's end == j's end: append reversed j to i
+                    polys[i] = [si, sj, segi + [(-dy, -dx) for dy, dx in reversed(segj)]]
+                    polys.pop(j)
+                    merged = True
+                    break
+                elif si == sj:
+                    # i's start == j's start: prepend reversed j to i
+                    polys[i] = [ej, ei, [(-dy, -dx) for dy, dx in reversed(segj)] + segi]
+                    polys.pop(j)
+                    merged = True
+                    break
+                elif si == ej:
+                    # i's start == j's end: prepend j to i
+                    polys[i] = [sj, ei, segj + segi]
+                    polys.pop(j)
+                    merged = True
+                    break
+            if merged:
+                break
+
+    # Emit flat data
+    data = []
+    for start, end, segs in polys:
+        data.append(len(segs))
+        data.append(start[1])  # y
+        data.append(start[0])  # x
+        for sy, sx in segs:
             data.append(sy)
             data.append(sx)
     data.append(0)  # terminator
@@ -2984,7 +3038,9 @@ int main(void) {{
 
             if (level_msg_timer > 0) {{
                 zero_beam();
-                sprintf(str_buf, "LEVEL %d", current_level + 1);
+                str_buf[0] = 'L'; str_buf[1] = 'E'; str_buf[2] = 'V';
+                str_buf[3] = 'E'; str_buf[4] = 'L'; str_buf[5] = ' ';
+                int_to_str((int)(current_level + 1), 6);
                 print_str_c(100, -40, str_buf);
                 level_msg_timer--;
             }}

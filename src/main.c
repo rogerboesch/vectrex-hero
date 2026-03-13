@@ -193,7 +193,9 @@ int main(void) {
 
             if (level_msg_timer > 0) {
                 zero_beam();
-                sprintf(str_buf, "LEVEL %d", current_level + 1);
+                str_buf[0] = 'L'; str_buf[1] = 'E'; str_buf[2] = 'V';
+                str_buf[3] = 'E'; str_buf[4] = 'L'; str_buf[5] = ' ';
+                int_to_str((int)(current_level + 1), 6);
                 print_str_c(100, -40, str_buf);
                 level_msg_timer--;
             }

@@ -118,7 +118,7 @@ vec2x_set_input(PyObject *self, PyObject *args)
 static PyObject *
 vec2x_get_state(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("{s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:l}",
+    return Py_BuildValue("{s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:l,s:l}",
         "A",  reg_a,
         "B",  reg_b,
         "X",  reg_x,
@@ -128,7 +128,8 @@ vec2x_get_state(PyObject *self, PyObject *args)
         "PC", reg_pc,
         "DP", reg_dp,
         "CC", reg_cc,
-        "vectors", frame_vector_count);
+        "vectors", frame_vector_count,
+        "game_cycles", frame_cycle_count);
 }
 
 /* ---- module definition ---- */
