@@ -3488,8 +3488,8 @@ def main():
     args = parser.parse_args()
 
     root = tk.Tk()
-    root.geometry("1300x700")
-    root.minsize(1200, 660)
+    root.geometry("1300x750")
+    root.minsize(1200, 710)
     app = App(root)
 
     # Override sprite canvas redraw to also update VLC text
