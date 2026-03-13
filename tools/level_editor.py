@@ -1749,8 +1749,7 @@ class App:
                 f"PC  ${state['PC']:04X}",
             ]
             bios = _bios_name(state['PC'])
-            if bios:
-                lines.append(f"> {bios}")
+            lines.append(f"> {bios}" if bios else "> -")
             lines.extend([
                 f"A   ${state['A']:02X}",
                 f"B   ${state['B']:02X}",
