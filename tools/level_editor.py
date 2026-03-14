@@ -3614,8 +3614,8 @@ def main():
         return
 
     root = tk.Tk()
-    root.geometry("1300x750")
-    root.minsize(1200, 710)
+    root.geometry("1300x800")
+    root.minsize(1300, 800)
     app = App(root)
 
     # Override sprite canvas redraw to also update VLC text
