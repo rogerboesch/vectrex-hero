@@ -212,18 +212,20 @@ void draw_text(int8_t y, int8_t x, const char *str, uint8_t scale, uint8_t advan
 
 void draw_hud(void) {
     uint8_t p;
-    // Score — left
-    p = int_to_str(score, 0);
-    str_buf[p - 1] = '\0';  // remove trailing space
-    draw_text(127, -125, str_buf, 0x50, 10);
-    // Dynamite — center
-    p = int_to_str((int)player_dynamite, 0);
-    str_buf[p - 1] = '\0';
-    draw_text(127, -5, str_buf, 0x50, 10);
-    // Lives — right
-    p = int_to_str((int)player_lives, 0);
-    str_buf[p - 1] = '\0';
-    draw_text(127, 115, str_buf, 0x50, 10);
+    if (anim_tick & 1) {
+        // Odd frames: dynamite + lives (2 single-digit chars)
+        p = int_to_str((int)player_dynamite, 0);
+        str_buf[p - 1] = '\0';
+        draw_text(127, -5, str_buf, 0x50, 10);
+        p = int_to_str((int)player_lives, 0);
+        str_buf[p - 1] = '\0';
+        draw_text(127, 115, str_buf, 0x50, 10);
+    } else {
+        // Even frames: score (1-4 chars)
+        p = int_to_str(score, 0);
+        str_buf[p - 1] = '\0';
+        draw_text(127, -125, str_buf, 0x50, 10);
+    }
 }
 
 void draw_fuel_bar(void) {
