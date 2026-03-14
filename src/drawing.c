@@ -315,11 +315,19 @@ void draw_title_screen(void) {
         draw_line_d(-32, dx);
     }
 
-    // Title text
-    zero_beam();
-    set_scale(0x7F);
-    intensity_a(INTENSITY_HI);
-    draw_text(50, -48, "HERO", 0xF0, 24);
+    // Title text — pulse intensity + bounce scale
+    {
+        uint8_t phase, tri, inten, scale, advance;
+        phase = (anim_tick >> 1) & 15;
+        tri = phase < 8 ? phase : 15 - phase;
+        inten = INTENSITY_DIM + tri * 8;
+        scale = (uint8_t)(0xB0 + tri * 10);
+        advance = (uint8_t)(16 + tri * 2);
+        zero_beam();
+        set_scale(0x7F);
+        intensity_a(inten);
+        draw_text(50, (int8_t)(-advance * 2), "HERO", scale, advance);
+    }
     intensity_a(INTENSITY_NORMAL);
     zero_beam();
     draw_text(-40, -58, "PRESS BTN", 0x70, 13);
