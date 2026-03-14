@@ -43,6 +43,98 @@ int8_t player_left[] = {
        6,    0,
 };
 
+int8_t walk_right_f0[] = {
+    5, 12,  // hw, hh (scaled: raw 6,14 x 0x6A/0x7F)
+    10, 6,  // oy, ox (center to VLC start)
+    16,  // 17 vectors (VLC count-1)
+       0,   -6,
+      -4,    0,
+      -2,    2,
+       0,   -8,
+      -5,    0,
+      -4,    6,
+      -4,   -1,
+      -5,   -3,
+       0,    1,
+       4,    3,
+      -4,    4,
+       0,    1,
+       5,   -2,
+       4,    0,
+       9,    1,
+       0,    2,
+       6,    0,
+};
+
+int8_t walk_right_f1[] = {
+    5, 12,  // hw, hh (scaled: raw 6,14 x 0x6A/0x7F)
+    10, 6,  // oy, ox (center to VLC start)
+    16,  // 17 vectors (VLC count-1)
+       0,   -6,
+      -4,    0,
+      -2,    2,
+       0,   -8,
+      -5,    0,
+      -4,    6,
+      -4,   -1,
+      -5,    0,
+       0,    1,
+       4,    0,
+      -4,    2,
+       0,    1,
+       5,    0,
+       4,    0,
+       9,    1,
+       0,    2,
+       6,    0,
+};
+
+int8_t walk_left_f0[] = {
+    5, 12,  // hw, hh (scaled: raw 6,14 x 0x6A/0x7F)
+    10, -6,  // oy, ox (center to VLC start)
+    16,  // 17 vectors (VLC count-1)
+       0,    6,
+      -4,    0,
+      -2,   -2,
+       0,    8,
+      -5,    0,
+      -4,   -6,
+      -4,    1,
+      -5,    3,
+       0,   -1,
+       4,   -3,
+      -4,   -4,
+       0,   -1,
+       5,    2,
+       4,    0,
+       9,   -1,
+       0,   -2,
+       6,    0,
+};
+
+int8_t walk_left_f1[] = {
+    5, 12,  // hw, hh (scaled: raw 6,14 x 0x6A/0x7F)
+    10, -6,  // oy, ox (center to VLC start)
+    16,  // 17 vectors (VLC count-1)
+       0,    6,
+      -4,    0,
+      -2,   -2,
+       0,    8,
+      -5,    0,
+      -4,   -6,
+      -4,    1,
+      -5,    0,
+       0,   -1,
+       4,    0,
+      -4,   -2,
+       0,   -1,
+       5,    0,
+       4,    0,
+       9,   -1,
+       0,   -2,
+       6,    0,
+};
+
 int8_t bat_f0[] = {
     6, 5,  // hw, hh (scaled: raw 8,7 x 0x60/0x7F)
     0, -5,  // oy, ox (center to VLC start)

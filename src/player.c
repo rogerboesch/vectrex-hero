@@ -173,10 +173,20 @@ void handle_input(void) {
 
 void draw_player(void) {
     int8_t *spr;
-    int8_t f;  // 1 = right, -1 = left
+    int8_t f;
 
     f = player_facing;
-    spr = (f > 0) ? player_right : player_left;
+
+    if (player_on_ground && !player_thrusting) {
+        // Walking sprite — animate when moving
+        if (player_vx != 0 && (anim_tick & 8)) {
+            spr = (f > 0) ? walk_right_f1 : walk_left_f1;
+        } else {
+            spr = (f > 0) ? walk_right_f0 : walk_left_f0;
+        }
+    } else {
+        spr = (f > 0) ? player_right : player_left;
+    }
 
     // Draw body from VLC sprite data
     zero_beam();
@@ -185,10 +195,9 @@ void draw_player(void) {
     set_scale(0x6A);
     moveto_d(SPRITE_OY(spr), SPRITE_OX(spr));
     draw_vlc(SPRITE_VLC(spr));
-    // VLC is a closed shape so beam is back at VLC start; undo offset + propeller mount
-    moveto_d(-SPRITE_OY(spr) + 5, -SPRITE_OX(spr) - 4 * f);
 
-    // Propeller rod (always visible)
+    // Propeller mount + rod
+    moveto_d(-SPRITE_OY(spr) + 5, -SPRITE_OX(spr) - 4 * f);
     draw_line_d(8, 0);
 
     if (!player_on_ground || player_thrusting) {
@@ -201,7 +210,7 @@ void draw_player(void) {
             draw_line_d(-4, 6 * f);
         }
     } else {
-        // Static blades (horizontal)
+        // Static blades
         moveto_d(0, -4 * f);
         draw_line_d(0, 8 * f);
     }
