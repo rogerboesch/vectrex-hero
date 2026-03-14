@@ -62,8 +62,8 @@ static const int8_t l1r2_enemies[] = {
 
 #define L1R2_START_X  -113
 #define L1R2_START_Y  48
-#define L1R2_MINER_X  -80
-#define L1R2_MINER_Y  -10
+#define L1R2_MINER_X  -79
+#define L1R2_MINER_Y  -9
 
 static const int8_t l1r2_cave[] = {
     10, 20, -125, 0, 110, 30, 0, 0, -110, -100, 0, 0,
