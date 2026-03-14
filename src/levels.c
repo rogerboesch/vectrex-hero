@@ -104,7 +104,6 @@ void init_level(void) {
     dyn_exploding = 0;
     anim_tick = 0;
     load_enemies();
-    level_msg_timer = 30;
 }
 
 void start_new_game(void) {
@@ -114,5 +113,6 @@ void start_new_game(void) {
     player_dynamite = START_DYNAMITE;
     current_level = 0;
     init_level();
-    game_state = STATE_PLAYING;
+    game_state = STATE_LEVEL_INTRO;
+    level_msg_timer = LEVEL_INTRO_TIME;
 }

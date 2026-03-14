@@ -231,9 +231,10 @@ void draw_hud(void) {
     }
 
     // Score — text, center
-    p = int_to_str(score, 0);
-    str_buf[p - 1] = '\0';
-    draw_text(127, -10, str_buf, 0x50, 10);
+    //p = int_to_str(score, 0);
+    //str_buf[p - 1] = '\0';
+    //draw_text(127, -10, str_buf, 0x50, 10);
+
     // Lives — bar, right
     zero_beam();
     set_scale(0x7F);
@@ -262,11 +263,6 @@ void draw_fuel_bar(void) {
 
     // Bar length proportional to fuel remaining
     fuel_w = ((int)player_fuel * max_w) / START_FUEL;
-
-    // Fill animation during level start timer
-    if (level_msg_timer > 0) {
-        fuel_w = (fuel_w * (30 - (int)level_msg_timer)) / 30;
-    }
 
     bar_len = (int8_t)fuel_w;
     used_len = (int8_t)(max_w - bar_len);
@@ -311,4 +307,40 @@ void draw_game_over_screen(void) {
     draw_text(-20, -45, str_buf, 0x50, 10);
     zero_beam();
     draw_text(-60, -45, "PRESS BTN", 0x50, 10);
+}
+
+void draw_level_intro_screen(void) {
+    zero_beam();
+    set_scale(0x7F);
+    intensity_a(INTENSITY_HI);
+    str_buf[0] = 'L'; str_buf[1] = 'E'; str_buf[2] = 'V';
+    str_buf[3] = 'E'; str_buf[4] = 'L'; str_buf[5] = ' ';
+    int_to_str((int)(current_level + 1), 6);
+    draw_text(20, -48, str_buf, 0xA0, 18);
+}
+
+void draw_rescued_screen(void) {
+    uint8_t p;
+    zero_beam();
+    set_scale(0x7F);
+    intensity_a(INTENSITY_HI);
+    draw_text(30, -120, "MINER RESCUED", 0xA0, 18);
+    intensity_a(INTENSITY_NORMAL);
+    zero_beam();
+    p = int_to_str(score, 0);
+    str_buf[p - 1] = '\0';
+    draw_text(-20, -20, str_buf, 0xA0, 18);
+}
+
+void draw_failed_screen(void) {
+    uint8_t p;
+    zero_beam();
+    set_scale(0x7F);
+    intensity_a(INTENSITY_HI);
+    draw_text(30, -55, "FAILED", 0xA0, 18);
+    intensity_a(INTENSITY_NORMAL);
+    zero_beam();
+    p = int_to_str(score, 0);
+    str_buf[p - 1] = '\0';
+    draw_text(-20, -20, str_buf, 0xA0, 18);
 }

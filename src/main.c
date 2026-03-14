@@ -139,6 +139,13 @@ int main(void) {
                 start_new_game();
             }
         }
+        else if (game_state == STATE_LEVEL_INTRO) {
+            draw_level_intro_screen();
+            level_msg_timer--;
+            if (level_msg_timer == 0) {
+                game_state = STATE_PLAYING;
+            }
+        }
         else if (game_state == STATE_PLAYING) {
             anim_tick++;
 
@@ -152,7 +159,7 @@ int main(void) {
             // Lava death check
             if (cur_has_lava && player_y - SPRITE_HH(player) <= cur_cave_floor + LAVA_HEIGHT) {
                 game_state = STATE_DYING;
-                death_timer = 30;
+                death_timer = DEATH_ANIM_TIME;
             }
 
             // Check room exits using per-room cave bounds
@@ -190,15 +197,6 @@ int main(void) {
             draw_miner();
             draw_hud();
             draw_fuel_bar();
-
-            if (level_msg_timer > 0) {
-                zero_beam();
-                str_buf[0] = 'L'; str_buf[1] = 'E'; str_buf[2] = 'V';
-                str_buf[3] = 'E'; str_buf[4] = 'L'; str_buf[5] = ' ';
-                int_to_str((int)(current_level + 1), 6);
-                draw_text(100, -35, str_buf, 0x50, 10);
-                level_msg_timer--;
-            }
         }
         else if (game_state == STATE_DYING) {
             death_timer--;
@@ -214,26 +212,43 @@ int main(void) {
                     game_state = STATE_GAME_OVER;
                 } else {
                     player_fuel = START_FUEL;
-                    init_level();
-                    game_state = STATE_PLAYING;
+                    game_state = STATE_LEVEL_FAILED;
                 }
             }
         }
         else if (game_state == STATE_LEVEL_COMPLETE) {
             draw_cave();
             draw_lava();
-            zero_beam();
-            set_scale(0x7F);
-            draw_text(100, -35, "RESCUED", 0x50, 10);
 
             level_msg_timer--;
             if (level_msg_timer == 0) {
+                game_state = STATE_RESCUED;
+            }
+        }
+        else if (game_state == STATE_RESCUED) {
+            draw_rescued_screen();
+            if (controller_button_1_1_pressed() ||
+                controller_button_1_2_pressed() ||
+                controller_button_1_3_pressed() ||
+                controller_button_1_4_pressed()) {
                 current_level++;
                 if (current_level > 1) {
                     current_level = 0;
                 }
                 init_level();
-                game_state = STATE_PLAYING;
+                game_state = STATE_LEVEL_INTRO;
+                level_msg_timer = LEVEL_INTRO_TIME;
+            }
+        }
+        else if (game_state == STATE_LEVEL_FAILED) {
+            draw_failed_screen();
+            if (controller_button_1_1_pressed() ||
+                controller_button_1_2_pressed() ||
+                controller_button_1_3_pressed() ||
+                controller_button_1_4_pressed()) {
+                init_level();
+                game_state = STATE_LEVEL_INTRO;
+                level_msg_timer = LEVEL_INTRO_TIME;
             }
         }
         else if (game_state == STATE_GAME_OVER) {

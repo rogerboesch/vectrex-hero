@@ -63,12 +63,21 @@
 #define SHAFT_LEFT  -25
 #define SHAFT_RIGHT  25
 
+// Timing constants
+#define LEVEL_INTRO_TIME    120   // ~2s — "LEVEL N" display
+#define RESCUE_ANIM_TIME     60   // ~1s — cave flash after rescue
+#define DEATH_ANIM_TIME      30   // death blink
+#define FAILED_DELAY_TIME   120   // ~2s — pause before showing failed screen
+
 // Game states
 #define STATE_TITLE         0
 #define STATE_PLAYING       1
 #define STATE_DYING         2
 #define STATE_LEVEL_COMPLETE 3
 #define STATE_GAME_OVER     4
+#define STATE_LEVEL_INTRO   5
+#define STATE_RESCUED       6
+#define STATE_LEVEL_FAILED  7
 
 // =========================================================================
 // Types
@@ -196,6 +205,9 @@ void draw_hud(void);
 void draw_fuel_bar(void);
 void draw_title_screen(void);
 void draw_game_over_screen(void);
+void draw_level_intro_screen(void);
+void draw_rescued_screen(void);
+void draw_failed_screen(void);
 
 // levels.c
 void set_level_data(void);

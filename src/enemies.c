@@ -107,7 +107,7 @@ void update_dynamite(void) {
             if (box_overlap(dyn_x, dyn_y, EXPLOSION_KILL, EXPLOSION_KILL,
                             player_x, player_y, SPRITE_HW(player), SPRITE_HH(player))) {
                 game_state = STATE_DYING;
-                death_timer = 30;
+                death_timer = DEATH_ANIM_TIME;
             }
         }
 
@@ -196,6 +196,6 @@ void check_miner_rescue(void) {
         score += player_fuel;
         score += player_dynamite * 50;
         game_state = STATE_LEVEL_COMPLETE;
-        level_msg_timer = 60;
+        level_msg_timer = RESCUE_ANIM_TIME;
     }
 }
