@@ -211,22 +211,44 @@ void draw_text(int8_t y, int8_t x, const char *str, uint8_t scale, uint8_t advan
 }
 
 void draw_hud(void) {
-    return;
     uint8_t p;
-    if (anim_tick & 1) {
-        // Odd frames: dynamite + lives (2 single-digit chars)
-        p = int_to_str((int)player_dynamite, 0);
-        str_buf[p - 1] = '\0';
-        draw_text(127, -5, str_buf, 0x50, 10);
-        p = int_to_str((int)player_lives, 0);
-        str_buf[p - 1] = '\0';
-        draw_text(127, 115, str_buf, 0x50, 10);
-    } else {
-        // Even frames: score (1-4 chars)
-        p = int_to_str(score, 0);
-        str_buf[p - 1] = '\0';
-        draw_text(127, -125, str_buf, 0x50, 10);
+    int8_t bar_on, bar_off;
+
+    // Dynamite — bar, left
+    zero_beam();
+    set_scale(0x7F);
+    moveto_d(127, -125);
+
+    bar_on = (int8_t)(player_dynamite * 7);
+    bar_off = (int8_t)((START_DYNAMITE - player_dynamite) * 7);
+    if (bar_on > 0) {
+        intensity_a(INTENSITY_BRIGHT);
+        draw_line_d(0, bar_on);
     }
+    if (bar_off > 0) {
+        intensity_a(INTENSITY_DIM);
+        draw_line_d(0, bar_off);
+    }
+
+    // Score — text, center
+    p = int_to_str(score, 0);
+    str_buf[p - 1] = '\0';
+    draw_text(127, -10, str_buf, 0x50, 10);
+    // Lives — bar, right
+    zero_beam();
+    set_scale(0x7F);
+    moveto_d(127, 100);
+    bar_on = (int8_t)(player_lives * 7);
+    bar_off = (int8_t)((START_LIVES - player_lives) * 7);
+    if (bar_on > 0) {
+        intensity_a(INTENSITY_BRIGHT);
+        draw_line_d(0, bar_on);
+    }
+    if (bar_off > 0) {
+        intensity_a(INTENSITY_DIM);
+        draw_line_d(0, bar_off);
+    }
+    intensity_a(INTENSITY_NORMAL);
 }
 
 void draw_fuel_bar(void) {
