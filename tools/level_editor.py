@@ -3517,7 +3517,7 @@ int main(void) {{
             "",
         ]
         # Scale mapping: sprite name -> draw scale
-        scale_map = {"player": 0x6A, "dynamite": 0x30}
+        scale_map = {"player_right": 0x6A, "player_left": 0x6A, "dynamite": 0x30}
         default_scale = 0x60
 
         for sprite in self.project["sprites"]:

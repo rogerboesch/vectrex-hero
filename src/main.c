@@ -100,7 +100,7 @@ uint8_t player_hits_wall(uint8_t i) {
     int8_t wcy = wall_y(i);
     int8_t whw = wall_w(i) / 2;
     int8_t whh = wall_h(i);
-    return box_overlap(player_x, player_y, SPRITE_HW(player), SPRITE_HH(player),
+    return box_overlap(player_x, player_y, SPRITE_HW(player_right), SPRITE_HH(player_right),
                        wcx, wcy, whw, whh);
 }
 
@@ -158,7 +158,7 @@ int main(void) {
             check_miner_rescue();
 
             // Lava death check
-            if (cur_has_lava && player_y - SPRITE_HH(player) <= cur_cave_floor + LAVA_HEIGHT) {
+            if (cur_has_lava && player_y - SPRITE_HH(player_right) <= cur_cave_floor + LAVA_HEIGHT) {
                 game_state = STATE_DYING;
                 death_timer = DEATH_ANIM_TIME;
             }

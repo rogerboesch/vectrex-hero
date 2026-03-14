@@ -4,7 +4,8 @@
 #ifndef SPRITES_H
 #define SPRITES_H
 
-extern int8_t player[];
+extern int8_t player_right[];
+extern int8_t player_left[];
 extern int8_t bat_f0[];
 extern int8_t bat_f1[];
 extern int8_t miner[];

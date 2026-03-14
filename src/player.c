@@ -21,13 +21,13 @@ void update_player_physics(void) {
 
     // Horizontal boundaries — per-room bounds (skip if exit exists)
     if (room_exits[current_room * 4 + 0] == NONE &&
-        player_x < cur_cave_left + SPRITE_HW(player)) {
-        player_x = cur_cave_left + SPRITE_HW(player);
+        player_x < cur_cave_left + SPRITE_HW(player_right)) {
+        player_x = cur_cave_left + SPRITE_HW(player_right);
         player_vx = 0;
     }
     if (room_exits[current_room * 4 + 1] == NONE &&
-        player_x > cur_cave_right - SPRITE_HW(player)) {
-        player_x = cur_cave_right - SPRITE_HW(player);
+        player_x > cur_cave_right - SPRITE_HW(player_right)) {
+        player_x = cur_cave_right - SPRITE_HW(player_right);
         player_vx = 0;
     }
 
@@ -40,9 +40,9 @@ void update_player_physics(void) {
                 wl = wall_x(i);
                 wr = wall_x(i) + wall_w(i);
                 if (player_vx > 0) {
-                    player_x = wl - SPRITE_HW(player);
+                    player_x = wl - SPRITE_HW(player_right);
                 } else if (player_vx < 0) {
-                    player_x = wr + SPRITE_HW(player);
+                    player_x = wr + SPRITE_HW(player_right);
                 }
                 player_vx = 0;
             }
@@ -61,17 +61,17 @@ void update_player_physics(void) {
             wl = wall_x(i);
             wr = wall_x(i) + wall_w(i);
             // Skip if only touching edge (X collision already resolved)
-            if (player_x + SPRITE_HW(player) <= wl || player_x - SPRITE_HW(player) >= wr) continue;
+            if (player_x + SPRITE_HW(player_right) <= wl || player_x - SPRITE_HW(player_right) >= wr) continue;
             wt = wall_y(i) + wall_h(i);
             wb = wall_y(i) - wall_h(i);
             if (player_vy <= 0) {
                 // Falling - land on top
-                player_y = wt + SPRITE_HH(player);
+                player_y = wt + SPRITE_HH(player_right);
                 player_vy = 0;
                 player_on_ground = 1;
             } else {
                 // Rising - hit underside
-                player_y = wb - SPRITE_HH(player);
+                player_y = wb - SPRITE_HH(player_right);
                 player_vy = 0;
             }
         }
@@ -79,16 +79,16 @@ void update_player_physics(void) {
 
     // Floor collision — per-room bounds (skip if bottom exit exists)
     if (room_exits[current_room * 4 + 3] == NONE &&
-        player_y - SPRITE_HH(player) < cur_cave_floor) {
-        player_y = cur_cave_floor + SPRITE_HH(player);
+        player_y - SPRITE_HH(player_right) < cur_cave_floor) {
+        player_y = cur_cave_floor + SPRITE_HH(player_right);
         player_vy = 0;
         player_on_ground = 1;
     }
 
     // Ceiling collision — per-room bounds (skip if top exit exists)
     if (room_exits[current_room * 4 + 2] == NONE &&
-        player_y + SPRITE_HH(player) > cur_cave_top) {
-        player_y = cur_cave_top - SPRITE_HH(player);
+        player_y + SPRITE_HH(player_right) > cur_cave_top) {
+        player_y = cur_cave_top - SPRITE_HH(player_right);
         player_vy = 0;
     }
 
@@ -104,16 +104,16 @@ void update_player_physics(void) {
             // Horizontal segment
             seg_min = x1 < x2 ? x1 : x2;
             seg_max = x1 > x2 ? x1 : x2;
-            if (player_x + SPRITE_HW(player) > seg_min &&
-                player_x - SPRITE_HW(player) < seg_max) {
+            if (player_x + SPRITE_HW(player_right) > seg_min &&
+                player_x - SPRITE_HW(player_right) < seg_max) {
                 if (player_y > y1 &&
-                    player_y - SPRITE_HH(player) < y1) {
-                    player_y = y1 + SPRITE_HH(player);
+                    player_y - SPRITE_HH(player_right) < y1) {
+                    player_y = y1 + SPRITE_HH(player_right);
                     player_vy = 0;
                     player_on_ground = 1;
                 } else if (player_y < y1 &&
-                           player_y + SPRITE_HH(player) > y1) {
-                    player_y = y1 - SPRITE_HH(player);
+                           player_y + SPRITE_HH(player_right) > y1) {
+                    player_y = y1 - SPRITE_HH(player_right);
                     player_vy = 0;
                 }
             }
@@ -121,15 +121,15 @@ void update_player_physics(void) {
             // Vertical segment
             seg_min = y1 < y2 ? y1 : y2;
             seg_max = y1 > y2 ? y1 : y2;
-            if (player_y + SPRITE_HH(player) > seg_min &&
-                player_y - SPRITE_HH(player) < seg_max) {
+            if (player_y + SPRITE_HH(player_right) > seg_min &&
+                player_y - SPRITE_HH(player_right) < seg_max) {
                 if (player_x < x1 &&
-                    player_x + SPRITE_HW(player) > x1) {
-                    player_x = x1 - SPRITE_HW(player);
+                    player_x + SPRITE_HW(player_right) > x1) {
+                    player_x = x1 - SPRITE_HW(player_right);
                     player_vx = 0;
                 } else if (player_x > x1 &&
-                           player_x - SPRITE_HW(player) < x1) {
-                    player_x = x1 + SPRITE_HW(player);
+                           player_x - SPRITE_HW(player_right) < x1) {
+                    player_x = x1 + SPRITE_HW(player_right);
                     player_vx = 0;
                 }
             }
@@ -172,43 +172,37 @@ void handle_input(void) {
 }
 
 void draw_player(void) {
+    int8_t *spr;
+    int8_t f;  // 1 = right, -1 = left
+
+    f = player_facing;
+    spr = (f > 0) ? player_right : player_left;
+
     // Draw body from VLC sprite data
     zero_beam();
     set_scale(0x7F);
     moveto_d(player_y, player_x);
     set_scale(0x6A);
-    moveto_d(SPRITE_OY(player), SPRITE_OX(player));
-    draw_vlc(SPRITE_VLC(player));
+    moveto_d(SPRITE_OY(spr), SPRITE_OX(spr));
+    draw_vlc(SPRITE_VLC(spr));
     // VLC is a closed shape so beam is back at VLC start; undo offset + propeller mount
-    moveto_d(-SPRITE_OY(player) + 5, -SPRITE_OX(player) - 4);
+    moveto_d(-SPRITE_OY(spr) + 5, -SPRITE_OX(spr) - 4 * f);
 
     // Propeller rod (always visible)
-    draw_line_d(6, 0);
+    draw_line_d(8, 0);
 
     if (!player_on_ground || player_thrusting) {
         // Spinning blades
         if (anim_tick & 4) {
-            moveto_d(0, -4);
-            draw_line_d(0, 8);
-            moveto_d(-14, -1);
+            moveto_d(0, -4 * f);
+            draw_line_d(0, 8 * f);
         } else {
-            moveto_d(2, -3);
-            draw_line_d(-4, 6);
-            moveto_d(-12, 0);
+            moveto_d(2, -3 * f);
+            draw_line_d(-4, 6 * f);
         }
-        draw_line_d(-4, 0);
-        moveto_d(4, 3);
-        draw_line_d(-4, 0);
     } else {
         // Static blades (horizontal)
-        moveto_d(0, -4);
-        draw_line_d(0, 8);
-        moveto_d(-14, -1);
-        // Legs with feet
-        draw_line_d(-4, 0);
-        draw_line_d(0, -2);
-        moveto_d(4, 5);
-        draw_line_d(-4, 0);
-        draw_line_d(0, 2);
+        moveto_d(0, -4 * f);
+        draw_line_d(0, 8 * f);
     }
 }

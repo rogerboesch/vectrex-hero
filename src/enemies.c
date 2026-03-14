@@ -54,7 +54,7 @@ void place_dynamite(void) {
     player_dynamite--;
     dyn_active = 1;
     dyn_x = player_x;
-    dyn_y = player_y - SPRITE_HH(player) + 4;
+    dyn_y = player_y - SPRITE_HH(player_right) + 4;
     dyn_timer = DYNAMITE_FUSE;
 }
 
@@ -105,7 +105,7 @@ void update_dynamite(void) {
 
             // Kill player if too close (smaller radius)
             if (box_overlap(dyn_x, dyn_y, EXPLOSION_KILL, EXPLOSION_KILL,
-                            player_x, player_y, SPRITE_HW(player), SPRITE_HH(player))) {
+                            player_x, player_y, SPRITE_HW(player_right), SPRITE_HH(player_right))) {
                 game_state = STATE_DYING;
                 death_timer = DEATH_ANIM_TIME;
             }
@@ -180,7 +180,7 @@ void update_enemies(void) {
         enemies[i].anim++;
 
         // Check collision with player
-        if (box_overlap(player_x, player_y, SPRITE_HW(player), SPRITE_HH(player),
+        if (box_overlap(player_x, player_y, SPRITE_HW(player_right), SPRITE_HH(player_right),
                         enemies[i].x, enemies[i].y, ehw, ehh)) {
             game_state = STATE_DYING;
             death_timer = 30;
@@ -190,7 +190,7 @@ void update_enemies(void) {
 
 void check_miner_rescue(void) {
     if (!cur_has_miner) return;
-    if (box_overlap(player_x, player_y, SPRITE_HW(player), SPRITE_HH(player),
+    if (box_overlap(player_x, player_y, SPRITE_HW(player_right), SPRITE_HH(player_right),
                     cur_miner_x, cur_miner_y, SPRITE_HW(miner), SPRITE_HH(miner))) {
         score += 1000;
         score += player_fuel;
