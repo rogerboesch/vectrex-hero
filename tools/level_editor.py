@@ -3540,13 +3540,41 @@ int main(void) {{
 # Entry point
 # ---------------------------------------------------------------------------
 
+def _run_plain(args):
+    """Emulator-only mode: no editors, no CPU state polling."""
+    rom = args.rom
+    cart = args.cart
+    if not rom or not cart:
+        print("--plain requires both --rom and --cart")
+        sys.exit(1)
+    if not os.path.isfile(rom):
+        print(f"ROM not found: {rom}")
+        sys.exit(1)
+    if not os.path.isfile(cart):
+        print(f"Cart not found: {cart}")
+        sys.exit(1)
+
+    root = tk.Tk()
+    root.title("Vectrex H.E.R.O.")
+    container = tk.Frame(root, bg="#000000")
+    container.pack(fill="both", expand=True)
+    emu = Emulator(rom, cart, parent=container)
+    emu.start()
+    root.mainloop()
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Vectrex H.E.R.O. Level & Sprite Editor")
     parser.add_argument('--project', default=None, help='Path to project JSON file to load at startup')
     parser.add_argument('--rom', default=None, help='Path to Vectrex system ROM')
     parser.add_argument('--cart', default=None, help='Path to cartridge ROM')
+    parser.add_argument('--plain', action='store_true', help='Emulator only, no editors or CPU state')
     args = parser.parse_args()
+
+    if args.plain:
+        _run_plain(args)
+        return
 
     root = tk.Tk()
     root.geometry("1300x750")
