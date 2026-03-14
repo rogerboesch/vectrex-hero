@@ -211,6 +211,7 @@ void draw_text(int8_t y, int8_t x, const char *str, uint8_t scale, uint8_t advan
 }
 
 void draw_hud(void) {
+    return;
     uint8_t p;
     if (anim_tick & 1) {
         // Odd frames: dynamite + lives (2 single-digit chars)

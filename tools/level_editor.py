@@ -1466,6 +1466,17 @@ class App:
                                  value=val, command=self._tool_changed)
             rb.pack(anchor="w", padx=4, pady=2)
 
+        move_row = ttk.Frame(left)
+        move_row.pack(padx=4, pady=4)
+        ttk.Button(move_row, text="\u2190",
+                   command=lambda: self._move_level_element(-1, 0), width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2192",
+                   command=lambda: self._move_level_element(1, 0), width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2191",
+                   command=lambda: self._move_level_element(0, 1), width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2193",
+                   command=lambda: self._move_level_element(0, -1), width=3).pack(side="left", padx=1)
+
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
 
         self._snap_var = tk.BooleanVar(value=True)
@@ -1867,6 +1878,32 @@ class App:
     def _snap_changed(self):
         self.level_canvas.snap_enabled = self._snap_var.get()
         self.sprite_canvas.snap_enabled = self._snap_var.get()
+
+    def _move_level_element(self, dx, dy):
+        lc = self.level_canvas
+        lvl = lc.level
+        if not lvl or not lc._drag_type:
+            return
+        if lc._drag_type == "cave_point":
+            pi, vi = lc._drag_idx
+            lvl["cave_lines"][pi][vi][0] += dx
+            lvl["cave_lines"][pi][vi][1] += dy
+        elif lc._drag_type == "enemy":
+            lvl["enemies"][lc._drag_idx]["x"] += dx
+            lvl["enemies"][lc._drag_idx]["y"] += dy
+        elif lc._drag_type == "wall":
+            lvl["walls"][lc._drag_idx]["x"] += dx
+            lvl["walls"][lc._drag_idx]["y"] += dy
+        elif lc._drag_type == "miner":
+            lvl["miner"]["x"] += dx
+            lvl["miner"]["y"] += dy
+        elif lc._drag_type == "player_start":
+            lvl["player_start"]["x"] += dx
+            lvl["player_start"]["y"] += dy
+        else:
+            return
+        lc.redraw()
+        self.update_status(lc._selection_info())
 
     # ---- Level management ----
 

@@ -11,7 +11,7 @@
 
 #define L1R1_WALL_COUNT 1
 static const int8_t l1r1_walls[] = {
-    2, -30, 17, 10,   // wall 0 (destroyable)
+    2, -30, 15, 10,   // wall 0 (destroyable)
 };
 
 #define L1R1_ENEMY_COUNT 0
