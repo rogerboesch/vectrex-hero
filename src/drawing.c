@@ -282,16 +282,47 @@ void draw_fuel_bar(void) {
     }
 }
 
+// Cave wall distance from center (symmetric left/right)
+const int8_t cave_wx[] = {80, 86, 78, 92, 82, 76, 88, 80, 84, 74, 90, 82};
+
 void draw_title_screen(void) {
+    uint8_t i, prev_i, cur_i;
+    uint8_t base;
+    int8_t dx;
+
+    base = (anim_tick >> 4) % 12;
+
+    // Left cave wall
+    intensity_a(INTENSITY_DIM);
+    zero_beam();
+    set_scale(0x7F);
+    moveto_d(127, -cave_wx[base]);
+    for (i = 1; i <= 8; i++) {
+        prev_i = (base + i - 1) % 12;
+        cur_i = (base + i) % 12;
+        dx = cave_wx[cur_i] - cave_wx[prev_i];
+        draw_line_d(-32, -dx);
+    }
+
+    // Right cave wall
+    zero_beam();
+    set_scale(0x7F);
+    moveto_d(127, cave_wx[base]);
+    for (i = 1; i <= 8; i++) {
+        prev_i = (base + i - 1) % 12;
+        cur_i = (base + i) % 12;
+        dx = cave_wx[cur_i] - cave_wx[prev_i];
+        draw_line_d(-32, dx);
+    }
+
+    // Title text
     zero_beam();
     set_scale(0x7F);
     intensity_a(INTENSITY_HI);
     draw_text(50, -48, "HERO", 0xF0, 24);
     intensity_a(INTENSITY_NORMAL);
     zero_beam();
-    draw_text(-20, -70, "FOR VECTREX", 0x70, 13);
-    zero_beam();
-    draw_text(-55, -58, "PRESS BTN", 0x70, 13);
+    draw_text(-40, -58, "PRESS BTN", 0x70, 13);
 }
 
 void draw_game_over_screen(void) {

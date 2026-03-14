@@ -131,6 +131,7 @@ int main(void) {
         controller_check_buttons();
 
         if (game_state == STATE_TITLE) {
+            anim_tick++;
             draw_title_screen();
             if (controller_button_1_1_pressed() ||
                 controller_button_1_2_pressed() ||
