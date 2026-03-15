@@ -323,6 +323,14 @@ def cave_room_data(cave_lines):
 # Data model
 # ---------------------------------------------------------------------------
 
+def new_layout(name="Layout 1"):
+    return {
+        "name": name,
+        "cave_lines": [],       # list of polylines, each is list of [x, y]
+        "bg_image": None,       # {"path": str, "x": int, "y": int, "scale": float} or None
+    }
+
+
 def new_room(number=1):
     return {
         "number": number,
@@ -330,17 +338,12 @@ def new_room(number=1):
         "exit_right": None,
         "exit_top": None,
         "exit_bottom": None,
-        "cave_lines": [],       # list of polylines, each is list of [x, y]
+        "layout": 0,            # index into project["layouts"]
         "walls": [],            # list of {"y": int, "x": int, "h": int, "w": int, "destroyable": bool}
         "enemies": [],          # list of {"x": int, "y": int, "vx": int}
         "miner": None,          # {"x": int, "y": int} or None
         "player_start": None,   # {"x": int, "y": int} or None
-        "cave_constants": {
-            "CAVE_LEFT": -90, "CAVE_RIGHT": 90,
-            "CAVE_TOP": 105, "CAVE_FLOOR": -95,
-        },
         "has_lava": False,
-        "bg_image": None,       # {"path": str, "x": int, "y": int, "scale": float} or None
     }
 
 
@@ -361,6 +364,7 @@ def new_sprite():
 
 def new_project():
     return {
+        "layouts": [new_layout(f"Layout {i+1}") for i in range(16)],
         "levels": [new_level()],
         "sprites": [new_sprite()],
     }
@@ -395,6 +399,37 @@ def migrate_project(data):
             for e in room.get("enemies", []):
                 if "type" not in e:
                     e["type"] = "bat"
+
+    # Migrate to layouts: extract cave_lines/cave_constants/bg_image from rooms
+    if "layouts" not in data:
+        import copy as _copy
+        layouts = []
+        layout_idx = 0
+        for lvl in data.get("levels", []):
+            for room in lvl.get("rooms", []):
+                if "cave_lines" in room or "bg_image" in room:
+                    layouts.append({
+                        "name": f"Layout {layout_idx + 1}",
+                        "cave_lines": room.pop("cave_lines", []),
+                        "bg_image": room.pop("bg_image", None),
+                    })
+                    room.pop("cave_constants", None)
+                    room["layout"] = layout_idx
+                    layout_idx += 1
+                elif "layout" not in room:
+                    room["layout"] = 0
+        # Pad to 16 layouts
+        while len(layouts) < 16:
+            base = _copy.deepcopy(layouts[0]) if layouts else new_layout()
+            base["name"] = f"Layout {len(layouts) + 1}"
+            layouts.append(base)
+        data["layouts"] = layouts
+    else:
+        # Ensure all rooms have layout field
+        for lvl in data.get("levels", []):
+            for room in lvl.get("rooms", []):
+                if "layout" not in room:
+                    room["layout"] = 0
 
     # Migrate sprites: old "points" format → "frames" format
     for sprite in data.get("sprites", []):
@@ -451,7 +486,7 @@ def load_bg_image(path, canvas_size, scale=1.0, opacity=0.5):
 # ---------------------------------------------------------------------------
 
 class LevelCanvas(tk.Canvas):
-    TOOLS = ("select", "cave_line", "wall", "enemy", "miner", "player_start")
+    TOOLS = ("select", "wall", "enemy", "miner", "player_start")
 
     def __init__(self, parent, app):
         super().__init__(parent, width=CANVAS_SIZE, height=CANVAS_SIZE,
@@ -467,8 +502,6 @@ class LevelCanvas(tk.Canvas):
         self._drag_offset = (0, 0)
         self._wall_start = None      # (vx, vy) for wall drag start
         self._wall_rect_id = None
-        self._polyline_pts = []      # points being drawn for current polyline
-        self._polyline_ids = []      # canvas line ids for preview
         self._bg_photo = None        # cached PhotoImage for background
         self._bg_path_loaded = None  # path of currently loaded bg
         self._bg_scale_loaded = None # scale when last loaded
@@ -499,6 +532,17 @@ class LevelCanvas(tk.Canvas):
 
     # ---- Drawing ----
 
+    def _get_layout(self):
+        """Return the layout dict for the current room."""
+        lvl = self.level
+        if lvl is None:
+            return None
+        layout_idx = lvl.get("layout", 0)
+        layouts = self.app.project.get("layouts", [])
+        if 0 <= layout_idx < len(layouts):
+            return layouts[layout_idx]
+        return None
+
     def redraw(self):
         self.delete("all")
         self._draw_grid()
@@ -506,10 +550,11 @@ class LevelCanvas(tk.Canvas):
         lvl = self.level
         if lvl is None:
             return
-        if self.app._level_bg_show_var.get():
-            self._draw_bg_image(lvl)
-        self._draw_cave_from_constants(lvl)
-        self._draw_cave_lines(lvl)
+        layout = self._get_layout()
+        if layout and self.app._level_bg_show_var.get():
+            self._draw_bg_image(layout)
+        if layout:
+            self._draw_cave_lines(layout)
         self._draw_walls(lvl)
         self._draw_enemies(lvl)
         self._draw_miner(lvl)
@@ -558,36 +603,8 @@ class LevelCanvas(tk.Canvas):
                 self.create_rectangle(hx - 4, hy - 4, hx + 4, hy + 4,
                                       outline="#888", fill="#444", tags="bg_handle")
 
-    def _draw_cave_from_constants(self, lvl):
-        """Draw cave bounding box from cave_constants."""
-        c = lvl.get("cave_constants", {})
-        cl = c.get("CAVE_LEFT")
-        cr = c.get("CAVE_RIGHT")
-        ct = c.get("CAVE_TOP")
-        cf = c.get("CAVE_FLOOR")
-        if None in (cl, cr, ct, cf):
-            return
-        x1, y1 = self._cx(cl, ct)
-        x2, y2 = self._cx(cr, cf)
-        self.create_rectangle(x1, y1, x2, y2, outline="#556688", width=1,
-                              dash=(6, 3), tags="cave_const")
-
-        # Draw lava indicator if room has lava
-        if lvl.get("has_lava"):
-            lava_sin = [0, 3, 4, 3, 0, -3, -4, -3]
-            step = (cr - cl) / 8
-            points = []
-            for i in range(9):
-                wx = cl + step * i
-                wy = cf + lava_sin[i & 7]
-                px, py = self._cx(wx, wy)
-                points.extend([px, py])
-            if len(points) >= 4:
-                self.create_line(*points, fill="#ff6600", width=2,
-                                 smooth=True, tags="lava")
-
-    def _draw_cave_lines(self, lvl):
-        for pi, polyline in enumerate(lvl["cave_lines"]):
+    def _draw_cave_lines(self, layout):
+        for pi, polyline in enumerate(layout["cave_lines"]):
             if len(polyline) < 2:
                 continue
             coords = []
@@ -595,17 +612,6 @@ class LevelCanvas(tk.Canvas):
                 cx, cy = self._cx(pt[0], pt[1])
                 coords.extend([cx, cy])
             self.create_line(*coords, fill="#e0e0ff", width=2, tags="cave_line")
-            # Draw draggable point handles in select mode
-            if self.tool == "select":
-                for vi, pt in enumerate(polyline):
-                    cx, cy = self._cx(pt[0], pt[1])
-                    r = 4
-                    selected = (self._drag_type == "cave_point"
-                                and self._drag_idx == (pi, vi))
-                    color = "#ffff00" if selected else "#e0e0ff"
-                    self.create_oval(cx - r, cy - r, cx + r, cy + r,
-                                     fill=color, outline=color,
-                                     tags=("cave_point", f"cp_{pi}_{vi}"))
 
     def _draw_walls(self, lvl):
         for i, w in enumerate(lvl["walls"]):
@@ -684,12 +690,6 @@ class LevelCanvas(tk.Canvas):
         """Find what object is near canvas coords. Returns (type, index) or None."""
         lvl = self.level
         tol = CLICK_TOLERANCE
-        # Cave line points (check first — small targets get priority)
-        for pi, polyline in enumerate(lvl["cave_lines"]):
-            for vi, pt in enumerate(polyline):
-                px, py = self._cx(pt[0], pt[1])
-                if abs(cx - px) < tol + 4 and abs(cy - py) < tol + 4:
-                    return ("cave_point", (pi, vi))
         # Enemies
         for i, e in enumerate(lvl["enemies"]):
             ex, ey = self._cx(e["x"], e["y"])
@@ -713,29 +713,12 @@ class LevelCanvas(tk.Canvas):
             px, py = self._cx(lvl["player_start"]["x"], lvl["player_start"]["y"])
             if abs(cx - px) < tol + 8 and abs(cy - py) < tol + 8:
                 return ("player_start", 0)
-        # Background (skip if locked)
-        if lvl.get("bg_image") and self._bg_photo:
-            if not lvl["bg_image"].get("locked", False):
-                # Resize handle (bottom-left corner)
-                bg = lvl["bg_image"]
-                bcx, bcy = self._cx(bg.get("x", 0), bg.get("y", 0))
-                hw = self._bg_photo.width() // 2
-                hh = self._bg_photo.height() // 2
-                hx, hy = bcx - hw, bcy + hh
-                if abs(cx - hx) < tol + 6 and abs(cy - hy) < tol + 6:
-                    return ("bg_resize", 0)
-                # Drag to reposition (lowest priority)
-                return ("bg_image", 0)
         return None
 
     def _selection_info(self):
         """Return info string for selected item."""
         lvl = self.level
-        if self._drag_type == "cave_point":
-            pi, vi = self._drag_idx
-            pt = lvl["cave_lines"][pi][vi]
-            return f"Cave point [line {pi}, pt {vi}]: ({pt[0]}, {pt[1]})"
-        elif self._drag_type == "enemy":
+        if self._drag_type == "enemy":
             e = lvl["enemies"][self._drag_idx]
             return f"Enemy {self._drag_idx} ({e.get('type', 'bat')}): x={e['x']}, y={e['y']}, vx={e['vx']}"
         elif self._drag_type == "wall":
@@ -747,12 +730,6 @@ class LevelCanvas(tk.Canvas):
         elif self._drag_type == "player_start":
             p = lvl["player_start"]
             return f"Player Start: x={p['x']}, y={p['y']}"
-        elif self._drag_type == "bg_image":
-            bg = lvl.get("bg_image", {})
-            return f"Background: x={bg.get('x', 0)}, y={bg.get('y', 0)}"
-        elif self._drag_type == "bg_resize":
-            bg = lvl.get("bg_image", {})
-            return f"Background resize: scale={bg.get('scale', 1.0):.2f}"
         return ""
 
     # ---- Event handlers ----
@@ -770,18 +747,10 @@ class LevelCanvas(tk.Canvas):
             if hit:
                 self._drag_type, self._drag_idx = hit
                 self._drag_offset = (event.x, event.y)
-                if self._drag_type == "bg_resize":
-                    bg = self.level.get("bg_image", {})
-                    self._bg_resize_start_scale = bg.get("scale", 1.0)
-                    self._bg_resize_start_y = event.y
                 self.app.update_status(self._selection_info())
             else:
                 self._drag_type = None
                 self._drag_idx = None
-
-        elif self.tool == "cave_line":
-            self._polyline_pts.append([vx, vy])
-            self._redraw_polyline_preview()
 
         elif self.tool == "enemy":
             self.level["enemies"].append({"x": vx, "y": vy, "vx": 1, "type": "bat"})
@@ -802,10 +771,7 @@ class LevelCanvas(tk.Canvas):
         if self.tool == "select" and self._drag_type:
             vx, vy = self._vx(event.x, event.y)
             lvl = self.level
-            if self._drag_type == "cave_point":
-                pi, vi = self._drag_idx
-                lvl["cave_lines"][pi][vi] = [vx, vy]
-            elif self._drag_type == "enemy":
+            if self._drag_type == "enemy":
                 lvl["enemies"][self._drag_idx]["x"] = vx
                 lvl["enemies"][self._drag_idx]["y"] = vy
             elif self._drag_type == "wall":
@@ -818,17 +784,6 @@ class LevelCanvas(tk.Canvas):
             elif self._drag_type == "player_start":
                 lvl["player_start"]["x"] = vx
                 lvl["player_start"]["y"] = vy
-            elif self._drag_type == "bg_resize" and lvl.get("bg_image"):
-                # Drag down = grow, drag up = shrink
-                dy = event.y - self._bg_resize_start_y
-                new_scale = max(0.1, self._bg_resize_start_scale + dy * 0.005)
-                new_scale = round(new_scale, 2)
-                lvl["bg_image"]["scale"] = new_scale
-                self.app._level_bg_scale.set(new_scale)
-                self.app._level_bg_scale_label.config(text=f"{new_scale:.1f}x")
-            elif self._drag_type == "bg_image" and lvl.get("bg_image"):
-                lvl["bg_image"]["x"] = vx
-                lvl["bg_image"]["y"] = vy
             self.redraw()
             self.app.update_status(self._selection_info())
 
@@ -872,13 +827,10 @@ class LevelCanvas(tk.Canvas):
             pass
 
     def _on_right_click(self, event):
-        if self.tool == "cave_line" and self._polyline_pts:
-            self._finish_polyline()
+        pass
 
     def _on_double_click(self, event):
-        if self.tool == "cave_line" and len(self._polyline_pts) >= 2:
-            self._finish_polyline()
-        elif self.tool == "select":
+        if self.tool == "select":
             # Double-click to edit enemy vx or wall destroyable
             hit = self._hit_test(event.x, event.y)
             if hit:
@@ -887,14 +839,7 @@ class LevelCanvas(tk.Canvas):
     def _on_delete(self, event):
         if self._drag_type and self._drag_idx is not None:
             lvl = self.level
-            if self._drag_type == "cave_point":
-                pi, vi = self._drag_idx
-                polyline = lvl["cave_lines"][pi]
-                del polyline[vi]
-                # Remove polyline entirely if fewer than 2 points remain
-                if len(polyline) < 2:
-                    del lvl["cave_lines"][pi]
-            elif self._drag_type == "enemy":
+            if self._drag_type == "enemy":
                 del lvl["enemies"][self._drag_idx]
             elif self._drag_type == "wall":
                 del lvl["walls"][self._drag_idx]
@@ -905,32 +850,6 @@ class LevelCanvas(tk.Canvas):
             self._drag_type = None
             self._drag_idx = None
             self.redraw()
-
-    # ---- Polyline drawing ----
-
-    def _redraw_polyline_preview(self):
-        for lid in self._polyline_ids:
-            self.delete(lid)
-        self._polyline_ids.clear()
-        pts = self._polyline_pts
-        for i in range(len(pts)):
-            cx, cy = self._cx(pts[i][0], pts[i][1])
-            dot = self.create_oval(cx - 3, cy - 3, cx + 3, cy + 3,
-                                   fill="#e0e0ff", outline="#e0e0ff")
-            self._polyline_ids.append(dot)
-            if i > 0:
-                px, py = self._cx(pts[i - 1][0], pts[i - 1][1])
-                ln = self.create_line(px, py, cx, cy, fill="#e0e0ff", width=2)
-                self._polyline_ids.append(ln)
-
-    def _finish_polyline(self):
-        if len(self._polyline_pts) >= 2:
-            self.level["cave_lines"].append(list(self._polyline_pts))
-        self._polyline_pts.clear()
-        for lid in self._polyline_ids:
-            self.delete(lid)
-        self._polyline_ids.clear()
-        self.redraw()
 
     # ---- Property editing ----
 
@@ -1018,6 +937,242 @@ class LevelCanvas(tk.Canvas):
             row=len(fields), column=0, columnspan=2, pady=8)
         entries[0].focus_set()
         dlg.bind("<Return>", lambda e: apply())
+
+
+# ---------------------------------------------------------------------------
+# Layout Editor Canvas
+# ---------------------------------------------------------------------------
+
+class LayoutCanvas(tk.Canvas):
+    TOOLS = ("select", "cave_line")
+
+    def __init__(self, parent, app):
+        super().__init__(parent, width=CANVAS_SIZE, height=CANVAS_SIZE,
+                         bg="#0a0a1a", highlightthickness=0)
+        self.app = app
+        self.tool = "select"
+        self.snap_enabled = True
+
+        # Interaction state
+        self._drag_type = None
+        self._drag_idx = None
+        self._polyline_pts = []
+        self._polyline_ids = []
+        self._bg_photo = None
+        self._bg_path_loaded = None
+        self._bg_scale_loaded = None
+
+        self.bind("<Motion>", self._on_motion)
+        self.bind("<Button-1>", self._on_click)
+        self.bind("<B1-Motion>", self._on_drag)
+        self.bind("<ButtonRelease-1>", self._on_release)
+        self.bind("<Button-2>", self._on_right_click)
+        self.bind("<Button-3>", self._on_right_click)
+        self.bind("<Double-Button-1>", self._on_double_click)
+        self.bind("<Delete>", self._on_delete)
+        self.bind("<BackSpace>", self._on_delete)
+        self.focus_set()
+
+    @property
+    def layout(self):
+        return self.app._current_layout_data()
+
+    def _vx(self, cx, cy):
+        vx, vy = canvas_to_vx(cx, cy)
+        if self.snap_enabled:
+            vx, vy = snap(vx), snap(vy)
+        return clamp(vx), clamp(vy)
+
+    def _cx(self, vx, vy):
+        return vx_to_canvas(vx, vy)
+
+    # ---- Drawing ----
+
+    def redraw(self):
+        self.delete("all")
+        self._draw_grid()
+        self._draw_axes()
+        layout = self.layout
+        if layout is None:
+            return
+        if self.app._layout_bg_show_var.get():
+            self._draw_bg_image(layout)
+        self._draw_cave_lines(layout)
+
+    def _draw_grid(self):
+        step = GRID_SNAP
+        for v in range(VX_MIN, VX_MAX + 1, step):
+            cx, _ = self._cx(v, 0)
+            _, cy = self._cx(0, v)
+            color = "#1a1a2e" if v % 50 != 0 else "#2a2a3e"
+            self.create_line(cx, 0, cx, CANVAS_SIZE, fill=color, tags="grid")
+            self.create_line(0, cy, CANVAS_SIZE, cy, fill=color, tags="grid")
+
+    def _draw_axes(self):
+        cx0, cy0 = self._cx(0, 0)
+        self.create_line(cx0, 0, cx0, CANVAS_SIZE, fill="#333355", dash=(2, 4), tags="axis")
+        self.create_line(0, cy0, CANVAS_SIZE, cy0, fill="#333355", dash=(2, 4), tags="axis")
+
+    def _draw_bg_image(self, layout):
+        bg = layout.get("bg_image")
+        if not bg or not bg.get("path"):
+            return
+        path = bg["path"]
+        scale = bg.get("scale", 1.0)
+        if path != self._bg_path_loaded or scale != self._bg_scale_loaded:
+            self._bg_photo = load_bg_image(path, CANVAS_SIZE, scale)
+            self._bg_path_loaded = path
+            self._bg_scale_loaded = scale
+        if self._bg_photo:
+            cx, cy = self._cx(bg.get("x", 0), bg.get("y", 0))
+            self.create_image(cx, cy, image=self._bg_photo, anchor="center",
+                              tags="bg_image")
+            if not bg.get("locked", False):
+                hw = self._bg_photo.width() // 2
+                hh = self._bg_photo.height() // 2
+                hx, hy = cx - hw, cy + hh
+                self.create_rectangle(hx - 4, hy - 4, hx + 4, hy + 4,
+                                      outline="#888", fill="#444", tags="bg_handle")
+
+    def _draw_cave_lines(self, layout):
+        for pi, polyline in enumerate(layout["cave_lines"]):
+            if len(polyline) < 2:
+                continue
+            coords = []
+            for pt in polyline:
+                cx, cy = self._cx(pt[0], pt[1])
+                coords.extend([cx, cy])
+            self.create_line(*coords, fill="#e0e0ff", width=2, tags="cave_line")
+            # Draw draggable point handles in select mode
+            if self.tool == "select":
+                for vi, pt in enumerate(polyline):
+                    cx, cy = self._cx(pt[0], pt[1])
+                    r = 4
+                    selected = (self._drag_type == "cave_point"
+                                and self._drag_idx == (pi, vi))
+                    color = "#ffff00" if selected else "#e0e0ff"
+                    self.create_oval(cx - r, cy - r, cx + r, cy + r,
+                                     fill=color, outline=color,
+                                     tags=("cave_point", f"cp_{pi}_{vi}"))
+
+    # ---- Hit test ----
+
+    def _hit_test(self, cx, cy):
+        layout = self.layout
+        if not layout:
+            return None
+        tol = CLICK_TOLERANCE
+        for pi, polyline in enumerate(layout["cave_lines"]):
+            for vi, pt in enumerate(polyline):
+                px, py = self._cx(pt[0], pt[1])
+                if abs(cx - px) < tol + 4 and abs(cy - py) < tol + 4:
+                    return ("cave_point", (pi, vi))
+        # Background
+        if layout.get("bg_image") and self._bg_photo:
+            if not layout["bg_image"].get("locked", False):
+                bg = layout["bg_image"]
+                bcx, bcy = self._cx(bg.get("x", 0), bg.get("y", 0))
+                hw = self._bg_photo.width() // 2
+                hh = self._bg_photo.height() // 2
+                hx, hy = bcx - hw, bcy + hh
+                if abs(cx - hx) < tol + 6 and abs(cy - hy) < tol + 6:
+                    return ("bg_resize", 0)
+                return ("bg_image", 0)
+        return None
+
+    # ---- Event handlers ----
+
+    def _on_motion(self, event):
+        vx, vy = canvas_to_vx(event.x, event.y)
+        self.app.update_status(f"Layout: ({int(vx)}, {int(vy)})  |  Tool: {self.tool}")
+
+    def _on_click(self, event):
+        self.focus_set()
+        vx, vy = self._vx(event.x, event.y)
+
+        if self.tool == "select":
+            hit = self._hit_test(event.x, event.y)
+            if hit:
+                self._drag_type, self._drag_idx = hit
+                if self._drag_type == "bg_resize":
+                    bg = self.layout.get("bg_image", {})
+                    self._bg_resize_start_scale = bg.get("scale", 1.0)
+                    self._bg_resize_start_y = event.y
+            else:
+                self._drag_type = None
+                self._drag_idx = None
+
+        elif self.tool == "cave_line":
+            self._polyline_pts.append([vx, vy])
+            self._redraw_polyline_preview()
+
+    def _on_drag(self, event):
+        if self.tool == "select" and self._drag_type:
+            vx, vy = self._vx(event.x, event.y)
+            layout = self.layout
+            if self._drag_type == "cave_point":
+                pi, vi = self._drag_idx
+                layout["cave_lines"][pi][vi] = [vx, vy]
+            elif self._drag_type == "bg_resize" and layout.get("bg_image"):
+                dy = event.y - self._bg_resize_start_y
+                new_scale = max(0.1, self._bg_resize_start_scale + dy * 0.005)
+                new_scale = round(new_scale, 2)
+                layout["bg_image"]["scale"] = new_scale
+                self.app._layout_bg_scale.set(new_scale)
+                self.app._layout_bg_scale_label.config(text=f"{new_scale:.1f}x")
+            elif self._drag_type == "bg_image" and layout.get("bg_image"):
+                layout["bg_image"]["x"] = vx
+                layout["bg_image"]["y"] = vy
+            self.redraw()
+
+    def _on_release(self, event):
+        pass
+
+    def _on_right_click(self, event):
+        if self.tool == "cave_line" and self._polyline_pts:
+            self._finish_polyline()
+
+    def _on_double_click(self, event):
+        if self.tool == "cave_line" and len(self._polyline_pts) >= 2:
+            self._finish_polyline()
+
+    def _on_delete(self, event):
+        if self._drag_type == "cave_point" and self._drag_idx is not None:
+            layout = self.layout
+            pi, vi = self._drag_idx
+            polyline = layout["cave_lines"][pi]
+            del polyline[vi]
+            if len(polyline) < 2:
+                del layout["cave_lines"][pi]
+            self._drag_type = None
+            self._drag_idx = None
+            self.redraw()
+
+    # ---- Polyline drawing ----
+
+    def _redraw_polyline_preview(self):
+        for lid in self._polyline_ids:
+            self.delete(lid)
+        self._polyline_ids.clear()
+        pts = self._polyline_pts
+        for i in range(len(pts)):
+            cx, cy = self._cx(pts[i][0], pts[i][1])
+            dot = self.create_oval(cx - 3, cy - 3, cx + 3, cy + 3,
+                                   fill="#e0e0ff", outline="#e0e0ff")
+            self._polyline_ids.append(dot)
+            if i > 0:
+                px, py = self._cx(pts[i - 1][0], pts[i - 1][1])
+                ln = self.create_line(px, py, cx, cy, fill="#e0e0ff", width=2)
+                self._polyline_ids.append(ln)
+
+    def _finish_polyline(self):
+        if len(self._polyline_pts) >= 2:
+            self.layout["cave_lines"].append(list(self._polyline_pts))
+        self._polyline_pts.clear()
+        for lid in self._polyline_ids:
+            self.delete(lid)
+        self._polyline_ids.clear()
+        self.redraw()
 
 
 # ---------------------------------------------------------------------------
@@ -1295,6 +1450,7 @@ class App:
         self.project = new_project()
         self._current_level_idx = 0
         self._current_room_idx = 0
+        self._current_layout_idx = 0
         self._current_sprite_idx = 0
         self._current_frame_idx = 0
 
@@ -1366,6 +1522,11 @@ class App:
         level_frame = ttk.Frame(self.notebook)
         self.notebook.add(level_frame, text="Level Editor")
         self._build_level_tab(level_frame)
+
+        # Layout Editor tab
+        layout_frame = ttk.Frame(self.notebook)
+        self.notebook.add(layout_frame, text="Layout Editor")
+        self._build_layout_tab(layout_frame)
 
         # Sprite Editor tab
         sprite_frame = ttk.Frame(self.notebook)
@@ -1456,7 +1617,6 @@ class App:
         self._tool_var = tk.StringVar(value="select")
         tools = [
             ("Select/Move (S)", "select"),
-            ("Cave Line (C)", "cave_line"),
             ("Wall (W)", "wall"),
             ("Enemy/Bat (E)", "enemy"),
             ("Miner (M)", "miner"),
@@ -1500,51 +1660,194 @@ class App:
         right.pack(side="right", fill="y", padx=(0, 4), pady=4)
         right.pack_propagate(False)
 
-        # Cave constants
-        ttk.Label(right, text="Cave Constants", font=("Helvetica", 10, "bold")).pack(
+        # Layout selector
+        ttk.Label(right, text="Cave Layout", font=("Helvetica", 10, "bold")).pack(
             anchor="w", padx=4, pady=(4, 4))
-        self._const_entries = {}
-        const_frame = ttk.Frame(right)
-        const_frame.pack(fill="x", padx=4)
-        for i, key in enumerate(["CAVE_LEFT", "CAVE_RIGHT", "CAVE_TOP",
-                                   "CAVE_FLOOR"]):
-            ttk.Label(const_frame, text=key + ":", font=("Courier", 8)).grid(
-                row=i, column=0, sticky="e", padx=2)
-            ent = ttk.Entry(const_frame, width=7)
-            ent.grid(row=i, column=1, padx=2, pady=1)
-            self._const_entries[key] = ent
-        ttk.Button(right, text="Apply Constants",
-                   command=self._apply_constants).pack(padx=4, pady=4)
-        self._load_constants_to_entries()
+        self._layout_combo = ttk.Combobox(right, state="readonly", width=18)
+        self._layout_combo.pack(padx=4, pady=2)
+        self._layout_combo.bind("<<ComboboxSelected>>", self._layout_selected)
+        self._refresh_layout_combo()
 
         ttk.Separator(right, orient="horizontal").pack(fill="x", pady=8)
 
-        # Background image
-        ttk.Label(right, text="Background", font=("Helvetica", 10, "bold")).pack(
-            anchor="w", padx=4, pady=(0, 4))
-        ttk.Button(right, text="Load BG",
-                   command=self._load_level_bg).pack(fill="x", padx=4, pady=2)
-        ttk.Button(right, text="Clear BG",
-                   command=self._clear_level_bg).pack(fill="x", padx=4, pady=2)
+        # Background image (from layout, read-only reference)
         self._level_bg_show_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(right, text="Show BG",
+        ttk.Checkbutton(right, text="Show Layout BG",
                         variable=self._level_bg_show_var,
                         command=self._on_level_bg_show).pack(fill="x", padx=4, pady=2)
-        self._level_bg_lock_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(right, text="Lock BG",
-                        variable=self._level_bg_lock_var,
-                        command=self._on_level_bg_lock).pack(fill="x", padx=4, pady=2)
-        ttk.Label(right, text="BG Scale:", font=("Courier", 8)).pack(
-            anchor="w", padx=4, pady=(4, 0))
-        self._level_bg_scale = tk.DoubleVar(value=1.0)
-        ttk.Scale(right, from_=0.1, to=5.0,
-                  variable=self._level_bg_scale, orient="horizontal",
-                  command=self._on_level_bg_scale).pack(fill="x", padx=4)
-        self._level_bg_scale_label = ttk.Label(right, text="1.0x", font=("Courier", 8))
-        self._level_bg_scale_label.pack(anchor="w", padx=4)
 
         # Keyboard shortcuts
         self.root.bind("<Key>", self._on_key)
+
+    def _build_layout_tab(self, parent):
+        outer = ttk.Frame(parent)
+        outer.pack(fill="both", expand=True)
+
+        # -- Left panel: Layout selector + Tools --
+        left = ttk.Frame(outer, width=160)
+        left.pack(side="left", fill="y", padx=(4, 0), pady=4)
+
+        ttk.Label(left, text="Layout", font=("Helvetica", 11, "bold")).pack(pady=(4, 4))
+        self._layout_editor_combo = ttk.Combobox(left, state="readonly", width=14)
+        self._layout_editor_combo.pack(padx=4, pady=2)
+        self._layout_editor_combo.bind("<<ComboboxSelected>>", self._layout_editor_selected)
+        self._refresh_layout_editor_combo()
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=4)
+
+        ttk.Label(left, text="Tools", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(0, 4))
+        self._layout_tool_var = tk.StringVar(value="select")
+        for label, val in [("Select/Move (S)", "select"), ("Cave Line (C)", "cave_line")]:
+            ttk.Radiobutton(left, text=label, variable=self._layout_tool_var,
+                            value=val, command=self._layout_tool_changed).pack(
+                anchor="w", padx=4, pady=2)
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+
+        move_row = ttk.Frame(left)
+        move_row.pack(padx=4, pady=4)
+        ttk.Button(move_row, text="\u2190",
+                   command=lambda: self._move_layout_point(-1, 0), width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2192",
+                   command=lambda: self._move_layout_point(1, 0), width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2191",
+                   command=lambda: self._move_layout_point(0, 1), width=3).pack(side="left", padx=1)
+        ttk.Button(move_row, text="\u2193",
+                   command=lambda: self._move_layout_point(0, -1), width=3).pack(side="left", padx=1)
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+
+        self._layout_snap_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(left, text="Snap to Grid",
+                         variable=self._layout_snap_var,
+                         command=self._layout_snap_changed).pack(anchor="w", padx=4)
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+
+        ttk.Label(left, text="Draw: click points.\nRight-click/dbl-click\n  to finish polyline.\nSelect: drag points,\n  Del to remove.",
+                  font=("Courier", 9), justify="left").pack(padx=4, anchor="w")
+
+        # -- Middle: Canvas --
+        canvas_frame = ttk.Frame(outer)
+        canvas_frame.pack(side="left", fill="both", expand=True, padx=4, pady=4)
+        self.layout_canvas = LayoutCanvas(canvas_frame, self)
+        self.layout_canvas.pack()
+
+        # -- Right panel: BG image controls --
+        right = ttk.Frame(outer, width=250)
+        right.pack(side="right", fill="y", padx=(0, 4), pady=4)
+        right.pack_propagate(False)
+
+        ttk.Label(right, text="Background", font=("Helvetica", 10, "bold")).pack(
+            anchor="w", padx=4, pady=(4, 4))
+        ttk.Button(right, text="Load BG",
+                   command=self._load_layout_bg).pack(fill="x", padx=4, pady=2)
+        ttk.Button(right, text="Clear BG",
+                   command=self._clear_layout_bg).pack(fill="x", padx=4, pady=2)
+        self._layout_bg_show_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(right, text="Show BG",
+                        variable=self._layout_bg_show_var,
+                        command=self._on_layout_bg_show).pack(fill="x", padx=4, pady=2)
+        self._layout_bg_lock_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(right, text="Lock BG",
+                        variable=self._layout_bg_lock_var,
+                        command=self._on_layout_bg_lock).pack(fill="x", padx=4, pady=2)
+        ttk.Label(right, text="BG Scale:", font=("Courier", 8)).pack(
+            anchor="w", padx=4, pady=(4, 0))
+        self._layout_bg_scale = tk.DoubleVar(value=1.0)
+        ttk.Scale(right, from_=0.1, to=5.0,
+                  variable=self._layout_bg_scale, orient="horizontal",
+                  command=self._on_layout_bg_scale).pack(fill="x", padx=4)
+        self._layout_bg_scale_label = ttk.Label(right, text="1.0x", font=("Courier", 8))
+        self._layout_bg_scale_label.pack(anchor="w", padx=4)
+
+    def _refresh_layout_editor_combo(self):
+        layouts = self.project.get("layouts", [])
+        labels = [f"{i}: {la.get('name', f'Layout {i+1}')}" for i, la in enumerate(layouts)]
+        self._layout_editor_combo["values"] = labels
+        if labels and self._current_layout_idx < len(labels):
+            self._layout_editor_combo.current(self._current_layout_idx)
+
+    def _layout_editor_selected(self, event=None):
+        self._current_layout_idx = self._layout_editor_combo.current()
+        self._sync_layout_bg_controls()
+        self.layout_canvas._bg_path_loaded = None
+        self.layout_canvas.redraw()
+
+    def _layout_tool_changed(self):
+        tool = self._layout_tool_var.get()
+        self.layout_canvas.tool = tool
+        if tool != "cave_line" and self.layout_canvas._polyline_pts:
+            self.layout_canvas._finish_polyline()
+        self.update_status(f"Layout Tool: {tool}")
+
+    def _layout_snap_changed(self):
+        self.layout_canvas.snap_enabled = self._layout_snap_var.get()
+
+    def _move_layout_point(self, dx, dy):
+        lc = self.layout_canvas
+        layout = lc.layout
+        if not layout or lc._drag_type != "cave_point" or lc._drag_idx is None:
+            return
+        pi, vi = lc._drag_idx
+        layout["cave_lines"][pi][vi][0] += dx
+        layout["cave_lines"][pi][vi][1] += dy
+        lc.redraw()
+
+    def _sync_layout_bg_controls(self):
+        layout = self._current_layout_data()
+        if layout and layout.get("bg_image"):
+            bg = layout["bg_image"]
+            s = bg.get("scale", 1.0)
+            self._layout_bg_scale.set(s)
+            self._layout_bg_scale_label.config(text=f"{s:.1f}x")
+            self._layout_bg_lock_var.set(bg.get("locked", False))
+            self._layout_bg_show_var.set(bg.get("show", True))
+        else:
+            self._layout_bg_scale.set(1.0)
+            self._layout_bg_scale_label.config(text="1.0x")
+            self._layout_bg_lock_var.set(False)
+            self._layout_bg_show_var.set(True)
+
+    def _load_layout_bg(self):
+        layout = self._current_layout_data()
+        if layout:
+            self._load_bg_image_for(layout, self.layout_canvas)
+            if layout.get("bg_image"):
+                self._layout_bg_scale.set(layout["bg_image"].get("scale", 1.0))
+                self._layout_bg_scale_label.config(
+                    text=f"{layout['bg_image']['scale']:.1f}x")
+
+    def _clear_layout_bg(self):
+        layout = self._current_layout_data()
+        if layout:
+            layout["bg_image"] = None
+            self.layout_canvas._bg_photo = None
+            self.layout_canvas._bg_path_loaded = None
+            self.layout_canvas.redraw()
+            self._layout_bg_scale.set(1.0)
+            self._layout_bg_scale_label.config(text="1.0x")
+
+    def _on_layout_bg_show(self):
+        layout = self._current_layout_data()
+        if layout and layout.get("bg_image"):
+            layout["bg_image"]["show"] = self._layout_bg_show_var.get()
+        self.layout_canvas.redraw()
+
+    def _on_layout_bg_lock(self):
+        layout = self._current_layout_data()
+        if layout and layout.get("bg_image"):
+            layout["bg_image"]["locked"] = self._layout_bg_lock_var.get()
+            self.layout_canvas.redraw()
+
+    def _on_layout_bg_scale(self, val=None):
+        layout = self._current_layout_data()
+        s = round(self._layout_bg_scale.get(), 1)
+        self._layout_bg_scale_label.config(text=f"{s:.1f}x")
+        if layout and layout.get("bg_image"):
+            layout["bg_image"]["scale"] = s
+            self.layout_canvas.redraw()
 
     def _build_sprite_tab(self, parent):
         outer = ttk.Frame(parent)
@@ -1849,18 +2152,25 @@ class App:
     def _on_key(self, event):
         key = event.char.lower()
         tab = self.notebook.index("current")
-        if tab == 2:
+        if tab == 3:
             # Emulator tab — let emulator handle keys
             return
-        if tab == 1:
+        if tab == 2:
             # Sprite tab
             sprite_mapping = {"d": "draw", "s": "select"}
             if key in sprite_mapping:
                 self._sprite_tool_var.set(sprite_mapping[key])
                 self._sprite_tool_changed()
             return
-        # Level tab
-        mapping = {"s": "select", "c": "cave_line", "w": "wall",
+        if tab == 1:
+            # Layout Editor tab
+            layout_mapping = {"s": "select", "c": "cave_line"}
+            if key in layout_mapping and hasattr(self, '_layout_tool_var'):
+                self._layout_tool_var.set(layout_mapping[key])
+                self._layout_tool_changed()
+            return
+        # Level tab (tab 0)
+        mapping = {"s": "select", "w": "wall",
                    "e": "enemy", "m": "miner", "p": "player_start"}
         if key in mapping:
             self._tool_var.set(mapping[key])
@@ -1871,9 +2181,6 @@ class App:
     def _tool_changed(self):
         tool = self._tool_var.get()
         self.level_canvas.tool = tool
-        # Finish any in-progress polyline
-        if tool != "cave_line" and self.level_canvas._polyline_pts:
-            self.level_canvas._finish_polyline()
         self.update_status(f"Tool: {tool}")
 
     def _snap_changed(self):
@@ -1885,11 +2192,7 @@ class App:
         lvl = lc.level
         if not lvl or not lc._drag_type:
             return
-        if lc._drag_type == "cave_point":
-            pi, vi = lc._drag_idx
-            lvl["cave_lines"][pi][vi][0] += dx
-            lvl["cave_lines"][pi][vi][1] += dy
-        elif lc._drag_type == "enemy":
+        if lc._drag_type == "enemy":
             lvl["enemies"][lc._drag_idx]["x"] += dx
             lvl["enemies"][lc._drag_idx]["y"] += dy
         elif lc._drag_type == "wall":
@@ -1919,24 +2222,35 @@ class App:
         self._current_room_idx = 0
         self._update_room_label()
         self._load_exit_fields()
-        self._load_constants_to_entries()
-        self._sync_level_bg_scale()
+        self._sync_layout_combo()
         self.level_canvas._bg_path_loaded = None  # force reload for new level
         self.level_canvas.redraw()
 
-    def _sync_level_bg_scale(self):
+    def _refresh_layout_combo(self):
+        layouts = self.project.get("layouts", [])
+        labels = [f"{i}: {la.get('name', f'Layout {i+1}')}" for i, la in enumerate(layouts)]
+        self._layout_combo["values"] = labels
+        # Select current room's layout
         room = self.current_room_data()
-        if room and room.get("bg_image"):
-            s = room["bg_image"].get("scale", 1.0)
-            self._level_bg_scale.set(s)
-            self._level_bg_scale_label.config(text=f"{s:.1f}x")
-            self._level_bg_lock_var.set(room["bg_image"].get("locked", False))
-            self._level_bg_show_var.set(room["bg_image"].get("show", True))
-        else:
-            self._level_bg_scale.set(1.0)
-            self._level_bg_scale_label.config(text="1.0x")
-            self._level_bg_lock_var.set(False)
-            self._level_bg_show_var.set(True)
+        idx = room.get("layout", 0) if room else 0
+        if 0 <= idx < len(labels):
+            self._layout_combo.current(idx)
+
+    def _layout_selected(self, event=None):
+        room = self.current_room_data()
+        if room is None:
+            return
+        room["layout"] = self._layout_combo.current()
+        self.level_canvas._bg_path_loaded = None
+        self.level_canvas.redraw()
+
+    def _sync_layout_combo(self):
+        room = self.current_room_data()
+        if room:
+            idx = room.get("layout", 0)
+            layouts = self.project.get("layouts", [])
+            if 0 <= idx < len(layouts):
+                self._layout_combo.current(idx)
 
     def _add_level(self):
         lvl = new_level()
@@ -1946,7 +2260,7 @@ class App:
         self._refresh_level_combo()
         self._update_room_label()
         self._load_exit_fields()
-        self._load_constants_to_entries()
+        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     def _remove_level(self):
@@ -1959,7 +2273,7 @@ class App:
         self._refresh_level_combo()
         self._update_room_label()
         self._load_exit_fields()
-        self._load_constants_to_entries()
+        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     # ---- Room management ----
@@ -1977,8 +2291,7 @@ class App:
             self._current_room_idx -= 1
             self._update_room_label()
             self._load_exit_fields()
-            self._load_constants_to_entries()
-            self._sync_level_bg_scale()
+            self._sync_layout_combo()
             self.level_canvas._bg_path_loaded = None
             self.level_canvas.redraw()
 
@@ -1988,8 +2301,7 @@ class App:
             self._current_room_idx += 1
             self._update_room_label()
             self._load_exit_fields()
-            self._load_constants_to_entries()
-            self._sync_level_bg_scale()
+            self._sync_layout_combo()
             self.level_canvas._bg_path_loaded = None
             self.level_canvas.redraw()
 
@@ -2005,7 +2317,7 @@ class App:
         self._current_room_idx = len(rooms) - 1
         self._update_room_label()
         self._load_exit_fields()
-        self._load_constants_to_entries()
+        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     def _copy_room(self):
@@ -2028,7 +2340,7 @@ class App:
         self._current_room_idx = len(rooms) - 1
         self._update_room_label()
         self._load_exit_fields()
-        self._load_constants_to_entries()
+        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     def _remove_room(self):
@@ -2053,7 +2365,7 @@ class App:
         self._current_room_idx = max(0, self._current_room_idx - 1)
         self._update_room_label()
         self._load_exit_fields()
-        self._load_constants_to_entries()
+        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     def _load_exit_fields(self):
@@ -2084,40 +2396,31 @@ class App:
             except ValueError:
                 pass
 
-    # ---- Cave constants ----
-
-    def _load_constants_to_entries(self):
-        room = self.current_room_data()
-        if room is None:
-            return
-        for key, ent in self._const_entries.items():
-            ent.delete(0, tk.END)
-            ent.insert(0, str(room["cave_constants"].get(key, 0)))
-
-    def _apply_constants(self):
-        room = self.current_room_data()
-        if room is None:
-            return
-        try:
-            for key, ent in self._const_entries.items():
-                room["cave_constants"][key] = int(ent.get())
-            self.level_canvas.redraw()
-        except ValueError:
-            messagebox.showerror("Invalid input", "Cave constants must be integers.")
-
-    # ---- Edit menu ----
+    # ---- Edit menu (layout-based) ----
 
     def _delete_last_polyline(self):
-        room = self.current_room_data()
-        if room and room["cave_lines"]:
-            room["cave_lines"].pop()
+        layout = self._current_layout_data()
+        if layout and layout["cave_lines"]:
+            layout["cave_lines"].pop()
+            if hasattr(self, 'layout_canvas'):
+                self.layout_canvas.redraw()
             self.level_canvas.redraw()
 
     def _clear_cave_lines(self):
-        room = self.current_room_data()
-        if room:
-            room["cave_lines"].clear()
+        layout = self._current_layout_data()
+        if layout:
+            layout["cave_lines"].clear()
+            if hasattr(self, 'layout_canvas'):
+                self.layout_canvas.redraw()
             self.level_canvas.redraw()
+
+    def _current_layout_data(self):
+        """Return the currently active layout dict."""
+        layouts = self.project.get("layouts", [])
+        idx = self._current_layout_idx if hasattr(self, '_current_layout_idx') else 0
+        if 0 <= idx < len(layouts):
+            return layouts[idx]
+        return None
 
     # ---- Sprite management ----
 
@@ -2260,43 +2563,8 @@ class App:
         canvas._bg_path_loaded = None  # force reload
         canvas.redraw()
 
-    def _load_level_bg(self):
-        room = self.current_room_data()
-        if room:
-            self._load_bg_image_for(room, self.level_canvas)
-            if room.get("bg_image"):
-                self._level_bg_scale.set(room["bg_image"].get("scale", 1.0))
-                self._level_bg_scale_label.config(text=f"{room['bg_image']['scale']:.1f}x")
-
-    def _clear_level_bg(self):
-        room = self.current_room_data()
-        if room:
-            room["bg_image"] = None
-            self.level_canvas._bg_photo = None
-            self.level_canvas._bg_path_loaded = None
-            self.level_canvas.redraw()
-            self._level_bg_scale.set(1.0)
-            self._level_bg_scale_label.config(text="1.0x")
-
     def _on_level_bg_show(self):
-        room = self.current_room_data()
-        if room and room.get("bg_image"):
-            room["bg_image"]["show"] = self._level_bg_show_var.get()
         self.level_canvas.redraw()
-
-    def _on_level_bg_lock(self):
-        room = self.current_room_data()
-        if room and room.get("bg_image"):
-            room["bg_image"]["locked"] = self._level_bg_lock_var.get()
-            self.level_canvas.redraw()
-
-    def _on_level_bg_scale(self, val=None):
-        room = self.current_room_data()
-        s = round(self._level_bg_scale.get(), 1)
-        self._level_bg_scale_label.config(text=f"{s:.1f}x")
-        if room and room.get("bg_image"):
-            room["bg_image"]["scale"] = s
-            self.level_canvas.redraw()
 
     def _load_sprite_bg(self):
         sprite = self.current_sprite_data()
@@ -2551,7 +2819,7 @@ int main(void) {{
             self._emu.start()
             self._emu_pause_btn.config(text="Pause")
             self._emu_state_update()
-            self.notebook.select(2)
+            self.notebook.select(3)
             self.update_status(f"Running sprite test: {sprite['name']}")
         except Exception as e:
             messagebox.showerror("Emulator Error", str(e))
@@ -2638,12 +2906,17 @@ int main(void) {{
         test_dir = os.path.join(project_root, "test_level")
         os.makedirs(test_dir, exist_ok=True)
 
-        # Check if any room has cave_lines
-        any_cave_lines = any(rm.get("cave_lines") for rm in rooms)
+        layouts = self.project.get("layouts", [])
 
-        # Generate test_level/hero.h with cave constants from first room.
-        # Use wide-open collision boundaries when cave lines exist.
-        consts = dict(rooms[0].get("cave_constants", {}))
+        # Check if any referenced layout has cave_lines
+        any_cave_lines = any(
+            layouts[rm.get("layout", 0)].get("cave_lines")
+            for rm in rooms
+            if rm.get("layout", 0) < len(layouts)
+        )
+
+        # Generate test_level/hero.h with wide-open collision boundaries
+        consts = {}
         if any_cave_lines:
             consts["CAVE_LEFT"] = -128
             consts["CAVE_RIGHT"] = 127
@@ -2695,6 +2968,33 @@ int main(void) {{
         lh = ["// Generated by level_editor.py — test level", "",
               "#ifndef LEVELS_H", "#define LEVELS_H", '#include "hero.h"', ""]
 
+        # Emit layout arrays
+        emitted_layouts = set()
+        for rm in rooms:
+            emitted_layouts.add(rm.get("layout", 0))
+        for li in sorted(emitted_layouts):
+            if li >= len(layouts):
+                continue
+            layout = layouts[li]
+            cave_lines = layout.get("cave_lines", [])
+            data = cave_room_data(cave_lines)
+            lh.append(f"static const int8_t layout_{li}_cave[] = {{")
+            for k in range(0, len(data), 12):
+                chunk = data[k:k+12]
+                lh.append("    " + ", ".join(str(v) for v in chunk) + ",")
+            lh.append("};")
+            segs = extract_segments(cave_lines)
+            lh.append(f"#define LAYOUT_{li}_SEG_COUNT {len(segs)}")
+            if segs:
+                lh.append(f"static const int8_t layout_{li}_cave_segs[] = {{")
+                for s in segs:
+                    lh.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
+                lh.append("};")
+            else:
+                lh.append(f"static const int8_t layout_{li}_cave_segs[] = {{ 0, 0, 0, 0 }};")
+            lh.append("")
+
+        # Per-room data (walls, enemies, start, miner)
         for ri, rm in enumerate(rooms):
             prefix = f"l1r{ri + 1}"
             PREFIX = f"L1R{ri + 1}"
@@ -2723,42 +3023,23 @@ int main(void) {{
             else:
                 lh.append(f"static const int8_t {prefix}_enemies[] = {{ 0, 0, 0, 0 }};")
 
-            start_x = ps["x"] if ps else consts.get("CAVE_LEFT", -90) + 15
-            start_y = ps["y"] if ps else consts.get("CAVE_TOP", 105) - 2
+            start_x = ps["x"] if ps else -75
+            start_y = ps["y"] if ps else 40
             miner_x = miner["x"] if miner else 0
-            miner_y = miner["y"] if miner else consts.get("CAVE_FLOOR", -95) + 8
+            miner_y = miner["y"] if miner else -40
             lh.append(f"#define {PREFIX}_START_X  {start_x}")
             lh.append(f"#define {PREFIX}_START_Y  {start_y}")
             lh.append(f"#define {PREFIX}_MINER_X  {miner_x}")
             lh.append(f"#define {PREFIX}_MINER_Y  {miner_y}")
-
-            # Cave polyline data
-            cave_lines = rm.get("cave_lines", [])
-            data = cave_room_data(cave_lines)
-            lh.append(f"static const int8_t {prefix}_cave[] = {{")
-            for k in range(0, len(data), 12):
-                chunk = data[k:k+12]
-                lh.append("    " + ", ".join(str(v) for v in chunk) + ",")
-            lh.append("};")
-
-            # Cave segments (for collision)
-            segs = extract_segments(cave_lines)
-            lh.append(f"#define {PREFIX}_SEG_COUNT {len(segs)}")
-            if segs:
-                lh.append(f"static const int8_t {prefix}_cave_segs[] = {{")
-                for s in segs:
-                    lh.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
-                lh.append("};")
-            else:
-                lh.append(f"static const int8_t {prefix}_cave_segs[] = {{ 0, 0, 0, 0 }};")
             lh.append("")
 
-        # Room lookup tables
+        # Room lookup tables — reference layout arrays
         lh.append("// Room lookup tables")
         lh.append(f"#define NUM_ROOMS {num_rooms}")
         lh.append("static const int8_t * const l1_room_caves[] = {")
-        for ri in range(num_rooms):
-            lh.append(f"    l1r{ri+1}_cave,")
+        for ri, rm in enumerate(rooms):
+            layout_idx = rm.get("layout", 0)
+            lh.append(f"    layout_{layout_idx}_cave,")
         lh.append("};")
         lh.append("static const int8_t * const l1_room_walls[] = {")
         for ri in range(num_rooms):
@@ -2785,12 +3066,14 @@ int main(void) {{
             lh.append(f"    L1R{ri+1}_MINER_X, L1R{ri+1}_MINER_Y,")
         lh.append("};")
         lh.append("static const int8_t * const l1_room_cave_segs[] = {")
-        for ri in range(num_rooms):
-            lh.append(f"    l1r{ri+1}_cave_segs,")
+        for ri, rm in enumerate(rooms):
+            layout_idx = rm.get("layout", 0)
+            lh.append(f"    layout_{layout_idx}_cave_segs,")
         lh.append("};")
         lh.append("static const uint8_t l1_room_seg_counts[] = {")
-        for ri in range(num_rooms):
-            lh.append(f"    L1R{ri+1}_SEG_COUNT,")
+        for ri, rm in enumerate(rooms):
+            layout_idx = rm.get("layout", 0)
+            lh.append(f"    LAYOUT_{layout_idx}_SEG_COUNT,")
         lh.append("};")
         lh.append("static const uint8_t l1_room_has_miner[] = {")
         for ri, rm in enumerate(rooms):
@@ -2801,7 +3084,7 @@ int main(void) {{
             lh.append(f"    {1 if rm.get('has_lava') else 0},")
         lh.append("};")
 
-        # Room exits table (convert 1-based room numbers to 0-based indices)
+        # Room exits table
         lh.append("static const uint8_t l1_room_exits[] = {")
         for ri, rm in enumerate(rooms):
             exits = []
@@ -2814,15 +3097,10 @@ int main(void) {{
             lh.append(f"    {', '.join(exits)},   // room {ri}")
         lh.append("};")
 
-        # Room bounds (left, right, top, floor per room)
+        # Room bounds — use global wide-open bounds
         lh.append("static const int8_t l1_room_bounds[] = {")
-        for ri, rm in enumerate(rooms):
-            rc = rm.get("cave_constants", {})
-            bl = max(-128, min(127, int(rc.get("CAVE_LEFT", -90))))
-            br = max(-128, min(127, int(rc.get("CAVE_RIGHT", 90))))
-            bt = max(-128, min(127, int(rc.get("CAVE_TOP", 105))))
-            bf = max(-128, min(127, int(rc.get("CAVE_FLOOR", -95))))
-            lh.append(f"    {bl}, {br}, {bt}, {bf},   // room {ri}")
+        for ri in range(num_rooms):
+            lh.append(f"    -128, 127, 50, -50,   // room {ri}")
         lh.append("};")
 
         lh.extend(["", "#endif", ""])
@@ -3156,7 +3434,7 @@ int main(void) {{
             self._emu.start()
             self._emu_pause_btn.config(text="Pause")
             self._emu_state_update()
-            self.notebook.select(2)
+            self.notebook.select(3)
             self.update_status(f"Running level test: Level {self._current_level_idx + 1}")
         except Exception as e:
             messagebox.showerror("Emulator Error", str(e))
@@ -3196,6 +3474,9 @@ int main(void) {{
         if idx == 0:
             self.level_canvas.redraw()
         elif idx == 1:
+            if hasattr(self, 'layout_canvas'):
+                self.layout_canvas.redraw()
+        elif idx == 2:
             self.sprite_canvas.redraw()
             self._update_vlc_text()
 
@@ -3229,15 +3510,18 @@ int main(void) {{
         self.project = new_project()
         self._current_level_idx = 0
         self._current_room_idx = 0
+        self._current_layout_idx = 0
         self._current_sprite_idx = 0
         self._current_frame_idx = 0
         self._save_path = None
         self._refresh_level_combo()
         self._update_room_label()
         self._load_exit_fields()
+        self._refresh_layout_combo()
         self._refresh_sprite_combo()
-        self._load_constants_to_entries()
         self.level_canvas.redraw()
+        if hasattr(self, 'layout_canvas'):
+            self.layout_canvas.redraw()
         self.sprite_canvas.redraw()
         self._update_frame_label()
 
@@ -3279,14 +3563,18 @@ int main(void) {{
             self._save_path = path
             self._current_level_idx = 0
             self._current_room_idx = 0
+            self._current_layout_idx = 0
             self._current_sprite_idx = 0
             self._current_frame_idx = 0
             self._refresh_level_combo()
             self._update_room_label()
             self._load_exit_fields()
+            self._refresh_layout_combo()
             self._refresh_sprite_combo()
-            self._load_constants_to_entries()
             self.level_canvas.redraw()
+            if hasattr(self, 'layout_canvas'):
+                self._refresh_layout_editor_combo()
+                self.layout_canvas.redraw()
             self.sprite_canvas.redraw()
             self._update_frame_label()
             self.update_status(f"Loaded: {path}")
@@ -3310,6 +3598,7 @@ int main(void) {{
             messagebox.showerror("Export Error", str(e))
 
     def _export_levels_h(self, path):
+        layouts = self.project.get("layouts", [])
         lines = [
             "// Generated by level_editor.py",
             "// Vectrex H.E.R.O. level data",
@@ -3319,6 +3608,35 @@ int main(void) {{
             '#include "hero.h"',
             "",
         ]
+
+        # Emit layout arrays (cave geometry is shared, emitted once)
+        emitted_layouts = set()
+        for i, lvl in enumerate(self.project["levels"]):
+            for rm in lvl.get("rooms", []):
+                emitted_layouts.add(rm.get("layout", 0))
+        for li in sorted(emitted_layouts):
+            if li >= len(layouts):
+                continue
+            layout = layouts[li]
+            cave_lines = layout.get("cave_lines", [])
+            data = cave_room_data(cave_lines)
+            lines.append(f"// Layout {li}")
+            lines.append(f"static const int8_t layout_{li}_cave[] = {{")
+            for k in range(0, len(data), 12):
+                chunk = data[k:k+12]
+                lines.append("    " + ", ".join(str(v) for v in chunk) + ",")
+            lines.append("};")
+            segs = extract_segments(cave_lines)
+            lines.append(f"#define LAYOUT_{li}_SEG_COUNT {len(segs)}")
+            if segs:
+                lines.append(f"static const int8_t layout_{li}_cave_segs[] = {{")
+                for s in segs:
+                    lines.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
+                lines.append("};")
+            else:
+                lines.append(f"static const int8_t layout_{li}_cave_segs[] = {{ 0, 0, 0, 0 }};")
+            lines.append("")
+
         for i, lvl in enumerate(self.project["levels"]):
             li = i + 1  # 1-based level number
             rooms = lvl.get("rooms", [])
@@ -3332,13 +3650,12 @@ int main(void) {{
             for ri, rm in enumerate(rooms):
                 room_num_to_idx[rm["number"]] = ri
 
-            # Per-room data arrays
+            # Per-room data arrays (walls, enemies, start, miner — no cave data)
             for ri, rm in enumerate(rooms):
-                rj = ri + 1  # 1-based room number for naming
+                rj = ri + 1
                 prefix = f"l{li}r{rj}"
                 PREFIX = f"L{li}R{rj}"
 
-                # Walls
                 walls = rm["walls"]
                 lines.append(f"#define {PREFIX}_WALL_COUNT {len(walls)}")
                 if walls:
@@ -3352,7 +3669,6 @@ int main(void) {{
                     lines.append(f"static const int8_t {prefix}_walls[] = {{ 0, 0, 0, 0 }};")
                 lines.append("")
 
-                # Enemies
                 enemies = rm["enemies"]
                 lines.append(f"#define {PREFIX}_ENEMY_COUNT {len(enemies)}")
                 if enemies:
@@ -3366,50 +3682,27 @@ int main(void) {{
                     lines.append(f"static const int8_t {prefix}_enemies[] = {{ 0, 0, 0, 0 }};")
                 lines.append("")
 
-                # Player start
                 ps = rm.get("player_start")
-                consts = rm.get("cave_constants", {})
-                start_x = ps["x"] if ps else consts.get("CAVE_LEFT", -90) + 15
-                start_y = ps["y"] if ps else consts.get("CAVE_TOP", 105) - 2
+                start_x = ps["x"] if ps else -75
+                start_y = ps["y"] if ps else 40
                 lines.append(f"#define {PREFIX}_START_X  {start_x}")
                 lines.append(f"#define {PREFIX}_START_Y  {start_y}")
 
-                # Miner
                 m = rm.get("miner")
                 miner_x = m["x"] if m else 0
-                miner_y = m["y"] if m else consts.get("CAVE_FLOOR", -95) + 8
+                miner_y = m["y"] if m else -40
                 lines.append(f"#define {PREFIX}_MINER_X  {miner_x}")
                 lines.append(f"#define {PREFIX}_MINER_Y  {miner_y}")
                 lines.append("")
 
-                # Cave polyline data (for drawing)
-                cave_lines = rm.get("cave_lines", [])
-                data = cave_room_data(cave_lines)
-                lines.append(f"static const int8_t {prefix}_cave[] = {{")
-                for k in range(0, len(data), 12):
-                    chunk = data[k:k+12]
-                    lines.append("    " + ", ".join(str(v) for v in chunk) + ",")
-                lines.append("};")
-
-                # Cave segments (for collision): x1, y1, x2, y2 per segment
-                segs = extract_segments(cave_lines)
-                lines.append(f"#define {PREFIX}_SEG_COUNT {len(segs)}")
-                if segs:
-                    lines.append(f"static const int8_t {prefix}_cave_segs[] = {{")
-                    for s in segs:
-                        lines.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
-                    lines.append("};")
-                else:
-                    lines.append(f"static const int8_t {prefix}_cave_segs[] = {{ 0, 0, 0, 0 }};")
-                lines.append("")
-
-            # Room lookup tables for this level
+            # Room lookup tables — caves reference layout arrays
             lp = f"l{li}"
             nr = len(rooms)
             lines.append(f"// Room lookup tables for level {li}")
             lines.append(f"static const int8_t * const {lp}_room_caves[] = {{")
-            for ri in range(nr):
-                lines.append(f"    {lp}r{ri+1}_cave,")
+            for ri, rm in enumerate(rooms):
+                layout_idx = rm.get("layout", 0)
+                lines.append(f"    layout_{layout_idx}_cave,    // room {ri} uses layout {layout_idx}")
             lines.append("};")
 
             lines.append(f"static const int8_t * const {lp}_room_walls[] = {{")
@@ -3443,13 +3736,15 @@ int main(void) {{
             lines.append("};")
 
             lines.append(f"static const int8_t * const {lp}_room_cave_segs[] = {{")
-            for ri in range(nr):
-                lines.append(f"    {lp}r{ri+1}_cave_segs,")
+            for ri, rm in enumerate(rooms):
+                layout_idx = rm.get("layout", 0)
+                lines.append(f"    layout_{layout_idx}_cave_segs,")
             lines.append("};")
 
             lines.append(f"static const uint8_t {lp}_room_seg_counts[] = {{")
-            for ri in range(nr):
-                lines.append(f"    L{li}R{ri+1}_SEG_COUNT,")
+            for ri, rm in enumerate(rooms):
+                layout_idx = rm.get("layout", 0)
+                lines.append(f"    LAYOUT_{layout_idx}_SEG_COUNT,")
             lines.append("};")
 
             lines.append(f"static const uint8_t {lp}_room_has_miner[] = {{")
@@ -3462,7 +3757,6 @@ int main(void) {{
                 lines.append(f"    {1 if rm.get('has_lava') else 0},")
             lines.append("};")
 
-            # Room exits
             lines.append(f"static const uint8_t {lp}_room_exits[] = {{")
             for ri, rm in enumerate(rooms):
                 exits = []
@@ -3475,17 +3769,11 @@ int main(void) {{
                 lines.append(f"    {', '.join(exits)},   // room {ri}")
             lines.append("};")
 
-            # Room bounds (left, right, top, floor per room)
+            # Room bounds: use global wide-open bounds for all rooms
             lines.append(f"static const int8_t {lp}_room_bounds[] = {{")
-            for ri, rm in enumerate(rooms):
-                rc = rm.get("cave_constants", {})
-                bl = max(-128, min(127, int(rc.get("CAVE_LEFT", -90))))
-                br = max(-128, min(127, int(rc.get("CAVE_RIGHT", 90))))
-                bt = max(-128, min(127, int(rc.get("CAVE_TOP", 105))))
-                bf = max(-128, min(127, int(rc.get("CAVE_FLOOR", -95))))
-                lines.append(f"    {bl}, {br}, {bt}, {bf},   // room {ri}")
+            for ri in range(nr):
+                lines.append(f"    -128, 127, 50, -50,   // room {ri}")
             lines.append("};")
-
 
         lines.append("#endif")
 
@@ -3625,7 +3913,7 @@ def main():
     if args.cart:
         app._emu_cart_var.set(args.cart)
     if args.rom:
-        app.notebook.select(2)
+        app.notebook.select(3)
         root.after(100, app._emu_start)
 
     root.mainloop()

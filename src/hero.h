@@ -32,7 +32,7 @@
 #define EXPLOSION_KILL   10
 #define LAVA_HEIGHT      3
 #define MAX_ENEMIES     3
-#define MAX_ROOMS       8
+#define MAX_ROOMS       16
 #define NONE            255
 
 // Enemy types

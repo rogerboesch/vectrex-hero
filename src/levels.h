@@ -5,32 +5,16 @@
 #define LEVELS_H
 #include "hero.h"
 
-// ============================================================
-// Level 1 (2 room(s))
-// ============================================================
-
-#define L1R1_WALL_COUNT 1
-static const int8_t l1r1_walls[] = {
-    2, -30, 15, 10,   // wall 0 (destroyable)
-};
-
-#define L1R1_ENEMY_COUNT 0
-static const int8_t l1r1_enemies[] = { 0, 0, 0, 0 };
-
-#define L1R1_START_X  -60
-#define L1R1_START_Y  40
-#define L1R1_MINER_X  0
-#define L1R1_MINER_Y  -42
-
-static const int8_t l1r1_cave[] = {
+// Layout 0
+static const int8_t layout_0_cave[] = {
     8, 50, -85, -30, 0, 0, -15, -35, 0, 0, 85, -35,
     0, 0, -110, 100, 0, 0, 40, 10, 50, -35, -30, 0,
     0, 127, 0, 8, -35, 0, 0, -85, -35, 0, 0, 110,
     100, 0, 0, -33, 0, -127, 1, 20, -125, 0, 25, 1,
     20, 100, 0, 25, 0,
 };
-#define L1R1_SEG_COUNT 18
-static const int8_t l1r1_cave_segs[] = {
+#define LAYOUT_0_SEG_COUNT 18
+static const int8_t layout_0_cave_segs[] = {
     -85, 50, -85, 20,
     -85, 20, -100, 20,
     -100, 20, -100, -15,
@@ -51,26 +35,15 @@ static const int8_t l1r1_cave_segs[] = {
     100, 20, 125, 20,
 };
 
-#define L1R2_WALL_COUNT 0
-static const int8_t l1r2_walls[] = { 0, 0, 0, 0 };
-
-#define L1R2_ENEMY_COUNT 1
-static const int8_t l1r2_enemies[] = {
-    -40, 15, 1, 1,   // enemy 0 (spider)
-};
-
-#define L1R2_START_X  -113
-#define L1R2_START_Y  48
-#define L1R2_MINER_X  -80
-#define L1R2_MINER_Y  -10
-
-static const int8_t l1r2_cave[] = {
+// Layout 1
+static const int8_t layout_1_cave[] = {
     10, 20, -125, 0, 110, 30, 0, 0, -110, -100, 0, 0,
-    127, 0, 123, 100, 0, 0, -110, -30, 0, 0, 70, 1,
-    20, -85, -35, 0, 2, -15, 85, 35, 0, 0, 40, 0,
+    127, 0, 123, 100, 0, 0, -110, -30, 0, 0, 70, 5,
+    20, -85, -35, 0, 0, 127, 0, 43, 35, 0, 0, 40,
+    0,
 };
-#define L1R2_SEG_COUNT 12
-static const int8_t l1r2_cave_segs[] = {
+#define LAYOUT_1_SEG_COUNT 13
+static const int8_t layout_1_cave_segs[] = {
     -15, 50, -125, 50,
     -125, 50, -125, -50,
     -125, -50, 125, -50,
@@ -83,12 +56,43 @@ static const int8_t l1r2_cave_segs[] = {
     85, 20, 125, 20,
     85, 20, 15, 20,
     15, 20, 15, 50,
+    -85, -15, 85, -15,
 };
+
+// ============================================================
+// Level 1 (2 room(s))
+// ============================================================
+
+#define L1R1_WALL_COUNT 1
+static const int8_t l1r1_walls[] = {
+    2, -30, 15, 10,   // wall 0 (destroyable)
+};
+
+#define L1R1_ENEMY_COUNT 0
+static const int8_t l1r1_enemies[] = { 0, 0, 0, 0 };
+
+#define L1R1_START_X  -70
+#define L1R1_START_Y  40
+#define L1R1_MINER_X  0
+#define L1R1_MINER_Y  -40
+
+#define L1R2_WALL_COUNT 0
+static const int8_t l1r2_walls[] = { 0, 0, 0, 0 };
+
+#define L1R2_ENEMY_COUNT 1
+static const int8_t l1r2_enemies[] = {
+    -40, 15, 1, 1,   // enemy 0 (spider)
+};
+
+#define L1R2_START_X  -75
+#define L1R2_START_Y  40
+#define L1R2_MINER_X  -80
+#define L1R2_MINER_Y  -10
 
 // Room lookup tables for level 1
 static const int8_t * const l1_room_caves[] = {
-    l1r1_cave,
-    l1r2_cave,
+    layout_0_cave,    // room 0 uses layout 0
+    layout_1_cave,    // room 1 uses layout 1
 };
 static const int8_t * const l1_room_walls[] = {
     l1r1_walls,
@@ -115,12 +119,12 @@ static const int8_t l1_room_miners[] = {
     L1R2_MINER_X, L1R2_MINER_Y,
 };
 static const int8_t * const l1_room_cave_segs[] = {
-    l1r1_cave_segs,
-    l1r2_cave_segs,
+    layout_0_cave_segs,
+    layout_1_cave_segs,
 };
 static const uint8_t l1_room_seg_counts[] = {
-    L1R1_SEG_COUNT,
-    L1R2_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_1_SEG_COUNT,
 };
 static const uint8_t l1_room_has_miner[] = {
     0,
