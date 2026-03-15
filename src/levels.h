@@ -142,4 +142,7930 @@ static const int8_t l1_room_bounds[] = {
     -128, 127, 50, -50,   // room 0
     -128, 127, 50, -50,   // room 1
 };
+// ============================================================
+// Level 2 (4 room(s))
+// ============================================================
+
+#define L2R1_WALL_COUNT 1
+static const int8_t l2r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L2R1_ENEMY_COUNT 2
+static const int8_t l2r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L2R1_START_X  -60
+#define L2R1_START_Y  40
+#define L2R1_MINER_X  0
+#define L2R1_MINER_Y  -40
+
+#define L2R2_WALL_COUNT 1
+static const int8_t l2r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L2R2_ENEMY_COUNT 2
+static const int8_t l2r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L2R2_START_X  -75
+#define L2R2_START_Y  40
+#define L2R2_MINER_X  0
+#define L2R2_MINER_Y  -40
+
+#define L2R3_WALL_COUNT 1
+static const int8_t l2r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L2R3_ENEMY_COUNT 2
+static const int8_t l2r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L2R3_START_X  -75
+#define L2R3_START_Y  40
+#define L2R3_MINER_X  0
+#define L2R3_MINER_Y  -40
+
+#define L2R4_WALL_COUNT 1
+static const int8_t l2r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L2R4_ENEMY_COUNT 2
+static const int8_t l2r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L2R4_START_X  -75
+#define L2R4_START_Y  40
+#define L2R4_MINER_X  0
+#define L2R4_MINER_Y  -40
+
+// Room lookup tables for level 2
+static const int8_t * const l2_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+};
+static const int8_t * const l2_room_walls[] = {
+    l2r1_walls,
+    l2r2_walls,
+    l2r3_walls,
+    l2r4_walls,
+};
+static const uint8_t l2_room_wall_counts[] = {
+    L2R1_WALL_COUNT,
+    L2R2_WALL_COUNT,
+    L2R3_WALL_COUNT,
+    L2R4_WALL_COUNT,
+};
+static const int8_t * const l2_room_enemies[] = {
+    l2r1_enemies,
+    l2r2_enemies,
+    l2r3_enemies,
+    l2r4_enemies,
+};
+static const uint8_t l2_room_enemy_counts[] = {
+    L2R1_ENEMY_COUNT,
+    L2R2_ENEMY_COUNT,
+    L2R3_ENEMY_COUNT,
+    L2R4_ENEMY_COUNT,
+};
+static const int8_t l2_room_starts[] = {
+    L2R1_START_X, L2R1_START_Y,
+    L2R2_START_X, L2R2_START_Y,
+    L2R3_START_X, L2R3_START_Y,
+    L2R4_START_X, L2R4_START_Y,
+};
+static const int8_t l2_room_miners[] = {
+    L2R1_MINER_X, L2R1_MINER_Y,
+    L2R2_MINER_X, L2R2_MINER_Y,
+    L2R3_MINER_X, L2R3_MINER_Y,
+    L2R4_MINER_X, L2R4_MINER_Y,
+};
+static const int8_t * const l2_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l2_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l2_room_has_miner[] = {
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l2_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l2_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, NONE,   // room 3
+};
+static const int8_t l2_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+};
+// ============================================================
+// Level 3 (6 room(s))
+// ============================================================
+
+#define L3R1_WALL_COUNT 1
+static const int8_t l3r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L3R1_ENEMY_COUNT 2
+static const int8_t l3r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L3R1_START_X  -60
+#define L3R1_START_Y  40
+#define L3R1_MINER_X  0
+#define L3R1_MINER_Y  -40
+
+#define L3R2_WALL_COUNT 1
+static const int8_t l3r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L3R2_ENEMY_COUNT 2
+static const int8_t l3r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L3R2_START_X  -75
+#define L3R2_START_Y  40
+#define L3R2_MINER_X  0
+#define L3R2_MINER_Y  -40
+
+#define L3R3_WALL_COUNT 1
+static const int8_t l3r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L3R3_ENEMY_COUNT 2
+static const int8_t l3r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L3R3_START_X  -75
+#define L3R3_START_Y  40
+#define L3R3_MINER_X  0
+#define L3R3_MINER_Y  -40
+
+#define L3R4_WALL_COUNT 1
+static const int8_t l3r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L3R4_ENEMY_COUNT 2
+static const int8_t l3r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L3R4_START_X  -75
+#define L3R4_START_Y  40
+#define L3R4_MINER_X  0
+#define L3R4_MINER_Y  -40
+
+#define L3R5_WALL_COUNT 1
+static const int8_t l3r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L3R5_ENEMY_COUNT 2
+static const int8_t l3r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L3R5_START_X  -75
+#define L3R5_START_Y  40
+#define L3R5_MINER_X  0
+#define L3R5_MINER_Y  -40
+
+#define L3R6_WALL_COUNT 1
+static const int8_t l3r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L3R6_ENEMY_COUNT 2
+static const int8_t l3r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L3R6_START_X  -75
+#define L3R6_START_Y  40
+#define L3R6_MINER_X  0
+#define L3R6_MINER_Y  -40
+
+// Room lookup tables for level 3
+static const int8_t * const l3_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+};
+static const int8_t * const l3_room_walls[] = {
+    l3r1_walls,
+    l3r2_walls,
+    l3r3_walls,
+    l3r4_walls,
+    l3r5_walls,
+    l3r6_walls,
+};
+static const uint8_t l3_room_wall_counts[] = {
+    L3R1_WALL_COUNT,
+    L3R2_WALL_COUNT,
+    L3R3_WALL_COUNT,
+    L3R4_WALL_COUNT,
+    L3R5_WALL_COUNT,
+    L3R6_WALL_COUNT,
+};
+static const int8_t * const l3_room_enemies[] = {
+    l3r1_enemies,
+    l3r2_enemies,
+    l3r3_enemies,
+    l3r4_enemies,
+    l3r5_enemies,
+    l3r6_enemies,
+};
+static const uint8_t l3_room_enemy_counts[] = {
+    L3R1_ENEMY_COUNT,
+    L3R2_ENEMY_COUNT,
+    L3R3_ENEMY_COUNT,
+    L3R4_ENEMY_COUNT,
+    L3R5_ENEMY_COUNT,
+    L3R6_ENEMY_COUNT,
+};
+static const int8_t l3_room_starts[] = {
+    L3R1_START_X, L3R1_START_Y,
+    L3R2_START_X, L3R2_START_Y,
+    L3R3_START_X, L3R3_START_Y,
+    L3R4_START_X, L3R4_START_Y,
+    L3R5_START_X, L3R5_START_Y,
+    L3R6_START_X, L3R6_START_Y,
+};
+static const int8_t l3_room_miners[] = {
+    L3R1_MINER_X, L3R1_MINER_Y,
+    L3R2_MINER_X, L3R2_MINER_Y,
+    L3R3_MINER_X, L3R3_MINER_Y,
+    L3R4_MINER_X, L3R4_MINER_Y,
+    L3R5_MINER_X, L3R5_MINER_Y,
+    L3R6_MINER_X, L3R6_MINER_Y,
+};
+static const int8_t * const l3_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l3_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l3_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l3_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l3_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, NONE,   // room 5
+};
+static const int8_t l3_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+};
+// ============================================================
+// Level 4 (8 room(s))
+// ============================================================
+
+#define L4R1_WALL_COUNT 1
+static const int8_t l4r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L4R1_ENEMY_COUNT 2
+static const int8_t l4r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L4R1_START_X  -60
+#define L4R1_START_Y  40
+#define L4R1_MINER_X  0
+#define L4R1_MINER_Y  -40
+
+#define L4R2_WALL_COUNT 1
+static const int8_t l4r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L4R2_ENEMY_COUNT 2
+static const int8_t l4r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L4R2_START_X  -75
+#define L4R2_START_Y  40
+#define L4R2_MINER_X  0
+#define L4R2_MINER_Y  -40
+
+#define L4R3_WALL_COUNT 1
+static const int8_t l4r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L4R3_ENEMY_COUNT 2
+static const int8_t l4r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L4R3_START_X  -75
+#define L4R3_START_Y  40
+#define L4R3_MINER_X  0
+#define L4R3_MINER_Y  -40
+
+#define L4R4_WALL_COUNT 1
+static const int8_t l4r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L4R4_ENEMY_COUNT 2
+static const int8_t l4r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L4R4_START_X  -75
+#define L4R4_START_Y  40
+#define L4R4_MINER_X  0
+#define L4R4_MINER_Y  -40
+
+#define L4R5_WALL_COUNT 1
+static const int8_t l4r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L4R5_ENEMY_COUNT 2
+static const int8_t l4r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L4R5_START_X  -75
+#define L4R5_START_Y  40
+#define L4R5_MINER_X  0
+#define L4R5_MINER_Y  -40
+
+#define L4R6_WALL_COUNT 1
+static const int8_t l4r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L4R6_ENEMY_COUNT 2
+static const int8_t l4r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L4R6_START_X  -75
+#define L4R6_START_Y  40
+#define L4R6_MINER_X  0
+#define L4R6_MINER_Y  -40
+
+#define L4R7_WALL_COUNT 1
+static const int8_t l4r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L4R7_ENEMY_COUNT 2
+static const int8_t l4r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L4R7_START_X  -75
+#define L4R7_START_Y  40
+#define L4R7_MINER_X  0
+#define L4R7_MINER_Y  -40
+
+#define L4R8_WALL_COUNT 1
+static const int8_t l4r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L4R8_ENEMY_COUNT 2
+static const int8_t l4r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L4R8_START_X  -75
+#define L4R8_START_Y  40
+#define L4R8_MINER_X  0
+#define L4R8_MINER_Y  -40
+
+// Room lookup tables for level 4
+static const int8_t * const l4_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+};
+static const int8_t * const l4_room_walls[] = {
+    l4r1_walls,
+    l4r2_walls,
+    l4r3_walls,
+    l4r4_walls,
+    l4r5_walls,
+    l4r6_walls,
+    l4r7_walls,
+    l4r8_walls,
+};
+static const uint8_t l4_room_wall_counts[] = {
+    L4R1_WALL_COUNT,
+    L4R2_WALL_COUNT,
+    L4R3_WALL_COUNT,
+    L4R4_WALL_COUNT,
+    L4R5_WALL_COUNT,
+    L4R6_WALL_COUNT,
+    L4R7_WALL_COUNT,
+    L4R8_WALL_COUNT,
+};
+static const int8_t * const l4_room_enemies[] = {
+    l4r1_enemies,
+    l4r2_enemies,
+    l4r3_enemies,
+    l4r4_enemies,
+    l4r5_enemies,
+    l4r6_enemies,
+    l4r7_enemies,
+    l4r8_enemies,
+};
+static const uint8_t l4_room_enemy_counts[] = {
+    L4R1_ENEMY_COUNT,
+    L4R2_ENEMY_COUNT,
+    L4R3_ENEMY_COUNT,
+    L4R4_ENEMY_COUNT,
+    L4R5_ENEMY_COUNT,
+    L4R6_ENEMY_COUNT,
+    L4R7_ENEMY_COUNT,
+    L4R8_ENEMY_COUNT,
+};
+static const int8_t l4_room_starts[] = {
+    L4R1_START_X, L4R1_START_Y,
+    L4R2_START_X, L4R2_START_Y,
+    L4R3_START_X, L4R3_START_Y,
+    L4R4_START_X, L4R4_START_Y,
+    L4R5_START_X, L4R5_START_Y,
+    L4R6_START_X, L4R6_START_Y,
+    L4R7_START_X, L4R7_START_Y,
+    L4R8_START_X, L4R8_START_Y,
+};
+static const int8_t l4_room_miners[] = {
+    L4R1_MINER_X, L4R1_MINER_Y,
+    L4R2_MINER_X, L4R2_MINER_Y,
+    L4R3_MINER_X, L4R3_MINER_Y,
+    L4R4_MINER_X, L4R4_MINER_Y,
+    L4R5_MINER_X, L4R5_MINER_Y,
+    L4R6_MINER_X, L4R6_MINER_Y,
+    L4R7_MINER_X, L4R7_MINER_Y,
+    L4R8_MINER_X, L4R8_MINER_Y,
+};
+static const int8_t * const l4_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l4_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l4_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l4_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l4_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, NONE,   // room 7
+};
+static const int8_t l4_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+};
+// ============================================================
+// Level 5 (8 room(s))
+// ============================================================
+
+#define L5R1_WALL_COUNT 1
+static const int8_t l5r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L5R1_ENEMY_COUNT 2
+static const int8_t l5r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L5R1_START_X  -60
+#define L5R1_START_Y  40
+#define L5R1_MINER_X  0
+#define L5R1_MINER_Y  -40
+
+#define L5R2_WALL_COUNT 1
+static const int8_t l5r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L5R2_ENEMY_COUNT 2
+static const int8_t l5r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L5R2_START_X  -75
+#define L5R2_START_Y  40
+#define L5R2_MINER_X  0
+#define L5R2_MINER_Y  -40
+
+#define L5R3_WALL_COUNT 1
+static const int8_t l5r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L5R3_ENEMY_COUNT 2
+static const int8_t l5r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L5R3_START_X  -75
+#define L5R3_START_Y  40
+#define L5R3_MINER_X  0
+#define L5R3_MINER_Y  -40
+
+#define L5R4_WALL_COUNT 1
+static const int8_t l5r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L5R4_ENEMY_COUNT 2
+static const int8_t l5r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L5R4_START_X  -75
+#define L5R4_START_Y  40
+#define L5R4_MINER_X  0
+#define L5R4_MINER_Y  -40
+
+#define L5R5_WALL_COUNT 1
+static const int8_t l5r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L5R5_ENEMY_COUNT 2
+static const int8_t l5r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L5R5_START_X  -75
+#define L5R5_START_Y  40
+#define L5R5_MINER_X  0
+#define L5R5_MINER_Y  -40
+
+#define L5R6_WALL_COUNT 1
+static const int8_t l5r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L5R6_ENEMY_COUNT 2
+static const int8_t l5r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L5R6_START_X  -75
+#define L5R6_START_Y  40
+#define L5R6_MINER_X  0
+#define L5R6_MINER_Y  -40
+
+#define L5R7_WALL_COUNT 1
+static const int8_t l5r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L5R7_ENEMY_COUNT 2
+static const int8_t l5r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L5R7_START_X  -75
+#define L5R7_START_Y  40
+#define L5R7_MINER_X  0
+#define L5R7_MINER_Y  -40
+
+#define L5R8_WALL_COUNT 1
+static const int8_t l5r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L5R8_ENEMY_COUNT 2
+static const int8_t l5r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L5R8_START_X  -75
+#define L5R8_START_Y  40
+#define L5R8_MINER_X  0
+#define L5R8_MINER_Y  -40
+
+// Room lookup tables for level 5
+static const int8_t * const l5_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+};
+static const int8_t * const l5_room_walls[] = {
+    l5r1_walls,
+    l5r2_walls,
+    l5r3_walls,
+    l5r4_walls,
+    l5r5_walls,
+    l5r6_walls,
+    l5r7_walls,
+    l5r8_walls,
+};
+static const uint8_t l5_room_wall_counts[] = {
+    L5R1_WALL_COUNT,
+    L5R2_WALL_COUNT,
+    L5R3_WALL_COUNT,
+    L5R4_WALL_COUNT,
+    L5R5_WALL_COUNT,
+    L5R6_WALL_COUNT,
+    L5R7_WALL_COUNT,
+    L5R8_WALL_COUNT,
+};
+static const int8_t * const l5_room_enemies[] = {
+    l5r1_enemies,
+    l5r2_enemies,
+    l5r3_enemies,
+    l5r4_enemies,
+    l5r5_enemies,
+    l5r6_enemies,
+    l5r7_enemies,
+    l5r8_enemies,
+};
+static const uint8_t l5_room_enemy_counts[] = {
+    L5R1_ENEMY_COUNT,
+    L5R2_ENEMY_COUNT,
+    L5R3_ENEMY_COUNT,
+    L5R4_ENEMY_COUNT,
+    L5R5_ENEMY_COUNT,
+    L5R6_ENEMY_COUNT,
+    L5R7_ENEMY_COUNT,
+    L5R8_ENEMY_COUNT,
+};
+static const int8_t l5_room_starts[] = {
+    L5R1_START_X, L5R1_START_Y,
+    L5R2_START_X, L5R2_START_Y,
+    L5R3_START_X, L5R3_START_Y,
+    L5R4_START_X, L5R4_START_Y,
+    L5R5_START_X, L5R5_START_Y,
+    L5R6_START_X, L5R6_START_Y,
+    L5R7_START_X, L5R7_START_Y,
+    L5R8_START_X, L5R8_START_Y,
+};
+static const int8_t l5_room_miners[] = {
+    L5R1_MINER_X, L5R1_MINER_Y,
+    L5R2_MINER_X, L5R2_MINER_Y,
+    L5R3_MINER_X, L5R3_MINER_Y,
+    L5R4_MINER_X, L5R4_MINER_Y,
+    L5R5_MINER_X, L5R5_MINER_Y,
+    L5R6_MINER_X, L5R6_MINER_Y,
+    L5R7_MINER_X, L5R7_MINER_Y,
+    L5R8_MINER_X, L5R8_MINER_Y,
+};
+static const int8_t * const l5_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l5_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l5_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l5_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l5_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, NONE,   // room 7
+};
+static const int8_t l5_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+};
+// ============================================================
+// Level 6 (10 room(s))
+// ============================================================
+
+#define L6R1_WALL_COUNT 1
+static const int8_t l6r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R1_ENEMY_COUNT 2
+static const int8_t l6r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R1_START_X  -60
+#define L6R1_START_Y  40
+#define L6R1_MINER_X  0
+#define L6R1_MINER_Y  -40
+
+#define L6R2_WALL_COUNT 1
+static const int8_t l6r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R2_ENEMY_COUNT 2
+static const int8_t l6r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R2_START_X  -75
+#define L6R2_START_Y  40
+#define L6R2_MINER_X  0
+#define L6R2_MINER_Y  -40
+
+#define L6R3_WALL_COUNT 1
+static const int8_t l6r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R3_ENEMY_COUNT 2
+static const int8_t l6r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R3_START_X  -75
+#define L6R3_START_Y  40
+#define L6R3_MINER_X  0
+#define L6R3_MINER_Y  -40
+
+#define L6R4_WALL_COUNT 1
+static const int8_t l6r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R4_ENEMY_COUNT 2
+static const int8_t l6r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R4_START_X  -75
+#define L6R4_START_Y  40
+#define L6R4_MINER_X  0
+#define L6R4_MINER_Y  -40
+
+#define L6R5_WALL_COUNT 1
+static const int8_t l6r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R5_ENEMY_COUNT 2
+static const int8_t l6r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R5_START_X  -75
+#define L6R5_START_Y  40
+#define L6R5_MINER_X  0
+#define L6R5_MINER_Y  -40
+
+#define L6R6_WALL_COUNT 1
+static const int8_t l6r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R6_ENEMY_COUNT 2
+static const int8_t l6r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R6_START_X  -75
+#define L6R6_START_Y  40
+#define L6R6_MINER_X  0
+#define L6R6_MINER_Y  -40
+
+#define L6R7_WALL_COUNT 1
+static const int8_t l6r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R7_ENEMY_COUNT 2
+static const int8_t l6r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R7_START_X  -75
+#define L6R7_START_Y  40
+#define L6R7_MINER_X  0
+#define L6R7_MINER_Y  -40
+
+#define L6R8_WALL_COUNT 1
+static const int8_t l6r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R8_ENEMY_COUNT 2
+static const int8_t l6r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R8_START_X  -75
+#define L6R8_START_Y  40
+#define L6R8_MINER_X  0
+#define L6R8_MINER_Y  -40
+
+#define L6R9_WALL_COUNT 1
+static const int8_t l6r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R9_ENEMY_COUNT 2
+static const int8_t l6r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R9_START_X  -75
+#define L6R9_START_Y  40
+#define L6R9_MINER_X  0
+#define L6R9_MINER_Y  -40
+
+#define L6R10_WALL_COUNT 1
+static const int8_t l6r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L6R10_ENEMY_COUNT 2
+static const int8_t l6r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L6R10_START_X  -75
+#define L6R10_START_Y  40
+#define L6R10_MINER_X  0
+#define L6R10_MINER_Y  -40
+
+// Room lookup tables for level 6
+static const int8_t * const l6_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+};
+static const int8_t * const l6_room_walls[] = {
+    l6r1_walls,
+    l6r2_walls,
+    l6r3_walls,
+    l6r4_walls,
+    l6r5_walls,
+    l6r6_walls,
+    l6r7_walls,
+    l6r8_walls,
+    l6r9_walls,
+    l6r10_walls,
+};
+static const uint8_t l6_room_wall_counts[] = {
+    L6R1_WALL_COUNT,
+    L6R2_WALL_COUNT,
+    L6R3_WALL_COUNT,
+    L6R4_WALL_COUNT,
+    L6R5_WALL_COUNT,
+    L6R6_WALL_COUNT,
+    L6R7_WALL_COUNT,
+    L6R8_WALL_COUNT,
+    L6R9_WALL_COUNT,
+    L6R10_WALL_COUNT,
+};
+static const int8_t * const l6_room_enemies[] = {
+    l6r1_enemies,
+    l6r2_enemies,
+    l6r3_enemies,
+    l6r4_enemies,
+    l6r5_enemies,
+    l6r6_enemies,
+    l6r7_enemies,
+    l6r8_enemies,
+    l6r9_enemies,
+    l6r10_enemies,
+};
+static const uint8_t l6_room_enemy_counts[] = {
+    L6R1_ENEMY_COUNT,
+    L6R2_ENEMY_COUNT,
+    L6R3_ENEMY_COUNT,
+    L6R4_ENEMY_COUNT,
+    L6R5_ENEMY_COUNT,
+    L6R6_ENEMY_COUNT,
+    L6R7_ENEMY_COUNT,
+    L6R8_ENEMY_COUNT,
+    L6R9_ENEMY_COUNT,
+    L6R10_ENEMY_COUNT,
+};
+static const int8_t l6_room_starts[] = {
+    L6R1_START_X, L6R1_START_Y,
+    L6R2_START_X, L6R2_START_Y,
+    L6R3_START_X, L6R3_START_Y,
+    L6R4_START_X, L6R4_START_Y,
+    L6R5_START_X, L6R5_START_Y,
+    L6R6_START_X, L6R6_START_Y,
+    L6R7_START_X, L6R7_START_Y,
+    L6R8_START_X, L6R8_START_Y,
+    L6R9_START_X, L6R9_START_Y,
+    L6R10_START_X, L6R10_START_Y,
+};
+static const int8_t l6_room_miners[] = {
+    L6R1_MINER_X, L6R1_MINER_Y,
+    L6R2_MINER_X, L6R2_MINER_Y,
+    L6R3_MINER_X, L6R3_MINER_Y,
+    L6R4_MINER_X, L6R4_MINER_Y,
+    L6R5_MINER_X, L6R5_MINER_Y,
+    L6R6_MINER_X, L6R6_MINER_Y,
+    L6R7_MINER_X, L6R7_MINER_Y,
+    L6R8_MINER_X, L6R8_MINER_Y,
+    L6R9_MINER_X, L6R9_MINER_Y,
+    L6R10_MINER_X, L6R10_MINER_Y,
+};
+static const int8_t * const l6_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l6_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l6_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l6_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l6_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, NONE,   // room 9
+};
+static const int8_t l6_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+};
+// ============================================================
+// Level 7 (12 room(s))
+// ============================================================
+
+#define L7R1_WALL_COUNT 1
+static const int8_t l7r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R1_ENEMY_COUNT 2
+static const int8_t l7r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R1_START_X  -60
+#define L7R1_START_Y  40
+#define L7R1_MINER_X  0
+#define L7R1_MINER_Y  -40
+
+#define L7R2_WALL_COUNT 1
+static const int8_t l7r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R2_ENEMY_COUNT 2
+static const int8_t l7r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R2_START_X  -75
+#define L7R2_START_Y  40
+#define L7R2_MINER_X  0
+#define L7R2_MINER_Y  -40
+
+#define L7R3_WALL_COUNT 1
+static const int8_t l7r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R3_ENEMY_COUNT 2
+static const int8_t l7r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R3_START_X  -75
+#define L7R3_START_Y  40
+#define L7R3_MINER_X  0
+#define L7R3_MINER_Y  -40
+
+#define L7R4_WALL_COUNT 1
+static const int8_t l7r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R4_ENEMY_COUNT 2
+static const int8_t l7r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R4_START_X  -75
+#define L7R4_START_Y  40
+#define L7R4_MINER_X  0
+#define L7R4_MINER_Y  -40
+
+#define L7R5_WALL_COUNT 1
+static const int8_t l7r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R5_ENEMY_COUNT 2
+static const int8_t l7r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R5_START_X  -75
+#define L7R5_START_Y  40
+#define L7R5_MINER_X  0
+#define L7R5_MINER_Y  -40
+
+#define L7R6_WALL_COUNT 1
+static const int8_t l7r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R6_ENEMY_COUNT 2
+static const int8_t l7r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R6_START_X  -75
+#define L7R6_START_Y  40
+#define L7R6_MINER_X  0
+#define L7R6_MINER_Y  -40
+
+#define L7R7_WALL_COUNT 1
+static const int8_t l7r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R7_ENEMY_COUNT 2
+static const int8_t l7r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R7_START_X  -75
+#define L7R7_START_Y  40
+#define L7R7_MINER_X  0
+#define L7R7_MINER_Y  -40
+
+#define L7R8_WALL_COUNT 1
+static const int8_t l7r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R8_ENEMY_COUNT 2
+static const int8_t l7r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R8_START_X  -75
+#define L7R8_START_Y  40
+#define L7R8_MINER_X  0
+#define L7R8_MINER_Y  -40
+
+#define L7R9_WALL_COUNT 1
+static const int8_t l7r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R9_ENEMY_COUNT 2
+static const int8_t l7r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R9_START_X  -75
+#define L7R9_START_Y  40
+#define L7R9_MINER_X  0
+#define L7R9_MINER_Y  -40
+
+#define L7R10_WALL_COUNT 1
+static const int8_t l7r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R10_ENEMY_COUNT 2
+static const int8_t l7r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R10_START_X  -75
+#define L7R10_START_Y  40
+#define L7R10_MINER_X  0
+#define L7R10_MINER_Y  -40
+
+#define L7R11_WALL_COUNT 1
+static const int8_t l7r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R11_ENEMY_COUNT 2
+static const int8_t l7r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R11_START_X  -75
+#define L7R11_START_Y  40
+#define L7R11_MINER_X  0
+#define L7R11_MINER_Y  -40
+
+#define L7R12_WALL_COUNT 1
+static const int8_t l7r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L7R12_ENEMY_COUNT 2
+static const int8_t l7r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L7R12_START_X  -75
+#define L7R12_START_Y  40
+#define L7R12_MINER_X  0
+#define L7R12_MINER_Y  -40
+
+// Room lookup tables for level 7
+static const int8_t * const l7_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+};
+static const int8_t * const l7_room_walls[] = {
+    l7r1_walls,
+    l7r2_walls,
+    l7r3_walls,
+    l7r4_walls,
+    l7r5_walls,
+    l7r6_walls,
+    l7r7_walls,
+    l7r8_walls,
+    l7r9_walls,
+    l7r10_walls,
+    l7r11_walls,
+    l7r12_walls,
+};
+static const uint8_t l7_room_wall_counts[] = {
+    L7R1_WALL_COUNT,
+    L7R2_WALL_COUNT,
+    L7R3_WALL_COUNT,
+    L7R4_WALL_COUNT,
+    L7R5_WALL_COUNT,
+    L7R6_WALL_COUNT,
+    L7R7_WALL_COUNT,
+    L7R8_WALL_COUNT,
+    L7R9_WALL_COUNT,
+    L7R10_WALL_COUNT,
+    L7R11_WALL_COUNT,
+    L7R12_WALL_COUNT,
+};
+static const int8_t * const l7_room_enemies[] = {
+    l7r1_enemies,
+    l7r2_enemies,
+    l7r3_enemies,
+    l7r4_enemies,
+    l7r5_enemies,
+    l7r6_enemies,
+    l7r7_enemies,
+    l7r8_enemies,
+    l7r9_enemies,
+    l7r10_enemies,
+    l7r11_enemies,
+    l7r12_enemies,
+};
+static const uint8_t l7_room_enemy_counts[] = {
+    L7R1_ENEMY_COUNT,
+    L7R2_ENEMY_COUNT,
+    L7R3_ENEMY_COUNT,
+    L7R4_ENEMY_COUNT,
+    L7R5_ENEMY_COUNT,
+    L7R6_ENEMY_COUNT,
+    L7R7_ENEMY_COUNT,
+    L7R8_ENEMY_COUNT,
+    L7R9_ENEMY_COUNT,
+    L7R10_ENEMY_COUNT,
+    L7R11_ENEMY_COUNT,
+    L7R12_ENEMY_COUNT,
+};
+static const int8_t l7_room_starts[] = {
+    L7R1_START_X, L7R1_START_Y,
+    L7R2_START_X, L7R2_START_Y,
+    L7R3_START_X, L7R3_START_Y,
+    L7R4_START_X, L7R4_START_Y,
+    L7R5_START_X, L7R5_START_Y,
+    L7R6_START_X, L7R6_START_Y,
+    L7R7_START_X, L7R7_START_Y,
+    L7R8_START_X, L7R8_START_Y,
+    L7R9_START_X, L7R9_START_Y,
+    L7R10_START_X, L7R10_START_Y,
+    L7R11_START_X, L7R11_START_Y,
+    L7R12_START_X, L7R12_START_Y,
+};
+static const int8_t l7_room_miners[] = {
+    L7R1_MINER_X, L7R1_MINER_Y,
+    L7R2_MINER_X, L7R2_MINER_Y,
+    L7R3_MINER_X, L7R3_MINER_Y,
+    L7R4_MINER_X, L7R4_MINER_Y,
+    L7R5_MINER_X, L7R5_MINER_Y,
+    L7R6_MINER_X, L7R6_MINER_Y,
+    L7R7_MINER_X, L7R7_MINER_Y,
+    L7R8_MINER_X, L7R8_MINER_Y,
+    L7R9_MINER_X, L7R9_MINER_Y,
+    L7R10_MINER_X, L7R10_MINER_Y,
+    L7R11_MINER_X, L7R11_MINER_Y,
+    L7R12_MINER_X, L7R12_MINER_Y,
+};
+static const int8_t * const l7_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l7_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l7_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l7_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l7_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, NONE,   // room 11
+};
+static const int8_t l7_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+};
+// ============================================================
+// Level 8 (13 room(s))
+// ============================================================
+
+#define L8R1_WALL_COUNT 1
+static const int8_t l8r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R1_ENEMY_COUNT 2
+static const int8_t l8r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R1_START_X  -60
+#define L8R1_START_Y  40
+#define L8R1_MINER_X  0
+#define L8R1_MINER_Y  -40
+
+#define L8R2_WALL_COUNT 1
+static const int8_t l8r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R2_ENEMY_COUNT 2
+static const int8_t l8r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R2_START_X  -75
+#define L8R2_START_Y  40
+#define L8R2_MINER_X  0
+#define L8R2_MINER_Y  -40
+
+#define L8R3_WALL_COUNT 1
+static const int8_t l8r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R3_ENEMY_COUNT 2
+static const int8_t l8r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R3_START_X  -75
+#define L8R3_START_Y  40
+#define L8R3_MINER_X  0
+#define L8R3_MINER_Y  -40
+
+#define L8R4_WALL_COUNT 1
+static const int8_t l8r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R4_ENEMY_COUNT 2
+static const int8_t l8r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R4_START_X  -75
+#define L8R4_START_Y  40
+#define L8R4_MINER_X  0
+#define L8R4_MINER_Y  -40
+
+#define L8R5_WALL_COUNT 1
+static const int8_t l8r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R5_ENEMY_COUNT 2
+static const int8_t l8r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R5_START_X  -75
+#define L8R5_START_Y  40
+#define L8R5_MINER_X  0
+#define L8R5_MINER_Y  -40
+
+#define L8R6_WALL_COUNT 1
+static const int8_t l8r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R6_ENEMY_COUNT 2
+static const int8_t l8r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R6_START_X  -75
+#define L8R6_START_Y  40
+#define L8R6_MINER_X  0
+#define L8R6_MINER_Y  -40
+
+#define L8R7_WALL_COUNT 1
+static const int8_t l8r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R7_ENEMY_COUNT 2
+static const int8_t l8r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R7_START_X  -75
+#define L8R7_START_Y  40
+#define L8R7_MINER_X  0
+#define L8R7_MINER_Y  -40
+
+#define L8R8_WALL_COUNT 1
+static const int8_t l8r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R8_ENEMY_COUNT 2
+static const int8_t l8r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R8_START_X  -75
+#define L8R8_START_Y  40
+#define L8R8_MINER_X  0
+#define L8R8_MINER_Y  -40
+
+#define L8R9_WALL_COUNT 1
+static const int8_t l8r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R9_ENEMY_COUNT 2
+static const int8_t l8r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R9_START_X  -75
+#define L8R9_START_Y  40
+#define L8R9_MINER_X  0
+#define L8R9_MINER_Y  -40
+
+#define L8R10_WALL_COUNT 1
+static const int8_t l8r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R10_ENEMY_COUNT 2
+static const int8_t l8r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R10_START_X  -75
+#define L8R10_START_Y  40
+#define L8R10_MINER_X  0
+#define L8R10_MINER_Y  -40
+
+#define L8R11_WALL_COUNT 1
+static const int8_t l8r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R11_ENEMY_COUNT 2
+static const int8_t l8r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R11_START_X  -75
+#define L8R11_START_Y  40
+#define L8R11_MINER_X  0
+#define L8R11_MINER_Y  -40
+
+#define L8R12_WALL_COUNT 1
+static const int8_t l8r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R12_ENEMY_COUNT 2
+static const int8_t l8r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R12_START_X  -75
+#define L8R12_START_Y  40
+#define L8R12_MINER_X  0
+#define L8R12_MINER_Y  -40
+
+#define L8R13_WALL_COUNT 1
+static const int8_t l8r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L8R13_ENEMY_COUNT 2
+static const int8_t l8r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L8R13_START_X  -75
+#define L8R13_START_Y  40
+#define L8R13_MINER_X  0
+#define L8R13_MINER_Y  -40
+
+// Room lookup tables for level 8
+static const int8_t * const l8_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+};
+static const int8_t * const l8_room_walls[] = {
+    l8r1_walls,
+    l8r2_walls,
+    l8r3_walls,
+    l8r4_walls,
+    l8r5_walls,
+    l8r6_walls,
+    l8r7_walls,
+    l8r8_walls,
+    l8r9_walls,
+    l8r10_walls,
+    l8r11_walls,
+    l8r12_walls,
+    l8r13_walls,
+};
+static const uint8_t l8_room_wall_counts[] = {
+    L8R1_WALL_COUNT,
+    L8R2_WALL_COUNT,
+    L8R3_WALL_COUNT,
+    L8R4_WALL_COUNT,
+    L8R5_WALL_COUNT,
+    L8R6_WALL_COUNT,
+    L8R7_WALL_COUNT,
+    L8R8_WALL_COUNT,
+    L8R9_WALL_COUNT,
+    L8R10_WALL_COUNT,
+    L8R11_WALL_COUNT,
+    L8R12_WALL_COUNT,
+    L8R13_WALL_COUNT,
+};
+static const int8_t * const l8_room_enemies[] = {
+    l8r1_enemies,
+    l8r2_enemies,
+    l8r3_enemies,
+    l8r4_enemies,
+    l8r5_enemies,
+    l8r6_enemies,
+    l8r7_enemies,
+    l8r8_enemies,
+    l8r9_enemies,
+    l8r10_enemies,
+    l8r11_enemies,
+    l8r12_enemies,
+    l8r13_enemies,
+};
+static const uint8_t l8_room_enemy_counts[] = {
+    L8R1_ENEMY_COUNT,
+    L8R2_ENEMY_COUNT,
+    L8R3_ENEMY_COUNT,
+    L8R4_ENEMY_COUNT,
+    L8R5_ENEMY_COUNT,
+    L8R6_ENEMY_COUNT,
+    L8R7_ENEMY_COUNT,
+    L8R8_ENEMY_COUNT,
+    L8R9_ENEMY_COUNT,
+    L8R10_ENEMY_COUNT,
+    L8R11_ENEMY_COUNT,
+    L8R12_ENEMY_COUNT,
+    L8R13_ENEMY_COUNT,
+};
+static const int8_t l8_room_starts[] = {
+    L8R1_START_X, L8R1_START_Y,
+    L8R2_START_X, L8R2_START_Y,
+    L8R3_START_X, L8R3_START_Y,
+    L8R4_START_X, L8R4_START_Y,
+    L8R5_START_X, L8R5_START_Y,
+    L8R6_START_X, L8R6_START_Y,
+    L8R7_START_X, L8R7_START_Y,
+    L8R8_START_X, L8R8_START_Y,
+    L8R9_START_X, L8R9_START_Y,
+    L8R10_START_X, L8R10_START_Y,
+    L8R11_START_X, L8R11_START_Y,
+    L8R12_START_X, L8R12_START_Y,
+    L8R13_START_X, L8R13_START_Y,
+};
+static const int8_t l8_room_miners[] = {
+    L8R1_MINER_X, L8R1_MINER_Y,
+    L8R2_MINER_X, L8R2_MINER_Y,
+    L8R3_MINER_X, L8R3_MINER_Y,
+    L8R4_MINER_X, L8R4_MINER_Y,
+    L8R5_MINER_X, L8R5_MINER_Y,
+    L8R6_MINER_X, L8R6_MINER_Y,
+    L8R7_MINER_X, L8R7_MINER_Y,
+    L8R8_MINER_X, L8R8_MINER_Y,
+    L8R9_MINER_X, L8R9_MINER_Y,
+    L8R10_MINER_X, L8R10_MINER_Y,
+    L8R11_MINER_X, L8R11_MINER_Y,
+    L8R12_MINER_X, L8R12_MINER_Y,
+    L8R13_MINER_X, L8R13_MINER_Y,
+};
+static const int8_t * const l8_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l8_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l8_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l8_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l8_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, NONE,   // room 12
+};
+static const int8_t l8_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+};
+// ============================================================
+// Level 9 (16 room(s))
+// ============================================================
+
+#define L9R1_WALL_COUNT 1
+static const int8_t l9r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R1_ENEMY_COUNT 2
+static const int8_t l9r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R1_START_X  -60
+#define L9R1_START_Y  40
+#define L9R1_MINER_X  0
+#define L9R1_MINER_Y  -40
+
+#define L9R2_WALL_COUNT 1
+static const int8_t l9r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R2_ENEMY_COUNT 2
+static const int8_t l9r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R2_START_X  -75
+#define L9R2_START_Y  40
+#define L9R2_MINER_X  0
+#define L9R2_MINER_Y  -40
+
+#define L9R3_WALL_COUNT 1
+static const int8_t l9r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R3_ENEMY_COUNT 2
+static const int8_t l9r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R3_START_X  -75
+#define L9R3_START_Y  40
+#define L9R3_MINER_X  0
+#define L9R3_MINER_Y  -40
+
+#define L9R4_WALL_COUNT 1
+static const int8_t l9r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R4_ENEMY_COUNT 2
+static const int8_t l9r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R4_START_X  -75
+#define L9R4_START_Y  40
+#define L9R4_MINER_X  0
+#define L9R4_MINER_Y  -40
+
+#define L9R5_WALL_COUNT 1
+static const int8_t l9r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R5_ENEMY_COUNT 2
+static const int8_t l9r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R5_START_X  -75
+#define L9R5_START_Y  40
+#define L9R5_MINER_X  0
+#define L9R5_MINER_Y  -40
+
+#define L9R6_WALL_COUNT 1
+static const int8_t l9r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R6_ENEMY_COUNT 2
+static const int8_t l9r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R6_START_X  -75
+#define L9R6_START_Y  40
+#define L9R6_MINER_X  0
+#define L9R6_MINER_Y  -40
+
+#define L9R7_WALL_COUNT 1
+static const int8_t l9r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R7_ENEMY_COUNT 2
+static const int8_t l9r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R7_START_X  -75
+#define L9R7_START_Y  40
+#define L9R7_MINER_X  0
+#define L9R7_MINER_Y  -40
+
+#define L9R8_WALL_COUNT 1
+static const int8_t l9r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R8_ENEMY_COUNT 2
+static const int8_t l9r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R8_START_X  -75
+#define L9R8_START_Y  40
+#define L9R8_MINER_X  0
+#define L9R8_MINER_Y  -40
+
+#define L9R9_WALL_COUNT 1
+static const int8_t l9r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R9_ENEMY_COUNT 2
+static const int8_t l9r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R9_START_X  -75
+#define L9R9_START_Y  40
+#define L9R9_MINER_X  0
+#define L9R9_MINER_Y  -40
+
+#define L9R10_WALL_COUNT 1
+static const int8_t l9r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R10_ENEMY_COUNT 2
+static const int8_t l9r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R10_START_X  -75
+#define L9R10_START_Y  40
+#define L9R10_MINER_X  0
+#define L9R10_MINER_Y  -40
+
+#define L9R11_WALL_COUNT 1
+static const int8_t l9r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R11_ENEMY_COUNT 2
+static const int8_t l9r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R11_START_X  -75
+#define L9R11_START_Y  40
+#define L9R11_MINER_X  0
+#define L9R11_MINER_Y  -40
+
+#define L9R12_WALL_COUNT 1
+static const int8_t l9r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R12_ENEMY_COUNT 2
+static const int8_t l9r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R12_START_X  -75
+#define L9R12_START_Y  40
+#define L9R12_MINER_X  0
+#define L9R12_MINER_Y  -40
+
+#define L9R13_WALL_COUNT 1
+static const int8_t l9r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R13_ENEMY_COUNT 2
+static const int8_t l9r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R13_START_X  -75
+#define L9R13_START_Y  40
+#define L9R13_MINER_X  0
+#define L9R13_MINER_Y  -40
+
+#define L9R14_WALL_COUNT 1
+static const int8_t l9r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R14_ENEMY_COUNT 2
+static const int8_t l9r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R14_START_X  -75
+#define L9R14_START_Y  40
+#define L9R14_MINER_X  0
+#define L9R14_MINER_Y  -40
+
+#define L9R15_WALL_COUNT 1
+static const int8_t l9r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R15_ENEMY_COUNT 2
+static const int8_t l9r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R15_START_X  -75
+#define L9R15_START_Y  40
+#define L9R15_MINER_X  0
+#define L9R15_MINER_Y  -40
+
+#define L9R16_WALL_COUNT 1
+static const int8_t l9r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L9R16_ENEMY_COUNT 2
+static const int8_t l9r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L9R16_START_X  -75
+#define L9R16_START_Y  40
+#define L9R16_MINER_X  0
+#define L9R16_MINER_Y  -40
+
+// Room lookup tables for level 9
+static const int8_t * const l9_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l9_room_walls[] = {
+    l9r1_walls,
+    l9r2_walls,
+    l9r3_walls,
+    l9r4_walls,
+    l9r5_walls,
+    l9r6_walls,
+    l9r7_walls,
+    l9r8_walls,
+    l9r9_walls,
+    l9r10_walls,
+    l9r11_walls,
+    l9r12_walls,
+    l9r13_walls,
+    l9r14_walls,
+    l9r15_walls,
+    l9r16_walls,
+};
+static const uint8_t l9_room_wall_counts[] = {
+    L9R1_WALL_COUNT,
+    L9R2_WALL_COUNT,
+    L9R3_WALL_COUNT,
+    L9R4_WALL_COUNT,
+    L9R5_WALL_COUNT,
+    L9R6_WALL_COUNT,
+    L9R7_WALL_COUNT,
+    L9R8_WALL_COUNT,
+    L9R9_WALL_COUNT,
+    L9R10_WALL_COUNT,
+    L9R11_WALL_COUNT,
+    L9R12_WALL_COUNT,
+    L9R13_WALL_COUNT,
+    L9R14_WALL_COUNT,
+    L9R15_WALL_COUNT,
+    L9R16_WALL_COUNT,
+};
+static const int8_t * const l9_room_enemies[] = {
+    l9r1_enemies,
+    l9r2_enemies,
+    l9r3_enemies,
+    l9r4_enemies,
+    l9r5_enemies,
+    l9r6_enemies,
+    l9r7_enemies,
+    l9r8_enemies,
+    l9r9_enemies,
+    l9r10_enemies,
+    l9r11_enemies,
+    l9r12_enemies,
+    l9r13_enemies,
+    l9r14_enemies,
+    l9r15_enemies,
+    l9r16_enemies,
+};
+static const uint8_t l9_room_enemy_counts[] = {
+    L9R1_ENEMY_COUNT,
+    L9R2_ENEMY_COUNT,
+    L9R3_ENEMY_COUNT,
+    L9R4_ENEMY_COUNT,
+    L9R5_ENEMY_COUNT,
+    L9R6_ENEMY_COUNT,
+    L9R7_ENEMY_COUNT,
+    L9R8_ENEMY_COUNT,
+    L9R9_ENEMY_COUNT,
+    L9R10_ENEMY_COUNT,
+    L9R11_ENEMY_COUNT,
+    L9R12_ENEMY_COUNT,
+    L9R13_ENEMY_COUNT,
+    L9R14_ENEMY_COUNT,
+    L9R15_ENEMY_COUNT,
+    L9R16_ENEMY_COUNT,
+};
+static const int8_t l9_room_starts[] = {
+    L9R1_START_X, L9R1_START_Y,
+    L9R2_START_X, L9R2_START_Y,
+    L9R3_START_X, L9R3_START_Y,
+    L9R4_START_X, L9R4_START_Y,
+    L9R5_START_X, L9R5_START_Y,
+    L9R6_START_X, L9R6_START_Y,
+    L9R7_START_X, L9R7_START_Y,
+    L9R8_START_X, L9R8_START_Y,
+    L9R9_START_X, L9R9_START_Y,
+    L9R10_START_X, L9R10_START_Y,
+    L9R11_START_X, L9R11_START_Y,
+    L9R12_START_X, L9R12_START_Y,
+    L9R13_START_X, L9R13_START_Y,
+    L9R14_START_X, L9R14_START_Y,
+    L9R15_START_X, L9R15_START_Y,
+    L9R16_START_X, L9R16_START_Y,
+};
+static const int8_t l9_room_miners[] = {
+    L9R1_MINER_X, L9R1_MINER_Y,
+    L9R2_MINER_X, L9R2_MINER_Y,
+    L9R3_MINER_X, L9R3_MINER_Y,
+    L9R4_MINER_X, L9R4_MINER_Y,
+    L9R5_MINER_X, L9R5_MINER_Y,
+    L9R6_MINER_X, L9R6_MINER_Y,
+    L9R7_MINER_X, L9R7_MINER_Y,
+    L9R8_MINER_X, L9R8_MINER_Y,
+    L9R9_MINER_X, L9R9_MINER_Y,
+    L9R10_MINER_X, L9R10_MINER_Y,
+    L9R11_MINER_X, L9R11_MINER_Y,
+    L9R12_MINER_X, L9R12_MINER_Y,
+    L9R13_MINER_X, L9R13_MINER_Y,
+    L9R14_MINER_X, L9R14_MINER_Y,
+    L9R15_MINER_X, L9R15_MINER_Y,
+    L9R16_MINER_X, L9R16_MINER_Y,
+};
+static const int8_t * const l9_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l9_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l9_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l9_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l9_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l9_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 10 (16 room(s))
+// ============================================================
+
+#define L10R1_WALL_COUNT 1
+static const int8_t l10r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R1_ENEMY_COUNT 2
+static const int8_t l10r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R1_START_X  -60
+#define L10R1_START_Y  40
+#define L10R1_MINER_X  0
+#define L10R1_MINER_Y  -40
+
+#define L10R2_WALL_COUNT 1
+static const int8_t l10r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R2_ENEMY_COUNT 2
+static const int8_t l10r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R2_START_X  -75
+#define L10R2_START_Y  40
+#define L10R2_MINER_X  0
+#define L10R2_MINER_Y  -40
+
+#define L10R3_WALL_COUNT 1
+static const int8_t l10r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R3_ENEMY_COUNT 2
+static const int8_t l10r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R3_START_X  -75
+#define L10R3_START_Y  40
+#define L10R3_MINER_X  0
+#define L10R3_MINER_Y  -40
+
+#define L10R4_WALL_COUNT 1
+static const int8_t l10r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R4_ENEMY_COUNT 2
+static const int8_t l10r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R4_START_X  -75
+#define L10R4_START_Y  40
+#define L10R4_MINER_X  0
+#define L10R4_MINER_Y  -40
+
+#define L10R5_WALL_COUNT 1
+static const int8_t l10r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R5_ENEMY_COUNT 2
+static const int8_t l10r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R5_START_X  -75
+#define L10R5_START_Y  40
+#define L10R5_MINER_X  0
+#define L10R5_MINER_Y  -40
+
+#define L10R6_WALL_COUNT 1
+static const int8_t l10r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R6_ENEMY_COUNT 2
+static const int8_t l10r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R6_START_X  -75
+#define L10R6_START_Y  40
+#define L10R6_MINER_X  0
+#define L10R6_MINER_Y  -40
+
+#define L10R7_WALL_COUNT 1
+static const int8_t l10r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R7_ENEMY_COUNT 2
+static const int8_t l10r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R7_START_X  -75
+#define L10R7_START_Y  40
+#define L10R7_MINER_X  0
+#define L10R7_MINER_Y  -40
+
+#define L10R8_WALL_COUNT 1
+static const int8_t l10r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R8_ENEMY_COUNT 2
+static const int8_t l10r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R8_START_X  -75
+#define L10R8_START_Y  40
+#define L10R8_MINER_X  0
+#define L10R8_MINER_Y  -40
+
+#define L10R9_WALL_COUNT 1
+static const int8_t l10r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R9_ENEMY_COUNT 2
+static const int8_t l10r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R9_START_X  -75
+#define L10R9_START_Y  40
+#define L10R9_MINER_X  0
+#define L10R9_MINER_Y  -40
+
+#define L10R10_WALL_COUNT 1
+static const int8_t l10r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R10_ENEMY_COUNT 2
+static const int8_t l10r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R10_START_X  -75
+#define L10R10_START_Y  40
+#define L10R10_MINER_X  0
+#define L10R10_MINER_Y  -40
+
+#define L10R11_WALL_COUNT 1
+static const int8_t l10r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R11_ENEMY_COUNT 2
+static const int8_t l10r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R11_START_X  -75
+#define L10R11_START_Y  40
+#define L10R11_MINER_X  0
+#define L10R11_MINER_Y  -40
+
+#define L10R12_WALL_COUNT 1
+static const int8_t l10r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R12_ENEMY_COUNT 2
+static const int8_t l10r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R12_START_X  -75
+#define L10R12_START_Y  40
+#define L10R12_MINER_X  0
+#define L10R12_MINER_Y  -40
+
+#define L10R13_WALL_COUNT 1
+static const int8_t l10r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R13_ENEMY_COUNT 2
+static const int8_t l10r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R13_START_X  -75
+#define L10R13_START_Y  40
+#define L10R13_MINER_X  0
+#define L10R13_MINER_Y  -40
+
+#define L10R14_WALL_COUNT 1
+static const int8_t l10r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R14_ENEMY_COUNT 2
+static const int8_t l10r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R14_START_X  -75
+#define L10R14_START_Y  40
+#define L10R14_MINER_X  0
+#define L10R14_MINER_Y  -40
+
+#define L10R15_WALL_COUNT 1
+static const int8_t l10r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R15_ENEMY_COUNT 2
+static const int8_t l10r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R15_START_X  -75
+#define L10R15_START_Y  40
+#define L10R15_MINER_X  0
+#define L10R15_MINER_Y  -40
+
+#define L10R16_WALL_COUNT 1
+static const int8_t l10r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L10R16_ENEMY_COUNT 2
+static const int8_t l10r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L10R16_START_X  -75
+#define L10R16_START_Y  40
+#define L10R16_MINER_X  0
+#define L10R16_MINER_Y  -40
+
+// Room lookup tables for level 10
+static const int8_t * const l10_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l10_room_walls[] = {
+    l10r1_walls,
+    l10r2_walls,
+    l10r3_walls,
+    l10r4_walls,
+    l10r5_walls,
+    l10r6_walls,
+    l10r7_walls,
+    l10r8_walls,
+    l10r9_walls,
+    l10r10_walls,
+    l10r11_walls,
+    l10r12_walls,
+    l10r13_walls,
+    l10r14_walls,
+    l10r15_walls,
+    l10r16_walls,
+};
+static const uint8_t l10_room_wall_counts[] = {
+    L10R1_WALL_COUNT,
+    L10R2_WALL_COUNT,
+    L10R3_WALL_COUNT,
+    L10R4_WALL_COUNT,
+    L10R5_WALL_COUNT,
+    L10R6_WALL_COUNT,
+    L10R7_WALL_COUNT,
+    L10R8_WALL_COUNT,
+    L10R9_WALL_COUNT,
+    L10R10_WALL_COUNT,
+    L10R11_WALL_COUNT,
+    L10R12_WALL_COUNT,
+    L10R13_WALL_COUNT,
+    L10R14_WALL_COUNT,
+    L10R15_WALL_COUNT,
+    L10R16_WALL_COUNT,
+};
+static const int8_t * const l10_room_enemies[] = {
+    l10r1_enemies,
+    l10r2_enemies,
+    l10r3_enemies,
+    l10r4_enemies,
+    l10r5_enemies,
+    l10r6_enemies,
+    l10r7_enemies,
+    l10r8_enemies,
+    l10r9_enemies,
+    l10r10_enemies,
+    l10r11_enemies,
+    l10r12_enemies,
+    l10r13_enemies,
+    l10r14_enemies,
+    l10r15_enemies,
+    l10r16_enemies,
+};
+static const uint8_t l10_room_enemy_counts[] = {
+    L10R1_ENEMY_COUNT,
+    L10R2_ENEMY_COUNT,
+    L10R3_ENEMY_COUNT,
+    L10R4_ENEMY_COUNT,
+    L10R5_ENEMY_COUNT,
+    L10R6_ENEMY_COUNT,
+    L10R7_ENEMY_COUNT,
+    L10R8_ENEMY_COUNT,
+    L10R9_ENEMY_COUNT,
+    L10R10_ENEMY_COUNT,
+    L10R11_ENEMY_COUNT,
+    L10R12_ENEMY_COUNT,
+    L10R13_ENEMY_COUNT,
+    L10R14_ENEMY_COUNT,
+    L10R15_ENEMY_COUNT,
+    L10R16_ENEMY_COUNT,
+};
+static const int8_t l10_room_starts[] = {
+    L10R1_START_X, L10R1_START_Y,
+    L10R2_START_X, L10R2_START_Y,
+    L10R3_START_X, L10R3_START_Y,
+    L10R4_START_X, L10R4_START_Y,
+    L10R5_START_X, L10R5_START_Y,
+    L10R6_START_X, L10R6_START_Y,
+    L10R7_START_X, L10R7_START_Y,
+    L10R8_START_X, L10R8_START_Y,
+    L10R9_START_X, L10R9_START_Y,
+    L10R10_START_X, L10R10_START_Y,
+    L10R11_START_X, L10R11_START_Y,
+    L10R12_START_X, L10R12_START_Y,
+    L10R13_START_X, L10R13_START_Y,
+    L10R14_START_X, L10R14_START_Y,
+    L10R15_START_X, L10R15_START_Y,
+    L10R16_START_X, L10R16_START_Y,
+};
+static const int8_t l10_room_miners[] = {
+    L10R1_MINER_X, L10R1_MINER_Y,
+    L10R2_MINER_X, L10R2_MINER_Y,
+    L10R3_MINER_X, L10R3_MINER_Y,
+    L10R4_MINER_X, L10R4_MINER_Y,
+    L10R5_MINER_X, L10R5_MINER_Y,
+    L10R6_MINER_X, L10R6_MINER_Y,
+    L10R7_MINER_X, L10R7_MINER_Y,
+    L10R8_MINER_X, L10R8_MINER_Y,
+    L10R9_MINER_X, L10R9_MINER_Y,
+    L10R10_MINER_X, L10R10_MINER_Y,
+    L10R11_MINER_X, L10R11_MINER_Y,
+    L10R12_MINER_X, L10R12_MINER_Y,
+    L10R13_MINER_X, L10R13_MINER_Y,
+    L10R14_MINER_X, L10R14_MINER_Y,
+    L10R15_MINER_X, L10R15_MINER_Y,
+    L10R16_MINER_X, L10R16_MINER_Y,
+};
+static const int8_t * const l10_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l10_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l10_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l10_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l10_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l10_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 11 (16 room(s))
+// ============================================================
+
+#define L11R1_WALL_COUNT 1
+static const int8_t l11r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R1_ENEMY_COUNT 2
+static const int8_t l11r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R1_START_X  -60
+#define L11R1_START_Y  40
+#define L11R1_MINER_X  0
+#define L11R1_MINER_Y  -40
+
+#define L11R2_WALL_COUNT 1
+static const int8_t l11r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R2_ENEMY_COUNT 2
+static const int8_t l11r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R2_START_X  -75
+#define L11R2_START_Y  40
+#define L11R2_MINER_X  0
+#define L11R2_MINER_Y  -40
+
+#define L11R3_WALL_COUNT 1
+static const int8_t l11r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R3_ENEMY_COUNT 2
+static const int8_t l11r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R3_START_X  -75
+#define L11R3_START_Y  40
+#define L11R3_MINER_X  0
+#define L11R3_MINER_Y  -40
+
+#define L11R4_WALL_COUNT 1
+static const int8_t l11r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R4_ENEMY_COUNT 2
+static const int8_t l11r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R4_START_X  -75
+#define L11R4_START_Y  40
+#define L11R4_MINER_X  0
+#define L11R4_MINER_Y  -40
+
+#define L11R5_WALL_COUNT 1
+static const int8_t l11r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R5_ENEMY_COUNT 2
+static const int8_t l11r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R5_START_X  -75
+#define L11R5_START_Y  40
+#define L11R5_MINER_X  0
+#define L11R5_MINER_Y  -40
+
+#define L11R6_WALL_COUNT 1
+static const int8_t l11r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R6_ENEMY_COUNT 2
+static const int8_t l11r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R6_START_X  -75
+#define L11R6_START_Y  40
+#define L11R6_MINER_X  0
+#define L11R6_MINER_Y  -40
+
+#define L11R7_WALL_COUNT 1
+static const int8_t l11r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R7_ENEMY_COUNT 2
+static const int8_t l11r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R7_START_X  -75
+#define L11R7_START_Y  40
+#define L11R7_MINER_X  0
+#define L11R7_MINER_Y  -40
+
+#define L11R8_WALL_COUNT 1
+static const int8_t l11r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R8_ENEMY_COUNT 2
+static const int8_t l11r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R8_START_X  -75
+#define L11R8_START_Y  40
+#define L11R8_MINER_X  0
+#define L11R8_MINER_Y  -40
+
+#define L11R9_WALL_COUNT 1
+static const int8_t l11r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R9_ENEMY_COUNT 2
+static const int8_t l11r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R9_START_X  -75
+#define L11R9_START_Y  40
+#define L11R9_MINER_X  0
+#define L11R9_MINER_Y  -40
+
+#define L11R10_WALL_COUNT 1
+static const int8_t l11r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R10_ENEMY_COUNT 2
+static const int8_t l11r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R10_START_X  -75
+#define L11R10_START_Y  40
+#define L11R10_MINER_X  0
+#define L11R10_MINER_Y  -40
+
+#define L11R11_WALL_COUNT 1
+static const int8_t l11r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R11_ENEMY_COUNT 2
+static const int8_t l11r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R11_START_X  -75
+#define L11R11_START_Y  40
+#define L11R11_MINER_X  0
+#define L11R11_MINER_Y  -40
+
+#define L11R12_WALL_COUNT 1
+static const int8_t l11r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R12_ENEMY_COUNT 2
+static const int8_t l11r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R12_START_X  -75
+#define L11R12_START_Y  40
+#define L11R12_MINER_X  0
+#define L11R12_MINER_Y  -40
+
+#define L11R13_WALL_COUNT 1
+static const int8_t l11r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R13_ENEMY_COUNT 2
+static const int8_t l11r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R13_START_X  -75
+#define L11R13_START_Y  40
+#define L11R13_MINER_X  0
+#define L11R13_MINER_Y  -40
+
+#define L11R14_WALL_COUNT 1
+static const int8_t l11r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R14_ENEMY_COUNT 2
+static const int8_t l11r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R14_START_X  -75
+#define L11R14_START_Y  40
+#define L11R14_MINER_X  0
+#define L11R14_MINER_Y  -40
+
+#define L11R15_WALL_COUNT 1
+static const int8_t l11r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R15_ENEMY_COUNT 2
+static const int8_t l11r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R15_START_X  -75
+#define L11R15_START_Y  40
+#define L11R15_MINER_X  0
+#define L11R15_MINER_Y  -40
+
+#define L11R16_WALL_COUNT 1
+static const int8_t l11r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L11R16_ENEMY_COUNT 2
+static const int8_t l11r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L11R16_START_X  -75
+#define L11R16_START_Y  40
+#define L11R16_MINER_X  0
+#define L11R16_MINER_Y  -40
+
+// Room lookup tables for level 11
+static const int8_t * const l11_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l11_room_walls[] = {
+    l11r1_walls,
+    l11r2_walls,
+    l11r3_walls,
+    l11r4_walls,
+    l11r5_walls,
+    l11r6_walls,
+    l11r7_walls,
+    l11r8_walls,
+    l11r9_walls,
+    l11r10_walls,
+    l11r11_walls,
+    l11r12_walls,
+    l11r13_walls,
+    l11r14_walls,
+    l11r15_walls,
+    l11r16_walls,
+};
+static const uint8_t l11_room_wall_counts[] = {
+    L11R1_WALL_COUNT,
+    L11R2_WALL_COUNT,
+    L11R3_WALL_COUNT,
+    L11R4_WALL_COUNT,
+    L11R5_WALL_COUNT,
+    L11R6_WALL_COUNT,
+    L11R7_WALL_COUNT,
+    L11R8_WALL_COUNT,
+    L11R9_WALL_COUNT,
+    L11R10_WALL_COUNT,
+    L11R11_WALL_COUNT,
+    L11R12_WALL_COUNT,
+    L11R13_WALL_COUNT,
+    L11R14_WALL_COUNT,
+    L11R15_WALL_COUNT,
+    L11R16_WALL_COUNT,
+};
+static const int8_t * const l11_room_enemies[] = {
+    l11r1_enemies,
+    l11r2_enemies,
+    l11r3_enemies,
+    l11r4_enemies,
+    l11r5_enemies,
+    l11r6_enemies,
+    l11r7_enemies,
+    l11r8_enemies,
+    l11r9_enemies,
+    l11r10_enemies,
+    l11r11_enemies,
+    l11r12_enemies,
+    l11r13_enemies,
+    l11r14_enemies,
+    l11r15_enemies,
+    l11r16_enemies,
+};
+static const uint8_t l11_room_enemy_counts[] = {
+    L11R1_ENEMY_COUNT,
+    L11R2_ENEMY_COUNT,
+    L11R3_ENEMY_COUNT,
+    L11R4_ENEMY_COUNT,
+    L11R5_ENEMY_COUNT,
+    L11R6_ENEMY_COUNT,
+    L11R7_ENEMY_COUNT,
+    L11R8_ENEMY_COUNT,
+    L11R9_ENEMY_COUNT,
+    L11R10_ENEMY_COUNT,
+    L11R11_ENEMY_COUNT,
+    L11R12_ENEMY_COUNT,
+    L11R13_ENEMY_COUNT,
+    L11R14_ENEMY_COUNT,
+    L11R15_ENEMY_COUNT,
+    L11R16_ENEMY_COUNT,
+};
+static const int8_t l11_room_starts[] = {
+    L11R1_START_X, L11R1_START_Y,
+    L11R2_START_X, L11R2_START_Y,
+    L11R3_START_X, L11R3_START_Y,
+    L11R4_START_X, L11R4_START_Y,
+    L11R5_START_X, L11R5_START_Y,
+    L11R6_START_X, L11R6_START_Y,
+    L11R7_START_X, L11R7_START_Y,
+    L11R8_START_X, L11R8_START_Y,
+    L11R9_START_X, L11R9_START_Y,
+    L11R10_START_X, L11R10_START_Y,
+    L11R11_START_X, L11R11_START_Y,
+    L11R12_START_X, L11R12_START_Y,
+    L11R13_START_X, L11R13_START_Y,
+    L11R14_START_X, L11R14_START_Y,
+    L11R15_START_X, L11R15_START_Y,
+    L11R16_START_X, L11R16_START_Y,
+};
+static const int8_t l11_room_miners[] = {
+    L11R1_MINER_X, L11R1_MINER_Y,
+    L11R2_MINER_X, L11R2_MINER_Y,
+    L11R3_MINER_X, L11R3_MINER_Y,
+    L11R4_MINER_X, L11R4_MINER_Y,
+    L11R5_MINER_X, L11R5_MINER_Y,
+    L11R6_MINER_X, L11R6_MINER_Y,
+    L11R7_MINER_X, L11R7_MINER_Y,
+    L11R8_MINER_X, L11R8_MINER_Y,
+    L11R9_MINER_X, L11R9_MINER_Y,
+    L11R10_MINER_X, L11R10_MINER_Y,
+    L11R11_MINER_X, L11R11_MINER_Y,
+    L11R12_MINER_X, L11R12_MINER_Y,
+    L11R13_MINER_X, L11R13_MINER_Y,
+    L11R14_MINER_X, L11R14_MINER_Y,
+    L11R15_MINER_X, L11R15_MINER_Y,
+    L11R16_MINER_X, L11R16_MINER_Y,
+};
+static const int8_t * const l11_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l11_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l11_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l11_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l11_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l11_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 12 (16 room(s))
+// ============================================================
+
+#define L12R1_WALL_COUNT 1
+static const int8_t l12r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R1_ENEMY_COUNT 2
+static const int8_t l12r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R1_START_X  -60
+#define L12R1_START_Y  40
+#define L12R1_MINER_X  0
+#define L12R1_MINER_Y  -40
+
+#define L12R2_WALL_COUNT 1
+static const int8_t l12r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R2_ENEMY_COUNT 2
+static const int8_t l12r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R2_START_X  -75
+#define L12R2_START_Y  40
+#define L12R2_MINER_X  0
+#define L12R2_MINER_Y  -40
+
+#define L12R3_WALL_COUNT 1
+static const int8_t l12r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R3_ENEMY_COUNT 2
+static const int8_t l12r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R3_START_X  -75
+#define L12R3_START_Y  40
+#define L12R3_MINER_X  0
+#define L12R3_MINER_Y  -40
+
+#define L12R4_WALL_COUNT 1
+static const int8_t l12r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R4_ENEMY_COUNT 2
+static const int8_t l12r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R4_START_X  -75
+#define L12R4_START_Y  40
+#define L12R4_MINER_X  0
+#define L12R4_MINER_Y  -40
+
+#define L12R5_WALL_COUNT 1
+static const int8_t l12r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R5_ENEMY_COUNT 2
+static const int8_t l12r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R5_START_X  -75
+#define L12R5_START_Y  40
+#define L12R5_MINER_X  0
+#define L12R5_MINER_Y  -40
+
+#define L12R6_WALL_COUNT 1
+static const int8_t l12r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R6_ENEMY_COUNT 2
+static const int8_t l12r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R6_START_X  -75
+#define L12R6_START_Y  40
+#define L12R6_MINER_X  0
+#define L12R6_MINER_Y  -40
+
+#define L12R7_WALL_COUNT 1
+static const int8_t l12r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R7_ENEMY_COUNT 2
+static const int8_t l12r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R7_START_X  -75
+#define L12R7_START_Y  40
+#define L12R7_MINER_X  0
+#define L12R7_MINER_Y  -40
+
+#define L12R8_WALL_COUNT 1
+static const int8_t l12r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R8_ENEMY_COUNT 2
+static const int8_t l12r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R8_START_X  -75
+#define L12R8_START_Y  40
+#define L12R8_MINER_X  0
+#define L12R8_MINER_Y  -40
+
+#define L12R9_WALL_COUNT 1
+static const int8_t l12r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R9_ENEMY_COUNT 2
+static const int8_t l12r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R9_START_X  -75
+#define L12R9_START_Y  40
+#define L12R9_MINER_X  0
+#define L12R9_MINER_Y  -40
+
+#define L12R10_WALL_COUNT 1
+static const int8_t l12r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R10_ENEMY_COUNT 2
+static const int8_t l12r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R10_START_X  -75
+#define L12R10_START_Y  40
+#define L12R10_MINER_X  0
+#define L12R10_MINER_Y  -40
+
+#define L12R11_WALL_COUNT 1
+static const int8_t l12r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R11_ENEMY_COUNT 2
+static const int8_t l12r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R11_START_X  -75
+#define L12R11_START_Y  40
+#define L12R11_MINER_X  0
+#define L12R11_MINER_Y  -40
+
+#define L12R12_WALL_COUNT 1
+static const int8_t l12r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R12_ENEMY_COUNT 2
+static const int8_t l12r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R12_START_X  -75
+#define L12R12_START_Y  40
+#define L12R12_MINER_X  0
+#define L12R12_MINER_Y  -40
+
+#define L12R13_WALL_COUNT 1
+static const int8_t l12r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R13_ENEMY_COUNT 2
+static const int8_t l12r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R13_START_X  -75
+#define L12R13_START_Y  40
+#define L12R13_MINER_X  0
+#define L12R13_MINER_Y  -40
+
+#define L12R14_WALL_COUNT 1
+static const int8_t l12r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R14_ENEMY_COUNT 2
+static const int8_t l12r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R14_START_X  -75
+#define L12R14_START_Y  40
+#define L12R14_MINER_X  0
+#define L12R14_MINER_Y  -40
+
+#define L12R15_WALL_COUNT 1
+static const int8_t l12r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R15_ENEMY_COUNT 2
+static const int8_t l12r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R15_START_X  -75
+#define L12R15_START_Y  40
+#define L12R15_MINER_X  0
+#define L12R15_MINER_Y  -40
+
+#define L12R16_WALL_COUNT 1
+static const int8_t l12r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L12R16_ENEMY_COUNT 2
+static const int8_t l12r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L12R16_START_X  -75
+#define L12R16_START_Y  40
+#define L12R16_MINER_X  0
+#define L12R16_MINER_Y  -40
+
+// Room lookup tables for level 12
+static const int8_t * const l12_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l12_room_walls[] = {
+    l12r1_walls,
+    l12r2_walls,
+    l12r3_walls,
+    l12r4_walls,
+    l12r5_walls,
+    l12r6_walls,
+    l12r7_walls,
+    l12r8_walls,
+    l12r9_walls,
+    l12r10_walls,
+    l12r11_walls,
+    l12r12_walls,
+    l12r13_walls,
+    l12r14_walls,
+    l12r15_walls,
+    l12r16_walls,
+};
+static const uint8_t l12_room_wall_counts[] = {
+    L12R1_WALL_COUNT,
+    L12R2_WALL_COUNT,
+    L12R3_WALL_COUNT,
+    L12R4_WALL_COUNT,
+    L12R5_WALL_COUNT,
+    L12R6_WALL_COUNT,
+    L12R7_WALL_COUNT,
+    L12R8_WALL_COUNT,
+    L12R9_WALL_COUNT,
+    L12R10_WALL_COUNT,
+    L12R11_WALL_COUNT,
+    L12R12_WALL_COUNT,
+    L12R13_WALL_COUNT,
+    L12R14_WALL_COUNT,
+    L12R15_WALL_COUNT,
+    L12R16_WALL_COUNT,
+};
+static const int8_t * const l12_room_enemies[] = {
+    l12r1_enemies,
+    l12r2_enemies,
+    l12r3_enemies,
+    l12r4_enemies,
+    l12r5_enemies,
+    l12r6_enemies,
+    l12r7_enemies,
+    l12r8_enemies,
+    l12r9_enemies,
+    l12r10_enemies,
+    l12r11_enemies,
+    l12r12_enemies,
+    l12r13_enemies,
+    l12r14_enemies,
+    l12r15_enemies,
+    l12r16_enemies,
+};
+static const uint8_t l12_room_enemy_counts[] = {
+    L12R1_ENEMY_COUNT,
+    L12R2_ENEMY_COUNT,
+    L12R3_ENEMY_COUNT,
+    L12R4_ENEMY_COUNT,
+    L12R5_ENEMY_COUNT,
+    L12R6_ENEMY_COUNT,
+    L12R7_ENEMY_COUNT,
+    L12R8_ENEMY_COUNT,
+    L12R9_ENEMY_COUNT,
+    L12R10_ENEMY_COUNT,
+    L12R11_ENEMY_COUNT,
+    L12R12_ENEMY_COUNT,
+    L12R13_ENEMY_COUNT,
+    L12R14_ENEMY_COUNT,
+    L12R15_ENEMY_COUNT,
+    L12R16_ENEMY_COUNT,
+};
+static const int8_t l12_room_starts[] = {
+    L12R1_START_X, L12R1_START_Y,
+    L12R2_START_X, L12R2_START_Y,
+    L12R3_START_X, L12R3_START_Y,
+    L12R4_START_X, L12R4_START_Y,
+    L12R5_START_X, L12R5_START_Y,
+    L12R6_START_X, L12R6_START_Y,
+    L12R7_START_X, L12R7_START_Y,
+    L12R8_START_X, L12R8_START_Y,
+    L12R9_START_X, L12R9_START_Y,
+    L12R10_START_X, L12R10_START_Y,
+    L12R11_START_X, L12R11_START_Y,
+    L12R12_START_X, L12R12_START_Y,
+    L12R13_START_X, L12R13_START_Y,
+    L12R14_START_X, L12R14_START_Y,
+    L12R15_START_X, L12R15_START_Y,
+    L12R16_START_X, L12R16_START_Y,
+};
+static const int8_t l12_room_miners[] = {
+    L12R1_MINER_X, L12R1_MINER_Y,
+    L12R2_MINER_X, L12R2_MINER_Y,
+    L12R3_MINER_X, L12R3_MINER_Y,
+    L12R4_MINER_X, L12R4_MINER_Y,
+    L12R5_MINER_X, L12R5_MINER_Y,
+    L12R6_MINER_X, L12R6_MINER_Y,
+    L12R7_MINER_X, L12R7_MINER_Y,
+    L12R8_MINER_X, L12R8_MINER_Y,
+    L12R9_MINER_X, L12R9_MINER_Y,
+    L12R10_MINER_X, L12R10_MINER_Y,
+    L12R11_MINER_X, L12R11_MINER_Y,
+    L12R12_MINER_X, L12R12_MINER_Y,
+    L12R13_MINER_X, L12R13_MINER_Y,
+    L12R14_MINER_X, L12R14_MINER_Y,
+    L12R15_MINER_X, L12R15_MINER_Y,
+    L12R16_MINER_X, L12R16_MINER_Y,
+};
+static const int8_t * const l12_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l12_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l12_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l12_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l12_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l12_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 13 (16 room(s))
+// ============================================================
+
+#define L13R1_WALL_COUNT 1
+static const int8_t l13r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R1_ENEMY_COUNT 2
+static const int8_t l13r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R1_START_X  -60
+#define L13R1_START_Y  40
+#define L13R1_MINER_X  0
+#define L13R1_MINER_Y  -40
+
+#define L13R2_WALL_COUNT 1
+static const int8_t l13r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R2_ENEMY_COUNT 2
+static const int8_t l13r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R2_START_X  -75
+#define L13R2_START_Y  40
+#define L13R2_MINER_X  0
+#define L13R2_MINER_Y  -40
+
+#define L13R3_WALL_COUNT 1
+static const int8_t l13r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R3_ENEMY_COUNT 2
+static const int8_t l13r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R3_START_X  -75
+#define L13R3_START_Y  40
+#define L13R3_MINER_X  0
+#define L13R3_MINER_Y  -40
+
+#define L13R4_WALL_COUNT 1
+static const int8_t l13r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R4_ENEMY_COUNT 2
+static const int8_t l13r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R4_START_X  -75
+#define L13R4_START_Y  40
+#define L13R4_MINER_X  0
+#define L13R4_MINER_Y  -40
+
+#define L13R5_WALL_COUNT 1
+static const int8_t l13r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R5_ENEMY_COUNT 2
+static const int8_t l13r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R5_START_X  -75
+#define L13R5_START_Y  40
+#define L13R5_MINER_X  0
+#define L13R5_MINER_Y  -40
+
+#define L13R6_WALL_COUNT 1
+static const int8_t l13r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R6_ENEMY_COUNT 2
+static const int8_t l13r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R6_START_X  -75
+#define L13R6_START_Y  40
+#define L13R6_MINER_X  0
+#define L13R6_MINER_Y  -40
+
+#define L13R7_WALL_COUNT 1
+static const int8_t l13r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R7_ENEMY_COUNT 2
+static const int8_t l13r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R7_START_X  -75
+#define L13R7_START_Y  40
+#define L13R7_MINER_X  0
+#define L13R7_MINER_Y  -40
+
+#define L13R8_WALL_COUNT 1
+static const int8_t l13r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R8_ENEMY_COUNT 2
+static const int8_t l13r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R8_START_X  -75
+#define L13R8_START_Y  40
+#define L13R8_MINER_X  0
+#define L13R8_MINER_Y  -40
+
+#define L13R9_WALL_COUNT 1
+static const int8_t l13r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R9_ENEMY_COUNT 2
+static const int8_t l13r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R9_START_X  -75
+#define L13R9_START_Y  40
+#define L13R9_MINER_X  0
+#define L13R9_MINER_Y  -40
+
+#define L13R10_WALL_COUNT 1
+static const int8_t l13r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R10_ENEMY_COUNT 2
+static const int8_t l13r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R10_START_X  -75
+#define L13R10_START_Y  40
+#define L13R10_MINER_X  0
+#define L13R10_MINER_Y  -40
+
+#define L13R11_WALL_COUNT 1
+static const int8_t l13r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R11_ENEMY_COUNT 2
+static const int8_t l13r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R11_START_X  -75
+#define L13R11_START_Y  40
+#define L13R11_MINER_X  0
+#define L13R11_MINER_Y  -40
+
+#define L13R12_WALL_COUNT 1
+static const int8_t l13r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R12_ENEMY_COUNT 2
+static const int8_t l13r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R12_START_X  -75
+#define L13R12_START_Y  40
+#define L13R12_MINER_X  0
+#define L13R12_MINER_Y  -40
+
+#define L13R13_WALL_COUNT 1
+static const int8_t l13r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R13_ENEMY_COUNT 2
+static const int8_t l13r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R13_START_X  -75
+#define L13R13_START_Y  40
+#define L13R13_MINER_X  0
+#define L13R13_MINER_Y  -40
+
+#define L13R14_WALL_COUNT 1
+static const int8_t l13r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R14_ENEMY_COUNT 2
+static const int8_t l13r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R14_START_X  -75
+#define L13R14_START_Y  40
+#define L13R14_MINER_X  0
+#define L13R14_MINER_Y  -40
+
+#define L13R15_WALL_COUNT 1
+static const int8_t l13r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R15_ENEMY_COUNT 2
+static const int8_t l13r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R15_START_X  -75
+#define L13R15_START_Y  40
+#define L13R15_MINER_X  0
+#define L13R15_MINER_Y  -40
+
+#define L13R16_WALL_COUNT 1
+static const int8_t l13r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L13R16_ENEMY_COUNT 2
+static const int8_t l13r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L13R16_START_X  -75
+#define L13R16_START_Y  40
+#define L13R16_MINER_X  0
+#define L13R16_MINER_Y  -40
+
+// Room lookup tables for level 13
+static const int8_t * const l13_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l13_room_walls[] = {
+    l13r1_walls,
+    l13r2_walls,
+    l13r3_walls,
+    l13r4_walls,
+    l13r5_walls,
+    l13r6_walls,
+    l13r7_walls,
+    l13r8_walls,
+    l13r9_walls,
+    l13r10_walls,
+    l13r11_walls,
+    l13r12_walls,
+    l13r13_walls,
+    l13r14_walls,
+    l13r15_walls,
+    l13r16_walls,
+};
+static const uint8_t l13_room_wall_counts[] = {
+    L13R1_WALL_COUNT,
+    L13R2_WALL_COUNT,
+    L13R3_WALL_COUNT,
+    L13R4_WALL_COUNT,
+    L13R5_WALL_COUNT,
+    L13R6_WALL_COUNT,
+    L13R7_WALL_COUNT,
+    L13R8_WALL_COUNT,
+    L13R9_WALL_COUNT,
+    L13R10_WALL_COUNT,
+    L13R11_WALL_COUNT,
+    L13R12_WALL_COUNT,
+    L13R13_WALL_COUNT,
+    L13R14_WALL_COUNT,
+    L13R15_WALL_COUNT,
+    L13R16_WALL_COUNT,
+};
+static const int8_t * const l13_room_enemies[] = {
+    l13r1_enemies,
+    l13r2_enemies,
+    l13r3_enemies,
+    l13r4_enemies,
+    l13r5_enemies,
+    l13r6_enemies,
+    l13r7_enemies,
+    l13r8_enemies,
+    l13r9_enemies,
+    l13r10_enemies,
+    l13r11_enemies,
+    l13r12_enemies,
+    l13r13_enemies,
+    l13r14_enemies,
+    l13r15_enemies,
+    l13r16_enemies,
+};
+static const uint8_t l13_room_enemy_counts[] = {
+    L13R1_ENEMY_COUNT,
+    L13R2_ENEMY_COUNT,
+    L13R3_ENEMY_COUNT,
+    L13R4_ENEMY_COUNT,
+    L13R5_ENEMY_COUNT,
+    L13R6_ENEMY_COUNT,
+    L13R7_ENEMY_COUNT,
+    L13R8_ENEMY_COUNT,
+    L13R9_ENEMY_COUNT,
+    L13R10_ENEMY_COUNT,
+    L13R11_ENEMY_COUNT,
+    L13R12_ENEMY_COUNT,
+    L13R13_ENEMY_COUNT,
+    L13R14_ENEMY_COUNT,
+    L13R15_ENEMY_COUNT,
+    L13R16_ENEMY_COUNT,
+};
+static const int8_t l13_room_starts[] = {
+    L13R1_START_X, L13R1_START_Y,
+    L13R2_START_X, L13R2_START_Y,
+    L13R3_START_X, L13R3_START_Y,
+    L13R4_START_X, L13R4_START_Y,
+    L13R5_START_X, L13R5_START_Y,
+    L13R6_START_X, L13R6_START_Y,
+    L13R7_START_X, L13R7_START_Y,
+    L13R8_START_X, L13R8_START_Y,
+    L13R9_START_X, L13R9_START_Y,
+    L13R10_START_X, L13R10_START_Y,
+    L13R11_START_X, L13R11_START_Y,
+    L13R12_START_X, L13R12_START_Y,
+    L13R13_START_X, L13R13_START_Y,
+    L13R14_START_X, L13R14_START_Y,
+    L13R15_START_X, L13R15_START_Y,
+    L13R16_START_X, L13R16_START_Y,
+};
+static const int8_t l13_room_miners[] = {
+    L13R1_MINER_X, L13R1_MINER_Y,
+    L13R2_MINER_X, L13R2_MINER_Y,
+    L13R3_MINER_X, L13R3_MINER_Y,
+    L13R4_MINER_X, L13R4_MINER_Y,
+    L13R5_MINER_X, L13R5_MINER_Y,
+    L13R6_MINER_X, L13R6_MINER_Y,
+    L13R7_MINER_X, L13R7_MINER_Y,
+    L13R8_MINER_X, L13R8_MINER_Y,
+    L13R9_MINER_X, L13R9_MINER_Y,
+    L13R10_MINER_X, L13R10_MINER_Y,
+    L13R11_MINER_X, L13R11_MINER_Y,
+    L13R12_MINER_X, L13R12_MINER_Y,
+    L13R13_MINER_X, L13R13_MINER_Y,
+    L13R14_MINER_X, L13R14_MINER_Y,
+    L13R15_MINER_X, L13R15_MINER_Y,
+    L13R16_MINER_X, L13R16_MINER_Y,
+};
+static const int8_t * const l13_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l13_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l13_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l13_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l13_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l13_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 14 (16 room(s))
+// ============================================================
+
+#define L14R1_WALL_COUNT 1
+static const int8_t l14r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R1_ENEMY_COUNT 2
+static const int8_t l14r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R1_START_X  -60
+#define L14R1_START_Y  40
+#define L14R1_MINER_X  0
+#define L14R1_MINER_Y  -40
+
+#define L14R2_WALL_COUNT 1
+static const int8_t l14r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R2_ENEMY_COUNT 2
+static const int8_t l14r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R2_START_X  -75
+#define L14R2_START_Y  40
+#define L14R2_MINER_X  0
+#define L14R2_MINER_Y  -40
+
+#define L14R3_WALL_COUNT 1
+static const int8_t l14r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R3_ENEMY_COUNT 2
+static const int8_t l14r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R3_START_X  -75
+#define L14R3_START_Y  40
+#define L14R3_MINER_X  0
+#define L14R3_MINER_Y  -40
+
+#define L14R4_WALL_COUNT 1
+static const int8_t l14r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R4_ENEMY_COUNT 2
+static const int8_t l14r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R4_START_X  -75
+#define L14R4_START_Y  40
+#define L14R4_MINER_X  0
+#define L14R4_MINER_Y  -40
+
+#define L14R5_WALL_COUNT 1
+static const int8_t l14r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R5_ENEMY_COUNT 2
+static const int8_t l14r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R5_START_X  -75
+#define L14R5_START_Y  40
+#define L14R5_MINER_X  0
+#define L14R5_MINER_Y  -40
+
+#define L14R6_WALL_COUNT 1
+static const int8_t l14r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R6_ENEMY_COUNT 2
+static const int8_t l14r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R6_START_X  -75
+#define L14R6_START_Y  40
+#define L14R6_MINER_X  0
+#define L14R6_MINER_Y  -40
+
+#define L14R7_WALL_COUNT 1
+static const int8_t l14r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R7_ENEMY_COUNT 2
+static const int8_t l14r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R7_START_X  -75
+#define L14R7_START_Y  40
+#define L14R7_MINER_X  0
+#define L14R7_MINER_Y  -40
+
+#define L14R8_WALL_COUNT 1
+static const int8_t l14r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R8_ENEMY_COUNT 2
+static const int8_t l14r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R8_START_X  -75
+#define L14R8_START_Y  40
+#define L14R8_MINER_X  0
+#define L14R8_MINER_Y  -40
+
+#define L14R9_WALL_COUNT 1
+static const int8_t l14r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R9_ENEMY_COUNT 2
+static const int8_t l14r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R9_START_X  -75
+#define L14R9_START_Y  40
+#define L14R9_MINER_X  0
+#define L14R9_MINER_Y  -40
+
+#define L14R10_WALL_COUNT 1
+static const int8_t l14r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R10_ENEMY_COUNT 2
+static const int8_t l14r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R10_START_X  -75
+#define L14R10_START_Y  40
+#define L14R10_MINER_X  0
+#define L14R10_MINER_Y  -40
+
+#define L14R11_WALL_COUNT 1
+static const int8_t l14r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R11_ENEMY_COUNT 2
+static const int8_t l14r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R11_START_X  -75
+#define L14R11_START_Y  40
+#define L14R11_MINER_X  0
+#define L14R11_MINER_Y  -40
+
+#define L14R12_WALL_COUNT 1
+static const int8_t l14r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R12_ENEMY_COUNT 2
+static const int8_t l14r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R12_START_X  -75
+#define L14R12_START_Y  40
+#define L14R12_MINER_X  0
+#define L14R12_MINER_Y  -40
+
+#define L14R13_WALL_COUNT 1
+static const int8_t l14r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R13_ENEMY_COUNT 2
+static const int8_t l14r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R13_START_X  -75
+#define L14R13_START_Y  40
+#define L14R13_MINER_X  0
+#define L14R13_MINER_Y  -40
+
+#define L14R14_WALL_COUNT 1
+static const int8_t l14r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R14_ENEMY_COUNT 2
+static const int8_t l14r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R14_START_X  -75
+#define L14R14_START_Y  40
+#define L14R14_MINER_X  0
+#define L14R14_MINER_Y  -40
+
+#define L14R15_WALL_COUNT 1
+static const int8_t l14r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R15_ENEMY_COUNT 2
+static const int8_t l14r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R15_START_X  -75
+#define L14R15_START_Y  40
+#define L14R15_MINER_X  0
+#define L14R15_MINER_Y  -40
+
+#define L14R16_WALL_COUNT 1
+static const int8_t l14r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L14R16_ENEMY_COUNT 2
+static const int8_t l14r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L14R16_START_X  -75
+#define L14R16_START_Y  40
+#define L14R16_MINER_X  0
+#define L14R16_MINER_Y  -40
+
+// Room lookup tables for level 14
+static const int8_t * const l14_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l14_room_walls[] = {
+    l14r1_walls,
+    l14r2_walls,
+    l14r3_walls,
+    l14r4_walls,
+    l14r5_walls,
+    l14r6_walls,
+    l14r7_walls,
+    l14r8_walls,
+    l14r9_walls,
+    l14r10_walls,
+    l14r11_walls,
+    l14r12_walls,
+    l14r13_walls,
+    l14r14_walls,
+    l14r15_walls,
+    l14r16_walls,
+};
+static const uint8_t l14_room_wall_counts[] = {
+    L14R1_WALL_COUNT,
+    L14R2_WALL_COUNT,
+    L14R3_WALL_COUNT,
+    L14R4_WALL_COUNT,
+    L14R5_WALL_COUNT,
+    L14R6_WALL_COUNT,
+    L14R7_WALL_COUNT,
+    L14R8_WALL_COUNT,
+    L14R9_WALL_COUNT,
+    L14R10_WALL_COUNT,
+    L14R11_WALL_COUNT,
+    L14R12_WALL_COUNT,
+    L14R13_WALL_COUNT,
+    L14R14_WALL_COUNT,
+    L14R15_WALL_COUNT,
+    L14R16_WALL_COUNT,
+};
+static const int8_t * const l14_room_enemies[] = {
+    l14r1_enemies,
+    l14r2_enemies,
+    l14r3_enemies,
+    l14r4_enemies,
+    l14r5_enemies,
+    l14r6_enemies,
+    l14r7_enemies,
+    l14r8_enemies,
+    l14r9_enemies,
+    l14r10_enemies,
+    l14r11_enemies,
+    l14r12_enemies,
+    l14r13_enemies,
+    l14r14_enemies,
+    l14r15_enemies,
+    l14r16_enemies,
+};
+static const uint8_t l14_room_enemy_counts[] = {
+    L14R1_ENEMY_COUNT,
+    L14R2_ENEMY_COUNT,
+    L14R3_ENEMY_COUNT,
+    L14R4_ENEMY_COUNT,
+    L14R5_ENEMY_COUNT,
+    L14R6_ENEMY_COUNT,
+    L14R7_ENEMY_COUNT,
+    L14R8_ENEMY_COUNT,
+    L14R9_ENEMY_COUNT,
+    L14R10_ENEMY_COUNT,
+    L14R11_ENEMY_COUNT,
+    L14R12_ENEMY_COUNT,
+    L14R13_ENEMY_COUNT,
+    L14R14_ENEMY_COUNT,
+    L14R15_ENEMY_COUNT,
+    L14R16_ENEMY_COUNT,
+};
+static const int8_t l14_room_starts[] = {
+    L14R1_START_X, L14R1_START_Y,
+    L14R2_START_X, L14R2_START_Y,
+    L14R3_START_X, L14R3_START_Y,
+    L14R4_START_X, L14R4_START_Y,
+    L14R5_START_X, L14R5_START_Y,
+    L14R6_START_X, L14R6_START_Y,
+    L14R7_START_X, L14R7_START_Y,
+    L14R8_START_X, L14R8_START_Y,
+    L14R9_START_X, L14R9_START_Y,
+    L14R10_START_X, L14R10_START_Y,
+    L14R11_START_X, L14R11_START_Y,
+    L14R12_START_X, L14R12_START_Y,
+    L14R13_START_X, L14R13_START_Y,
+    L14R14_START_X, L14R14_START_Y,
+    L14R15_START_X, L14R15_START_Y,
+    L14R16_START_X, L14R16_START_Y,
+};
+static const int8_t l14_room_miners[] = {
+    L14R1_MINER_X, L14R1_MINER_Y,
+    L14R2_MINER_X, L14R2_MINER_Y,
+    L14R3_MINER_X, L14R3_MINER_Y,
+    L14R4_MINER_X, L14R4_MINER_Y,
+    L14R5_MINER_X, L14R5_MINER_Y,
+    L14R6_MINER_X, L14R6_MINER_Y,
+    L14R7_MINER_X, L14R7_MINER_Y,
+    L14R8_MINER_X, L14R8_MINER_Y,
+    L14R9_MINER_X, L14R9_MINER_Y,
+    L14R10_MINER_X, L14R10_MINER_Y,
+    L14R11_MINER_X, L14R11_MINER_Y,
+    L14R12_MINER_X, L14R12_MINER_Y,
+    L14R13_MINER_X, L14R13_MINER_Y,
+    L14R14_MINER_X, L14R14_MINER_Y,
+    L14R15_MINER_X, L14R15_MINER_Y,
+    L14R16_MINER_X, L14R16_MINER_Y,
+};
+static const int8_t * const l14_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l14_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l14_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l14_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l14_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l14_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 15 (16 room(s))
+// ============================================================
+
+#define L15R1_WALL_COUNT 1
+static const int8_t l15r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R1_ENEMY_COUNT 2
+static const int8_t l15r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R1_START_X  -60
+#define L15R1_START_Y  40
+#define L15R1_MINER_X  0
+#define L15R1_MINER_Y  -40
+
+#define L15R2_WALL_COUNT 1
+static const int8_t l15r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R2_ENEMY_COUNT 2
+static const int8_t l15r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R2_START_X  -75
+#define L15R2_START_Y  40
+#define L15R2_MINER_X  0
+#define L15R2_MINER_Y  -40
+
+#define L15R3_WALL_COUNT 1
+static const int8_t l15r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R3_ENEMY_COUNT 2
+static const int8_t l15r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R3_START_X  -75
+#define L15R3_START_Y  40
+#define L15R3_MINER_X  0
+#define L15R3_MINER_Y  -40
+
+#define L15R4_WALL_COUNT 1
+static const int8_t l15r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R4_ENEMY_COUNT 2
+static const int8_t l15r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R4_START_X  -75
+#define L15R4_START_Y  40
+#define L15R4_MINER_X  0
+#define L15R4_MINER_Y  -40
+
+#define L15R5_WALL_COUNT 1
+static const int8_t l15r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R5_ENEMY_COUNT 2
+static const int8_t l15r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R5_START_X  -75
+#define L15R5_START_Y  40
+#define L15R5_MINER_X  0
+#define L15R5_MINER_Y  -40
+
+#define L15R6_WALL_COUNT 1
+static const int8_t l15r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R6_ENEMY_COUNT 2
+static const int8_t l15r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R6_START_X  -75
+#define L15R6_START_Y  40
+#define L15R6_MINER_X  0
+#define L15R6_MINER_Y  -40
+
+#define L15R7_WALL_COUNT 1
+static const int8_t l15r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R7_ENEMY_COUNT 2
+static const int8_t l15r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R7_START_X  -75
+#define L15R7_START_Y  40
+#define L15R7_MINER_X  0
+#define L15R7_MINER_Y  -40
+
+#define L15R8_WALL_COUNT 1
+static const int8_t l15r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R8_ENEMY_COUNT 2
+static const int8_t l15r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R8_START_X  -75
+#define L15R8_START_Y  40
+#define L15R8_MINER_X  0
+#define L15R8_MINER_Y  -40
+
+#define L15R9_WALL_COUNT 1
+static const int8_t l15r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R9_ENEMY_COUNT 2
+static const int8_t l15r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R9_START_X  -75
+#define L15R9_START_Y  40
+#define L15R9_MINER_X  0
+#define L15R9_MINER_Y  -40
+
+#define L15R10_WALL_COUNT 1
+static const int8_t l15r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R10_ENEMY_COUNT 2
+static const int8_t l15r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R10_START_X  -75
+#define L15R10_START_Y  40
+#define L15R10_MINER_X  0
+#define L15R10_MINER_Y  -40
+
+#define L15R11_WALL_COUNT 1
+static const int8_t l15r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R11_ENEMY_COUNT 2
+static const int8_t l15r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R11_START_X  -75
+#define L15R11_START_Y  40
+#define L15R11_MINER_X  0
+#define L15R11_MINER_Y  -40
+
+#define L15R12_WALL_COUNT 1
+static const int8_t l15r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R12_ENEMY_COUNT 2
+static const int8_t l15r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R12_START_X  -75
+#define L15R12_START_Y  40
+#define L15R12_MINER_X  0
+#define L15R12_MINER_Y  -40
+
+#define L15R13_WALL_COUNT 1
+static const int8_t l15r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R13_ENEMY_COUNT 2
+static const int8_t l15r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R13_START_X  -75
+#define L15R13_START_Y  40
+#define L15R13_MINER_X  0
+#define L15R13_MINER_Y  -40
+
+#define L15R14_WALL_COUNT 1
+static const int8_t l15r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R14_ENEMY_COUNT 2
+static const int8_t l15r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R14_START_X  -75
+#define L15R14_START_Y  40
+#define L15R14_MINER_X  0
+#define L15R14_MINER_Y  -40
+
+#define L15R15_WALL_COUNT 1
+static const int8_t l15r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R15_ENEMY_COUNT 2
+static const int8_t l15r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R15_START_X  -75
+#define L15R15_START_Y  40
+#define L15R15_MINER_X  0
+#define L15R15_MINER_Y  -40
+
+#define L15R16_WALL_COUNT 1
+static const int8_t l15r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L15R16_ENEMY_COUNT 2
+static const int8_t l15r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L15R16_START_X  -75
+#define L15R16_START_Y  40
+#define L15R16_MINER_X  0
+#define L15R16_MINER_Y  -40
+
+// Room lookup tables for level 15
+static const int8_t * const l15_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l15_room_walls[] = {
+    l15r1_walls,
+    l15r2_walls,
+    l15r3_walls,
+    l15r4_walls,
+    l15r5_walls,
+    l15r6_walls,
+    l15r7_walls,
+    l15r8_walls,
+    l15r9_walls,
+    l15r10_walls,
+    l15r11_walls,
+    l15r12_walls,
+    l15r13_walls,
+    l15r14_walls,
+    l15r15_walls,
+    l15r16_walls,
+};
+static const uint8_t l15_room_wall_counts[] = {
+    L15R1_WALL_COUNT,
+    L15R2_WALL_COUNT,
+    L15R3_WALL_COUNT,
+    L15R4_WALL_COUNT,
+    L15R5_WALL_COUNT,
+    L15R6_WALL_COUNT,
+    L15R7_WALL_COUNT,
+    L15R8_WALL_COUNT,
+    L15R9_WALL_COUNT,
+    L15R10_WALL_COUNT,
+    L15R11_WALL_COUNT,
+    L15R12_WALL_COUNT,
+    L15R13_WALL_COUNT,
+    L15R14_WALL_COUNT,
+    L15R15_WALL_COUNT,
+    L15R16_WALL_COUNT,
+};
+static const int8_t * const l15_room_enemies[] = {
+    l15r1_enemies,
+    l15r2_enemies,
+    l15r3_enemies,
+    l15r4_enemies,
+    l15r5_enemies,
+    l15r6_enemies,
+    l15r7_enemies,
+    l15r8_enemies,
+    l15r9_enemies,
+    l15r10_enemies,
+    l15r11_enemies,
+    l15r12_enemies,
+    l15r13_enemies,
+    l15r14_enemies,
+    l15r15_enemies,
+    l15r16_enemies,
+};
+static const uint8_t l15_room_enemy_counts[] = {
+    L15R1_ENEMY_COUNT,
+    L15R2_ENEMY_COUNT,
+    L15R3_ENEMY_COUNT,
+    L15R4_ENEMY_COUNT,
+    L15R5_ENEMY_COUNT,
+    L15R6_ENEMY_COUNT,
+    L15R7_ENEMY_COUNT,
+    L15R8_ENEMY_COUNT,
+    L15R9_ENEMY_COUNT,
+    L15R10_ENEMY_COUNT,
+    L15R11_ENEMY_COUNT,
+    L15R12_ENEMY_COUNT,
+    L15R13_ENEMY_COUNT,
+    L15R14_ENEMY_COUNT,
+    L15R15_ENEMY_COUNT,
+    L15R16_ENEMY_COUNT,
+};
+static const int8_t l15_room_starts[] = {
+    L15R1_START_X, L15R1_START_Y,
+    L15R2_START_X, L15R2_START_Y,
+    L15R3_START_X, L15R3_START_Y,
+    L15R4_START_X, L15R4_START_Y,
+    L15R5_START_X, L15R5_START_Y,
+    L15R6_START_X, L15R6_START_Y,
+    L15R7_START_X, L15R7_START_Y,
+    L15R8_START_X, L15R8_START_Y,
+    L15R9_START_X, L15R9_START_Y,
+    L15R10_START_X, L15R10_START_Y,
+    L15R11_START_X, L15R11_START_Y,
+    L15R12_START_X, L15R12_START_Y,
+    L15R13_START_X, L15R13_START_Y,
+    L15R14_START_X, L15R14_START_Y,
+    L15R15_START_X, L15R15_START_Y,
+    L15R16_START_X, L15R16_START_Y,
+};
+static const int8_t l15_room_miners[] = {
+    L15R1_MINER_X, L15R1_MINER_Y,
+    L15R2_MINER_X, L15R2_MINER_Y,
+    L15R3_MINER_X, L15R3_MINER_Y,
+    L15R4_MINER_X, L15R4_MINER_Y,
+    L15R5_MINER_X, L15R5_MINER_Y,
+    L15R6_MINER_X, L15R6_MINER_Y,
+    L15R7_MINER_X, L15R7_MINER_Y,
+    L15R8_MINER_X, L15R8_MINER_Y,
+    L15R9_MINER_X, L15R9_MINER_Y,
+    L15R10_MINER_X, L15R10_MINER_Y,
+    L15R11_MINER_X, L15R11_MINER_Y,
+    L15R12_MINER_X, L15R12_MINER_Y,
+    L15R13_MINER_X, L15R13_MINER_Y,
+    L15R14_MINER_X, L15R14_MINER_Y,
+    L15R15_MINER_X, L15R15_MINER_Y,
+    L15R16_MINER_X, L15R16_MINER_Y,
+};
+static const int8_t * const l15_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l15_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l15_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l15_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l15_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l15_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 16 (16 room(s))
+// ============================================================
+
+#define L16R1_WALL_COUNT 1
+static const int8_t l16r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R1_ENEMY_COUNT 2
+static const int8_t l16r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R1_START_X  -60
+#define L16R1_START_Y  40
+#define L16R1_MINER_X  0
+#define L16R1_MINER_Y  -40
+
+#define L16R2_WALL_COUNT 1
+static const int8_t l16r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R2_ENEMY_COUNT 2
+static const int8_t l16r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R2_START_X  -75
+#define L16R2_START_Y  40
+#define L16R2_MINER_X  0
+#define L16R2_MINER_Y  -40
+
+#define L16R3_WALL_COUNT 1
+static const int8_t l16r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R3_ENEMY_COUNT 2
+static const int8_t l16r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R3_START_X  -75
+#define L16R3_START_Y  40
+#define L16R3_MINER_X  0
+#define L16R3_MINER_Y  -40
+
+#define L16R4_WALL_COUNT 1
+static const int8_t l16r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R4_ENEMY_COUNT 2
+static const int8_t l16r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R4_START_X  -75
+#define L16R4_START_Y  40
+#define L16R4_MINER_X  0
+#define L16R4_MINER_Y  -40
+
+#define L16R5_WALL_COUNT 1
+static const int8_t l16r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R5_ENEMY_COUNT 2
+static const int8_t l16r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R5_START_X  -75
+#define L16R5_START_Y  40
+#define L16R5_MINER_X  0
+#define L16R5_MINER_Y  -40
+
+#define L16R6_WALL_COUNT 1
+static const int8_t l16r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R6_ENEMY_COUNT 2
+static const int8_t l16r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R6_START_X  -75
+#define L16R6_START_Y  40
+#define L16R6_MINER_X  0
+#define L16R6_MINER_Y  -40
+
+#define L16R7_WALL_COUNT 1
+static const int8_t l16r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R7_ENEMY_COUNT 2
+static const int8_t l16r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R7_START_X  -75
+#define L16R7_START_Y  40
+#define L16R7_MINER_X  0
+#define L16R7_MINER_Y  -40
+
+#define L16R8_WALL_COUNT 1
+static const int8_t l16r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R8_ENEMY_COUNT 2
+static const int8_t l16r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R8_START_X  -75
+#define L16R8_START_Y  40
+#define L16R8_MINER_X  0
+#define L16R8_MINER_Y  -40
+
+#define L16R9_WALL_COUNT 1
+static const int8_t l16r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R9_ENEMY_COUNT 2
+static const int8_t l16r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R9_START_X  -75
+#define L16R9_START_Y  40
+#define L16R9_MINER_X  0
+#define L16R9_MINER_Y  -40
+
+#define L16R10_WALL_COUNT 1
+static const int8_t l16r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R10_ENEMY_COUNT 2
+static const int8_t l16r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R10_START_X  -75
+#define L16R10_START_Y  40
+#define L16R10_MINER_X  0
+#define L16R10_MINER_Y  -40
+
+#define L16R11_WALL_COUNT 1
+static const int8_t l16r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R11_ENEMY_COUNT 2
+static const int8_t l16r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R11_START_X  -75
+#define L16R11_START_Y  40
+#define L16R11_MINER_X  0
+#define L16R11_MINER_Y  -40
+
+#define L16R12_WALL_COUNT 1
+static const int8_t l16r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R12_ENEMY_COUNT 2
+static const int8_t l16r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R12_START_X  -75
+#define L16R12_START_Y  40
+#define L16R12_MINER_X  0
+#define L16R12_MINER_Y  -40
+
+#define L16R13_WALL_COUNT 1
+static const int8_t l16r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R13_ENEMY_COUNT 2
+static const int8_t l16r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R13_START_X  -75
+#define L16R13_START_Y  40
+#define L16R13_MINER_X  0
+#define L16R13_MINER_Y  -40
+
+#define L16R14_WALL_COUNT 1
+static const int8_t l16r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R14_ENEMY_COUNT 2
+static const int8_t l16r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R14_START_X  -75
+#define L16R14_START_Y  40
+#define L16R14_MINER_X  0
+#define L16R14_MINER_Y  -40
+
+#define L16R15_WALL_COUNT 1
+static const int8_t l16r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R15_ENEMY_COUNT 2
+static const int8_t l16r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R15_START_X  -75
+#define L16R15_START_Y  40
+#define L16R15_MINER_X  0
+#define L16R15_MINER_Y  -40
+
+#define L16R16_WALL_COUNT 1
+static const int8_t l16r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L16R16_ENEMY_COUNT 2
+static const int8_t l16r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L16R16_START_X  -75
+#define L16R16_START_Y  40
+#define L16R16_MINER_X  0
+#define L16R16_MINER_Y  -40
+
+// Room lookup tables for level 16
+static const int8_t * const l16_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l16_room_walls[] = {
+    l16r1_walls,
+    l16r2_walls,
+    l16r3_walls,
+    l16r4_walls,
+    l16r5_walls,
+    l16r6_walls,
+    l16r7_walls,
+    l16r8_walls,
+    l16r9_walls,
+    l16r10_walls,
+    l16r11_walls,
+    l16r12_walls,
+    l16r13_walls,
+    l16r14_walls,
+    l16r15_walls,
+    l16r16_walls,
+};
+static const uint8_t l16_room_wall_counts[] = {
+    L16R1_WALL_COUNT,
+    L16R2_WALL_COUNT,
+    L16R3_WALL_COUNT,
+    L16R4_WALL_COUNT,
+    L16R5_WALL_COUNT,
+    L16R6_WALL_COUNT,
+    L16R7_WALL_COUNT,
+    L16R8_WALL_COUNT,
+    L16R9_WALL_COUNT,
+    L16R10_WALL_COUNT,
+    L16R11_WALL_COUNT,
+    L16R12_WALL_COUNT,
+    L16R13_WALL_COUNT,
+    L16R14_WALL_COUNT,
+    L16R15_WALL_COUNT,
+    L16R16_WALL_COUNT,
+};
+static const int8_t * const l16_room_enemies[] = {
+    l16r1_enemies,
+    l16r2_enemies,
+    l16r3_enemies,
+    l16r4_enemies,
+    l16r5_enemies,
+    l16r6_enemies,
+    l16r7_enemies,
+    l16r8_enemies,
+    l16r9_enemies,
+    l16r10_enemies,
+    l16r11_enemies,
+    l16r12_enemies,
+    l16r13_enemies,
+    l16r14_enemies,
+    l16r15_enemies,
+    l16r16_enemies,
+};
+static const uint8_t l16_room_enemy_counts[] = {
+    L16R1_ENEMY_COUNT,
+    L16R2_ENEMY_COUNT,
+    L16R3_ENEMY_COUNT,
+    L16R4_ENEMY_COUNT,
+    L16R5_ENEMY_COUNT,
+    L16R6_ENEMY_COUNT,
+    L16R7_ENEMY_COUNT,
+    L16R8_ENEMY_COUNT,
+    L16R9_ENEMY_COUNT,
+    L16R10_ENEMY_COUNT,
+    L16R11_ENEMY_COUNT,
+    L16R12_ENEMY_COUNT,
+    L16R13_ENEMY_COUNT,
+    L16R14_ENEMY_COUNT,
+    L16R15_ENEMY_COUNT,
+    L16R16_ENEMY_COUNT,
+};
+static const int8_t l16_room_starts[] = {
+    L16R1_START_X, L16R1_START_Y,
+    L16R2_START_X, L16R2_START_Y,
+    L16R3_START_X, L16R3_START_Y,
+    L16R4_START_X, L16R4_START_Y,
+    L16R5_START_X, L16R5_START_Y,
+    L16R6_START_X, L16R6_START_Y,
+    L16R7_START_X, L16R7_START_Y,
+    L16R8_START_X, L16R8_START_Y,
+    L16R9_START_X, L16R9_START_Y,
+    L16R10_START_X, L16R10_START_Y,
+    L16R11_START_X, L16R11_START_Y,
+    L16R12_START_X, L16R12_START_Y,
+    L16R13_START_X, L16R13_START_Y,
+    L16R14_START_X, L16R14_START_Y,
+    L16R15_START_X, L16R15_START_Y,
+    L16R16_START_X, L16R16_START_Y,
+};
+static const int8_t l16_room_miners[] = {
+    L16R1_MINER_X, L16R1_MINER_Y,
+    L16R2_MINER_X, L16R2_MINER_Y,
+    L16R3_MINER_X, L16R3_MINER_Y,
+    L16R4_MINER_X, L16R4_MINER_Y,
+    L16R5_MINER_X, L16R5_MINER_Y,
+    L16R6_MINER_X, L16R6_MINER_Y,
+    L16R7_MINER_X, L16R7_MINER_Y,
+    L16R8_MINER_X, L16R8_MINER_Y,
+    L16R9_MINER_X, L16R9_MINER_Y,
+    L16R10_MINER_X, L16R10_MINER_Y,
+    L16R11_MINER_X, L16R11_MINER_Y,
+    L16R12_MINER_X, L16R12_MINER_Y,
+    L16R13_MINER_X, L16R13_MINER_Y,
+    L16R14_MINER_X, L16R14_MINER_Y,
+    L16R15_MINER_X, L16R15_MINER_Y,
+    L16R16_MINER_X, L16R16_MINER_Y,
+};
+static const int8_t * const l16_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l16_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l16_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l16_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l16_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l16_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 17 (16 room(s))
+// ============================================================
+
+#define L17R1_WALL_COUNT 1
+static const int8_t l17r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R1_ENEMY_COUNT 2
+static const int8_t l17r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R1_START_X  -60
+#define L17R1_START_Y  40
+#define L17R1_MINER_X  0
+#define L17R1_MINER_Y  -40
+
+#define L17R2_WALL_COUNT 1
+static const int8_t l17r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R2_ENEMY_COUNT 2
+static const int8_t l17r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R2_START_X  -75
+#define L17R2_START_Y  40
+#define L17R2_MINER_X  0
+#define L17R2_MINER_Y  -40
+
+#define L17R3_WALL_COUNT 1
+static const int8_t l17r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R3_ENEMY_COUNT 2
+static const int8_t l17r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R3_START_X  -75
+#define L17R3_START_Y  40
+#define L17R3_MINER_X  0
+#define L17R3_MINER_Y  -40
+
+#define L17R4_WALL_COUNT 1
+static const int8_t l17r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R4_ENEMY_COUNT 2
+static const int8_t l17r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R4_START_X  -75
+#define L17R4_START_Y  40
+#define L17R4_MINER_X  0
+#define L17R4_MINER_Y  -40
+
+#define L17R5_WALL_COUNT 1
+static const int8_t l17r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R5_ENEMY_COUNT 2
+static const int8_t l17r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R5_START_X  -75
+#define L17R5_START_Y  40
+#define L17R5_MINER_X  0
+#define L17R5_MINER_Y  -40
+
+#define L17R6_WALL_COUNT 1
+static const int8_t l17r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R6_ENEMY_COUNT 2
+static const int8_t l17r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R6_START_X  -75
+#define L17R6_START_Y  40
+#define L17R6_MINER_X  0
+#define L17R6_MINER_Y  -40
+
+#define L17R7_WALL_COUNT 1
+static const int8_t l17r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R7_ENEMY_COUNT 2
+static const int8_t l17r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R7_START_X  -75
+#define L17R7_START_Y  40
+#define L17R7_MINER_X  0
+#define L17R7_MINER_Y  -40
+
+#define L17R8_WALL_COUNT 1
+static const int8_t l17r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R8_ENEMY_COUNT 2
+static const int8_t l17r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R8_START_X  -75
+#define L17R8_START_Y  40
+#define L17R8_MINER_X  0
+#define L17R8_MINER_Y  -40
+
+#define L17R9_WALL_COUNT 1
+static const int8_t l17r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R9_ENEMY_COUNT 2
+static const int8_t l17r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R9_START_X  -75
+#define L17R9_START_Y  40
+#define L17R9_MINER_X  0
+#define L17R9_MINER_Y  -40
+
+#define L17R10_WALL_COUNT 1
+static const int8_t l17r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R10_ENEMY_COUNT 2
+static const int8_t l17r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R10_START_X  -75
+#define L17R10_START_Y  40
+#define L17R10_MINER_X  0
+#define L17R10_MINER_Y  -40
+
+#define L17R11_WALL_COUNT 1
+static const int8_t l17r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R11_ENEMY_COUNT 2
+static const int8_t l17r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R11_START_X  -75
+#define L17R11_START_Y  40
+#define L17R11_MINER_X  0
+#define L17R11_MINER_Y  -40
+
+#define L17R12_WALL_COUNT 1
+static const int8_t l17r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R12_ENEMY_COUNT 2
+static const int8_t l17r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R12_START_X  -75
+#define L17R12_START_Y  40
+#define L17R12_MINER_X  0
+#define L17R12_MINER_Y  -40
+
+#define L17R13_WALL_COUNT 1
+static const int8_t l17r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R13_ENEMY_COUNT 2
+static const int8_t l17r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R13_START_X  -75
+#define L17R13_START_Y  40
+#define L17R13_MINER_X  0
+#define L17R13_MINER_Y  -40
+
+#define L17R14_WALL_COUNT 1
+static const int8_t l17r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R14_ENEMY_COUNT 2
+static const int8_t l17r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R14_START_X  -75
+#define L17R14_START_Y  40
+#define L17R14_MINER_X  0
+#define L17R14_MINER_Y  -40
+
+#define L17R15_WALL_COUNT 1
+static const int8_t l17r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R15_ENEMY_COUNT 2
+static const int8_t l17r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R15_START_X  -75
+#define L17R15_START_Y  40
+#define L17R15_MINER_X  0
+#define L17R15_MINER_Y  -40
+
+#define L17R16_WALL_COUNT 1
+static const int8_t l17r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L17R16_ENEMY_COUNT 2
+static const int8_t l17r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L17R16_START_X  -75
+#define L17R16_START_Y  40
+#define L17R16_MINER_X  0
+#define L17R16_MINER_Y  -40
+
+// Room lookup tables for level 17
+static const int8_t * const l17_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l17_room_walls[] = {
+    l17r1_walls,
+    l17r2_walls,
+    l17r3_walls,
+    l17r4_walls,
+    l17r5_walls,
+    l17r6_walls,
+    l17r7_walls,
+    l17r8_walls,
+    l17r9_walls,
+    l17r10_walls,
+    l17r11_walls,
+    l17r12_walls,
+    l17r13_walls,
+    l17r14_walls,
+    l17r15_walls,
+    l17r16_walls,
+};
+static const uint8_t l17_room_wall_counts[] = {
+    L17R1_WALL_COUNT,
+    L17R2_WALL_COUNT,
+    L17R3_WALL_COUNT,
+    L17R4_WALL_COUNT,
+    L17R5_WALL_COUNT,
+    L17R6_WALL_COUNT,
+    L17R7_WALL_COUNT,
+    L17R8_WALL_COUNT,
+    L17R9_WALL_COUNT,
+    L17R10_WALL_COUNT,
+    L17R11_WALL_COUNT,
+    L17R12_WALL_COUNT,
+    L17R13_WALL_COUNT,
+    L17R14_WALL_COUNT,
+    L17R15_WALL_COUNT,
+    L17R16_WALL_COUNT,
+};
+static const int8_t * const l17_room_enemies[] = {
+    l17r1_enemies,
+    l17r2_enemies,
+    l17r3_enemies,
+    l17r4_enemies,
+    l17r5_enemies,
+    l17r6_enemies,
+    l17r7_enemies,
+    l17r8_enemies,
+    l17r9_enemies,
+    l17r10_enemies,
+    l17r11_enemies,
+    l17r12_enemies,
+    l17r13_enemies,
+    l17r14_enemies,
+    l17r15_enemies,
+    l17r16_enemies,
+};
+static const uint8_t l17_room_enemy_counts[] = {
+    L17R1_ENEMY_COUNT,
+    L17R2_ENEMY_COUNT,
+    L17R3_ENEMY_COUNT,
+    L17R4_ENEMY_COUNT,
+    L17R5_ENEMY_COUNT,
+    L17R6_ENEMY_COUNT,
+    L17R7_ENEMY_COUNT,
+    L17R8_ENEMY_COUNT,
+    L17R9_ENEMY_COUNT,
+    L17R10_ENEMY_COUNT,
+    L17R11_ENEMY_COUNT,
+    L17R12_ENEMY_COUNT,
+    L17R13_ENEMY_COUNT,
+    L17R14_ENEMY_COUNT,
+    L17R15_ENEMY_COUNT,
+    L17R16_ENEMY_COUNT,
+};
+static const int8_t l17_room_starts[] = {
+    L17R1_START_X, L17R1_START_Y,
+    L17R2_START_X, L17R2_START_Y,
+    L17R3_START_X, L17R3_START_Y,
+    L17R4_START_X, L17R4_START_Y,
+    L17R5_START_X, L17R5_START_Y,
+    L17R6_START_X, L17R6_START_Y,
+    L17R7_START_X, L17R7_START_Y,
+    L17R8_START_X, L17R8_START_Y,
+    L17R9_START_X, L17R9_START_Y,
+    L17R10_START_X, L17R10_START_Y,
+    L17R11_START_X, L17R11_START_Y,
+    L17R12_START_X, L17R12_START_Y,
+    L17R13_START_X, L17R13_START_Y,
+    L17R14_START_X, L17R14_START_Y,
+    L17R15_START_X, L17R15_START_Y,
+    L17R16_START_X, L17R16_START_Y,
+};
+static const int8_t l17_room_miners[] = {
+    L17R1_MINER_X, L17R1_MINER_Y,
+    L17R2_MINER_X, L17R2_MINER_Y,
+    L17R3_MINER_X, L17R3_MINER_Y,
+    L17R4_MINER_X, L17R4_MINER_Y,
+    L17R5_MINER_X, L17R5_MINER_Y,
+    L17R6_MINER_X, L17R6_MINER_Y,
+    L17R7_MINER_X, L17R7_MINER_Y,
+    L17R8_MINER_X, L17R8_MINER_Y,
+    L17R9_MINER_X, L17R9_MINER_Y,
+    L17R10_MINER_X, L17R10_MINER_Y,
+    L17R11_MINER_X, L17R11_MINER_Y,
+    L17R12_MINER_X, L17R12_MINER_Y,
+    L17R13_MINER_X, L17R13_MINER_Y,
+    L17R14_MINER_X, L17R14_MINER_Y,
+    L17R15_MINER_X, L17R15_MINER_Y,
+    L17R16_MINER_X, L17R16_MINER_Y,
+};
+static const int8_t * const l17_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l17_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l17_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l17_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l17_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l17_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 18 (16 room(s))
+// ============================================================
+
+#define L18R1_WALL_COUNT 1
+static const int8_t l18r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R1_ENEMY_COUNT 2
+static const int8_t l18r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R1_START_X  -60
+#define L18R1_START_Y  40
+#define L18R1_MINER_X  0
+#define L18R1_MINER_Y  -40
+
+#define L18R2_WALL_COUNT 1
+static const int8_t l18r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R2_ENEMY_COUNT 2
+static const int8_t l18r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R2_START_X  -75
+#define L18R2_START_Y  40
+#define L18R2_MINER_X  0
+#define L18R2_MINER_Y  -40
+
+#define L18R3_WALL_COUNT 1
+static const int8_t l18r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R3_ENEMY_COUNT 2
+static const int8_t l18r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R3_START_X  -75
+#define L18R3_START_Y  40
+#define L18R3_MINER_X  0
+#define L18R3_MINER_Y  -40
+
+#define L18R4_WALL_COUNT 1
+static const int8_t l18r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R4_ENEMY_COUNT 2
+static const int8_t l18r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R4_START_X  -75
+#define L18R4_START_Y  40
+#define L18R4_MINER_X  0
+#define L18R4_MINER_Y  -40
+
+#define L18R5_WALL_COUNT 1
+static const int8_t l18r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R5_ENEMY_COUNT 2
+static const int8_t l18r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R5_START_X  -75
+#define L18R5_START_Y  40
+#define L18R5_MINER_X  0
+#define L18R5_MINER_Y  -40
+
+#define L18R6_WALL_COUNT 1
+static const int8_t l18r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R6_ENEMY_COUNT 2
+static const int8_t l18r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R6_START_X  -75
+#define L18R6_START_Y  40
+#define L18R6_MINER_X  0
+#define L18R6_MINER_Y  -40
+
+#define L18R7_WALL_COUNT 1
+static const int8_t l18r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R7_ENEMY_COUNT 2
+static const int8_t l18r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R7_START_X  -75
+#define L18R7_START_Y  40
+#define L18R7_MINER_X  0
+#define L18R7_MINER_Y  -40
+
+#define L18R8_WALL_COUNT 1
+static const int8_t l18r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R8_ENEMY_COUNT 2
+static const int8_t l18r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R8_START_X  -75
+#define L18R8_START_Y  40
+#define L18R8_MINER_X  0
+#define L18R8_MINER_Y  -40
+
+#define L18R9_WALL_COUNT 1
+static const int8_t l18r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R9_ENEMY_COUNT 2
+static const int8_t l18r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R9_START_X  -75
+#define L18R9_START_Y  40
+#define L18R9_MINER_X  0
+#define L18R9_MINER_Y  -40
+
+#define L18R10_WALL_COUNT 1
+static const int8_t l18r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R10_ENEMY_COUNT 2
+static const int8_t l18r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R10_START_X  -75
+#define L18R10_START_Y  40
+#define L18R10_MINER_X  0
+#define L18R10_MINER_Y  -40
+
+#define L18R11_WALL_COUNT 1
+static const int8_t l18r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R11_ENEMY_COUNT 2
+static const int8_t l18r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R11_START_X  -75
+#define L18R11_START_Y  40
+#define L18R11_MINER_X  0
+#define L18R11_MINER_Y  -40
+
+#define L18R12_WALL_COUNT 1
+static const int8_t l18r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R12_ENEMY_COUNT 2
+static const int8_t l18r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R12_START_X  -75
+#define L18R12_START_Y  40
+#define L18R12_MINER_X  0
+#define L18R12_MINER_Y  -40
+
+#define L18R13_WALL_COUNT 1
+static const int8_t l18r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R13_ENEMY_COUNT 2
+static const int8_t l18r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R13_START_X  -75
+#define L18R13_START_Y  40
+#define L18R13_MINER_X  0
+#define L18R13_MINER_Y  -40
+
+#define L18R14_WALL_COUNT 1
+static const int8_t l18r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R14_ENEMY_COUNT 2
+static const int8_t l18r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R14_START_X  -75
+#define L18R14_START_Y  40
+#define L18R14_MINER_X  0
+#define L18R14_MINER_Y  -40
+
+#define L18R15_WALL_COUNT 1
+static const int8_t l18r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R15_ENEMY_COUNT 2
+static const int8_t l18r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R15_START_X  -75
+#define L18R15_START_Y  40
+#define L18R15_MINER_X  0
+#define L18R15_MINER_Y  -40
+
+#define L18R16_WALL_COUNT 1
+static const int8_t l18r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L18R16_ENEMY_COUNT 2
+static const int8_t l18r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L18R16_START_X  -75
+#define L18R16_START_Y  40
+#define L18R16_MINER_X  0
+#define L18R16_MINER_Y  -40
+
+// Room lookup tables for level 18
+static const int8_t * const l18_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l18_room_walls[] = {
+    l18r1_walls,
+    l18r2_walls,
+    l18r3_walls,
+    l18r4_walls,
+    l18r5_walls,
+    l18r6_walls,
+    l18r7_walls,
+    l18r8_walls,
+    l18r9_walls,
+    l18r10_walls,
+    l18r11_walls,
+    l18r12_walls,
+    l18r13_walls,
+    l18r14_walls,
+    l18r15_walls,
+    l18r16_walls,
+};
+static const uint8_t l18_room_wall_counts[] = {
+    L18R1_WALL_COUNT,
+    L18R2_WALL_COUNT,
+    L18R3_WALL_COUNT,
+    L18R4_WALL_COUNT,
+    L18R5_WALL_COUNT,
+    L18R6_WALL_COUNT,
+    L18R7_WALL_COUNT,
+    L18R8_WALL_COUNT,
+    L18R9_WALL_COUNT,
+    L18R10_WALL_COUNT,
+    L18R11_WALL_COUNT,
+    L18R12_WALL_COUNT,
+    L18R13_WALL_COUNT,
+    L18R14_WALL_COUNT,
+    L18R15_WALL_COUNT,
+    L18R16_WALL_COUNT,
+};
+static const int8_t * const l18_room_enemies[] = {
+    l18r1_enemies,
+    l18r2_enemies,
+    l18r3_enemies,
+    l18r4_enemies,
+    l18r5_enemies,
+    l18r6_enemies,
+    l18r7_enemies,
+    l18r8_enemies,
+    l18r9_enemies,
+    l18r10_enemies,
+    l18r11_enemies,
+    l18r12_enemies,
+    l18r13_enemies,
+    l18r14_enemies,
+    l18r15_enemies,
+    l18r16_enemies,
+};
+static const uint8_t l18_room_enemy_counts[] = {
+    L18R1_ENEMY_COUNT,
+    L18R2_ENEMY_COUNT,
+    L18R3_ENEMY_COUNT,
+    L18R4_ENEMY_COUNT,
+    L18R5_ENEMY_COUNT,
+    L18R6_ENEMY_COUNT,
+    L18R7_ENEMY_COUNT,
+    L18R8_ENEMY_COUNT,
+    L18R9_ENEMY_COUNT,
+    L18R10_ENEMY_COUNT,
+    L18R11_ENEMY_COUNT,
+    L18R12_ENEMY_COUNT,
+    L18R13_ENEMY_COUNT,
+    L18R14_ENEMY_COUNT,
+    L18R15_ENEMY_COUNT,
+    L18R16_ENEMY_COUNT,
+};
+static const int8_t l18_room_starts[] = {
+    L18R1_START_X, L18R1_START_Y,
+    L18R2_START_X, L18R2_START_Y,
+    L18R3_START_X, L18R3_START_Y,
+    L18R4_START_X, L18R4_START_Y,
+    L18R5_START_X, L18R5_START_Y,
+    L18R6_START_X, L18R6_START_Y,
+    L18R7_START_X, L18R7_START_Y,
+    L18R8_START_X, L18R8_START_Y,
+    L18R9_START_X, L18R9_START_Y,
+    L18R10_START_X, L18R10_START_Y,
+    L18R11_START_X, L18R11_START_Y,
+    L18R12_START_X, L18R12_START_Y,
+    L18R13_START_X, L18R13_START_Y,
+    L18R14_START_X, L18R14_START_Y,
+    L18R15_START_X, L18R15_START_Y,
+    L18R16_START_X, L18R16_START_Y,
+};
+static const int8_t l18_room_miners[] = {
+    L18R1_MINER_X, L18R1_MINER_Y,
+    L18R2_MINER_X, L18R2_MINER_Y,
+    L18R3_MINER_X, L18R3_MINER_Y,
+    L18R4_MINER_X, L18R4_MINER_Y,
+    L18R5_MINER_X, L18R5_MINER_Y,
+    L18R6_MINER_X, L18R6_MINER_Y,
+    L18R7_MINER_X, L18R7_MINER_Y,
+    L18R8_MINER_X, L18R8_MINER_Y,
+    L18R9_MINER_X, L18R9_MINER_Y,
+    L18R10_MINER_X, L18R10_MINER_Y,
+    L18R11_MINER_X, L18R11_MINER_Y,
+    L18R12_MINER_X, L18R12_MINER_Y,
+    L18R13_MINER_X, L18R13_MINER_Y,
+    L18R14_MINER_X, L18R14_MINER_Y,
+    L18R15_MINER_X, L18R15_MINER_Y,
+    L18R16_MINER_X, L18R16_MINER_Y,
+};
+static const int8_t * const l18_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l18_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l18_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l18_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l18_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l18_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 19 (16 room(s))
+// ============================================================
+
+#define L19R1_WALL_COUNT 1
+static const int8_t l19r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R1_ENEMY_COUNT 2
+static const int8_t l19r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R1_START_X  -60
+#define L19R1_START_Y  40
+#define L19R1_MINER_X  0
+#define L19R1_MINER_Y  -40
+
+#define L19R2_WALL_COUNT 1
+static const int8_t l19r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R2_ENEMY_COUNT 2
+static const int8_t l19r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R2_START_X  -75
+#define L19R2_START_Y  40
+#define L19R2_MINER_X  0
+#define L19R2_MINER_Y  -40
+
+#define L19R3_WALL_COUNT 1
+static const int8_t l19r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R3_ENEMY_COUNT 2
+static const int8_t l19r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R3_START_X  -75
+#define L19R3_START_Y  40
+#define L19R3_MINER_X  0
+#define L19R3_MINER_Y  -40
+
+#define L19R4_WALL_COUNT 1
+static const int8_t l19r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R4_ENEMY_COUNT 2
+static const int8_t l19r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R4_START_X  -75
+#define L19R4_START_Y  40
+#define L19R4_MINER_X  0
+#define L19R4_MINER_Y  -40
+
+#define L19R5_WALL_COUNT 1
+static const int8_t l19r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R5_ENEMY_COUNT 2
+static const int8_t l19r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R5_START_X  -75
+#define L19R5_START_Y  40
+#define L19R5_MINER_X  0
+#define L19R5_MINER_Y  -40
+
+#define L19R6_WALL_COUNT 1
+static const int8_t l19r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R6_ENEMY_COUNT 2
+static const int8_t l19r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R6_START_X  -75
+#define L19R6_START_Y  40
+#define L19R6_MINER_X  0
+#define L19R6_MINER_Y  -40
+
+#define L19R7_WALL_COUNT 1
+static const int8_t l19r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R7_ENEMY_COUNT 2
+static const int8_t l19r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R7_START_X  -75
+#define L19R7_START_Y  40
+#define L19R7_MINER_X  0
+#define L19R7_MINER_Y  -40
+
+#define L19R8_WALL_COUNT 1
+static const int8_t l19r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R8_ENEMY_COUNT 2
+static const int8_t l19r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R8_START_X  -75
+#define L19R8_START_Y  40
+#define L19R8_MINER_X  0
+#define L19R8_MINER_Y  -40
+
+#define L19R9_WALL_COUNT 1
+static const int8_t l19r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R9_ENEMY_COUNT 2
+static const int8_t l19r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R9_START_X  -75
+#define L19R9_START_Y  40
+#define L19R9_MINER_X  0
+#define L19R9_MINER_Y  -40
+
+#define L19R10_WALL_COUNT 1
+static const int8_t l19r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R10_ENEMY_COUNT 2
+static const int8_t l19r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R10_START_X  -75
+#define L19R10_START_Y  40
+#define L19R10_MINER_X  0
+#define L19R10_MINER_Y  -40
+
+#define L19R11_WALL_COUNT 1
+static const int8_t l19r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R11_ENEMY_COUNT 2
+static const int8_t l19r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R11_START_X  -75
+#define L19R11_START_Y  40
+#define L19R11_MINER_X  0
+#define L19R11_MINER_Y  -40
+
+#define L19R12_WALL_COUNT 1
+static const int8_t l19r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R12_ENEMY_COUNT 2
+static const int8_t l19r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R12_START_X  -75
+#define L19R12_START_Y  40
+#define L19R12_MINER_X  0
+#define L19R12_MINER_Y  -40
+
+#define L19R13_WALL_COUNT 1
+static const int8_t l19r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R13_ENEMY_COUNT 2
+static const int8_t l19r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R13_START_X  -75
+#define L19R13_START_Y  40
+#define L19R13_MINER_X  0
+#define L19R13_MINER_Y  -40
+
+#define L19R14_WALL_COUNT 1
+static const int8_t l19r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R14_ENEMY_COUNT 2
+static const int8_t l19r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R14_START_X  -75
+#define L19R14_START_Y  40
+#define L19R14_MINER_X  0
+#define L19R14_MINER_Y  -40
+
+#define L19R15_WALL_COUNT 1
+static const int8_t l19r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R15_ENEMY_COUNT 2
+static const int8_t l19r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R15_START_X  -75
+#define L19R15_START_Y  40
+#define L19R15_MINER_X  0
+#define L19R15_MINER_Y  -40
+
+#define L19R16_WALL_COUNT 1
+static const int8_t l19r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L19R16_ENEMY_COUNT 2
+static const int8_t l19r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L19R16_START_X  -75
+#define L19R16_START_Y  40
+#define L19R16_MINER_X  0
+#define L19R16_MINER_Y  -40
+
+// Room lookup tables for level 19
+static const int8_t * const l19_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l19_room_walls[] = {
+    l19r1_walls,
+    l19r2_walls,
+    l19r3_walls,
+    l19r4_walls,
+    l19r5_walls,
+    l19r6_walls,
+    l19r7_walls,
+    l19r8_walls,
+    l19r9_walls,
+    l19r10_walls,
+    l19r11_walls,
+    l19r12_walls,
+    l19r13_walls,
+    l19r14_walls,
+    l19r15_walls,
+    l19r16_walls,
+};
+static const uint8_t l19_room_wall_counts[] = {
+    L19R1_WALL_COUNT,
+    L19R2_WALL_COUNT,
+    L19R3_WALL_COUNT,
+    L19R4_WALL_COUNT,
+    L19R5_WALL_COUNT,
+    L19R6_WALL_COUNT,
+    L19R7_WALL_COUNT,
+    L19R8_WALL_COUNT,
+    L19R9_WALL_COUNT,
+    L19R10_WALL_COUNT,
+    L19R11_WALL_COUNT,
+    L19R12_WALL_COUNT,
+    L19R13_WALL_COUNT,
+    L19R14_WALL_COUNT,
+    L19R15_WALL_COUNT,
+    L19R16_WALL_COUNT,
+};
+static const int8_t * const l19_room_enemies[] = {
+    l19r1_enemies,
+    l19r2_enemies,
+    l19r3_enemies,
+    l19r4_enemies,
+    l19r5_enemies,
+    l19r6_enemies,
+    l19r7_enemies,
+    l19r8_enemies,
+    l19r9_enemies,
+    l19r10_enemies,
+    l19r11_enemies,
+    l19r12_enemies,
+    l19r13_enemies,
+    l19r14_enemies,
+    l19r15_enemies,
+    l19r16_enemies,
+};
+static const uint8_t l19_room_enemy_counts[] = {
+    L19R1_ENEMY_COUNT,
+    L19R2_ENEMY_COUNT,
+    L19R3_ENEMY_COUNT,
+    L19R4_ENEMY_COUNT,
+    L19R5_ENEMY_COUNT,
+    L19R6_ENEMY_COUNT,
+    L19R7_ENEMY_COUNT,
+    L19R8_ENEMY_COUNT,
+    L19R9_ENEMY_COUNT,
+    L19R10_ENEMY_COUNT,
+    L19R11_ENEMY_COUNT,
+    L19R12_ENEMY_COUNT,
+    L19R13_ENEMY_COUNT,
+    L19R14_ENEMY_COUNT,
+    L19R15_ENEMY_COUNT,
+    L19R16_ENEMY_COUNT,
+};
+static const int8_t l19_room_starts[] = {
+    L19R1_START_X, L19R1_START_Y,
+    L19R2_START_X, L19R2_START_Y,
+    L19R3_START_X, L19R3_START_Y,
+    L19R4_START_X, L19R4_START_Y,
+    L19R5_START_X, L19R5_START_Y,
+    L19R6_START_X, L19R6_START_Y,
+    L19R7_START_X, L19R7_START_Y,
+    L19R8_START_X, L19R8_START_Y,
+    L19R9_START_X, L19R9_START_Y,
+    L19R10_START_X, L19R10_START_Y,
+    L19R11_START_X, L19R11_START_Y,
+    L19R12_START_X, L19R12_START_Y,
+    L19R13_START_X, L19R13_START_Y,
+    L19R14_START_X, L19R14_START_Y,
+    L19R15_START_X, L19R15_START_Y,
+    L19R16_START_X, L19R16_START_Y,
+};
+static const int8_t l19_room_miners[] = {
+    L19R1_MINER_X, L19R1_MINER_Y,
+    L19R2_MINER_X, L19R2_MINER_Y,
+    L19R3_MINER_X, L19R3_MINER_Y,
+    L19R4_MINER_X, L19R4_MINER_Y,
+    L19R5_MINER_X, L19R5_MINER_Y,
+    L19R6_MINER_X, L19R6_MINER_Y,
+    L19R7_MINER_X, L19R7_MINER_Y,
+    L19R8_MINER_X, L19R8_MINER_Y,
+    L19R9_MINER_X, L19R9_MINER_Y,
+    L19R10_MINER_X, L19R10_MINER_Y,
+    L19R11_MINER_X, L19R11_MINER_Y,
+    L19R12_MINER_X, L19R12_MINER_Y,
+    L19R13_MINER_X, L19R13_MINER_Y,
+    L19R14_MINER_X, L19R14_MINER_Y,
+    L19R15_MINER_X, L19R15_MINER_Y,
+    L19R16_MINER_X, L19R16_MINER_Y,
+};
+static const int8_t * const l19_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l19_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l19_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l19_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l19_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l19_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
+// ============================================================
+// Level 20 (16 room(s))
+// ============================================================
+
+#define L20R1_WALL_COUNT 1
+static const int8_t l20r1_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R1_ENEMY_COUNT 2
+static const int8_t l20r1_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R1_START_X  -60
+#define L20R1_START_Y  40
+#define L20R1_MINER_X  0
+#define L20R1_MINER_Y  -40
+
+#define L20R2_WALL_COUNT 1
+static const int8_t l20r2_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R2_ENEMY_COUNT 2
+static const int8_t l20r2_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R2_START_X  -75
+#define L20R2_START_Y  40
+#define L20R2_MINER_X  0
+#define L20R2_MINER_Y  -40
+
+#define L20R3_WALL_COUNT 1
+static const int8_t l20r3_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R3_ENEMY_COUNT 2
+static const int8_t l20r3_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R3_START_X  -75
+#define L20R3_START_Y  40
+#define L20R3_MINER_X  0
+#define L20R3_MINER_Y  -40
+
+#define L20R4_WALL_COUNT 1
+static const int8_t l20r4_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R4_ENEMY_COUNT 2
+static const int8_t l20r4_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R4_START_X  -75
+#define L20R4_START_Y  40
+#define L20R4_MINER_X  0
+#define L20R4_MINER_Y  -40
+
+#define L20R5_WALL_COUNT 1
+static const int8_t l20r5_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R5_ENEMY_COUNT 2
+static const int8_t l20r5_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R5_START_X  -75
+#define L20R5_START_Y  40
+#define L20R5_MINER_X  0
+#define L20R5_MINER_Y  -40
+
+#define L20R6_WALL_COUNT 1
+static const int8_t l20r6_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R6_ENEMY_COUNT 2
+static const int8_t l20r6_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R6_START_X  -75
+#define L20R6_START_Y  40
+#define L20R6_MINER_X  0
+#define L20R6_MINER_Y  -40
+
+#define L20R7_WALL_COUNT 1
+static const int8_t l20r7_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R7_ENEMY_COUNT 2
+static const int8_t l20r7_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R7_START_X  -75
+#define L20R7_START_Y  40
+#define L20R7_MINER_X  0
+#define L20R7_MINER_Y  -40
+
+#define L20R8_WALL_COUNT 1
+static const int8_t l20r8_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R8_ENEMY_COUNT 2
+static const int8_t l20r8_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R8_START_X  -75
+#define L20R8_START_Y  40
+#define L20R8_MINER_X  0
+#define L20R8_MINER_Y  -40
+
+#define L20R9_WALL_COUNT 1
+static const int8_t l20r9_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R9_ENEMY_COUNT 2
+static const int8_t l20r9_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R9_START_X  -75
+#define L20R9_START_Y  40
+#define L20R9_MINER_X  0
+#define L20R9_MINER_Y  -40
+
+#define L20R10_WALL_COUNT 1
+static const int8_t l20r10_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R10_ENEMY_COUNT 2
+static const int8_t l20r10_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R10_START_X  -75
+#define L20R10_START_Y  40
+#define L20R10_MINER_X  0
+#define L20R10_MINER_Y  -40
+
+#define L20R11_WALL_COUNT 1
+static const int8_t l20r11_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R11_ENEMY_COUNT 2
+static const int8_t l20r11_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R11_START_X  -75
+#define L20R11_START_Y  40
+#define L20R11_MINER_X  0
+#define L20R11_MINER_Y  -40
+
+#define L20R12_WALL_COUNT 1
+static const int8_t l20r12_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R12_ENEMY_COUNT 2
+static const int8_t l20r12_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R12_START_X  -75
+#define L20R12_START_Y  40
+#define L20R12_MINER_X  0
+#define L20R12_MINER_Y  -40
+
+#define L20R13_WALL_COUNT 1
+static const int8_t l20r13_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R13_ENEMY_COUNT 2
+static const int8_t l20r13_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R13_START_X  -75
+#define L20R13_START_Y  40
+#define L20R13_MINER_X  0
+#define L20R13_MINER_Y  -40
+
+#define L20R14_WALL_COUNT 1
+static const int8_t l20r14_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R14_ENEMY_COUNT 2
+static const int8_t l20r14_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R14_START_X  -75
+#define L20R14_START_Y  40
+#define L20R14_MINER_X  0
+#define L20R14_MINER_Y  -40
+
+#define L20R15_WALL_COUNT 1
+static const int8_t l20r15_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R15_ENEMY_COUNT 2
+static const int8_t l20r15_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R15_START_X  -75
+#define L20R15_START_Y  40
+#define L20R15_MINER_X  0
+#define L20R15_MINER_Y  -40
+
+#define L20R16_WALL_COUNT 1
+static const int8_t l20r16_walls[] = {
+    0, -20, 10, 10,   // wall 0 (destroyable)
+};
+
+#define L20R16_ENEMY_COUNT 2
+static const int8_t l20r16_enemies[] = {
+    -40, 30, 1, 0,   // enemy 0 (bat)
+    40, 10, -1, 1,   // enemy 1 (spider)
+};
+
+#define L20R16_START_X  -75
+#define L20R16_START_Y  40
+#define L20R16_MINER_X  0
+#define L20R16_MINER_Y  -40
+
+// Room lookup tables for level 20
+static const int8_t * const l20_room_caves[] = {
+    layout_0_cave,    // room 0 uses layout 0
+    layout_0_cave,    // room 1 uses layout 0
+    layout_0_cave,    // room 2 uses layout 0
+    layout_0_cave,    // room 3 uses layout 0
+    layout_0_cave,    // room 4 uses layout 0
+    layout_0_cave,    // room 5 uses layout 0
+    layout_0_cave,    // room 6 uses layout 0
+    layout_0_cave,    // room 7 uses layout 0
+    layout_0_cave,    // room 8 uses layout 0
+    layout_0_cave,    // room 9 uses layout 0
+    layout_0_cave,    // room 10 uses layout 0
+    layout_0_cave,    // room 11 uses layout 0
+    layout_0_cave,    // room 12 uses layout 0
+    layout_0_cave,    // room 13 uses layout 0
+    layout_0_cave,    // room 14 uses layout 0
+    layout_0_cave,    // room 15 uses layout 0
+};
+static const int8_t * const l20_room_walls[] = {
+    l20r1_walls,
+    l20r2_walls,
+    l20r3_walls,
+    l20r4_walls,
+    l20r5_walls,
+    l20r6_walls,
+    l20r7_walls,
+    l20r8_walls,
+    l20r9_walls,
+    l20r10_walls,
+    l20r11_walls,
+    l20r12_walls,
+    l20r13_walls,
+    l20r14_walls,
+    l20r15_walls,
+    l20r16_walls,
+};
+static const uint8_t l20_room_wall_counts[] = {
+    L20R1_WALL_COUNT,
+    L20R2_WALL_COUNT,
+    L20R3_WALL_COUNT,
+    L20R4_WALL_COUNT,
+    L20R5_WALL_COUNT,
+    L20R6_WALL_COUNT,
+    L20R7_WALL_COUNT,
+    L20R8_WALL_COUNT,
+    L20R9_WALL_COUNT,
+    L20R10_WALL_COUNT,
+    L20R11_WALL_COUNT,
+    L20R12_WALL_COUNT,
+    L20R13_WALL_COUNT,
+    L20R14_WALL_COUNT,
+    L20R15_WALL_COUNT,
+    L20R16_WALL_COUNT,
+};
+static const int8_t * const l20_room_enemies[] = {
+    l20r1_enemies,
+    l20r2_enemies,
+    l20r3_enemies,
+    l20r4_enemies,
+    l20r5_enemies,
+    l20r6_enemies,
+    l20r7_enemies,
+    l20r8_enemies,
+    l20r9_enemies,
+    l20r10_enemies,
+    l20r11_enemies,
+    l20r12_enemies,
+    l20r13_enemies,
+    l20r14_enemies,
+    l20r15_enemies,
+    l20r16_enemies,
+};
+static const uint8_t l20_room_enemy_counts[] = {
+    L20R1_ENEMY_COUNT,
+    L20R2_ENEMY_COUNT,
+    L20R3_ENEMY_COUNT,
+    L20R4_ENEMY_COUNT,
+    L20R5_ENEMY_COUNT,
+    L20R6_ENEMY_COUNT,
+    L20R7_ENEMY_COUNT,
+    L20R8_ENEMY_COUNT,
+    L20R9_ENEMY_COUNT,
+    L20R10_ENEMY_COUNT,
+    L20R11_ENEMY_COUNT,
+    L20R12_ENEMY_COUNT,
+    L20R13_ENEMY_COUNT,
+    L20R14_ENEMY_COUNT,
+    L20R15_ENEMY_COUNT,
+    L20R16_ENEMY_COUNT,
+};
+static const int8_t l20_room_starts[] = {
+    L20R1_START_X, L20R1_START_Y,
+    L20R2_START_X, L20R2_START_Y,
+    L20R3_START_X, L20R3_START_Y,
+    L20R4_START_X, L20R4_START_Y,
+    L20R5_START_X, L20R5_START_Y,
+    L20R6_START_X, L20R6_START_Y,
+    L20R7_START_X, L20R7_START_Y,
+    L20R8_START_X, L20R8_START_Y,
+    L20R9_START_X, L20R9_START_Y,
+    L20R10_START_X, L20R10_START_Y,
+    L20R11_START_X, L20R11_START_Y,
+    L20R12_START_X, L20R12_START_Y,
+    L20R13_START_X, L20R13_START_Y,
+    L20R14_START_X, L20R14_START_Y,
+    L20R15_START_X, L20R15_START_Y,
+    L20R16_START_X, L20R16_START_Y,
+};
+static const int8_t l20_room_miners[] = {
+    L20R1_MINER_X, L20R1_MINER_Y,
+    L20R2_MINER_X, L20R2_MINER_Y,
+    L20R3_MINER_X, L20R3_MINER_Y,
+    L20R4_MINER_X, L20R4_MINER_Y,
+    L20R5_MINER_X, L20R5_MINER_Y,
+    L20R6_MINER_X, L20R6_MINER_Y,
+    L20R7_MINER_X, L20R7_MINER_Y,
+    L20R8_MINER_X, L20R8_MINER_Y,
+    L20R9_MINER_X, L20R9_MINER_Y,
+    L20R10_MINER_X, L20R10_MINER_Y,
+    L20R11_MINER_X, L20R11_MINER_Y,
+    L20R12_MINER_X, L20R12_MINER_Y,
+    L20R13_MINER_X, L20R13_MINER_Y,
+    L20R14_MINER_X, L20R14_MINER_Y,
+    L20R15_MINER_X, L20R15_MINER_Y,
+    L20R16_MINER_X, L20R16_MINER_Y,
+};
+static const int8_t * const l20_room_cave_segs[] = {
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+    layout_0_cave_segs,
+};
+static const uint8_t l20_room_seg_counts[] = {
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+    LAYOUT_0_SEG_COUNT,
+};
+static const uint8_t l20_room_has_miner[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+};
+static const uint8_t l20_room_has_lava[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+static const uint8_t l20_room_exits[] = {
+    NONE, NONE, NONE, 1,   // room 0
+    NONE, NONE, 0, 2,   // room 1
+    NONE, NONE, 1, 3,   // room 2
+    NONE, NONE, 2, 4,   // room 3
+    NONE, NONE, 3, 5,   // room 4
+    NONE, NONE, 4, 6,   // room 5
+    NONE, NONE, 5, 7,   // room 6
+    NONE, NONE, 6, 8,   // room 7
+    NONE, NONE, 7, 9,   // room 8
+    NONE, NONE, 8, 10,   // room 9
+    NONE, NONE, 9, 11,   // room 10
+    NONE, NONE, 10, 12,   // room 11
+    NONE, NONE, 11, 13,   // room 12
+    NONE, NONE, 12, 14,   // room 13
+    NONE, NONE, 13, 15,   // room 14
+    NONE, NONE, 14, NONE,   // room 15
+};
+static const int8_t l20_room_bounds[] = {
+    -128, 127, 50, -50,   // room 0
+    -128, 127, 50, -50,   // room 1
+    -128, 127, 50, -50,   // room 2
+    -128, 127, 50, -50,   // room 3
+    -128, 127, 50, -50,   // room 4
+    -128, 127, 50, -50,   // room 5
+    -128, 127, 50, -50,   // room 6
+    -128, 127, 50, -50,   // room 7
+    -128, 127, 50, -50,   // room 8
+    -128, 127, 50, -50,   // room 9
+    -128, 127, 50, -50,   // room 10
+    -128, 127, 50, -50,   // room 11
+    -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
+    -128, 127, 50, -50,   // room 14
+    -128, 127, 50, -50,   // room 15
+};
 #endif
