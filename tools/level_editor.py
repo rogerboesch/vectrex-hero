@@ -626,8 +626,9 @@ class LevelCanvas(tk.Canvas):
         for i, e in enumerate(lvl["enemies"]):
             cx, cy = self._cx(e["x"], e["y"])
             r = 8
-            is_spider = e.get("type", "bat") == "spider"
-            color = "#cc33ff" if is_spider else "#ff3333"
+            etype = e.get("type", "bat")
+            is_spider = etype == "spider"
+            color = "#cc33ff" if is_spider else "#33cc33" if etype == "snake" else "#ff3333"
             self.create_oval(cx - r, cy - r, cx + r, cy + r,
                              outline=color, width=2, tags=("enemy", f"enemy_{i}"))
             if is_spider:
@@ -970,7 +971,7 @@ class LevelCanvas(tk.Canvas):
         ent_vx.grid(row=2, column=1, padx=5, pady=2)
         tk.Label(dlg, text="type:").grid(row=3, column=0, padx=5, pady=2, sticky="e")
         type_var = tk.StringVar(value=e.get("type", "bat"))
-        type_combo = ttk.Combobox(dlg, textvariable=type_var, values=["bat", "spider"],
+        type_combo = ttk.Combobox(dlg, textvariable=type_var, values=["bat", "spider", "snake"],
                                   state="readonly", width=8)
         type_combo.grid(row=3, column=1, padx=5, pady=2)
 
@@ -2604,7 +2605,7 @@ int main(void) {{
             '                }',
             '            }',
             '            if (box_overlap(dyn_x, dyn_y, EXPLOSION_KILL, EXPLOSION_KILL,',
-            '                            player_x, player_y, SPRITE_HW(player), SPRITE_HH(player)) {',
+            '                            player_x, player_y, SPRITE_HW(player_right), SPRITE_HH(player_right)) {',
             '                game_state = STATE_DYING;',
             '                death_timer = 30;',
             '            }',
@@ -2715,7 +2716,8 @@ int main(void) {{
             if enemies:
                 lh.append(f"static const int8_t {prefix}_enemies[] = {{")
                 for e in enemies:
-                    type_int = 1 if e.get("type", "bat") == "spider" else 0
+                    etype = e.get("type", "bat")
+                    type_int = 1 if etype == "spider" else 2 if etype == "snake" else 0
                     lh.append(f"    {e['x']}, {e['y']}, {e['vx']}, {type_int},")
                 lh.append("};")
             else:
@@ -2949,7 +2951,7 @@ void start_new_game(void) {{
         mc_miner_rescue = "            check_miner_rescue();\n"
         mc_lava_death = """\
             // Lava death check
-            if (cur_has_lava && player_y - SPRITE_HH(player) <= cur_cave_floor + LAVA_HEIGHT) {{
+            if (cur_has_lava && player_y - SPRITE_HH(player_right) <= cur_cave_floor + LAVA_HEIGHT) {{
                 game_state = STATE_DYING;
                 death_timer = 30;
             }}
@@ -3010,7 +3012,7 @@ uint8_t player_hits_wall(uint8_t i) {{
     int8_t wcy = wall_y(i);
     int8_t whw = wall_w(i) / 2;
     int8_t whh = wall_h(i);
-    return box_overlap(player_x, player_y, SPRITE_HW(player), SPRITE_HH(player),
+    return box_overlap(player_x, player_y, SPRITE_HW(player_right), SPRITE_HH(player_right),
                        wcx, wcy, whw, whh);
 }}
 
@@ -3366,7 +3368,7 @@ int main(void) {{
                     lines.append(f"static const int8_t {prefix}_enemies[] = {{")
                     for j, e in enumerate(enemies):
                         etype = e.get("type", "bat")
-                        type_int = 1 if etype == "spider" else 0
+                        type_int = 1 if etype == "spider" else 2 if etype == "snake" else 0
                         lines.append(f"    {e['x']}, {e['y']}, {e['vx']}, {type_int},   // enemy {j} ({etype})")
                     lines.append("};")
                 else:
@@ -3517,7 +3519,7 @@ int main(void) {{
             "",
         ]
         # Scale mapping: sprite name -> draw scale
-        scale_map = {"player_right": 0x6A, "player_left": 0x6A, "walk_right": 0x6A, "walk_left": 0x6A, "dynamite": 0x30}
+        scale_map = {"player_right": 0x6A, "player_left": 0x6A, "player_walk_right": 0x6A, "player_walk_left": 0x6A, "dynamite": 0x30}
         default_scale = 0x60
 
         for sprite in self.project["sprites"]:

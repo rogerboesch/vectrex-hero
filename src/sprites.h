@@ -6,10 +6,14 @@
 
 extern int8_t player_right[];
 extern int8_t player_left[];
-extern int8_t walk_right_f0[];
-extern int8_t walk_right_f1[];
-extern int8_t walk_left_f0[];
-extern int8_t walk_left_f1[];
+extern int8_t player_walk_right_f0[];
+extern int8_t player_walk_right_f1[];
+extern int8_t player_walk_left_f0[];
+extern int8_t player_walk_left_f1[];
+extern int8_t snake_right_f0[];
+extern int8_t snake_right_f1[];
+extern int8_t snake_left_f0[];
+extern int8_t snake_left_f1[];
 extern int8_t bat_f0[];
 extern int8_t bat_f1[];
 extern int8_t miner[];

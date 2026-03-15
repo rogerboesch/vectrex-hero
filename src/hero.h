@@ -38,6 +38,7 @@
 // Enemy types
 #define ENEMY_BAT       0
 #define ENEMY_SPIDER    1
+#define ENEMY_SNAKE     2
 #define SPIDER_PATROL   20
 
 // Sprite data access: arrays are [hw, hh, oy, ox, count-1, dy1, dx1, ...]

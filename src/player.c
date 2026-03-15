@@ -180,9 +180,9 @@ void draw_player(void) {
     if (player_on_ground && !player_thrusting) {
         // Walking sprite — animate when moving
         if (player_vx != 0 && (anim_tick & 8)) {
-            spr = (f > 0) ? walk_right_f1 : walk_left_f1;
+            spr = (f > 0) ? player_walk_right_f1 : player_walk_left_f1;
         } else {
-            spr = (f > 0) ? walk_right_f0 : walk_left_f0;
+            spr = (f > 0) ? player_walk_right_f0 : player_walk_left_f0;
         }
     } else {
         spr = (f > 0) ? player_right : player_left;

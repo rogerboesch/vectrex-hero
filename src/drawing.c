@@ -88,6 +88,12 @@ void draw_enemies(void) {
             draw_line_d(enemies[i].y - enemies[i].home_y, 0);
             // Draw spider sprite (single frame)
             frame = spider;
+        } else if (enemies[i].type == ENEMY_SNAKE) {
+            if (enemies[i].vx > 0) {
+                frame = (enemies[i].anim & 4) ? snake_right_f0 : snake_right_f1;
+            } else {
+                frame = (enemies[i].anim & 4) ? snake_left_f0 : snake_left_f1;
+            }
         } else {
             frame = (enemies[i].anim & 8) ? bat_f0 : bat_f1;
         }

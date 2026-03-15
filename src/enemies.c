@@ -139,6 +139,17 @@ void update_enemies(void) {
             }
             ehw = SPRITE_HW(spider);
             ehh = SPRITE_HH(spider);
+        } else if (enemies[i].type == ENEMY_SNAKE) {
+            // Snake: horizontal movement, stays at placed Y
+            enemies[i].x += enemies[i].vx;
+
+            // Bounce off room bounds
+            if (enemies[i].x > cur_cave_right - SPRITE_HW(snake_right_f0) ||
+                enemies[i].x < cur_cave_left + SPRITE_HW(snake_right_f0)) {
+                enemies[i].vx = -enemies[i].vx;
+            }
+            ehw = SPRITE_HW(snake_right_f0);
+            ehh = SPRITE_HH(snake_right_f0);
         } else {
             // Bat: horizontal movement
             enemies[i].x += enemies[i].vx;

@@ -43,7 +43,7 @@ int8_t player_left[] = {
        6,    0,
 };
 
-int8_t walk_right_f0[] = {
+int8_t player_walk_right_f0[] = {
     5, 12,  // hw, hh (scaled: raw 6,14 x 0x6A/0x7F)
     10, 6,  // oy, ox (center to VLC start)
     16,  // 17 vectors (VLC count-1)
@@ -66,7 +66,7 @@ int8_t walk_right_f0[] = {
        6,    0,
 };
 
-int8_t walk_right_f1[] = {
+int8_t player_walk_right_f1[] = {
     5, 12,  // hw, hh (scaled: raw 6,14 x 0x6A/0x7F)
     10, 6,  // oy, ox (center to VLC start)
     16,  // 17 vectors (VLC count-1)
@@ -89,7 +89,7 @@ int8_t walk_right_f1[] = {
        6,    0,
 };
 
-int8_t walk_left_f0[] = {
+int8_t player_walk_left_f0[] = {
     5, 12,  // hw, hh (scaled: raw 6,14 x 0x6A/0x7F)
     10, -6,  // oy, ox (center to VLC start)
     16,  // 17 vectors (VLC count-1)
@@ -112,7 +112,7 @@ int8_t walk_left_f0[] = {
        6,    0,
 };
 
-int8_t walk_left_f1[] = {
+int8_t player_walk_left_f1[] = {
     5, 12,  // hw, hh (scaled: raw 6,14 x 0x6A/0x7F)
     10, -6,  // oy, ox (center to VLC start)
     16,  // 17 vectors (VLC count-1)
@@ -133,6 +133,78 @@ int8_t walk_left_f1[] = {
        9,   -1,
        0,   -2,
        6,    0,
+};
+
+int8_t snake_right_f0[] = {
+    7, 2,  // hw, hh (scaled: raw 9,3 x 0x60/0x7F)
+    0, -8,  // oy, ox (center to VLC start)
+    11,  // 12 vectors (VLC count-1)
+       3,    4,
+      -3,    4,
+       3,    4,
+      -2,    3,
+       2,    2,
+      -4,    0,
+       0,   -2,
+       2,   -3,
+      -3,   -4,
+       3,   -4,
+      -3,   -4,
+       2,    0,
+};
+
+int8_t snake_right_f1[] = {
+    7, 2,  // hw, hh (scaled: raw 9,3 x 0x60/0x7F)
+    1, -8,  // oy, ox (center to VLC start)
+    11,  // 12 vectors (VLC count-1)
+      -2,    4,
+       3,    4,
+      -2,    4,
+       1,    3,
+       2,    2,
+      -4,    0,
+       0,   -2,
+      -1,   -3,
+       2,   -4,
+      -2,   -4,
+       1,   -4,
+       2,    0,
+};
+
+int8_t snake_left_f0[] = {
+    7, 2,  // hw, hh (scaled: raw 9,3 x 0x60/0x7F)
+    0, 8,  // oy, ox (center to VLC start)
+    11,  // 12 vectors (VLC count-1)
+       3,   -4,
+      -3,   -4,
+       3,   -4,
+      -2,   -3,
+       2,   -2,
+      -4,    0,
+       0,    2,
+       2,    3,
+      -3,    4,
+       3,    4,
+      -3,    4,
+       2,    0,
+};
+
+int8_t snake_left_f1[] = {
+    7, 2,  // hw, hh (scaled: raw 9,3 x 0x60/0x7F)
+    1, 8,  // oy, ox (center to VLC start)
+    11,  // 12 vectors (VLC count-1)
+      -2,   -4,
+       3,   -4,
+      -2,   -4,
+       1,   -3,
+       2,   -2,
+      -4,    0,
+       0,    2,
+      -1,    3,
+       2,    4,
+      -2,    4,
+       1,    4,
+       2,    0,
 };
 
 int8_t bat_f0[] = {
