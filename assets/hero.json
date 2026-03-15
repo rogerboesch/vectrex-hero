@@ -263,6 +263,87 @@
           "has_lava": true
         }
       ]
+    },
+    {
+      "name": "LEVEL2",
+      "rooms": [
+        {
+          "cave_lines": [
+            [[-85, 50], [-85, 20], [-100, 20], [-100, -15], [-15, -15], [-15, -50], [-125, -50], [-125, 50], [-85, 50]],
+            [[-35, 50], [-35, 20], [100, 20], [100, -15], [15, -15], [15, -50]],
+            [[-35, 50], [125, 50], [125, -50], [15, -50]],
+            [[-125, 20], [-100, 20]],
+            [[100, 20], [125, 20]]
+          ],
+          "walls": [],
+          "enemies": [],
+          "miner": null,
+          "player_start": {"x": -60, "y": 40},
+          "cave_constants": {"CAVE_LEFT": -128, "CAVE_RIGHT": 128, "CAVE_TOP": 50, "CAVE_FLOOR": -50},
+          "bg_image": {"path": "/Users/roger/projects/vectrex-hero/original/level02.png", "x": 0, "y": -25, "scale": 1.77, "locked": false, "show": true},
+          "number": 1,
+          "name": "R1",
+          "exit_left": null, "exit_right": null, "exit_top": null, "exit_bottom": 2,
+          "has_lava": false
+        },
+        {
+          "cave_lines": [
+            [[-85, 50], [-85, 20], [-100, 20], [-100, -15], [-15, -15], [-15, -50], [-125, -50], [-125, 50], [-85, 50]],
+            [[-35, 50], [-35, 20], [100, 20], [100, -15], [15, -15], [15, -50]],
+            [[-35, 50], [125, 50], [125, -50], [15, -50]],
+            [[-125, 20], [-100, 20]],
+            [[100, 20], [125, 20]]
+          ],
+          "walls": [],
+          "enemies": [],
+          "miner": null,
+          "player_start": null,
+          "cave_constants": {"CAVE_LEFT": -128, "CAVE_RIGHT": 128, "CAVE_TOP": 50, "CAVE_FLOOR": -50},
+          "bg_image": {"path": "/Users/roger/projects/vectrex-hero/original/level02.png", "x": 0, "y": 75, "scale": 1.77, "locked": false, "show": true},
+          "number": 2,
+          "name": "R2",
+          "exit_left": null, "exit_right": null, "exit_top": 1, "exit_bottom": 3,
+          "has_lava": false
+        },
+        {
+          "cave_lines": [
+            [[-85, 50], [-85, 20], [-100, 20], [-100, -15], [-15, -15], [-15, -50], [-125, -50], [-125, 50], [-85, 50]],
+            [[-35, 50], [-35, 20], [100, 20], [100, -15], [15, -15], [15, -50]],
+            [[-35, 50], [125, 50], [125, -50], [15, -50]],
+            [[-125, 20], [-100, 20]],
+            [[100, 20], [125, 20]]
+          ],
+          "walls": [],
+          "enemies": [],
+          "miner": null,
+          "player_start": null,
+          "cave_constants": {"CAVE_LEFT": -128, "CAVE_RIGHT": 128, "CAVE_TOP": 50, "CAVE_FLOOR": -50},
+          "bg_image": {"path": "/Users/roger/projects/vectrex-hero/original/level02.png", "x": 0, "y": 175, "scale": 1.77, "locked": false, "show": true},
+          "number": 3,
+          "name": "R3",
+          "exit_left": null, "exit_right": null, "exit_top": 2, "exit_bottom": 4,
+          "has_lava": false
+        },
+        {
+          "cave_lines": [
+            [[-85, 50], [-85, 20], [-100, 20], [-100, -15], [-15, -15], [-15, -50], [-125, -50], [-125, 50], [-85, 50]],
+            [[-35, 50], [-35, 20], [100, 20], [100, -15], [15, -15], [15, -50]],
+            [[-35, 50], [125, 50], [125, -50], [15, -50]],
+            [[-125, 20], [-100, 20]],
+            [[100, 20], [125, 20]]
+          ],
+          "walls": [],
+          "enemies": [],
+          "miner": {"x": 80, "y": -40},
+          "player_start": null,
+          "cave_constants": {"CAVE_LEFT": -128, "CAVE_RIGHT": 128, "CAVE_TOP": 50, "CAVE_FLOOR": -50},
+          "bg_image": {"path": "/Users/roger/projects/vectrex-hero/original/level02.png", "x": 0, "y": 275, "scale": 1.77, "locked": false, "show": true},
+          "number": 4,
+          "name": "R4",
+          "exit_left": null, "exit_right": null, "exit_top": 3, "exit_bottom": null,
+          "has_lava": true
+        }
+      ]
     }
   ],
   "sprites": [
