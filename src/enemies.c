@@ -120,7 +120,7 @@ void update_dynamite(void) {
 
 void update_enemies(void) {
     uint8_t i, j;
-    int8_t x1, y1, y2, seg_min, seg_max;
+    int8_t x1, y1, x2, y2, seg_min, seg_max;
     int8_t ehw, ehh;
     const int8_t *segs;
 
@@ -148,6 +148,80 @@ void update_enemies(void) {
                 enemies[i].x < cur_cave_left + SPRITE_HW(snake_right_f0)) {
                 enemies[i].vx = -enemies[i].vx;
             }
+
+            // Bounce off vertical cave segments (walls, shaft edges)
+            segs = cur_cave_segs;
+            for (j = 0; j < cur_seg_count; j++) {
+                if (segs[j * 4] != segs[j * 4 + 2]) continue;
+                x1 = segs[j * 4];
+                y1 = segs[j * 4 + 1];
+                y2 = segs[j * 4 + 3];
+                seg_min = y1 < y2 ? y1 : y2;
+                seg_max = y1 > y2 ? y1 : y2;
+                if (enemies[i].y + SPRITE_HH(snake_right_f0) > seg_min &&
+                    enemies[i].y - SPRITE_HH(snake_right_f0) < seg_max) {
+                    if (enemies[i].vx > 0 &&
+                        enemies[i].x + SPRITE_HW(snake_right_f0) > x1 &&
+                        enemies[i].x < x1) {
+                        enemies[i].x = x1 - SPRITE_HW(snake_right_f0);
+                        enemies[i].vx = -enemies[i].vx;
+                    } else if (enemies[i].vx < 0 &&
+                               enemies[i].x - SPRITE_HW(snake_right_f0) < x1 &&
+                               enemies[i].x > x1) {
+                        enemies[i].x = x1 + SPRITE_HW(snake_right_f0);
+                        enemies[i].vx = -enemies[i].vx;
+                    }
+                }
+            }
+
+            // Bounce off destructible walls
+            for (j = 0; j < cur_wall_count; j++) {
+                int8_t wl, wr, wt, wb;
+                if (walls_destroyed & (1 << j)) continue;
+                wl = wall_x(j);
+                wr = wl + wall_w(j);
+                wt = wall_y(j) + wall_h(j);
+                wb = wall_y(j) - wall_h(j);
+                if (enemies[i].y + SPRITE_HH(snake_right_f0) > wb &&
+                    enemies[i].y - SPRITE_HH(snake_right_f0) < wt) {
+                    if (enemies[i].vx > 0 &&
+                        enemies[i].x + SPRITE_HW(snake_right_f0) > wl &&
+                        enemies[i].x < wl) {
+                        enemies[i].x = wl - SPRITE_HW(snake_right_f0);
+                        enemies[i].vx = -enemies[i].vx;
+                    } else if (enemies[i].vx < 0 &&
+                               enemies[i].x - SPRITE_HW(snake_right_f0) < wr &&
+                               enemies[i].x > wr) {
+                        enemies[i].x = wr + SPRITE_HW(snake_right_f0);
+                        enemies[i].vx = -enemies[i].vx;
+                    }
+                }
+            }
+
+            // Floor-edge detection: reverse at gaps in the floor
+            segs = cur_cave_segs;
+            for (j = 0; j < cur_seg_count; j++) {
+                if (segs[j * 4 + 1] != segs[j * 4 + 3]) continue;
+                y1 = segs[j * 4 + 1];
+                if (y1 > enemies[i].y - SPRITE_HH(snake_right_f0)) continue;
+                if (y1 < enemies[i].y - SPRITE_HH(snake_right_f0) - 5) continue;
+                x1 = segs[j * 4];
+                x2 = segs[j * 4 + 2];
+                seg_min = x1 < x2 ? x1 : x2;
+                seg_max = x1 > x2 ? x1 : x2;
+                if (enemies[i].x >= seg_min && enemies[i].x <= seg_max) {
+                    if (enemies[i].vx > 0 &&
+                        enemies[i].x + SPRITE_HW(snake_right_f0) >= seg_max) {
+                        enemies[i].x = seg_max - SPRITE_HW(snake_right_f0);
+                        enemies[i].vx = -enemies[i].vx;
+                    } else if (enemies[i].vx < 0 &&
+                               enemies[i].x - SPRITE_HW(snake_right_f0) <= seg_min) {
+                        enemies[i].x = seg_min + SPRITE_HW(snake_right_f0);
+                        enemies[i].vx = -enemies[i].vx;
+                    }
+                }
+            }
+
             ehw = SPRITE_HW(snake_right_f0);
             ehh = SPRITE_HH(snake_right_f0);
         } else {
