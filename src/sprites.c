@@ -137,10 +137,9 @@ int8_t player_walk_left_f1[] = {
 
 int8_t snake_right_f0[] = {
     7, 2,  // hw, hh (scaled: raw 9,3 x 0x60/0x7F)
-    0, -8,  // oy, ox (center to VLC start)
-    11,  // 12 vectors (VLC count-1)
-       3,    4,
-      -3,    4,
+    2, -7,  // oy, ox (center to VLC start)
+    9,  // 10 vectors (VLC count-1)
+      -2,    7,
        3,    4,
       -2,    3,
        2,    2,
@@ -148,8 +147,7 @@ int8_t snake_right_f0[] = {
        0,   -2,
        2,   -3,
       -3,   -4,
-       3,   -4,
-      -3,   -4,
+       2,   -7,
        2,    0,
 };
 

@@ -14,10 +14,8 @@ static const int8_t l1r1_walls[] = {
     2, -30, 15, 10,   // wall 0 (destroyable)
 };
 
-#define L1R1_ENEMY_COUNT 1
-static const int8_t l1r1_enemies[] = {
-    30, -12, 1, 2,   // enemy 0 (snake)
-};
+#define L1R1_ENEMY_COUNT 0
+static const int8_t l1r1_enemies[] = { 0, 0, 0, 0 };
 
 #define L1R1_START_X  -60
 #define L1R1_START_Y  40
@@ -29,9 +27,9 @@ static const int8_t l1r1_cave[] = {
     0, 0, -110, 100, 0, 0, 40, 10, 50, -35, -30, 0,
     0, 127, 0, 8, -35, 0, 0, -85, -35, 0, 0, 110,
     100, 0, 0, -33, 0, -127, 1, 20, -125, 0, 25, 1,
-    -15, -125, 0, 25, 1, 20, 100, 0, 25, 0,
+    20, 100, 0, 25, 0,
 };
-#define L1R1_SEG_COUNT 19
+#define L1R1_SEG_COUNT 18
 static const int8_t l1r1_cave_segs[] = {
     -85, 50, -85, 20,
     -85, 20, -100, 20,
@@ -50,7 +48,6 @@ static const int8_t l1r1_cave_segs[] = {
     125, 50, 125, -50,
     125, -50, 15, -50,
     -125, 20, -100, 20,
-    -125, -15, -100, -15,
     100, 20, 125, 20,
 };
 
@@ -70,10 +67,9 @@ static const int8_t l1r2_enemies[] = {
 static const int8_t l1r2_cave[] = {
     10, 20, -125, 0, 110, 30, 0, 0, -110, -100, 0, 0,
     127, 0, 123, 100, 0, 0, -110, -30, 0, 0, 70, 1,
-    20, -85, -35, 0, 2, -15, -125, 0, 127, 0, 123, 2,
-    -15, 85, 35, 0, 0, 40, 0,
+    20, -85, -35, 0, 2, -15, 85, 35, 0, 0, 40, 0,
 };
-#define L1R2_SEG_COUNT 13
+#define L1R2_SEG_COUNT 12
 static const int8_t l1r2_cave_segs[] = {
     -15, 50, -125, 50,
     -125, 50, -125, -50,
@@ -83,7 +79,6 @@ static const int8_t l1r2_cave_segs[] = {
     -15, 50, -15, 20,
     -15, 20, -125, 20,
     -85, 20, -85, -15,
-    -125, -15, 125, -15,
     85, -15, 85, 20,
     85, 20, 125, 20,
     85, 20, 15, 20,
