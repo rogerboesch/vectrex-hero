@@ -2930,7 +2930,6 @@ void init_level(void) {{
     dyn_exploding = 0;
     anim_tick = 0;
     load_enemies();
-    level_msg_timer = 30;
 }}
 
 void start_new_game(void) {{
@@ -3075,14 +3074,6 @@ int main(void) {{
 {mc_draw_miner}            draw_hud();
             draw_fuel_bar();
 
-            if (level_msg_timer > 0) {{
-                zero_beam();
-                str_buf[0] = 'L'; str_buf[1] = 'E'; str_buf[2] = 'V';
-                str_buf[3] = 'E'; str_buf[4] = 'L'; str_buf[5] = ' ';
-                int_to_str((int)(current_level + 1), 6);
-                draw_text(100, -35, str_buf, 0x50, 10);
-                level_msg_timer--;
-            }}
         }}
         else if (game_state == STATE_DYING) {{
             death_timer--;
