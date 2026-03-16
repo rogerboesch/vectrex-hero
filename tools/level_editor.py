@@ -323,11 +323,11 @@ def cave_room_data(cave_lines):
 # Data model
 # ---------------------------------------------------------------------------
 
-def new_layout(name="Layout 1"):
+def new_row_type(name="Row Type 0"):
     return {
         "name": name,
-        "cave_lines": [],       # list of polylines, each is list of [x, y]
-        "bg_image": None,       # {"path": str, "x": int, "y": int, "scale": float} or None
+        "cave_lines": [],       # list of polylines, each is list of [x, y] in local coords (X: -125..125, Y: 0..30)
+        "bg_image": None,       # {"path": str, "y_offset": int} or None
     }
 
 
@@ -338,7 +338,7 @@ def new_room(number=1):
         "exit_right": None,
         "exit_top": None,
         "exit_bottom": None,
-        "layout": 0,            # index into project["layouts"]
+        "rows": [0, 0, 0],      # [top, mid, bottom] indices into project["row_types"]
         "walls": [],            # list of {"y": int, "x": int, "h": int, "w": int, "destroyable": bool}
         "enemies": [],          # list of {"x": int, "y": int, "vx": int}
         "miner": None,          # {"x": int, "y": int} or None
@@ -364,7 +364,7 @@ def new_sprite():
 
 def new_project():
     return {
-        "layouts": [new_layout(f"Layout {i+1}") for i in range(16)],
+        "row_types": [new_row_type(f"Row Type {i}") for i in range(32)],
         "levels": [new_level()],
         "sprites": [new_sprite()],
     }
@@ -400,36 +400,101 @@ def migrate_project(data):
                 if "type" not in e:
                     e["type"] = "bat"
 
-    # Migrate to layouts: extract cave_lines/cave_constants/bg_image from rooms
-    if "layouts" not in data:
+    # Migrate layouts → row_types
+    if "layouts" in data and "row_types" not in data:
         import copy as _copy
-        layouts = []
-        layout_idx = 0
+        layouts = data.pop("layouts")
+        row_types = [new_row_type(f"Row Type {i}") for i in range(32)]
+        rt_idx = 0
+
+        # For each layout, split cave_lines into 3 row types by average Y
+        for li, layout in enumerate(layouts):
+            cave_lines = layout.get("cave_lines", [])
+            top_lines, mid_lines, bot_lines = [], [], []
+            for polyline in cave_lines:
+                if len(polyline) < 2:
+                    continue
+                avg_y = sum(pt[1] for pt in polyline) / len(polyline)
+                if avg_y >= 20:
+                    # Top slot: translate Y-20 to get local coords (0..30)
+                    top_lines.append([[pt[0], pt[1] - 20] for pt in polyline])
+                elif avg_y >= -10:
+                    # Mid slot: translate Y+10 to get local coords (0..30)
+                    mid_lines.append([[pt[0], pt[1] + 10] for pt in polyline])
+                else:
+                    # Bottom slot: translate Y+40 to get local coords (0..30)
+                    bot_lines.append([[pt[0], pt[1] + 40] for pt in polyline])
+
+            # Assign row types (use indices rt_idx..rt_idx+2)
+            top_idx = rt_idx % 16
+            mid_idx = (rt_idx + 1) % 16
+            bot_idx = (rt_idx + 2) % 16
+            if top_idx < 16:
+                row_types[top_idx] = {"name": f"Row Type {top_idx}", "cave_lines": top_lines, "bg_image": None}
+            if mid_idx < 16:
+                row_types[mid_idx] = {"name": f"Row Type {mid_idx}", "cave_lines": mid_lines, "bg_image": None}
+            if bot_idx < 16:
+                row_types[bot_idx] = {"name": f"Row Type {bot_idx}", "cave_lines": bot_lines, "bg_image": None}
+
+            # Update rooms that used this layout
+            for lvl in data.get("levels", []):
+                for room in lvl.get("rooms", []):
+                    if room.get("layout") == li:
+                        room["rows"] = [top_idx, mid_idx, bot_idx]
+                        room.pop("layout", None)
+
+            rt_idx += 3
+
+        data["row_types"] = row_types
+
+    elif "row_types" not in data:
+        # Very old format: no layouts, no row_types — extract from rooms
+        import copy as _copy
+        row_types = []
+        rt_idx = 0
         for lvl in data.get("levels", []):
             for room in lvl.get("rooms", []):
                 if "cave_lines" in room or "bg_image" in room:
-                    layouts.append({
-                        "name": f"Layout {layout_idx + 1}",
-                        "cave_lines": room.pop("cave_lines", []),
-                        "bg_image": room.pop("bg_image", None),
-                    })
+                    cave_lines = room.pop("cave_lines", [])
+                    room.pop("bg_image", None)
                     room.pop("cave_constants", None)
-                    room["layout"] = layout_idx
-                    layout_idx += 1
-                elif "layout" not in room:
-                    room["layout"] = 0
-        # Pad to 16 layouts
-        while len(layouts) < 16:
-            base = _copy.deepcopy(layouts[0]) if layouts else new_layout()
-            base["name"] = f"Layout {len(layouts) + 1}"
-            layouts.append(base)
-        data["layouts"] = layouts
-    else:
-        # Ensure all rooms have layout field
-        for lvl in data.get("levels", []):
-            for room in lvl.get("rooms", []):
-                if "layout" not in room:
-                    room["layout"] = 0
+                    # Split into 3 row types
+                    top_lines, mid_lines, bot_lines = [], [], []
+                    for polyline in cave_lines:
+                        if len(polyline) < 2:
+                            continue
+                        avg_y = sum(pt[1] for pt in polyline) / len(polyline)
+                        if avg_y >= 20:
+                            top_lines.append([[pt[0], pt[1] - 20] for pt in polyline])
+                        elif avg_y >= -10:
+                            mid_lines.append([[pt[0], pt[1] + 10] for pt in polyline])
+                        else:
+                            bot_lines.append([[pt[0], pt[1] + 40] for pt in polyline])
+                    top_idx = rt_idx % 16
+                    mid_idx = (rt_idx + 1) % 16
+                    bot_idx = (rt_idx + 2) % 16
+                    while len(row_types) <= max(top_idx, mid_idx, bot_idx):
+                        row_types.append(new_row_type(f"Row Type {len(row_types)}"))
+                    row_types[top_idx]["cave_lines"] = top_lines
+                    row_types[mid_idx]["cave_lines"] = mid_lines
+                    row_types[bot_idx]["cave_lines"] = bot_lines
+                    room["rows"] = [top_idx, mid_idx, bot_idx]
+                    rt_idx += 3
+                elif "rows" not in room:
+                    room.pop("layout", None)
+                    room["rows"] = [0, 0, 0]
+        while len(row_types) < 32:
+            row_types.append(new_row_type(f"Row Type {len(row_types)}"))
+        data["row_types"] = row_types
+
+    # Ensure all rooms have rows field (not layout)
+    for lvl in data.get("levels", []):
+        for room in lvl.get("rooms", []):
+            if "layout" in room and "rows" not in room:
+                room["rows"] = [0, 0, 0]
+                room.pop("layout", None)
+            elif "rows" not in room:
+                room["rows"] = [0, 0, 0]
 
     # Migrate sprites: old "points" format → "frames" format
     for sprite in data.get("sprites", []):
@@ -486,10 +551,27 @@ def load_bg_image(path, canvas_size, scale=1.0, opacity=0.5):
 # ---------------------------------------------------------------------------
 
 class LevelCanvas(tk.Canvas):
-    TOOLS = ("select", "wall", "enemy", "miner", "player_start")
+    TOOLS = ("select", "wall", "enemy", "spider", "snake", "miner", "player_start")
+
+    # Room grid: 50 wide x 20 tall (3 rows of 6 + 2 for lava), 10px per box, 10px margin
+    BOX_PX = 10
+    GRID_W = 50      # boxes wide
+    GRID_H = 20      # boxes tall (3*6 rows + 2 lava)
+    MARGIN = 10
+    CANVAS_W = GRID_W * BOX_PX + 2 * MARGIN   # 520
+    CANVAS_H = GRID_H * BOX_PX + 2 * MARGIN   # 220
+
+    # Vectrex room bounds (matching the grid)
+    ROOM_LEFT = -125
+    ROOM_RIGHT = 125
+    ROOM_TOP = 50
+    ROOM_BOTTOM = -50
+
+    # Row boundary Y values in room coords (between the 3 row slots)
+    ROW_BOUNDARIES = [20, -10]  # cyan lines between top/mid and mid/bot
 
     def __init__(self, parent, app):
-        super().__init__(parent, width=CANVAS_SIZE, height=CANVAS_SIZE,
+        super().__init__(parent, width=self.CANVAS_W, height=self.CANVAS_H,
                          bg="#0a0a1a", highlightthickness=0)
         self.app = app
         self.tool = "select"
@@ -522,96 +604,167 @@ class LevelCanvas(tk.Canvas):
         return self.app.current_room_data()
 
     def _vx(self, cx, cy):
-        vx, vy = canvas_to_vx(cx, cy)
+        """Canvas pixels → Vectrex coords (room-local mapping)."""
+        vx = (cx - self.MARGIN) / (self.GRID_W * self.BOX_PX) * 250 + self.ROOM_LEFT
+        vy = self.ROOM_TOP - (cy - self.MARGIN) / (self.GRID_H * self.BOX_PX) * 100
         if self.snap_enabled:
             vx, vy = snap(vx), snap(vy)
-        return clamp(vx), clamp(vy)
+        return clamp(vx, self.ROOM_LEFT, self.ROOM_RIGHT), clamp(vy, self.ROOM_BOTTOM, self.ROOM_TOP)
 
     def _cx(self, vx, vy):
-        return vx_to_canvas(vx, vy)
+        """Vectrex coords → canvas pixels (room-local mapping)."""
+        cx = (vx - self.ROOM_LEFT) / 250.0 * (self.GRID_W * self.BOX_PX) + self.MARGIN
+        cy = (self.ROOM_TOP - vy) / 100.0 * (self.GRID_H * self.BOX_PX) + self.MARGIN
+        return cx, cy
 
     # ---- Drawing ----
 
-    def _get_layout(self):
-        """Return the layout dict for the current room."""
+    # Y offsets for compositing row types into room coordinates
+    Y_OFFSETS = [20, -10, -40]  # top, mid, bottom
+    SLOT_NAMES = ["Top", "Mid", "Bot"]
+
+    def _get_row_types(self):
+        """Return (top_rt, mid_rt, bot_rt) dicts from room['rows']."""
         lvl = self.level
         if lvl is None:
-            return None
-        layout_idx = lvl.get("layout", 0)
-        layouts = self.app.project.get("layouts", [])
-        if 0 <= layout_idx < len(layouts):
-            return layouts[layout_idx]
-        return None
+            return None, None, None
+        rows = lvl.get("rows", [0, 0, 0])
+        row_types = self.app.project.get("row_types", [])
+        result = []
+        for idx in rows:
+            if 0 <= idx < len(row_types):
+                result.append(row_types[idx])
+            else:
+                result.append(None)
+        while len(result) < 3:
+            result.append(None)
+        return tuple(result)
 
     def redraw(self):
         self.delete("all")
         self._draw_grid()
-        self._draw_axes()
         lvl = self.level
         if lvl is None:
             return
-        layout = self._get_layout()
-        if layout and self.app._level_bg_show_var.get():
-            self._draw_bg_image(layout)
-        if layout:
-            self._draw_cave_lines(layout)
+        top_rt, mid_rt, bot_rt = self._get_row_types()
+        if self.app._level_bg_show_var.get():
+            self._draw_bg_images(top_rt, mid_rt, bot_rt)
+        self._draw_cave_lines_composite(top_rt, mid_rt, bot_rt)
+        if lvl.get("has_lava", False):
+            self._draw_lava()
+        self._draw_row_selectors(lvl)
         self._draw_walls(lvl)
         self._draw_enemies(lvl)
         self._draw_miner(lvl)
         self._draw_player_start(lvl)
 
     def _draw_grid(self):
-        step = GRID_SNAP
-        for v in range(VX_MIN, VX_MAX + 1, step):
-            cx, _ = self._cx(v, 0)
-            _, cy = self._cx(0, v)
-            color = "#1a1a2e" if v % 50 != 0 else "#2a2a3e"
-            self.create_line(cx, 0, cx, CANVAS_SIZE, fill=color, tags="grid")
-            self.create_line(0, cy, CANVAS_SIZE, cy, fill=color, tags="grid")
+        m = self.MARGIN
+        w = self.GRID_W * self.BOX_PX
+        h = self.GRID_H * self.BOX_PX
+        # Horizontal grid lines
+        for row in range(self.GRID_H + 1):
+            y = m + row * self.BOX_PX
+            self.create_line(m, y, m + w, y, fill="#1a1a2e", tags="grid")
+        # Cyan horizontal row boundary lines (between 3 row slots)
+        for vy in self.ROW_BOUNDARIES:
+            _, cy = self._cx(0, vy)
+            self.create_line(m, cy, m + w, cy, fill="#00cccc", width=1, tags="block_marker")
+        # Cyan line at bottom of row 3 / top of lava zone (Y = -40)
+        _, cy_lava = self._cx(0, -40)
+        self.create_line(m, cy_lava, m + w, cy_lava, fill="#00cccc", width=1, tags="block_marker")
+        # Border rectangle
+        self.create_rectangle(m, m, m + w, m + h, outline="#2a2a3e", tags="border")
 
-    def _draw_axes(self):
-        cx0, cy0 = self._cx(0, 0)
-        self.create_line(cx0, 0, cx0, CANVAS_SIZE, fill="#333355", dash=(2, 4), tags="axis")
-        self.create_line(0, cy0, CANVAS_SIZE, cy0, fill="#333355", dash=(2, 4), tags="axis")
-        # Game bounds
-        gl, _ = self._cx(-90, 0)
-        gr, _ = self._cx(90, 0)
-        _, gt = self._cx(0, 105)
-        _, gb = self._cx(0, -95)
-        self.create_rectangle(gl, gt, gr, gb, outline="#333344", dash=(4, 4), tags="bounds")
+    def _draw_lava(self):
+        """Draw orange lava fill in the bottom 2-box zone (Y: -50 to -40)."""
+        x1, y1 = self._cx(self.ROOM_LEFT, -40)
+        x2, y2 = self._cx(self.ROOM_RIGHT, self.ROOM_BOTTOM)
+        self.create_rectangle(x1, y1, x2, y2, fill="#3a1800", outline="", tags="lava")
+        # Wavy top edge
+        _, ly = self._cx(0, -40)
+        self.create_line(self.MARGIN, ly, self.MARGIN + self.GRID_W * self.BOX_PX, ly,
+                         fill="#ff6600", width=2, tags="lava")
 
-    def _draw_bg_image(self, lvl):
-        bg = lvl.get("bg_image")
-        if not bg or not bg.get("path"):
-            return
-        path = bg["path"]
-        scale = bg.get("scale", 1.0)
-        # Reload if path or scale changed
-        if path != self._bg_path_loaded or scale != self._bg_scale_loaded:
-            self._bg_photo = load_bg_image(path, CANVAS_SIZE, scale)
-            self._bg_path_loaded = path
-            self._bg_scale_loaded = scale
-        if self._bg_photo:
-            cx, cy = self._cx(bg.get("x", 0), bg.get("y", 0))
-            self.create_image(cx, cy, image=self._bg_photo, anchor="center",
-                              tags="bg_image")
-            # Resize handle at bottom-left corner (hidden when locked)
-            if not bg.get("locked", False):
-                hw = self._bg_photo.width() // 2
-                hh = self._bg_photo.height() // 2
-                hx, hy = cx - hw, cy + hh
-                self.create_rectangle(hx - 4, hy - 4, hx + 4, hy + 4,
-                                      outline="#888", fill="#444", tags="bg_handle")
-
-    def _draw_cave_lines(self, layout):
-        for pi, polyline in enumerate(layout["cave_lines"]):
-            if len(polyline) < 2:
+    def _draw_bg_images(self, top_rt, mid_rt, bot_rt):
+        """Draw BG images for each row type slot at correct Y offset."""
+        for slot_idx, rt in enumerate([top_rt, mid_rt, bot_rt]):
+            if rt is None:
                 continue
-            coords = []
-            for pt in polyline:
-                cx, cy = self._cx(pt[0], pt[1])
-                coords.extend([cx, cy])
-            self.create_line(*coords, fill="#e0e0ff", width=2, tags="cave_line")
+            bg = rt.get("bg_image")
+            if not bg or not bg.get("path"):
+                continue
+            path = bg["path"]
+            y_off_px = bg.get("y_offset", 0)
+            # Use per-slot cache
+            cache_attr = f"_bg_photo_{slot_idx}"
+            cache_path_attr = f"_bg_path_loaded_{slot_idx}"
+            old_path = getattr(self, cache_path_attr, None)
+            if path != old_path:
+                photo = load_bg_image(path, self.GRID_W * self.BOX_PX, 1.0)
+                setattr(self, cache_attr, photo)
+                setattr(self, cache_path_attr, path)
+            else:
+                photo = getattr(self, cache_attr, None)
+            if photo:
+                y_offset = self.Y_OFFSETS[slot_idx]
+                cx, cy = self._cx(0, 15 + y_offset)  # center of row in room coords
+                self.create_image(cx, cy - y_off_px, image=photo, anchor="center",
+                                  tags="bg_image")
+
+    def _draw_cave_lines_composite(self, top_rt, mid_rt, bot_rt):
+        """Draw cave lines from all 3 row types, translated to room coordinates."""
+        for slot_idx, rt in enumerate([top_rt, mid_rt, bot_rt]):
+            if rt is None:
+                continue
+            y_off = self.Y_OFFSETS[slot_idx]
+            for polyline in rt.get("cave_lines", []):
+                if len(polyline) < 2:
+                    continue
+                coords = []
+                for pt in polyline:
+                    # Translate: room_y = local_y + y_off
+                    cx, cy = self._cx(pt[0], pt[1] + y_off)
+                    coords.extend([cx, cy])
+                self.create_line(*coords, fill="#e0e0ff", width=2, tags="cave_line")
+
+    def _draw_row_selectors(self, lvl):
+        """Draw clickable row type labels in each of the 3 block zones."""
+        rows = lvl.get("rows", [0, 0, 0])
+        # Cyan zone boundaries (Y in Vectrex coords): top=50..20, mid=20..-10, bot=-10..-50
+        zone_centers = [35, 5, -25]  # Y center of each zone
+        for slot_idx in range(3):
+            rt_idx = rows[slot_idx] if slot_idx < len(rows) else 0
+            vy = zone_centers[slot_idx]
+            cx, cy = self._cx(-120, vy)
+            label = f"R{rt_idx}"
+            tag = f"row_sel_{slot_idx}"
+            self.create_text(cx, cy, text=label, fill="#00cccc",
+                             font=("Courier", 9, "bold"), tags=(tag, "row_selector"))
+            self.tag_bind(tag, "<Button-1>",
+                          lambda e, si=slot_idx: self._on_row_selector_click(e, si))
+
+    def _on_row_selector_click(self, event, slot_idx):
+        """Show popup menu to select row type for a slot."""
+        menu = tk.Menu(self, tearoff=0)
+        row_types = self.app.project.get("row_types", [])
+        for i, rt in enumerate(row_types):
+            menu.add_command(label=f"R{i}: {rt.get('name', f'Row Type {i}')}",
+                             command=lambda idx=i, si=slot_idx: self._set_row_type(si, idx))
+        menu.tk_popup(event.x_root, event.y_root)
+
+    def _set_row_type(self, slot_idx, rt_idx):
+        """Set the row type for a slot and redraw."""
+        lvl = self.level
+        if lvl is None:
+            return
+        rows = lvl.get("rows", [0, 0, 0])
+        while len(rows) <= slot_idx:
+            rows.append(0)
+        rows[slot_idx] = rt_idx
+        lvl["rows"] = rows
+        self._bg_path_loaded = None
+        self.redraw()
 
     def _draw_walls(self, lvl):
         for i, w in enumerate(lvl["walls"]):
@@ -735,8 +888,8 @@ class LevelCanvas(tk.Canvas):
     # ---- Event handlers ----
 
     def _on_motion(self, event):
-        vx, vy = canvas_to_vx(event.x, event.y)
-        self.app.update_status(f"Vectrex: ({int(vx)}, {int(vy)})  |  Tool: {self.tool}")
+        vx, vy = self._vx(event.x, event.y)
+        self.app.update_status(f"Vectrex: ({vx}, {vy})  |  Tool: {self.tool}")
 
     def _on_click(self, event):
         self.focus_set()
@@ -752,17 +905,27 @@ class LevelCanvas(tk.Canvas):
                 self._drag_type = None
                 self._drag_idx = None
 
-        elif self.tool == "enemy":
-            self.level["enemies"].append({"x": vx, "y": vy, "vx": 1, "type": "bat"})
+        elif self.tool in ("enemy", "spider", "snake"):
+            etype = {"enemy": "bat", "spider": "spider", "snake": "snake"}[self.tool]
+            self.level["enemies"].append({"x": vx, "y": vy, "vx": 1, "type": etype})
+            self._drag_type = "enemy"
+            self._drag_idx = len(self.level["enemies"]) - 1
             self.redraw()
+            self.app.update_status(self._selection_info())
 
         elif self.tool == "miner":
             self.level["miner"] = {"x": vx, "y": vy}
+            self._drag_type = "miner"
+            self._drag_idx = 0
             self.redraw()
+            self.app.update_status(self._selection_info())
 
         elif self.tool == "player_start":
             self.level["player_start"] = {"x": vx, "y": vy}
+            self._drag_type = "player_start"
+            self._drag_idx = 0
             self.redraw()
+            self.app.update_status(self._selection_info())
 
         elif self.tool == "wall":
             self._wall_start = (vx, vy)
@@ -815,11 +978,15 @@ class LevelCanvas(tk.Canvas):
                     "h": clamp(h2, 1, 127), "w": clamp(w, 1, 127),
                     "destroyable": True,
                 })
+                self._drag_type = "wall"
+                self._drag_idx = len(self.level["walls"]) - 1
             self._wall_start = None
             if self._wall_rect_id:
                 self.delete(self._wall_rect_id)
                 self._wall_rect_id = None
             self.redraw()
+            if self._drag_type == "wall":
+                self.app.update_status(self._selection_info())
 
         if self.tool == "select":
             # Keep selection alive so Delete key works;
@@ -943,25 +1110,22 @@ class LevelCanvas(tk.Canvas):
 # Layout Editor Canvas
 # ---------------------------------------------------------------------------
 
-class LayoutCanvas(tk.Canvas):
+class RowCanvas(tk.Canvas):
     TOOLS = ("select", "cave_line")
 
-    # Room grid: 50 boxes wide x 20 boxes tall, 10px per box, 10px margin
+    # Row grid: 50 boxes wide x 6 boxes tall, 10px per box, 10px margin
     BOX_PX = 10
     GRID_W = 50      # boxes wide
-    GRID_H = 20      # boxes tall
+    GRID_H = 6       # boxes tall (one row type = 6 boxes / 30 Vectrex units)
     MARGIN = 10
     CANVAS_W = GRID_W * BOX_PX + 2 * MARGIN   # 520
-    CANVAS_H = GRID_H * BOX_PX + 2 * MARGIN   # 220
+    CANVAS_H = GRID_H * BOX_PX + 2 * MARGIN   # 80
 
-    # Vectrex room bounds
-    ROOM_LEFT = -125
-    ROOM_RIGHT = 125
-    ROOM_BOTTOM = -50
-    ROOM_TOP = 50
-
-    # Block marker lines (cyan) — every 6 boxes from top
-    BLOCK_ROWS = 6
+    # Row type local coordinate bounds
+    ROW_LEFT = -125
+    ROW_RIGHT = 125
+    ROW_BOTTOM = 0
+    ROW_TOP = 30
 
     def __init__(self, parent, app):
         super().__init__(parent, width=self.CANVAS_W, height=self.CANVAS_H,
@@ -991,33 +1155,33 @@ class LayoutCanvas(tk.Canvas):
         self.focus_set()
 
     @property
-    def layout(self):
-        return self.app._current_layout_data()
+    def row_type(self):
+        return self.app._current_row_type_data()
 
     def _vx(self, cx, cy):
-        """Canvas pixels → Vectrex coords (room-local mapping)."""
-        vx = (cx - self.MARGIN) / (self.GRID_W * self.BOX_PX) * 250 + self.ROOM_LEFT
-        vy = self.ROOM_TOP - (cy - self.MARGIN) / (self.GRID_H * self.BOX_PX) * 100
+        """Canvas pixels → Vectrex coords (row-local mapping)."""
+        vx = (cx - self.MARGIN) / (self.GRID_W * self.BOX_PX) * 250 + self.ROW_LEFT
+        vy = self.ROW_TOP - (cy - self.MARGIN) / (self.GRID_H * self.BOX_PX) * 30
         if self.snap_enabled:
             vx, vy = snap(vx), snap(vy)
-        return clamp(vx, self.ROOM_LEFT, self.ROOM_RIGHT), clamp(vy, self.ROOM_BOTTOM, self.ROOM_TOP)
+        return clamp(vx, self.ROW_LEFT, self.ROW_RIGHT), clamp(vy, self.ROW_BOTTOM, self.ROW_TOP)
 
     def _cx(self, vx, vy):
-        """Vectrex coords → canvas pixels (room-local mapping)."""
-        cx = (vx - self.ROOM_LEFT) / 250.0 * (self.GRID_W * self.BOX_PX) + self.MARGIN
-        cy = (self.ROOM_TOP - vy) / 100.0 * (self.GRID_H * self.BOX_PX) + self.MARGIN
+        """Vectrex coords → canvas pixels (row-local mapping)."""
+        cx = (vx - self.ROW_LEFT) / 250.0 * (self.GRID_W * self.BOX_PX) + self.MARGIN
+        cy = (self.ROW_TOP - vy) / 30.0 * (self.GRID_H * self.BOX_PX) + self.MARGIN
         return cx, cy
 
     # ---- Drawing ----
 
     def redraw(self):
         self.delete("all")
-        layout = self.layout
-        if layout is not None and self.app._layout_bg_show_var.get():
-            self._draw_bg_image(layout)
+        rt = self.row_type
+        if rt is not None and self.app._row_bg_show_var.get():
+            self._draw_bg_image(rt)
         self._draw_grid()
-        if layout is not None:
-            self._draw_cave_lines(layout)
+        if rt is not None:
+            self._draw_cave_lines(rt)
 
     def _draw_grid(self):
         m = self.MARGIN
@@ -1027,38 +1191,36 @@ class LayoutCanvas(tk.Canvas):
         for col in range(self.GRID_W + 1):
             x = m + col * self.BOX_PX
             self.create_line(x, m, x, m + h, fill="#1a1a2e", tags="grid")
-        # Horizontal grid lines
-        for row in range(self.GRID_H + 1):
-            y = m + row * self.BOX_PX
-            self.create_line(m, y, m + w, y, fill="#1a1a2e", tags="grid")
-        # Cyan horizontal block markers every 6 rows from top
-        for blk in range(1, 4):
-            y = m + blk * self.BLOCK_ROWS * self.BOX_PX
-            self.create_line(m, y, m + w, y, fill="#00cccc", width=1, tags="block_marker")
-        # Blue vertical markers 5 and 8 grids from left/right
-        for col in (5, 8, self.GRID_W // 2 - 3, self.GRID_W // 2 + 3, self.GRID_W - 8, self.GRID_W - 5):
+        # No horizontal block markers — entire canvas IS one block
+        # Blue vertical markers at cols 5, 8, 22, 25, 28, 42, 45
+        for col in (5, 8, 22, 25, 28, 42, 45):
             x = m + col * self.BOX_PX
             self.create_line(x, m, x, m + h, fill="#4444ff", width=1, tags="block_marker")
+        # Dotted blue lines every 2 grids between cols 8-22 and 28-42
+        for col in range(10, 22, 2):
+            x = m + col * self.BOX_PX
+            self.create_line(x, m, x, m + h, fill="#4444ff", width=1, dash=(2, 4), tags="grid")
+        for col in range(30, 42, 2):
+            x = m + col * self.BOX_PX
+            self.create_line(x, m, x, m + h, fill="#4444ff", width=1, dash=(2, 4), tags="grid")
         # Cyan vertical center line
         cx = m + (self.GRID_W // 2) * self.BOX_PX
         self.create_line(cx, m, cx, m + h, fill="#00cccc", width=1, tags="block_marker")
         # Border rectangle
         self.create_rectangle(m, m, m + w, m + h, outline="#2a2a3e", tags="border")
 
-    def _draw_bg_image(self, layout):
-        bg = layout.get("bg_image")
+    def _draw_bg_image(self, rt):
+        bg = rt.get("bg_image")
         if not bg or not bg.get("path"):
             return
         path = bg["path"]
         y_off = bg.get("y_offset", 0)
-        cache_key = (path, y_off)
         if path != self._bg_path_loaded or y_off != self._bg_scale_loaded:
             self._bg_photo = self._load_bg_fit_width(path)
             self._bg_path_loaded = path
             self._bg_scale_loaded = y_off
         if self._bg_photo:
             draw_w = self.GRID_W * self.BOX_PX  # 500
-            # Center horizontally in the grid area, apply y_offset in pixels
             img_cx = self.MARGIN + draw_w / 2
             img_cy = self.MARGIN + self._bg_photo.height() / 2 - y_off
             self.create_image(img_cx, img_cy, image=self._bg_photo, anchor="center",
@@ -1080,8 +1242,8 @@ class LayoutCanvas(tk.Canvas):
         except Exception:
             return None
 
-    def _draw_cave_lines(self, layout):
-        for pi, polyline in enumerate(layout["cave_lines"]):
+    def _draw_cave_lines(self, rt):
+        for pi, polyline in enumerate(rt["cave_lines"]):
             if len(polyline) < 2:
                 continue
             coords = []
@@ -1104,11 +1266,11 @@ class LayoutCanvas(tk.Canvas):
     # ---- Hit test ----
 
     def _hit_test(self, cx, cy):
-        layout = self.layout
-        if not layout:
+        rt = self.row_type
+        if not rt:
             return None
         tol = CLICK_TOLERANCE
-        for pi, polyline in enumerate(layout["cave_lines"]):
+        for pi, polyline in enumerate(rt["cave_lines"]):
             for vi, pt in enumerate(polyline):
                 px, py = self._cx(pt[0], pt[1])
                 if abs(cx - px) < tol + 4 and abs(cy - py) < tol + 4:
@@ -1119,7 +1281,7 @@ class LayoutCanvas(tk.Canvas):
 
     def _on_motion(self, event):
         vx, vy = self._vx(event.x, event.y)
-        self.app.update_status(f"Layout: ({vx}, {vy})  |  Tool: {self.tool}")
+        self.app.update_status(f"Row Type: ({vx}, {vy})  |  Tool: {self.tool}")
 
     def _on_click(self, event):
         self.focus_set()
@@ -1140,10 +1302,10 @@ class LayoutCanvas(tk.Canvas):
     def _on_drag(self, event):
         if self.tool == "select" and self._drag_type:
             vx, vy = self._vx(event.x, event.y)
-            layout = self.layout
+            rt = self.row_type
             if self._drag_type == "cave_point":
                 pi, vi = self._drag_idx
-                layout["cave_lines"][pi][vi] = [vx, vy]
+                rt["cave_lines"][pi][vi] = [vx, vy]
             self.redraw()
 
     def _on_release(self, event):
@@ -1159,12 +1321,12 @@ class LayoutCanvas(tk.Canvas):
 
     def _on_delete(self, event):
         if self._drag_type == "cave_point" and self._drag_idx is not None:
-            layout = self.layout
+            rt = self.row_type
             pi, vi = self._drag_idx
-            polyline = layout["cave_lines"][pi]
+            polyline = rt["cave_lines"][pi]
             del polyline[vi]
             if len(polyline) < 2:
-                del layout["cave_lines"][pi]
+                del rt["cave_lines"][pi]
             self._drag_type = None
             self._drag_idx = None
             self.redraw()
@@ -1188,7 +1350,7 @@ class LayoutCanvas(tk.Canvas):
 
     def _finish_polyline(self):
         if len(self._polyline_pts) >= 2:
-            self.layout["cave_lines"].append(list(self._polyline_pts))
+            self.row_type["cave_lines"].append(list(self._polyline_pts))
         self._polyline_pts.clear()
         for lid in self._polyline_ids:
             self.delete(lid)
@@ -1471,7 +1633,7 @@ class App:
         self.project = new_project()
         self._current_level_idx = 0
         self._current_room_idx = 0
-        self._current_layout_idx = 0
+        self._current_row_type_idx = 0
         self._current_sprite_idx = 0
         self._current_frame_idx = 0
 
@@ -1519,7 +1681,7 @@ class App:
         file_menu.add_command(label="Save Project", command=self._save_project)
         file_menu.add_command(label="Save Project As...", command=self._save_project_as)
         file_menu.add_separator()
-        file_menu.add_command(label="Export .h Files...", command=self._export_headers)
+        file_menu.add_command(label="Export Files...", command=self._export_headers)
         file_menu.add_separator()
         file_menu.add_command(label="Quit", command=self.root.quit)
         menubar.add_cascade(label="File", menu=file_menu)
@@ -1541,18 +1703,23 @@ class App:
 
         # Level Editor tab
         level_frame = ttk.Frame(self.notebook)
-        self.notebook.add(level_frame, text="Level Editor")
+        self.notebook.add(level_frame, text="Room Editor")
         self._build_level_tab(level_frame)
 
-        # Layout Editor tab
-        layout_frame = ttk.Frame(self.notebook)
-        self.notebook.add(layout_frame, text="Layout Editor")
-        self._build_layout_tab(layout_frame)
+        # Row Editor tab
+        row_frame = ttk.Frame(self.notebook)
+        self.notebook.add(row_frame, text="Row Editor")
+        self._build_row_tab(row_frame)
 
         # Sprite Editor tab
         sprite_frame = ttk.Frame(self.notebook)
         self.notebook.add(sprite_frame, text="Sprite Editor")
         self._build_sprite_tab(sprite_frame)
+
+        # Level Viewer tab
+        viewer_frame = ttk.Frame(self.notebook)
+        self.notebook.add(viewer_frame, text="Level Viewer")
+        self._build_viewer_tab(viewer_frame)
 
         # Emulator tab
         emu_frame = ttk.Frame(self.notebook)
@@ -1575,17 +1742,20 @@ class App:
         left.pack(side="left", fill="y", padx=(4, 0), pady=4)
 
         ttk.Label(left, text="Level", font=("Helvetica", 11, "bold")).pack(pady=(4, 4))
-        self._level_combo = ttk.Combobox(left, state="readonly", width=14)
-        self._level_combo.pack(padx=4, pady=2)
-        self._level_combo.bind("<<ComboboxSelected>>", self._level_selected)
-        self._refresh_level_combo()
+        self._level_label = ttk.Label(left, text="Level 1 / 1", font=("Courier", 9))
+        self._level_label.pack(anchor="w", padx=4)
+        self._update_level_label()
 
-        btn_frame = ttk.Frame(left)
-        btn_frame.pack(fill="x", padx=4, pady=4)
-        ttk.Button(btn_frame, text="+", width=3,
-                   command=self._add_level).pack(side="left", padx=2)
-        ttk.Button(btn_frame, text="-", width=3,
-                   command=self._remove_level).pack(side="left", padx=2)
+        level_nav_frame = ttk.Frame(left)
+        level_nav_frame.pack(fill="x", padx=4, pady=2)
+        ttk.Button(level_nav_frame, text="<", width=2,
+                   command=self._prev_level).pack(side="left", padx=1)
+        ttk.Button(level_nav_frame, text=">", width=2,
+                   command=self._next_level).pack(side="left", padx=1)
+        ttk.Button(level_nav_frame, text="+", width=2,
+                   command=self._add_level).pack(side="left", padx=1)
+        ttk.Button(level_nav_frame, text="-", width=2,
+                   command=self._remove_level).pack(side="left", padx=1)
 
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=4)
 
@@ -1639,7 +1809,9 @@ class App:
         tools = [
             ("Select/Move (S)", "select"),
             ("Wall (W)", "wall"),
-            ("Enemy/Bat (E)", "enemy"),
+            ("Bat (E)", "enemy"),
+            ("Spider (I)", "spider"),
+            ("Snake (K)", "snake"),
             ("Miner (M)", "miner"),
             ("Player Start (P)", "player_start"),
         ]
@@ -1681,47 +1853,43 @@ class App:
         right.pack(side="right", fill="y", padx=(0, 4), pady=4)
         right.pack_propagate(False)
 
-        # Layout selector
-        ttk.Label(right, text="Cave Layout", font=("Helvetica", 10, "bold")).pack(
-            anchor="w", padx=4, pady=(4, 4))
-        self._layout_combo = ttk.Combobox(right, state="readonly", width=18)
-        self._layout_combo.pack(padx=4, pady=2)
-        self._layout_combo.bind("<<ComboboxSelected>>", self._layout_selected)
-        self._refresh_layout_combo()
-
-        ttk.Separator(right, orient="horizontal").pack(fill="x", pady=8)
-
-        # Background image (from layout, read-only reference)
+        # Background image toggle
         self._level_bg_show_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(right, text="Show Layout BG",
+        ttk.Checkbutton(right, text="Show Row BG",
                         variable=self._level_bg_show_var,
                         command=self._on_level_bg_show).pack(fill="x", padx=4, pady=2)
 
         # Keyboard shortcuts
         self.root.bind("<Key>", self._on_key)
 
-    def _build_layout_tab(self, parent):
+    def _build_row_tab(self, parent):
         outer = ttk.Frame(parent)
         outer.pack(fill="both", expand=True)
 
-        # -- Left panel: Layout selector + Tools --
+        # -- Left panel: Row Type selector + Tools --
         left = ttk.Frame(outer, width=160)
         left.pack(side="left", fill="y", padx=(4, 0), pady=4)
 
-        ttk.Label(left, text="Layout", font=("Helvetica", 11, "bold")).pack(pady=(4, 4))
-        self._layout_editor_combo = ttk.Combobox(left, state="readonly", width=14)
-        self._layout_editor_combo.pack(padx=4, pady=2)
-        self._layout_editor_combo.bind("<<ComboboxSelected>>", self._layout_editor_selected)
-        self._refresh_layout_editor_combo()
+        ttk.Label(left, text="Row Type", font=("Helvetica", 11, "bold")).pack(pady=(4, 4))
+        self._row_type_label = ttk.Label(left, text="Row Type 0 / 31", font=("Courier", 9))
+        self._row_type_label.pack(anchor="w", padx=4)
+        self._update_row_type_label()
+
+        row_nav_frame = ttk.Frame(left)
+        row_nav_frame.pack(fill="x", padx=4, pady=2)
+        ttk.Button(row_nav_frame, text="<", width=2,
+                   command=self._prev_row_type).pack(side="left", padx=1)
+        ttk.Button(row_nav_frame, text=">", width=2,
+                   command=self._next_row_type).pack(side="left", padx=1)
 
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=4)
 
         ttk.Label(left, text="Tools", font=("Helvetica", 10, "bold")).pack(
             anchor="w", padx=4, pady=(0, 4))
-        self._layout_tool_var = tk.StringVar(value="select")
+        self._row_tool_var = tk.StringVar(value="select")
         for label, val in [("Select/Move (S)", "select"), ("Cave Line (C)", "cave_line")]:
-            ttk.Radiobutton(left, text=label, variable=self._layout_tool_var,
-                            value=val, command=self._layout_tool_changed).pack(
+            ttk.Radiobutton(left, text=label, variable=self._row_tool_var,
+                            value=val, command=self._row_tool_changed).pack(
                 anchor="w", padx=4, pady=2)
 
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
@@ -1729,31 +1897,35 @@ class App:
         move_row = ttk.Frame(left)
         move_row.pack(padx=4, pady=4)
         ttk.Button(move_row, text="\u2190",
-                   command=lambda: self._move_layout_point(-1, 0), width=3).pack(side="left", padx=1)
+                   command=lambda: self._move_row_point(-1, 0), width=3).pack(side="left", padx=1)
         ttk.Button(move_row, text="\u2192",
-                   command=lambda: self._move_layout_point(1, 0), width=3).pack(side="left", padx=1)
+                   command=lambda: self._move_row_point(1, 0), width=3).pack(side="left", padx=1)
         ttk.Button(move_row, text="\u2191",
-                   command=lambda: self._move_layout_point(0, 1), width=3).pack(side="left", padx=1)
+                   command=lambda: self._move_row_point(0, 1), width=3).pack(side="left", padx=1)
         ttk.Button(move_row, text="\u2193",
-                   command=lambda: self._move_layout_point(0, -1), width=3).pack(side="left", padx=1)
+                   command=lambda: self._move_row_point(0, -1), width=3).pack(side="left", padx=1)
 
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
 
-        self._layout_snap_var = tk.BooleanVar(value=True)
+        self._row_snap_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(left, text="Snap to Grid",
-                         variable=self._layout_snap_var,
-                         command=self._layout_snap_changed).pack(anchor="w", padx=4)
+                         variable=self._row_snap_var,
+                         command=self._row_snap_changed).pack(anchor="w", padx=4)
 
         ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
 
         ttk.Label(left, text="Draw: click points.\nRight-click/dbl-click\n  to finish polyline.\nSelect: drag points,\n  Del to remove.",
                   font=("Courier", 9), justify="left").pack(padx=4, anchor="w")
 
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+        ttk.Button(left, text="Clear All Lines",
+                   command=self._clear_row_lines).pack(padx=4, fill="x")
+
         # -- Middle: Canvas --
         canvas_frame = ttk.Frame(outer)
         canvas_frame.pack(side="left", fill="both", expand=True, padx=4, pady=4)
-        self.layout_canvas = LayoutCanvas(canvas_frame, self)
-        self.layout_canvas.pack()
+        self.row_canvas = RowCanvas(canvas_frame, self)
+        self.row_canvas.pack()
 
         # -- Right panel: BG image controls --
         right = ttk.Frame(outer, width=180)
@@ -1763,101 +1935,116 @@ class App:
         ttk.Label(right, text="Background", font=("Helvetica", 10, "bold")).pack(
             anchor="w", padx=4, pady=(4, 4))
         ttk.Button(right, text="Load BG",
-                   command=self._load_layout_bg).pack(fill="x", padx=4, pady=2)
+                   command=self._load_row_bg).pack(fill="x", padx=4, pady=2)
         ttk.Button(right, text="Clear BG",
-                   command=self._clear_layout_bg).pack(fill="x", padx=4, pady=2)
-        self._layout_bg_show_var = tk.BooleanVar(value=True)
+                   command=self._clear_row_bg).pack(fill="x", padx=4, pady=2)
+        self._row_bg_show_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(right, text="Show BG",
-                        variable=self._layout_bg_show_var,
-                        command=self._on_layout_bg_show).pack(fill="x", padx=4, pady=2)
+                        variable=self._row_bg_show_var,
+                        command=self._on_row_bg_show).pack(fill="x", padx=4, pady=2)
 
         ttk.Separator(right, orient="horizontal").pack(fill="x", pady=4)
 
         ttk.Label(right, text="Y Offset", font=("Courier", 9)).pack(
             anchor="w", padx=4, pady=(4, 2))
-        self._layout_bg_yoff_label = ttk.Label(right, text="0", font=("Courier", 9))
-        self._layout_bg_yoff_label.pack(anchor="w", padx=4)
+        self._row_bg_yoff_label = ttk.Label(right, text="0", font=("Courier", 9))
+        self._row_bg_yoff_label.pack(anchor="w", padx=4)
         yoff_row = ttk.Frame(right)
         yoff_row.pack(padx=4, pady=4)
         ttk.Button(yoff_row, text="\u2191 Up",
-                   command=lambda: self._move_layout_bg_y(1), width=6).pack(side="left", padx=2)
+                   command=lambda: self._move_row_bg_y(1), width=6).pack(side="left", padx=2)
         ttk.Button(yoff_row, text="\u2193 Down",
-                   command=lambda: self._move_layout_bg_y(-1), width=6).pack(side="left", padx=2)
+                   command=lambda: self._move_row_bg_y(-1), width=6).pack(side="left", padx=2)
 
-    def _refresh_layout_editor_combo(self):
-        layouts = self.project.get("layouts", [])
-        labels = [f"{i}: {la.get('name', f'Layout {i+1}')}" for i, la in enumerate(layouts)]
-        self._layout_editor_combo["values"] = labels
-        if labels and self._current_layout_idx < len(labels):
-            self._layout_editor_combo.current(self._current_layout_idx)
+    def _update_row_type_label(self):
+        n = len(self.project.get("row_types", []))
+        self._row_type_label.config(text=f"Row Type {self._current_row_type_idx} / {n - 1}")
 
-    def _layout_editor_selected(self, event=None):
-        self._current_layout_idx = self._layout_editor_combo.current()
-        self._sync_layout_bg_controls()
-        self.layout_canvas._bg_path_loaded = None
-        self.layout_canvas.redraw()
+    def _prev_row_type(self):
+        if self._current_row_type_idx > 0:
+            self._current_row_type_idx -= 1
+            self._update_row_type_label()
+            self._sync_row_bg_controls()
+            self.row_canvas._bg_path_loaded = None
+            self.row_canvas.redraw()
 
-    def _layout_tool_changed(self):
-        tool = self._layout_tool_var.get()
-        self.layout_canvas.tool = tool
-        if tool != "cave_line" and self.layout_canvas._polyline_pts:
-            self.layout_canvas._finish_polyline()
-        self.update_status(f"Layout Tool: {tool}")
+    def _next_row_type(self):
+        row_types = self.project.get("row_types", [])
+        if self._current_row_type_idx < len(row_types) - 1:
+            self._current_row_type_idx += 1
+            self._update_row_type_label()
+            self._sync_row_bg_controls()
+            self.row_canvas._bg_path_loaded = None
+            self.row_canvas.redraw()
 
-    def _layout_snap_changed(self):
-        self.layout_canvas.snap_enabled = self._layout_snap_var.get()
+    def _row_tool_changed(self):
+        tool = self._row_tool_var.get()
+        self.row_canvas.tool = tool
+        if tool != "cave_line" and self.row_canvas._polyline_pts:
+            self.row_canvas._finish_polyline()
+        self.update_status(f"Row Tool: {tool}")
 
-    def _move_layout_point(self, dx, dy):
-        lc = self.layout_canvas
-        layout = lc.layout
-        if not layout or lc._drag_type != "cave_point" or lc._drag_idx is None:
+    def _row_snap_changed(self):
+        self.row_canvas.snap_enabled = self._row_snap_var.get()
+
+    def _move_row_point(self, dx, dy):
+        rc = self.row_canvas
+        rt = rc.row_type
+        if not rt or rc._drag_type != "cave_point" or rc._drag_idx is None:
             return
-        pi, vi = lc._drag_idx
-        layout["cave_lines"][pi][vi][0] += dx
-        layout["cave_lines"][pi][vi][1] += dy
-        lc.redraw()
+        pi, vi = rc._drag_idx
+        rt["cave_lines"][pi][vi][0] += dx
+        rt["cave_lines"][pi][vi][1] += dy
+        rc.redraw()
 
-    def _sync_layout_bg_controls(self):
-        layout = self._current_layout_data()
-        if layout and layout.get("bg_image"):
-            bg = layout["bg_image"]
-            self._layout_bg_show_var.set(bg.get("show", True))
-            self._layout_bg_yoff_label.config(text=str(bg.get("y_offset", 0)))
+    def _sync_row_bg_controls(self):
+        rt = self._current_row_type_data()
+        if rt and rt.get("bg_image"):
+            bg = rt["bg_image"]
+            self._row_bg_show_var.set(bg.get("show", True))
+            self._row_bg_yoff_label.config(text=str(bg.get("y_offset", 0)))
         else:
-            self._layout_bg_show_var.set(True)
-            self._layout_bg_yoff_label.config(text="0")
+            self._row_bg_show_var.set(True)
+            self._row_bg_yoff_label.config(text="0")
 
-    def _load_layout_bg(self):
-        layout = self._current_layout_data()
-        if layout:
-            self._load_bg_image_for(layout, self.layout_canvas)
-            if layout.get("bg_image"):
-                layout["bg_image"]["y_offset"] = layout["bg_image"].get("y_offset", 0)
-            self._sync_layout_bg_controls()
+    def _clear_row_lines(self):
+        rt = self._current_row_type_data()
+        if rt:
+            rt["cave_lines"].clear()
+            self.row_canvas.redraw()
+            self.level_canvas.redraw()
 
-    def _clear_layout_bg(self):
-        layout = self._current_layout_data()
-        if layout:
-            layout["bg_image"] = None
-            self.layout_canvas._bg_photo = None
-            self.layout_canvas._bg_path_loaded = None
-            self.layout_canvas.redraw()
-            self._layout_bg_yoff_label.config(text="0")
+    def _load_row_bg(self):
+        rt = self._current_row_type_data()
+        if rt:
+            self._load_bg_image_for(rt, self.row_canvas)
+            if rt.get("bg_image"):
+                rt["bg_image"]["y_offset"] = rt["bg_image"].get("y_offset", 0)
+            self._sync_row_bg_controls()
 
-    def _on_layout_bg_show(self):
-        layout = self._current_layout_data()
-        if layout and layout.get("bg_image"):
-            layout["bg_image"]["show"] = self._layout_bg_show_var.get()
-        self.layout_canvas.redraw()
+    def _clear_row_bg(self):
+        rt = self._current_row_type_data()
+        if rt:
+            rt["bg_image"] = None
+            self.row_canvas._bg_photo = None
+            self.row_canvas._bg_path_loaded = None
+            self.row_canvas.redraw()
+            self._row_bg_yoff_label.config(text="0")
 
-    def _move_layout_bg_y(self, direction):
+    def _on_row_bg_show(self):
+        rt = self._current_row_type_data()
+        if rt and rt.get("bg_image"):
+            rt["bg_image"]["show"] = self._row_bg_show_var.get()
+        self.row_canvas.redraw()
+
+    def _move_row_bg_y(self, direction):
         """Move BG image Y offset by 1 pixel up or down."""
-        layout = self._current_layout_data()
-        if layout and layout.get("bg_image"):
-            y_off = layout["bg_image"].get("y_offset", 0) + direction
-            layout["bg_image"]["y_offset"] = y_off
-            self._layout_bg_yoff_label.config(text=str(y_off))
-            self.layout_canvas.redraw()
+        rt = self._current_row_type_data()
+        if rt and rt.get("bg_image"):
+            y_off = rt["bg_image"].get("y_offset", 0) + direction
+            rt["bg_image"]["y_offset"] = y_off
+            self._row_bg_yoff_label.config(text=str(y_off))
+            self.row_canvas.redraw()
 
     def _build_sprite_tab(self, parent):
         outer = ttk.Frame(parent)
@@ -2173,15 +2360,16 @@ class App:
                 self._sprite_tool_changed()
             return
         if tab == 1:
-            # Layout Editor tab
-            layout_mapping = {"s": "select", "c": "cave_line"}
-            if key in layout_mapping and hasattr(self, '_layout_tool_var'):
-                self._layout_tool_var.set(layout_mapping[key])
-                self._layout_tool_changed()
+            # Row Editor tab
+            row_mapping = {"s": "select", "c": "cave_line"}
+            if key in row_mapping and hasattr(self, '_row_tool_var'):
+                self._row_tool_var.set(row_mapping[key])
+                self._row_tool_changed()
             return
         # Level tab (tab 0)
         mapping = {"s": "select", "w": "wall",
-                   "e": "enemy", "m": "miner", "p": "player_start"}
+                   "e": "enemy", "i": "spider", "k": "snake",
+                   "m": "miner", "p": "player_start"}
         if key in mapping:
             self._tool_var.set(mapping[key])
             self._tool_changed()
@@ -2221,56 +2409,41 @@ class App:
 
     # ---- Level management ----
 
-    def _refresh_level_combo(self):
-        labels = [f"Level {i+1}" for i in range(len(self.project["levels"]))]
-        self._level_combo["values"] = labels
-        if labels:
-            self._level_combo.current(self._current_level_idx)
+    def _update_level_label(self):
+        n = len(self.project["levels"])
+        self._level_label.config(text=f"Level {self._current_level_idx + 1} / {n}")
+        if hasattr(self, '_viewer_level_label'):
+            self._viewer_level_label.config(
+                text=f"Level {self._current_level_idx + 1} / {n}")
 
-    def _level_selected(self, event=None):
-        self._current_level_idx = self._level_combo.current()
-        self._current_room_idx = 0
-        self._update_room_label()
-        self._load_exit_fields()
-        self._sync_layout_combo()
-        self.level_canvas._bg_path_loaded = None  # force reload for new level
-        self.level_canvas.redraw()
+    def _prev_level(self):
+        if self._current_level_idx > 0:
+            self._current_level_idx -= 1
+            self._update_level_label()
+            self._current_room_idx = 0
+            self._update_room_label()
+            self._load_exit_fields()
+            self.level_canvas._bg_path_loaded = None
+            self.level_canvas.redraw()
 
-    def _refresh_layout_combo(self):
-        layouts = self.project.get("layouts", [])
-        labels = [f"{i}: {la.get('name', f'Layout {i+1}')}" for i, la in enumerate(layouts)]
-        self._layout_combo["values"] = labels
-        # Select current room's layout
-        room = self.current_room_data()
-        idx = room.get("layout", 0) if room else 0
-        if 0 <= idx < len(labels):
-            self._layout_combo.current(idx)
-
-    def _layout_selected(self, event=None):
-        room = self.current_room_data()
-        if room is None:
-            return
-        room["layout"] = self._layout_combo.current()
-        self.level_canvas._bg_path_loaded = None
-        self.level_canvas.redraw()
-
-    def _sync_layout_combo(self):
-        room = self.current_room_data()
-        if room:
-            idx = room.get("layout", 0)
-            layouts = self.project.get("layouts", [])
-            if 0 <= idx < len(layouts):
-                self._layout_combo.current(idx)
+    def _next_level(self):
+        if self._current_level_idx < len(self.project["levels"]) - 1:
+            self._current_level_idx += 1
+            self._update_level_label()
+            self._current_room_idx = 0
+            self._update_room_label()
+            self._load_exit_fields()
+            self.level_canvas._bg_path_loaded = None
+            self.level_canvas.redraw()
 
     def _add_level(self):
         lvl = new_level()
         self.project["levels"].append(lvl)
         self._current_level_idx = len(self.project["levels"]) - 1
         self._current_room_idx = 0
-        self._refresh_level_combo()
+        self._update_level_label()
         self._update_room_label()
         self._load_exit_fields()
-        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     def _remove_level(self):
@@ -2280,10 +2453,9 @@ class App:
         del self.project["levels"][self._current_level_idx]
         self._current_level_idx = max(0, self._current_level_idx - 1)
         self._current_room_idx = 0
-        self._refresh_level_combo()
+        self._update_level_label()
         self._update_room_label()
         self._load_exit_fields()
-        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     # ---- Room management ----
@@ -2301,7 +2473,6 @@ class App:
             self._current_room_idx -= 1
             self._update_room_label()
             self._load_exit_fields()
-            self._sync_layout_combo()
             self.level_canvas._bg_path_loaded = None
             self.level_canvas.redraw()
 
@@ -2311,7 +2482,6 @@ class App:
             self._current_room_idx += 1
             self._update_room_label()
             self._load_exit_fields()
-            self._sync_layout_combo()
             self.level_canvas._bg_path_loaded = None
             self.level_canvas.redraw()
 
@@ -2327,7 +2497,6 @@ class App:
         self._current_room_idx = len(rooms) - 1
         self._update_room_label()
         self._load_exit_fields()
-        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     def _copy_room(self):
@@ -2350,7 +2519,6 @@ class App:
         self._current_room_idx = len(rooms) - 1
         self._update_room_label()
         self._load_exit_fields()
-        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     def _remove_room(self):
@@ -2375,7 +2543,6 @@ class App:
         self._current_room_idx = max(0, self._current_room_idx - 1)
         self._update_room_label()
         self._load_exit_fields()
-        self._sync_layout_combo()
         self.level_canvas.redraw()
 
     def _load_exit_fields(self):
@@ -2406,30 +2573,30 @@ class App:
             except ValueError:
                 pass
 
-    # ---- Edit menu (layout-based) ----
+    # ---- Edit menu (row-type-based) ----
 
     def _delete_last_polyline(self):
-        layout = self._current_layout_data()
-        if layout and layout["cave_lines"]:
-            layout["cave_lines"].pop()
-            if hasattr(self, 'layout_canvas'):
-                self.layout_canvas.redraw()
+        rt = self._current_row_type_data()
+        if rt and rt["cave_lines"]:
+            rt["cave_lines"].pop()
+            if hasattr(self, 'row_canvas'):
+                self.row_canvas.redraw()
             self.level_canvas.redraw()
 
     def _clear_cave_lines(self):
-        layout = self._current_layout_data()
-        if layout:
-            layout["cave_lines"].clear()
-            if hasattr(self, 'layout_canvas'):
-                self.layout_canvas.redraw()
+        rt = self._current_row_type_data()
+        if rt:
+            rt["cave_lines"].clear()
+            if hasattr(self, 'row_canvas'):
+                self.row_canvas.redraw()
             self.level_canvas.redraw()
 
-    def _current_layout_data(self):
-        """Return the currently active layout dict."""
-        layouts = self.project.get("layouts", [])
-        idx = self._current_layout_idx if hasattr(self, '_current_layout_idx') else 0
-        if 0 <= idx < len(layouts):
-            return layouts[idx]
+    def _current_row_type_data(self):
+        """Return the currently active row type dict."""
+        row_types = self.project.get("row_types", [])
+        idx = self._current_row_type_idx if hasattr(self, '_current_row_type_idx') else 0
+        if 0 <= idx < len(row_types):
+            return row_types[idx]
         return None
 
     # ---- Sprite management ----
@@ -2829,7 +2996,7 @@ int main(void) {{
             self._emu.start()
             self._emu_pause_btn.config(text="Pause")
             self._emu_state_update()
-            self.notebook.select(3)
+            self.notebook.select(4)
             self.update_status(f"Running sprite test: {sprite['name']}")
         except Exception as e:
             messagebox.showerror("Emulator Error", str(e))
@@ -2916,13 +3083,14 @@ int main(void) {{
         test_dir = os.path.join(project_root, "test_level")
         os.makedirs(test_dir, exist_ok=True)
 
-        layouts = self.project.get("layouts", [])
+        row_types = self.project.get("row_types", [])
 
-        # Check if any referenced layout has cave_lines
+        # Check if any referenced row type has cave_lines
         any_cave_lines = any(
-            layouts[rm.get("layout", 0)].get("cave_lines")
+            row_types[rt_idx].get("cave_lines")
             for rm in rooms
-            if rm.get("layout", 0) < len(layouts)
+            for rt_idx in rm.get("rows", [0, 0, 0])
+            if 0 <= rt_idx < len(row_types)
         )
 
         # Generate test_level/hero.h with wide-open collision boundaries
@@ -2978,30 +3146,32 @@ int main(void) {{
         lh = ["// Generated by level_editor.py — test level", "",
               "#ifndef LEVELS_H", "#define LEVELS_H", '#include "hero.h"', ""]
 
-        # Emit layout arrays
-        emitted_layouts = set()
+        # Emit composite cave arrays for unique row combos
+        emitted_combos = {}
         for rm in rooms:
-            emitted_layouts.add(rm.get("layout", 0))
-        for li in sorted(emitted_layouts):
-            if li >= len(layouts):
+            combo = tuple(rm.get("rows", [0, 0, 0]))
+            if combo in emitted_combos:
                 continue
-            layout = layouts[li]
-            cave_lines = layout.get("cave_lines", [])
-            data = cave_room_data(cave_lines)
-            lh.append(f"static const int8_t layout_{li}_cave[] = {{")
+            arr_name = f"cave_r{combo[0]}_{combo[1]}_{combo[2]}"
+            emitted_combos[combo] = arr_name
+            combined = self._composite_cave_lines(rm)
+            data = cave_room_data(combined)
+            lh.append(f"static const int8_t {arr_name}[] = {{")
             for k in range(0, len(data), 12):
                 chunk = data[k:k+12]
                 lh.append("    " + ", ".join(str(v) for v in chunk) + ",")
             lh.append("};")
-            segs = extract_segments(cave_lines)
-            lh.append(f"#define LAYOUT_{li}_SEG_COUNT {len(segs)}")
+            segs = extract_segments(combined)
+            seg_count_name = f"CAVE_R{combo[0]}_{combo[1]}_{combo[2]}_SEG_COUNT"
+            lh.append(f"#define {seg_count_name} {len(segs)}")
+            seg_arr_name = f"{arr_name}_segs"
             if segs:
-                lh.append(f"static const int8_t layout_{li}_cave_segs[] = {{")
+                lh.append(f"static const int8_t {seg_arr_name}[] = {{")
                 for s in segs:
                     lh.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
                 lh.append("};")
             else:
-                lh.append(f"static const int8_t layout_{li}_cave_segs[] = {{ 0, 0, 0, 0 }};")
+                lh.append(f"static const int8_t {seg_arr_name}[] = {{ 0, 0, 0, 0 }};")
             lh.append("")
 
         # Per-room data (walls, enemies, start, miner)
@@ -3043,13 +3213,14 @@ int main(void) {{
             lh.append(f"#define {PREFIX}_MINER_Y  {miner_y}")
             lh.append("")
 
-        # Room lookup tables — reference layout arrays
+        # Room lookup tables — reference combo arrays
         lh.append("// Room lookup tables")
         lh.append(f"#define NUM_ROOMS {num_rooms}")
         lh.append("static const int8_t * const l1_room_caves[] = {")
         for ri, rm in enumerate(rooms):
-            layout_idx = rm.get("layout", 0)
-            lh.append(f"    layout_{layout_idx}_cave,")
+            combo = tuple(rm.get("rows", [0, 0, 0]))
+            arr_name = emitted_combos[combo]
+            lh.append(f"    {arr_name},")
         lh.append("};")
         lh.append("static const int8_t * const l1_room_walls[] = {")
         for ri in range(num_rooms):
@@ -3077,13 +3248,15 @@ int main(void) {{
         lh.append("};")
         lh.append("static const int8_t * const l1_room_cave_segs[] = {")
         for ri, rm in enumerate(rooms):
-            layout_idx = rm.get("layout", 0)
-            lh.append(f"    layout_{layout_idx}_cave_segs,")
+            combo = tuple(rm.get("rows", [0, 0, 0]))
+            arr_name = emitted_combos[combo]
+            lh.append(f"    {arr_name}_segs,")
         lh.append("};")
         lh.append("static const uint8_t l1_room_seg_counts[] = {")
         for ri, rm in enumerate(rooms):
-            layout_idx = rm.get("layout", 0)
-            lh.append(f"    LAYOUT_{layout_idx}_SEG_COUNT,")
+            combo = tuple(rm.get("rows", [0, 0, 0]))
+            seg_count_name = f"CAVE_R{combo[0]}_{combo[1]}_{combo[2]}_SEG_COUNT"
+            lh.append(f"    {seg_count_name},")
         lh.append("};")
         lh.append("static const uint8_t l1_room_has_miner[] = {")
         for ri, rm in enumerate(rooms):
@@ -3444,7 +3617,7 @@ int main(void) {{
             self._emu.start()
             self._emu_pause_btn.config(text="Pause")
             self._emu_state_update()
-            self.notebook.select(3)
+            self.notebook.select(4)
             self.update_status(f"Running level test: Level {self._current_level_idx + 1}")
         except Exception as e:
             messagebox.showerror("Emulator Error", str(e))
@@ -3479,16 +3652,268 @@ int main(void) {{
                 self._vlc_text.insert("1.0", "\n".join(lines))
         self._vlc_text.config(state="disabled")
 
+    # ---- Level Viewer tab ----
+
+    # Half-scale constants (1 vectrex unit = 1 pixel)
+    _VW_DRAW_W = 250      # room width in px  (vx -125..125)
+    _VW_DRAW_H = 100      # full room height  (vy 50..-50)
+    _VW_ROOM_H_NO_LAVA = 90   # height without lava (vy 50..-40)
+    _VW_ROOM_H_LAVA = 100     # height with lava    (vy 50..-50)
+
+    def _build_viewer_tab(self, parent):
+        outer = ttk.Frame(parent)
+        outer.pack(fill="both", expand=True)
+
+        # Left panel: level navigation
+        left = ttk.Frame(outer, width=140)
+        left.pack(side="left", fill="y", padx=(4, 0), pady=4)
+
+        ttk.Label(left, text="Level", font=("Helvetica", 11, "bold")).pack(pady=(4, 4))
+        self._viewer_level_label = ttk.Label(left, text="Level 1 / 1", font=("Courier", 9))
+        self._viewer_level_label.pack(anchor="w", padx=4)
+
+        nav = ttk.Frame(left)
+        nav.pack(fill="x", padx=4, pady=2)
+        ttk.Button(nav, text="<", width=2,
+                   command=self._viewer_prev_level).pack(side="left", padx=1)
+        ttk.Button(nav, text=">", width=2,
+                   command=self._viewer_next_level).pack(side="left", padx=1)
+
+        ttk.Separator(left, orient="horizontal").pack(fill="x", pady=8)
+        ttk.Label(left, text="Click a room\nto select it in\nRoom Editor",
+                  font=("Helvetica", 9), foreground="#888899",
+                  justify="center").pack(pady=4)
+
+        # Middle: scrollable canvas
+        mid = ttk.Frame(outer)
+        mid.pack(side="left", fill="both", expand=True, padx=4, pady=4)
+
+        self._viewer_canvas = tk.Canvas(mid, bg="#0a0a1a", highlightthickness=0)
+        h_scroll = ttk.Scrollbar(mid, orient="horizontal", command=self._viewer_canvas.xview)
+        v_scroll = ttk.Scrollbar(mid, orient="vertical", command=self._viewer_canvas.yview)
+        self._viewer_canvas.configure(xscrollcommand=h_scroll.set,
+                                      yscrollcommand=v_scroll.set)
+        h_scroll.pack(side="bottom", fill="x")
+        v_scroll.pack(side="right", fill="y")
+        self._viewer_canvas.pack(side="left", fill="both", expand=True)
+        self._viewer_canvas.bind("<Button-1>", self._viewer_on_click)
+
+    def _viewer_prev_level(self):
+        self._prev_level()
+        self._viewer_redraw()
+
+    def _viewer_next_level(self):
+        self._next_level()
+        self._viewer_redraw()
+
+    def _vcx(self, vx, vy, ox, oy):
+        """Vectrex room coords → viewer canvas pixels at half scale."""
+        cx = (vx + 125) / 250.0 * self._VW_DRAW_W + ox
+        cy = (50 - vy) / 100.0 * self._VW_DRAW_H + oy
+        return cx, cy
+
+    def _compute_room_layout(self, level):
+        """BFS from room 0 to compute grid positions for all rooms."""
+        rooms = level.get("rooms", [])
+        if not rooms:
+            return {}
+        layout = {0: (0, 0)}
+        queue = [0]
+        visited = {0}
+        exit_dirs = [
+            ("exit_right", 1, 0),
+            ("exit_left", -1, 0),
+            ("exit_top", 0, -1),
+            ("exit_bottom", 0, 1),
+        ]
+        while queue:
+            ri = queue.pop(0)
+            room = rooms[ri]
+            gx, gy = layout[ri]
+            for key, dx, dy in exit_dirs:
+                target = room.get(key)
+                if target is not None:
+                    ti = target - 1  # 1-indexed → 0-indexed
+                    if 0 <= ti < len(rooms) and ti not in visited:
+                        visited.add(ti)
+                        layout[ti] = (gx + dx, gy + dy)
+                        queue.append(ti)
+        # Place unreachable rooms in an extra row
+        if len(layout) < len(rooms):
+            max_row = max(gy for _, gy in layout.values()) + 2
+            col = 0
+            for ri in range(len(rooms)):
+                if ri not in layout:
+                    layout[ri] = (col, max_row)
+                    col += 1
+        return layout
+
+    def _viewer_room_height(self, room):
+        """Return pixel height for a room: 100 with lava, 90 without."""
+        if room.get("has_lava", False):
+            return self._VW_ROOM_H_LAVA
+        return self._VW_ROOM_H_NO_LAVA
+
+    def _viewer_redraw(self):
+        c = self._viewer_canvas
+        c.delete("all")
+        lvl_data = self.current_level_data()
+        if lvl_data is None:
+            return
+        # Update viewer level label
+        n = len(self.project["levels"])
+        self._viewer_level_label.config(
+            text=f"Level {self._current_level_idx + 1} / {n}")
+
+        rooms = lvl_data.get("rooms", [])
+        if not rooms:
+            return
+
+        layout = self._compute_room_layout(lvl_data)
+
+        # Normalize grid so min is (0,0)
+        min_gx = min(gx for gx, gy in layout.values())
+        min_gy = min(gy for gx, gy in layout.values())
+        layout = {ri: (gx - min_gx, gy - min_gy) for ri, (gx, gy) in layout.items()}
+
+        max_gx = max(gx for gx, gy in layout.values())
+        max_gy = max(gy for gx, gy in layout.values())
+
+        # Compute per-grid-row height (max room height in each row)
+        row_heights = {}
+        for ri, (gx, gy) in layout.items():
+            h = self._viewer_room_height(rooms[ri])
+            row_heights[gy] = max(row_heights.get(gy, 0), h)
+
+        # Cumulative Y offsets per grid row
+        row_y_offsets = {}
+        cum_y = 0
+        for gy in range(max_gy + 1):
+            row_y_offsets[gy] = cum_y
+            cum_y += row_heights.get(gy, self._VW_ROOM_H_NO_LAVA)
+
+        cell_w = self._VW_DRAW_W
+        total_w = (max_gx + 1) * cell_w
+        total_h = cum_y
+        c.configure(scrollregion=(0, 0, total_w, total_h))
+
+        row_types = self.project.get("row_types", [])
+
+        # Store room rects for click detection
+        self._viewer_room_rects = {}
+
+        for ri, (gx, gy) in layout.items():
+            room = rooms[ri]
+            room_h = self._viewer_room_height(room)
+            ox = gx * cell_w
+            oy = row_y_offsets[gy]
+
+            self._viewer_room_rects[ri] = (ox, oy, ox + cell_w, oy + room_h)
+
+            # Border — highlight current room
+            border_color = "#ffff00" if ri == self._current_room_idx else "#2a2a3e"
+            border_w = 2 if ri == self._current_room_idx else 1
+            c.create_rectangle(ox, oy, ox + cell_w, oy + room_h,
+                               outline=border_color, width=border_w)
+
+            # Room label
+            c.create_text(ox + 4, oy + 4, text=f"R{room.get('number', ri+1)}",
+                          fill="#6688aa", font=("Courier", 7), anchor="nw")
+
+            # Get row types for cave lines
+            rows_idx = room.get("rows", [0, 0, 0])
+            rts = []
+            for idx in rows_idx:
+                if 0 <= idx < len(row_types):
+                    rts.append(row_types[idx])
+                else:
+                    rts.append(None)
+            while len(rts) < 3:
+                rts.append(None)
+
+            # Draw cave lines
+            y_offsets = [20, -10, -40]
+            for slot_idx, rt in enumerate(rts):
+                if rt is None:
+                    continue
+                y_off = y_offsets[slot_idx]
+                for polyline in rt.get("cave_lines", []):
+                    if len(polyline) < 2:
+                        continue
+                    coords = []
+                    for pt in polyline:
+                        px, py = self._vcx(pt[0], pt[1] + y_off, ox, oy)
+                        coords.extend([px, py])
+                    c.create_line(*coords, fill="#e0e0ff", width=1)
+
+            # Draw lava (only when has_lava — room is taller in that case)
+            if room.get("has_lava", False):
+                lx1, ly1 = self._vcx(-125, -40, ox, oy)
+                lx2, ly2 = self._vcx(125, -50, ox, oy)
+                c.create_rectangle(lx1, ly1, lx2, ly2, fill="#3a1800", outline="")
+                c.create_line(lx1, ly1, lx2, ly1, fill="#ff6600", width=1)
+
+            # Draw walls
+            for w in room.get("walls", []):
+                wy, wx, wh, ww = w["y"], w["x"], w["h"], w["w"]
+                wx1, wy1 = self._vcx(wx, wy + wh, ox, oy)
+                wx2, wy2 = self._vcx(wx + ww, wy - wh, ox, oy)
+                wcolor = "#ff6644" if w.get("destroyable", False) else "#88aaff"
+                c.create_rectangle(wx1, wy1, wx2, wy2, outline=wcolor, width=1)
+
+            # Draw enemies
+            for e in room.get("enemies", []):
+                ex, ey = self._vcx(e["x"], e["y"], ox, oy)
+                r = 4
+                etype = e.get("type", "bat")
+                ecolor = "#cc33ff" if etype == "spider" else "#33cc33" if etype == "snake" else "#ff3333"
+                c.create_oval(ex - r, ey - r, ex + r, ey + r, outline=ecolor, width=1)
+                elbl = "S" if etype == "spider" else "K" if etype == "snake" else "B"
+                c.create_text(ex, ey, text=elbl, fill=ecolor, font=("Courier", 6, "bold"))
+
+            # Draw miner
+            if room.get("miner") is not None:
+                mx, my = self._vcx(room["miner"]["x"], room["miner"]["y"], ox, oy)
+                r = 4
+                c.create_rectangle(mx - r, my - r, mx + r, my + r,
+                                   outline="#00ff88", width=1)
+                c.create_text(mx, my, text="M", fill="#00ff88", font=("Courier", 6, "bold"))
+
+            # Draw player start
+            if room.get("player_start") is not None:
+                px, py = self._vcx(room["player_start"]["x"],
+                                   room["player_start"]["y"], ox, oy)
+                r = 5
+                c.create_polygon(px, py - r - 1, px - r, py + r, px + r, py + r,
+                                 outline="#ffff00", fill="", width=1)
+                c.create_text(px, py + 1, text="P", fill="#ffff00",
+                              font=("Courier", 6, "bold"))
+
+    def _viewer_on_click(self, event):
+        """Click a room in the viewer to select it in the Room Editor."""
+        cx = self._viewer_canvas.canvasx(event.x)
+        cy = self._viewer_canvas.canvasy(event.y)
+        for ri, (x1, y1, x2, y2) in getattr(self, '_viewer_room_rects', {}).items():
+            if x1 <= cx <= x2 and y1 <= cy <= y2:
+                self._current_room_idx = ri
+                self._update_room_label()
+                self._load_exit_fields()
+                self.level_canvas.redraw()
+                self._viewer_redraw()
+                break
+
     def _on_tab_changed(self, event=None):
         idx = self.notebook.index("current")
         if idx == 0:
             self.level_canvas.redraw()
         elif idx == 1:
-            if hasattr(self, 'layout_canvas'):
-                self.layout_canvas.redraw()
+            if hasattr(self, 'row_canvas'):
+                self.row_canvas.redraw()
         elif idx == 2:
             self.sprite_canvas.redraw()
             self._update_vlc_text()
+        elif idx == 3:
+            self._viewer_redraw()
 
     # ---- Shared dialogs ----
 
@@ -3520,18 +3945,18 @@ int main(void) {{
         self.project = new_project()
         self._current_level_idx = 0
         self._current_room_idx = 0
-        self._current_layout_idx = 0
+        self._current_row_type_idx = 0
         self._current_sprite_idx = 0
         self._current_frame_idx = 0
         self._save_path = None
-        self._refresh_level_combo()
+        self._update_level_label()
         self._update_room_label()
         self._load_exit_fields()
-        self._refresh_layout_combo()
         self._refresh_sprite_combo()
         self.level_canvas.redraw()
-        if hasattr(self, 'layout_canvas'):
-            self.layout_canvas.redraw()
+        if hasattr(self, 'row_canvas'):
+            self._update_row_type_label()
+            self.row_canvas.redraw()
         self.sprite_canvas.redraw()
         self._update_frame_label()
 
@@ -3573,18 +3998,17 @@ int main(void) {{
             self._save_path = path
             self._current_level_idx = 0
             self._current_room_idx = 0
-            self._current_layout_idx = 0
+            self._current_row_type_idx = 0
             self._current_sprite_idx = 0
             self._current_frame_idx = 0
-            self._refresh_level_combo()
+            self._update_level_label()
             self._update_room_label()
             self._load_exit_fields()
-            self._refresh_layout_combo()
             self._refresh_sprite_combo()
             self.level_canvas.redraw()
-            if hasattr(self, 'layout_canvas'):
-                self._refresh_layout_editor_combo()
-                self.layout_canvas.redraw()
+            if hasattr(self, 'row_canvas'):
+                self._update_row_type_label()
+                self.row_canvas.redraw()
             self.sprite_canvas.redraw()
             self._update_frame_label()
             self.update_status(f"Loaded: {path}")
@@ -3607,8 +4031,25 @@ int main(void) {{
         except Exception as e:
             messagebox.showerror("Export Error", str(e))
 
+    def _composite_cave_lines(self, room):
+        """Composite row types into combined cave polylines for a room."""
+        row_types = self.project.get("row_types", [])
+        rows = room.get("rows", [0, 0, 0])
+        y_offsets = [20, -10, -40]  # top, mid, bottom
+        combined = []
+        for slot_idx, rt_idx in enumerate(rows):
+            if 0 <= rt_idx < len(row_types):
+                rt = row_types[rt_idx]
+                y_off = y_offsets[slot_idx]
+                for polyline in rt.get("cave_lines", []):
+                    if len(polyline) < 2:
+                        continue
+                    # Translate local Y to room Y
+                    combined.append([[pt[0], pt[1] + y_off] for pt in polyline])
+        return combined
+
     def _export_levels_h(self, path):
-        layouts = self.project.get("layouts", [])
+        row_types = self.project.get("row_types", [])
         lines = [
             "// Generated by level_editor.py",
             "// Vectrex H.E.R.O. level data",
@@ -3619,33 +4060,36 @@ int main(void) {{
             "",
         ]
 
-        # Emit layout arrays (cave geometry is shared, emitted once)
-        emitted_layouts = set()
-        for i, lvl in enumerate(self.project["levels"]):
+        # Collect unique row combos and emit composite cave arrays
+        emitted_combos = {}  # (top, mid, bot) -> array_name
+        for lvl in self.project["levels"]:
             for rm in lvl.get("rooms", []):
-                emitted_layouts.add(rm.get("layout", 0))
-        for li in sorted(emitted_layouts):
-            if li >= len(layouts):
-                continue
-            layout = layouts[li]
-            cave_lines = layout.get("cave_lines", [])
-            data = cave_room_data(cave_lines)
-            lines.append(f"// Layout {li}")
-            lines.append(f"static const int8_t layout_{li}_cave[] = {{")
-            for k in range(0, len(data), 12):
-                chunk = data[k:k+12]
-                lines.append("    " + ", ".join(str(v) for v in chunk) + ",")
-            lines.append("};")
-            segs = extract_segments(cave_lines)
-            lines.append(f"#define LAYOUT_{li}_SEG_COUNT {len(segs)}")
-            if segs:
-                lines.append(f"static const int8_t layout_{li}_cave_segs[] = {{")
-                for s in segs:
-                    lines.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
+                rows = rm.get("rows", [0, 0, 0])
+                combo = tuple(rows)
+                if combo in emitted_combos:
+                    continue
+                arr_name = f"cave_r{combo[0]}_{combo[1]}_{combo[2]}"
+                emitted_combos[combo] = arr_name
+                combined = self._composite_cave_lines(rm)
+                data = cave_room_data(combined)
+                lines.append(f"// Row combo [{combo[0]}, {combo[1]}, {combo[2]}]")
+                lines.append(f"static const int8_t {arr_name}[] = {{")
+                for k in range(0, len(data), 12):
+                    chunk = data[k:k+12]
+                    lines.append("    " + ", ".join(str(v) for v in chunk) + ",")
                 lines.append("};")
-            else:
-                lines.append(f"static const int8_t layout_{li}_cave_segs[] = {{ 0, 0, 0, 0 }};")
-            lines.append("")
+                segs = extract_segments(combined)
+                seg_count_name = f"CAVE_R{combo[0]}_{combo[1]}_{combo[2]}_SEG_COUNT"
+                lines.append(f"#define {seg_count_name} {len(segs)}")
+                seg_arr_name = f"{arr_name}_segs"
+                if segs:
+                    lines.append(f"static const int8_t {seg_arr_name}[] = {{")
+                    for s in segs:
+                        lines.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
+                    lines.append("};")
+                else:
+                    lines.append(f"static const int8_t {seg_arr_name}[] = {{ 0, 0, 0, 0 }};")
+                lines.append("")
 
         for i, lvl in enumerate(self.project["levels"]):
             li = i + 1  # 1-based level number
@@ -3660,7 +4104,7 @@ int main(void) {{
             for ri, rm in enumerate(rooms):
                 room_num_to_idx[rm["number"]] = ri
 
-            # Per-room data arrays (walls, enemies, start, miner — no cave data)
+            # Per-room data arrays (walls, enemies, start, miner)
             for ri, rm in enumerate(rooms):
                 rj = ri + 1
                 prefix = f"l{li}r{rj}"
@@ -3705,14 +4149,15 @@ int main(void) {{
                 lines.append(f"#define {PREFIX}_MINER_Y  {miner_y}")
                 lines.append("")
 
-            # Room lookup tables — caves reference layout arrays
+            # Room lookup tables — caves reference combo arrays
             lp = f"l{li}"
             nr = len(rooms)
             lines.append(f"// Room lookup tables for level {li}")
             lines.append(f"static const int8_t * const {lp}_room_caves[] = {{")
             for ri, rm in enumerate(rooms):
-                layout_idx = rm.get("layout", 0)
-                lines.append(f"    layout_{layout_idx}_cave,    // room {ri} uses layout {layout_idx}")
+                combo = tuple(rm.get("rows", [0, 0, 0]))
+                arr_name = emitted_combos[combo]
+                lines.append(f"    {arr_name},    // room {ri} rows {list(combo)}")
             lines.append("};")
 
             lines.append(f"static const int8_t * const {lp}_room_walls[] = {{")
@@ -3747,14 +4192,16 @@ int main(void) {{
 
             lines.append(f"static const int8_t * const {lp}_room_cave_segs[] = {{")
             for ri, rm in enumerate(rooms):
-                layout_idx = rm.get("layout", 0)
-                lines.append(f"    layout_{layout_idx}_cave_segs,")
+                combo = tuple(rm.get("rows", [0, 0, 0]))
+                arr_name = emitted_combos[combo]
+                lines.append(f"    {arr_name}_segs,")
             lines.append("};")
 
             lines.append(f"static const uint8_t {lp}_room_seg_counts[] = {{")
             for ri, rm in enumerate(rooms):
-                layout_idx = rm.get("layout", 0)
-                lines.append(f"    LAYOUT_{layout_idx}_SEG_COUNT,")
+                combo = tuple(rm.get("rows", [0, 0, 0]))
+                seg_count_name = f"CAVE_R{combo[0]}_{combo[1]}_{combo[2]}_SEG_COUNT"
+                lines.append(f"    {seg_count_name},")
             lines.append("};")
 
             lines.append(f"static const uint8_t {lp}_room_has_miner[] = {{")
@@ -3923,7 +4370,7 @@ def main():
     if args.cart:
         app._emu_cart_var.set(args.cart)
     if args.rom:
-        app.notebook.select(3)
+        app.notebook.select(4)
         root.after(100, app._emu_start)
 
     root.mainloop()
