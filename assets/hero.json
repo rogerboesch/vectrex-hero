@@ -1541,7 +1541,7 @@
             "y": -4
           },
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             7,
             15,
