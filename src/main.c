@@ -213,6 +213,7 @@ int main(void) {
                     game_state = STATE_GAME_OVER;
                 } else {
                     player_fuel = START_FUEL;
+                    player_dynamite = START_DYNAMITE;
                     game_state = STATE_LEVEL_FAILED;
                 }
             }

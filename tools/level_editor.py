@@ -3546,6 +3546,8 @@ int main(void) {{
                 if (player_lives == 0) {{
                     start_new_game();
                 }} else {{
+                    player_fuel = START_FUEL;
+                    player_dynamite = START_DYNAMITE;
                     init_level();
                     game_state = STATE_PLAYING;
                 }}
