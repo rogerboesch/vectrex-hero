@@ -1330,35 +1330,6 @@ static const int8_t cave_r7_15_7_segs[] = {
     -125, -40, 125, -40,
 };
 
-// Row combo [6, 0, 4]
-static const int8_t cave_r6_0_4[] = {
-    9, 50, -125, 0, 40, -30, 0, 0, -40, 0, 25, -30,
-    0, 0, -25, 0, 100, -30, 0, 0, -100, 11, 50, 125,
-    0, -128, 0, -32, -30, 0, 0, 127, 0, 33, 0, -25,
-    -30, 0, 0, 25, 0, -100, -30, 0, 0, 100, 0,
-};
-#define CAVE_R6_0_4_SEG_COUNT 18
-static const int8_t cave_r6_0_4_segs[] = {
-    -125, 50, -85, 50,
-    -85, 50, -85, 20,
-    -85, 20, -125, 20,
-    125, 50, -35, 50,
-    -35, 50, -35, 20,
-    -35, 20, 125, 20,
-    -125, -10, -100, -10,
-    -100, -10, -100, 20,
-    -100, 20, -125, 20,
-    125, 20, 100, 20,
-    100, 20, 100, -10,
-    100, -10, 125, -10,
-    -125, -40, -25, -40,
-    -25, -40, -25, -10,
-    -25, -10, -125, -10,
-    125, -40, 25, -40,
-    25, -40, 25, -10,
-    25, -10, 125, -10,
-};
-
 // Row combo [0, 1, 2]
 static const int8_t cave_r0_1_2[] = {
     9, -40, -125, 0, 60, 30, 0, 0, -60, 0, 40, 30,
@@ -2980,201 +2951,141 @@ static const int8_t l8r1_enemies[] = { 0, 0, 0, 0 };
 #define L8R1_MINER_X  0
 #define L8R1_MINER_Y  -40
 
-#define L8R2_WALL_COUNT 1
-static const int8_t l8r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R2_WALL_COUNT 0
+static const int8_t l8r2_walls[] = { 0, 0, 0, 0 };
 
-#define L8R2_ENEMY_COUNT 2
-static const int8_t l8r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R2_ENEMY_COUNT 0
+static const int8_t l8r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R2_START_X  -75
 #define L8R2_START_Y  40
 #define L8R2_MINER_X  0
 #define L8R2_MINER_Y  -40
 
-#define L8R3_WALL_COUNT 1
-static const int8_t l8r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R3_WALL_COUNT 0
+static const int8_t l8r3_walls[] = { 0, 0, 0, 0 };
 
-#define L8R3_ENEMY_COUNT 2
-static const int8_t l8r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R3_ENEMY_COUNT 0
+static const int8_t l8r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R3_START_X  -75
 #define L8R3_START_Y  40
 #define L8R3_MINER_X  0
 #define L8R3_MINER_Y  -40
 
-#define L8R4_WALL_COUNT 1
-static const int8_t l8r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R4_WALL_COUNT 0
+static const int8_t l8r4_walls[] = { 0, 0, 0, 0 };
 
-#define L8R4_ENEMY_COUNT 2
-static const int8_t l8r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R4_ENEMY_COUNT 0
+static const int8_t l8r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R4_START_X  -75
 #define L8R4_START_Y  40
 #define L8R4_MINER_X  0
 #define L8R4_MINER_Y  -40
 
-#define L8R5_WALL_COUNT 1
-static const int8_t l8r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R5_WALL_COUNT 0
+static const int8_t l8r5_walls[] = { 0, 0, 0, 0 };
 
-#define L8R5_ENEMY_COUNT 2
-static const int8_t l8r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R5_ENEMY_COUNT 0
+static const int8_t l8r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R5_START_X  -75
 #define L8R5_START_Y  40
 #define L8R5_MINER_X  0
 #define L8R5_MINER_Y  -40
 
-#define L8R6_WALL_COUNT 1
-static const int8_t l8r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R6_WALL_COUNT 0
+static const int8_t l8r6_walls[] = { 0, 0, 0, 0 };
 
-#define L8R6_ENEMY_COUNT 2
-static const int8_t l8r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R6_ENEMY_COUNT 0
+static const int8_t l8r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R6_START_X  -75
 #define L8R6_START_Y  40
 #define L8R6_MINER_X  0
 #define L8R6_MINER_Y  -40
 
-#define L8R7_WALL_COUNT 1
-static const int8_t l8r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R7_WALL_COUNT 0
+static const int8_t l8r7_walls[] = { 0, 0, 0, 0 };
 
-#define L8R7_ENEMY_COUNT 2
-static const int8_t l8r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R7_ENEMY_COUNT 0
+static const int8_t l8r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R7_START_X  -75
 #define L8R7_START_Y  40
 #define L8R7_MINER_X  0
 #define L8R7_MINER_Y  -40
 
-#define L8R8_WALL_COUNT 1
-static const int8_t l8r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R8_WALL_COUNT 0
+static const int8_t l8r8_walls[] = { 0, 0, 0, 0 };
 
-#define L8R8_ENEMY_COUNT 2
-static const int8_t l8r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R8_ENEMY_COUNT 0
+static const int8_t l8r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R8_START_X  -75
 #define L8R8_START_Y  40
 #define L8R8_MINER_X  0
 #define L8R8_MINER_Y  -40
 
-#define L8R9_WALL_COUNT 1
-static const int8_t l8r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R9_WALL_COUNT 0
+static const int8_t l8r9_walls[] = { 0, 0, 0, 0 };
 
-#define L8R9_ENEMY_COUNT 2
-static const int8_t l8r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R9_ENEMY_COUNT 0
+static const int8_t l8r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R9_START_X  -75
 #define L8R9_START_Y  40
 #define L8R9_MINER_X  0
 #define L8R9_MINER_Y  -40
 
-#define L8R10_WALL_COUNT 1
-static const int8_t l8r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R10_WALL_COUNT 0
+static const int8_t l8r10_walls[] = { 0, 0, 0, 0 };
 
-#define L8R10_ENEMY_COUNT 2
-static const int8_t l8r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R10_ENEMY_COUNT 0
+static const int8_t l8r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R10_START_X  -75
 #define L8R10_START_Y  40
 #define L8R10_MINER_X  0
 #define L8R10_MINER_Y  -40
 
-#define L8R11_WALL_COUNT 1
-static const int8_t l8r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R11_WALL_COUNT 0
+static const int8_t l8r11_walls[] = { 0, 0, 0, 0 };
 
-#define L8R11_ENEMY_COUNT 2
-static const int8_t l8r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R11_ENEMY_COUNT 0
+static const int8_t l8r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R11_START_X  -75
 #define L8R11_START_Y  40
 #define L8R11_MINER_X  0
 #define L8R11_MINER_Y  -40
 
-#define L8R12_WALL_COUNT 1
-static const int8_t l8r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R12_WALL_COUNT 0
+static const int8_t l8r12_walls[] = { 0, 0, 0, 0 };
 
-#define L8R12_ENEMY_COUNT 2
-static const int8_t l8r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R12_ENEMY_COUNT 0
+static const int8_t l8r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R12_START_X  -75
 #define L8R12_START_Y  40
 #define L8R12_MINER_X  0
 #define L8R12_MINER_Y  -40
 
-#define L8R13_WALL_COUNT 1
-static const int8_t l8r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L8R13_WALL_COUNT 0
+static const int8_t l8r13_walls[] = { 0, 0, 0, 0 };
 
-#define L8R13_ENEMY_COUNT 2
-static const int8_t l8r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L8R13_ENEMY_COUNT 0
+static const int8_t l8r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L8R13_START_X  -75
 #define L8R13_START_Y  40
-#define L8R13_MINER_X  0
-#define L8R13_MINER_Y  -40
+#define L8R13_MINER_X  79
+#define L8R13_MINER_Y  -4
 
 // Room lookup tables for level 8
 static const int8_t * const l8_room_caves[] = {
-    cave_r6_0_4,    // room 0 rows [6, 0, 4]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -3279,7 +3190,7 @@ static const int8_t l8_room_miners[] = {
     L8R13_MINER_X, L8R13_MINER_Y,
 };
 static const int8_t * const l8_room_cave_segs[] = {
-    cave_r6_0_4_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -3294,7 +3205,7 @@ static const int8_t * const l8_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l8_room_seg_counts[] = {
-    CAVE_R6_0_4_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -3385,240 +3296,165 @@ static const int8_t l9r1_enemies[] = { 0, 0, 0, 0 };
 #define L9R1_MINER_X  0
 #define L9R1_MINER_Y  -40
 
-#define L9R2_WALL_COUNT 1
-static const int8_t l9r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R2_WALL_COUNT 0
+static const int8_t l9r2_walls[] = { 0, 0, 0, 0 };
 
-#define L9R2_ENEMY_COUNT 2
-static const int8_t l9r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R2_ENEMY_COUNT 0
+static const int8_t l9r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R2_START_X  -75
 #define L9R2_START_Y  40
 #define L9R2_MINER_X  0
 #define L9R2_MINER_Y  -40
 
-#define L9R3_WALL_COUNT 1
-static const int8_t l9r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R3_WALL_COUNT 0
+static const int8_t l9r3_walls[] = { 0, 0, 0, 0 };
 
-#define L9R3_ENEMY_COUNT 2
-static const int8_t l9r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R3_ENEMY_COUNT 0
+static const int8_t l9r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R3_START_X  -75
 #define L9R3_START_Y  40
 #define L9R3_MINER_X  0
 #define L9R3_MINER_Y  -40
 
-#define L9R4_WALL_COUNT 1
-static const int8_t l9r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R4_WALL_COUNT 0
+static const int8_t l9r4_walls[] = { 0, 0, 0, 0 };
 
-#define L9R4_ENEMY_COUNT 2
-static const int8_t l9r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R4_ENEMY_COUNT 0
+static const int8_t l9r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R4_START_X  -75
 #define L9R4_START_Y  40
 #define L9R4_MINER_X  0
 #define L9R4_MINER_Y  -40
 
-#define L9R5_WALL_COUNT 1
-static const int8_t l9r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R5_WALL_COUNT 0
+static const int8_t l9r5_walls[] = { 0, 0, 0, 0 };
 
-#define L9R5_ENEMY_COUNT 2
-static const int8_t l9r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R5_ENEMY_COUNT 0
+static const int8_t l9r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R5_START_X  -75
 #define L9R5_START_Y  40
 #define L9R5_MINER_X  0
 #define L9R5_MINER_Y  -40
 
-#define L9R6_WALL_COUNT 1
-static const int8_t l9r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R6_WALL_COUNT 0
+static const int8_t l9r6_walls[] = { 0, 0, 0, 0 };
 
-#define L9R6_ENEMY_COUNT 2
-static const int8_t l9r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R6_ENEMY_COUNT 0
+static const int8_t l9r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R6_START_X  -75
 #define L9R6_START_Y  40
 #define L9R6_MINER_X  0
 #define L9R6_MINER_Y  -40
 
-#define L9R7_WALL_COUNT 1
-static const int8_t l9r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R7_WALL_COUNT 0
+static const int8_t l9r7_walls[] = { 0, 0, 0, 0 };
 
-#define L9R7_ENEMY_COUNT 2
-static const int8_t l9r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R7_ENEMY_COUNT 0
+static const int8_t l9r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R7_START_X  -75
 #define L9R7_START_Y  40
 #define L9R7_MINER_X  0
 #define L9R7_MINER_Y  -40
 
-#define L9R8_WALL_COUNT 1
-static const int8_t l9r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R8_WALL_COUNT 0
+static const int8_t l9r8_walls[] = { 0, 0, 0, 0 };
 
-#define L9R8_ENEMY_COUNT 2
-static const int8_t l9r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R8_ENEMY_COUNT 0
+static const int8_t l9r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R8_START_X  -75
 #define L9R8_START_Y  40
 #define L9R8_MINER_X  0
 #define L9R8_MINER_Y  -40
 
-#define L9R9_WALL_COUNT 1
-static const int8_t l9r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R9_WALL_COUNT 0
+static const int8_t l9r9_walls[] = { 0, 0, 0, 0 };
 
-#define L9R9_ENEMY_COUNT 2
-static const int8_t l9r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R9_ENEMY_COUNT 0
+static const int8_t l9r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R9_START_X  -75
 #define L9R9_START_Y  40
 #define L9R9_MINER_X  0
 #define L9R9_MINER_Y  -40
 
-#define L9R10_WALL_COUNT 1
-static const int8_t l9r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R10_WALL_COUNT 0
+static const int8_t l9r10_walls[] = { 0, 0, 0, 0 };
 
-#define L9R10_ENEMY_COUNT 2
-static const int8_t l9r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R10_ENEMY_COUNT 0
+static const int8_t l9r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R10_START_X  -75
 #define L9R10_START_Y  40
 #define L9R10_MINER_X  0
 #define L9R10_MINER_Y  -40
 
-#define L9R11_WALL_COUNT 1
-static const int8_t l9r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R11_WALL_COUNT 0
+static const int8_t l9r11_walls[] = { 0, 0, 0, 0 };
 
-#define L9R11_ENEMY_COUNT 2
-static const int8_t l9r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R11_ENEMY_COUNT 0
+static const int8_t l9r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R11_START_X  -75
 #define L9R11_START_Y  40
 #define L9R11_MINER_X  0
 #define L9R11_MINER_Y  -40
 
-#define L9R12_WALL_COUNT 1
-static const int8_t l9r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R12_WALL_COUNT 0
+static const int8_t l9r12_walls[] = { 0, 0, 0, 0 };
 
-#define L9R12_ENEMY_COUNT 2
-static const int8_t l9r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R12_ENEMY_COUNT 0
+static const int8_t l9r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R12_START_X  -75
 #define L9R12_START_Y  40
 #define L9R12_MINER_X  0
 #define L9R12_MINER_Y  -40
 
-#define L9R13_WALL_COUNT 1
-static const int8_t l9r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R13_WALL_COUNT 0
+static const int8_t l9r13_walls[] = { 0, 0, 0, 0 };
 
-#define L9R13_ENEMY_COUNT 2
-static const int8_t l9r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R13_ENEMY_COUNT 0
+static const int8_t l9r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R13_START_X  -75
 #define L9R13_START_Y  40
 #define L9R13_MINER_X  0
 #define L9R13_MINER_Y  -40
 
-#define L9R14_WALL_COUNT 1
-static const int8_t l9r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R14_WALL_COUNT 0
+static const int8_t l9r14_walls[] = { 0, 0, 0, 0 };
 
-#define L9R14_ENEMY_COUNT 2
-static const int8_t l9r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R14_ENEMY_COUNT 0
+static const int8_t l9r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R14_START_X  -75
 #define L9R14_START_Y  40
 #define L9R14_MINER_X  0
 #define L9R14_MINER_Y  -40
 
-#define L9R15_WALL_COUNT 1
-static const int8_t l9r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R15_WALL_COUNT 0
+static const int8_t l9r15_walls[] = { 0, 0, 0, 0 };
 
-#define L9R15_ENEMY_COUNT 2
-static const int8_t l9r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R15_ENEMY_COUNT 0
+static const int8_t l9r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R15_START_X  -75
 #define L9R15_START_Y  40
 #define L9R15_MINER_X  0
 #define L9R15_MINER_Y  -40
 
-#define L9R16_WALL_COUNT 1
-static const int8_t l9r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L9R16_WALL_COUNT 0
+static const int8_t l9r16_walls[] = { 0, 0, 0, 0 };
 
-#define L9R16_ENEMY_COUNT 2
-static const int8_t l9r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L9R16_ENEMY_COUNT 0
+static const int8_t l9r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L9R16_START_X  -75
 #define L9R16_START_Y  40
@@ -3627,7 +3463,7 @@ static const int8_t l9r16_enemies[] = {
 
 // Room lookup tables for level 9
 static const int8_t * const l9_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -3753,7 +3589,7 @@ static const int8_t l9_room_miners[] = {
     L9R16_MINER_X, L9R16_MINER_Y,
 };
 static const int8_t * const l9_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -3771,7 +3607,7 @@ static const int8_t * const l9_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l9_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -3822,7 +3658,7 @@ static const uint8_t l9_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l9_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -3877,240 +3713,165 @@ static const int8_t l10r1_enemies[] = { 0, 0, 0, 0 };
 #define L10R1_MINER_X  0
 #define L10R1_MINER_Y  -40
 
-#define L10R2_WALL_COUNT 1
-static const int8_t l10r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R2_WALL_COUNT 0
+static const int8_t l10r2_walls[] = { 0, 0, 0, 0 };
 
-#define L10R2_ENEMY_COUNT 2
-static const int8_t l10r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R2_ENEMY_COUNT 0
+static const int8_t l10r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R2_START_X  -75
 #define L10R2_START_Y  40
 #define L10R2_MINER_X  0
 #define L10R2_MINER_Y  -40
 
-#define L10R3_WALL_COUNT 1
-static const int8_t l10r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R3_WALL_COUNT 0
+static const int8_t l10r3_walls[] = { 0, 0, 0, 0 };
 
-#define L10R3_ENEMY_COUNT 2
-static const int8_t l10r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R3_ENEMY_COUNT 0
+static const int8_t l10r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R3_START_X  -75
 #define L10R3_START_Y  40
 #define L10R3_MINER_X  0
 #define L10R3_MINER_Y  -40
 
-#define L10R4_WALL_COUNT 1
-static const int8_t l10r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R4_WALL_COUNT 0
+static const int8_t l10r4_walls[] = { 0, 0, 0, 0 };
 
-#define L10R4_ENEMY_COUNT 2
-static const int8_t l10r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R4_ENEMY_COUNT 0
+static const int8_t l10r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R4_START_X  -75
 #define L10R4_START_Y  40
 #define L10R4_MINER_X  0
 #define L10R4_MINER_Y  -40
 
-#define L10R5_WALL_COUNT 1
-static const int8_t l10r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R5_WALL_COUNT 0
+static const int8_t l10r5_walls[] = { 0, 0, 0, 0 };
 
-#define L10R5_ENEMY_COUNT 2
-static const int8_t l10r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R5_ENEMY_COUNT 0
+static const int8_t l10r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R5_START_X  -75
 #define L10R5_START_Y  40
 #define L10R5_MINER_X  0
 #define L10R5_MINER_Y  -40
 
-#define L10R6_WALL_COUNT 1
-static const int8_t l10r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R6_WALL_COUNT 0
+static const int8_t l10r6_walls[] = { 0, 0, 0, 0 };
 
-#define L10R6_ENEMY_COUNT 2
-static const int8_t l10r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R6_ENEMY_COUNT 0
+static const int8_t l10r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R6_START_X  -75
 #define L10R6_START_Y  40
 #define L10R6_MINER_X  0
 #define L10R6_MINER_Y  -40
 
-#define L10R7_WALL_COUNT 1
-static const int8_t l10r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R7_WALL_COUNT 0
+static const int8_t l10r7_walls[] = { 0, 0, 0, 0 };
 
-#define L10R7_ENEMY_COUNT 2
-static const int8_t l10r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R7_ENEMY_COUNT 0
+static const int8_t l10r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R7_START_X  -75
 #define L10R7_START_Y  40
 #define L10R7_MINER_X  0
 #define L10R7_MINER_Y  -40
 
-#define L10R8_WALL_COUNT 1
-static const int8_t l10r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R8_WALL_COUNT 0
+static const int8_t l10r8_walls[] = { 0, 0, 0, 0 };
 
-#define L10R8_ENEMY_COUNT 2
-static const int8_t l10r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R8_ENEMY_COUNT 0
+static const int8_t l10r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R8_START_X  -75
 #define L10R8_START_Y  40
 #define L10R8_MINER_X  0
 #define L10R8_MINER_Y  -40
 
-#define L10R9_WALL_COUNT 1
-static const int8_t l10r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R9_WALL_COUNT 0
+static const int8_t l10r9_walls[] = { 0, 0, 0, 0 };
 
-#define L10R9_ENEMY_COUNT 2
-static const int8_t l10r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R9_ENEMY_COUNT 0
+static const int8_t l10r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R9_START_X  -75
 #define L10R9_START_Y  40
 #define L10R9_MINER_X  0
 #define L10R9_MINER_Y  -40
 
-#define L10R10_WALL_COUNT 1
-static const int8_t l10r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R10_WALL_COUNT 0
+static const int8_t l10r10_walls[] = { 0, 0, 0, 0 };
 
-#define L10R10_ENEMY_COUNT 2
-static const int8_t l10r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R10_ENEMY_COUNT 0
+static const int8_t l10r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R10_START_X  -75
 #define L10R10_START_Y  40
 #define L10R10_MINER_X  0
 #define L10R10_MINER_Y  -40
 
-#define L10R11_WALL_COUNT 1
-static const int8_t l10r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R11_WALL_COUNT 0
+static const int8_t l10r11_walls[] = { 0, 0, 0, 0 };
 
-#define L10R11_ENEMY_COUNT 2
-static const int8_t l10r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R11_ENEMY_COUNT 0
+static const int8_t l10r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R11_START_X  -75
 #define L10R11_START_Y  40
 #define L10R11_MINER_X  0
 #define L10R11_MINER_Y  -40
 
-#define L10R12_WALL_COUNT 1
-static const int8_t l10r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R12_WALL_COUNT 0
+static const int8_t l10r12_walls[] = { 0, 0, 0, 0 };
 
-#define L10R12_ENEMY_COUNT 2
-static const int8_t l10r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R12_ENEMY_COUNT 0
+static const int8_t l10r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R12_START_X  -75
 #define L10R12_START_Y  40
 #define L10R12_MINER_X  0
 #define L10R12_MINER_Y  -40
 
-#define L10R13_WALL_COUNT 1
-static const int8_t l10r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R13_WALL_COUNT 0
+static const int8_t l10r13_walls[] = { 0, 0, 0, 0 };
 
-#define L10R13_ENEMY_COUNT 2
-static const int8_t l10r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R13_ENEMY_COUNT 0
+static const int8_t l10r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R13_START_X  -75
 #define L10R13_START_Y  40
 #define L10R13_MINER_X  0
 #define L10R13_MINER_Y  -40
 
-#define L10R14_WALL_COUNT 1
-static const int8_t l10r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R14_WALL_COUNT 0
+static const int8_t l10r14_walls[] = { 0, 0, 0, 0 };
 
-#define L10R14_ENEMY_COUNT 2
-static const int8_t l10r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R14_ENEMY_COUNT 0
+static const int8_t l10r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R14_START_X  -75
 #define L10R14_START_Y  40
 #define L10R14_MINER_X  0
 #define L10R14_MINER_Y  -40
 
-#define L10R15_WALL_COUNT 1
-static const int8_t l10r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R15_WALL_COUNT 0
+static const int8_t l10r15_walls[] = { 0, 0, 0, 0 };
 
-#define L10R15_ENEMY_COUNT 2
-static const int8_t l10r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R15_ENEMY_COUNT 0
+static const int8_t l10r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R15_START_X  -75
 #define L10R15_START_Y  40
 #define L10R15_MINER_X  0
 #define L10R15_MINER_Y  -40
 
-#define L10R16_WALL_COUNT 1
-static const int8_t l10r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L10R16_WALL_COUNT 0
+static const int8_t l10r16_walls[] = { 0, 0, 0, 0 };
 
-#define L10R16_ENEMY_COUNT 2
-static const int8_t l10r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L10R16_ENEMY_COUNT 0
+static const int8_t l10r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L10R16_START_X  -75
 #define L10R16_START_Y  40
@@ -4119,7 +3880,7 @@ static const int8_t l10r16_enemies[] = {
 
 // Room lookup tables for level 10
 static const int8_t * const l10_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -4245,7 +4006,7 @@ static const int8_t l10_room_miners[] = {
     L10R16_MINER_X, L10R16_MINER_Y,
 };
 static const int8_t * const l10_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -4263,7 +4024,7 @@ static const int8_t * const l10_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l10_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -4314,7 +4075,7 @@ static const uint8_t l10_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l10_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -4369,240 +4130,165 @@ static const int8_t l11r1_enemies[] = { 0, 0, 0, 0 };
 #define L11R1_MINER_X  0
 #define L11R1_MINER_Y  -40
 
-#define L11R2_WALL_COUNT 1
-static const int8_t l11r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R2_WALL_COUNT 0
+static const int8_t l11r2_walls[] = { 0, 0, 0, 0 };
 
-#define L11R2_ENEMY_COUNT 2
-static const int8_t l11r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R2_ENEMY_COUNT 0
+static const int8_t l11r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R2_START_X  -75
 #define L11R2_START_Y  40
 #define L11R2_MINER_X  0
 #define L11R2_MINER_Y  -40
 
-#define L11R3_WALL_COUNT 1
-static const int8_t l11r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R3_WALL_COUNT 0
+static const int8_t l11r3_walls[] = { 0, 0, 0, 0 };
 
-#define L11R3_ENEMY_COUNT 2
-static const int8_t l11r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R3_ENEMY_COUNT 0
+static const int8_t l11r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R3_START_X  -75
 #define L11R3_START_Y  40
 #define L11R3_MINER_X  0
 #define L11R3_MINER_Y  -40
 
-#define L11R4_WALL_COUNT 1
-static const int8_t l11r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R4_WALL_COUNT 0
+static const int8_t l11r4_walls[] = { 0, 0, 0, 0 };
 
-#define L11R4_ENEMY_COUNT 2
-static const int8_t l11r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R4_ENEMY_COUNT 0
+static const int8_t l11r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R4_START_X  -75
 #define L11R4_START_Y  40
 #define L11R4_MINER_X  0
 #define L11R4_MINER_Y  -40
 
-#define L11R5_WALL_COUNT 1
-static const int8_t l11r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R5_WALL_COUNT 0
+static const int8_t l11r5_walls[] = { 0, 0, 0, 0 };
 
-#define L11R5_ENEMY_COUNT 2
-static const int8_t l11r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R5_ENEMY_COUNT 0
+static const int8_t l11r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R5_START_X  -75
 #define L11R5_START_Y  40
 #define L11R5_MINER_X  0
 #define L11R5_MINER_Y  -40
 
-#define L11R6_WALL_COUNT 1
-static const int8_t l11r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R6_WALL_COUNT 0
+static const int8_t l11r6_walls[] = { 0, 0, 0, 0 };
 
-#define L11R6_ENEMY_COUNT 2
-static const int8_t l11r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R6_ENEMY_COUNT 0
+static const int8_t l11r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R6_START_X  -75
 #define L11R6_START_Y  40
 #define L11R6_MINER_X  0
 #define L11R6_MINER_Y  -40
 
-#define L11R7_WALL_COUNT 1
-static const int8_t l11r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R7_WALL_COUNT 0
+static const int8_t l11r7_walls[] = { 0, 0, 0, 0 };
 
-#define L11R7_ENEMY_COUNT 2
-static const int8_t l11r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R7_ENEMY_COUNT 0
+static const int8_t l11r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R7_START_X  -75
 #define L11R7_START_Y  40
 #define L11R7_MINER_X  0
 #define L11R7_MINER_Y  -40
 
-#define L11R8_WALL_COUNT 1
-static const int8_t l11r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R8_WALL_COUNT 0
+static const int8_t l11r8_walls[] = { 0, 0, 0, 0 };
 
-#define L11R8_ENEMY_COUNT 2
-static const int8_t l11r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R8_ENEMY_COUNT 0
+static const int8_t l11r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R8_START_X  -75
 #define L11R8_START_Y  40
 #define L11R8_MINER_X  0
 #define L11R8_MINER_Y  -40
 
-#define L11R9_WALL_COUNT 1
-static const int8_t l11r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R9_WALL_COUNT 0
+static const int8_t l11r9_walls[] = { 0, 0, 0, 0 };
 
-#define L11R9_ENEMY_COUNT 2
-static const int8_t l11r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R9_ENEMY_COUNT 0
+static const int8_t l11r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R9_START_X  -75
 #define L11R9_START_Y  40
 #define L11R9_MINER_X  0
 #define L11R9_MINER_Y  -40
 
-#define L11R10_WALL_COUNT 1
-static const int8_t l11r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R10_WALL_COUNT 0
+static const int8_t l11r10_walls[] = { 0, 0, 0, 0 };
 
-#define L11R10_ENEMY_COUNT 2
-static const int8_t l11r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R10_ENEMY_COUNT 0
+static const int8_t l11r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R10_START_X  -75
 #define L11R10_START_Y  40
 #define L11R10_MINER_X  0
 #define L11R10_MINER_Y  -40
 
-#define L11R11_WALL_COUNT 1
-static const int8_t l11r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R11_WALL_COUNT 0
+static const int8_t l11r11_walls[] = { 0, 0, 0, 0 };
 
-#define L11R11_ENEMY_COUNT 2
-static const int8_t l11r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R11_ENEMY_COUNT 0
+static const int8_t l11r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R11_START_X  -75
 #define L11R11_START_Y  40
 #define L11R11_MINER_X  0
 #define L11R11_MINER_Y  -40
 
-#define L11R12_WALL_COUNT 1
-static const int8_t l11r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R12_WALL_COUNT 0
+static const int8_t l11r12_walls[] = { 0, 0, 0, 0 };
 
-#define L11R12_ENEMY_COUNT 2
-static const int8_t l11r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R12_ENEMY_COUNT 0
+static const int8_t l11r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R12_START_X  -75
 #define L11R12_START_Y  40
 #define L11R12_MINER_X  0
 #define L11R12_MINER_Y  -40
 
-#define L11R13_WALL_COUNT 1
-static const int8_t l11r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R13_WALL_COUNT 0
+static const int8_t l11r13_walls[] = { 0, 0, 0, 0 };
 
-#define L11R13_ENEMY_COUNT 2
-static const int8_t l11r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R13_ENEMY_COUNT 0
+static const int8_t l11r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R13_START_X  -75
 #define L11R13_START_Y  40
 #define L11R13_MINER_X  0
 #define L11R13_MINER_Y  -40
 
-#define L11R14_WALL_COUNT 1
-static const int8_t l11r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R14_WALL_COUNT 0
+static const int8_t l11r14_walls[] = { 0, 0, 0, 0 };
 
-#define L11R14_ENEMY_COUNT 2
-static const int8_t l11r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R14_ENEMY_COUNT 0
+static const int8_t l11r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R14_START_X  -75
 #define L11R14_START_Y  40
 #define L11R14_MINER_X  0
 #define L11R14_MINER_Y  -40
 
-#define L11R15_WALL_COUNT 1
-static const int8_t l11r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R15_WALL_COUNT 0
+static const int8_t l11r15_walls[] = { 0, 0, 0, 0 };
 
-#define L11R15_ENEMY_COUNT 2
-static const int8_t l11r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R15_ENEMY_COUNT 0
+static const int8_t l11r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R15_START_X  -75
 #define L11R15_START_Y  40
 #define L11R15_MINER_X  0
 #define L11R15_MINER_Y  -40
 
-#define L11R16_WALL_COUNT 1
-static const int8_t l11r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L11R16_WALL_COUNT 0
+static const int8_t l11r16_walls[] = { 0, 0, 0, 0 };
 
-#define L11R16_ENEMY_COUNT 2
-static const int8_t l11r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L11R16_ENEMY_COUNT 0
+static const int8_t l11r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L11R16_START_X  -75
 #define L11R16_START_Y  40
@@ -4611,7 +4297,7 @@ static const int8_t l11r16_enemies[] = {
 
 // Room lookup tables for level 11
 static const int8_t * const l11_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -4737,7 +4423,7 @@ static const int8_t l11_room_miners[] = {
     L11R16_MINER_X, L11R16_MINER_Y,
 };
 static const int8_t * const l11_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -4755,7 +4441,7 @@ static const int8_t * const l11_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l11_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -4806,7 +4492,7 @@ static const uint8_t l11_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l11_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -4861,240 +4547,165 @@ static const int8_t l12r1_enemies[] = { 0, 0, 0, 0 };
 #define L12R1_MINER_X  0
 #define L12R1_MINER_Y  -40
 
-#define L12R2_WALL_COUNT 1
-static const int8_t l12r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R2_WALL_COUNT 0
+static const int8_t l12r2_walls[] = { 0, 0, 0, 0 };
 
-#define L12R2_ENEMY_COUNT 2
-static const int8_t l12r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R2_ENEMY_COUNT 0
+static const int8_t l12r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R2_START_X  -75
 #define L12R2_START_Y  40
 #define L12R2_MINER_X  0
 #define L12R2_MINER_Y  -40
 
-#define L12R3_WALL_COUNT 1
-static const int8_t l12r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R3_WALL_COUNT 0
+static const int8_t l12r3_walls[] = { 0, 0, 0, 0 };
 
-#define L12R3_ENEMY_COUNT 2
-static const int8_t l12r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R3_ENEMY_COUNT 0
+static const int8_t l12r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R3_START_X  -75
 #define L12R3_START_Y  40
 #define L12R3_MINER_X  0
 #define L12R3_MINER_Y  -40
 
-#define L12R4_WALL_COUNT 1
-static const int8_t l12r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R4_WALL_COUNT 0
+static const int8_t l12r4_walls[] = { 0, 0, 0, 0 };
 
-#define L12R4_ENEMY_COUNT 2
-static const int8_t l12r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R4_ENEMY_COUNT 0
+static const int8_t l12r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R4_START_X  -75
 #define L12R4_START_Y  40
 #define L12R4_MINER_X  0
 #define L12R4_MINER_Y  -40
 
-#define L12R5_WALL_COUNT 1
-static const int8_t l12r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R5_WALL_COUNT 0
+static const int8_t l12r5_walls[] = { 0, 0, 0, 0 };
 
-#define L12R5_ENEMY_COUNT 2
-static const int8_t l12r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R5_ENEMY_COUNT 0
+static const int8_t l12r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R5_START_X  -75
 #define L12R5_START_Y  40
 #define L12R5_MINER_X  0
 #define L12R5_MINER_Y  -40
 
-#define L12R6_WALL_COUNT 1
-static const int8_t l12r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R6_WALL_COUNT 0
+static const int8_t l12r6_walls[] = { 0, 0, 0, 0 };
 
-#define L12R6_ENEMY_COUNT 2
-static const int8_t l12r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R6_ENEMY_COUNT 0
+static const int8_t l12r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R6_START_X  -75
 #define L12R6_START_Y  40
 #define L12R6_MINER_X  0
 #define L12R6_MINER_Y  -40
 
-#define L12R7_WALL_COUNT 1
-static const int8_t l12r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R7_WALL_COUNT 0
+static const int8_t l12r7_walls[] = { 0, 0, 0, 0 };
 
-#define L12R7_ENEMY_COUNT 2
-static const int8_t l12r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R7_ENEMY_COUNT 0
+static const int8_t l12r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R7_START_X  -75
 #define L12R7_START_Y  40
 #define L12R7_MINER_X  0
 #define L12R7_MINER_Y  -40
 
-#define L12R8_WALL_COUNT 1
-static const int8_t l12r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R8_WALL_COUNT 0
+static const int8_t l12r8_walls[] = { 0, 0, 0, 0 };
 
-#define L12R8_ENEMY_COUNT 2
-static const int8_t l12r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R8_ENEMY_COUNT 0
+static const int8_t l12r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R8_START_X  -75
 #define L12R8_START_Y  40
 #define L12R8_MINER_X  0
 #define L12R8_MINER_Y  -40
 
-#define L12R9_WALL_COUNT 1
-static const int8_t l12r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R9_WALL_COUNT 0
+static const int8_t l12r9_walls[] = { 0, 0, 0, 0 };
 
-#define L12R9_ENEMY_COUNT 2
-static const int8_t l12r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R9_ENEMY_COUNT 0
+static const int8_t l12r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R9_START_X  -75
 #define L12R9_START_Y  40
 #define L12R9_MINER_X  0
 #define L12R9_MINER_Y  -40
 
-#define L12R10_WALL_COUNT 1
-static const int8_t l12r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R10_WALL_COUNT 0
+static const int8_t l12r10_walls[] = { 0, 0, 0, 0 };
 
-#define L12R10_ENEMY_COUNT 2
-static const int8_t l12r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R10_ENEMY_COUNT 0
+static const int8_t l12r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R10_START_X  -75
 #define L12R10_START_Y  40
 #define L12R10_MINER_X  0
 #define L12R10_MINER_Y  -40
 
-#define L12R11_WALL_COUNT 1
-static const int8_t l12r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R11_WALL_COUNT 0
+static const int8_t l12r11_walls[] = { 0, 0, 0, 0 };
 
-#define L12R11_ENEMY_COUNT 2
-static const int8_t l12r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R11_ENEMY_COUNT 0
+static const int8_t l12r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R11_START_X  -75
 #define L12R11_START_Y  40
 #define L12R11_MINER_X  0
 #define L12R11_MINER_Y  -40
 
-#define L12R12_WALL_COUNT 1
-static const int8_t l12r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R12_WALL_COUNT 0
+static const int8_t l12r12_walls[] = { 0, 0, 0, 0 };
 
-#define L12R12_ENEMY_COUNT 2
-static const int8_t l12r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R12_ENEMY_COUNT 0
+static const int8_t l12r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R12_START_X  -75
 #define L12R12_START_Y  40
 #define L12R12_MINER_X  0
 #define L12R12_MINER_Y  -40
 
-#define L12R13_WALL_COUNT 1
-static const int8_t l12r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R13_WALL_COUNT 0
+static const int8_t l12r13_walls[] = { 0, 0, 0, 0 };
 
-#define L12R13_ENEMY_COUNT 2
-static const int8_t l12r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R13_ENEMY_COUNT 0
+static const int8_t l12r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R13_START_X  -75
 #define L12R13_START_Y  40
 #define L12R13_MINER_X  0
 #define L12R13_MINER_Y  -40
 
-#define L12R14_WALL_COUNT 1
-static const int8_t l12r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R14_WALL_COUNT 0
+static const int8_t l12r14_walls[] = { 0, 0, 0, 0 };
 
-#define L12R14_ENEMY_COUNT 2
-static const int8_t l12r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R14_ENEMY_COUNT 0
+static const int8_t l12r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R14_START_X  -75
 #define L12R14_START_Y  40
 #define L12R14_MINER_X  0
 #define L12R14_MINER_Y  -40
 
-#define L12R15_WALL_COUNT 1
-static const int8_t l12r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R15_WALL_COUNT 0
+static const int8_t l12r15_walls[] = { 0, 0, 0, 0 };
 
-#define L12R15_ENEMY_COUNT 2
-static const int8_t l12r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R15_ENEMY_COUNT 0
+static const int8_t l12r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R15_START_X  -75
 #define L12R15_START_Y  40
 #define L12R15_MINER_X  0
 #define L12R15_MINER_Y  -40
 
-#define L12R16_WALL_COUNT 1
-static const int8_t l12r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L12R16_WALL_COUNT 0
+static const int8_t l12r16_walls[] = { 0, 0, 0, 0 };
 
-#define L12R16_ENEMY_COUNT 2
-static const int8_t l12r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L12R16_ENEMY_COUNT 0
+static const int8_t l12r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L12R16_START_X  -75
 #define L12R16_START_Y  40
@@ -5103,7 +4714,7 @@ static const int8_t l12r16_enemies[] = {
 
 // Room lookup tables for level 12
 static const int8_t * const l12_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -5229,7 +4840,7 @@ static const int8_t l12_room_miners[] = {
     L12R16_MINER_X, L12R16_MINER_Y,
 };
 static const int8_t * const l12_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -5247,7 +4858,7 @@ static const int8_t * const l12_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l12_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -5298,7 +4909,7 @@ static const uint8_t l12_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l12_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -5353,240 +4964,165 @@ static const int8_t l13r1_enemies[] = { 0, 0, 0, 0 };
 #define L13R1_MINER_X  0
 #define L13R1_MINER_Y  -40
 
-#define L13R2_WALL_COUNT 1
-static const int8_t l13r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R2_WALL_COUNT 0
+static const int8_t l13r2_walls[] = { 0, 0, 0, 0 };
 
-#define L13R2_ENEMY_COUNT 2
-static const int8_t l13r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R2_ENEMY_COUNT 0
+static const int8_t l13r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R2_START_X  -75
 #define L13R2_START_Y  40
 #define L13R2_MINER_X  0
 #define L13R2_MINER_Y  -40
 
-#define L13R3_WALL_COUNT 1
-static const int8_t l13r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R3_WALL_COUNT 0
+static const int8_t l13r3_walls[] = { 0, 0, 0, 0 };
 
-#define L13R3_ENEMY_COUNT 2
-static const int8_t l13r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R3_ENEMY_COUNT 0
+static const int8_t l13r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R3_START_X  -75
 #define L13R3_START_Y  40
 #define L13R3_MINER_X  0
 #define L13R3_MINER_Y  -40
 
-#define L13R4_WALL_COUNT 1
-static const int8_t l13r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R4_WALL_COUNT 0
+static const int8_t l13r4_walls[] = { 0, 0, 0, 0 };
 
-#define L13R4_ENEMY_COUNT 2
-static const int8_t l13r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R4_ENEMY_COUNT 0
+static const int8_t l13r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R4_START_X  -75
 #define L13R4_START_Y  40
 #define L13R4_MINER_X  0
 #define L13R4_MINER_Y  -40
 
-#define L13R5_WALL_COUNT 1
-static const int8_t l13r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R5_WALL_COUNT 0
+static const int8_t l13r5_walls[] = { 0, 0, 0, 0 };
 
-#define L13R5_ENEMY_COUNT 2
-static const int8_t l13r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R5_ENEMY_COUNT 0
+static const int8_t l13r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R5_START_X  -75
 #define L13R5_START_Y  40
 #define L13R5_MINER_X  0
 #define L13R5_MINER_Y  -40
 
-#define L13R6_WALL_COUNT 1
-static const int8_t l13r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R6_WALL_COUNT 0
+static const int8_t l13r6_walls[] = { 0, 0, 0, 0 };
 
-#define L13R6_ENEMY_COUNT 2
-static const int8_t l13r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R6_ENEMY_COUNT 0
+static const int8_t l13r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R6_START_X  -75
 #define L13R6_START_Y  40
 #define L13R6_MINER_X  0
 #define L13R6_MINER_Y  -40
 
-#define L13R7_WALL_COUNT 1
-static const int8_t l13r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R7_WALL_COUNT 0
+static const int8_t l13r7_walls[] = { 0, 0, 0, 0 };
 
-#define L13R7_ENEMY_COUNT 2
-static const int8_t l13r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R7_ENEMY_COUNT 0
+static const int8_t l13r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R7_START_X  -75
 #define L13R7_START_Y  40
 #define L13R7_MINER_X  0
 #define L13R7_MINER_Y  -40
 
-#define L13R8_WALL_COUNT 1
-static const int8_t l13r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R8_WALL_COUNT 0
+static const int8_t l13r8_walls[] = { 0, 0, 0, 0 };
 
-#define L13R8_ENEMY_COUNT 2
-static const int8_t l13r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R8_ENEMY_COUNT 0
+static const int8_t l13r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R8_START_X  -75
 #define L13R8_START_Y  40
 #define L13R8_MINER_X  0
 #define L13R8_MINER_Y  -40
 
-#define L13R9_WALL_COUNT 1
-static const int8_t l13r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R9_WALL_COUNT 0
+static const int8_t l13r9_walls[] = { 0, 0, 0, 0 };
 
-#define L13R9_ENEMY_COUNT 2
-static const int8_t l13r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R9_ENEMY_COUNT 0
+static const int8_t l13r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R9_START_X  -75
 #define L13R9_START_Y  40
 #define L13R9_MINER_X  0
 #define L13R9_MINER_Y  -40
 
-#define L13R10_WALL_COUNT 1
-static const int8_t l13r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R10_WALL_COUNT 0
+static const int8_t l13r10_walls[] = { 0, 0, 0, 0 };
 
-#define L13R10_ENEMY_COUNT 2
-static const int8_t l13r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R10_ENEMY_COUNT 0
+static const int8_t l13r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R10_START_X  -75
 #define L13R10_START_Y  40
 #define L13R10_MINER_X  0
 #define L13R10_MINER_Y  -40
 
-#define L13R11_WALL_COUNT 1
-static const int8_t l13r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R11_WALL_COUNT 0
+static const int8_t l13r11_walls[] = { 0, 0, 0, 0 };
 
-#define L13R11_ENEMY_COUNT 2
-static const int8_t l13r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R11_ENEMY_COUNT 0
+static const int8_t l13r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R11_START_X  -75
 #define L13R11_START_Y  40
 #define L13R11_MINER_X  0
 #define L13R11_MINER_Y  -40
 
-#define L13R12_WALL_COUNT 1
-static const int8_t l13r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R12_WALL_COUNT 0
+static const int8_t l13r12_walls[] = { 0, 0, 0, 0 };
 
-#define L13R12_ENEMY_COUNT 2
-static const int8_t l13r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R12_ENEMY_COUNT 0
+static const int8_t l13r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R12_START_X  -75
 #define L13R12_START_Y  40
 #define L13R12_MINER_X  0
 #define L13R12_MINER_Y  -40
 
-#define L13R13_WALL_COUNT 1
-static const int8_t l13r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R13_WALL_COUNT 0
+static const int8_t l13r13_walls[] = { 0, 0, 0, 0 };
 
-#define L13R13_ENEMY_COUNT 2
-static const int8_t l13r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R13_ENEMY_COUNT 0
+static const int8_t l13r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R13_START_X  -75
 #define L13R13_START_Y  40
 #define L13R13_MINER_X  0
 #define L13R13_MINER_Y  -40
 
-#define L13R14_WALL_COUNT 1
-static const int8_t l13r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R14_WALL_COUNT 0
+static const int8_t l13r14_walls[] = { 0, 0, 0, 0 };
 
-#define L13R14_ENEMY_COUNT 2
-static const int8_t l13r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R14_ENEMY_COUNT 0
+static const int8_t l13r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R14_START_X  -75
 #define L13R14_START_Y  40
 #define L13R14_MINER_X  0
 #define L13R14_MINER_Y  -40
 
-#define L13R15_WALL_COUNT 1
-static const int8_t l13r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R15_WALL_COUNT 0
+static const int8_t l13r15_walls[] = { 0, 0, 0, 0 };
 
-#define L13R15_ENEMY_COUNT 2
-static const int8_t l13r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R15_ENEMY_COUNT 0
+static const int8_t l13r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R15_START_X  -75
 #define L13R15_START_Y  40
 #define L13R15_MINER_X  0
 #define L13R15_MINER_Y  -40
 
-#define L13R16_WALL_COUNT 1
-static const int8_t l13r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L13R16_WALL_COUNT 0
+static const int8_t l13r16_walls[] = { 0, 0, 0, 0 };
 
-#define L13R16_ENEMY_COUNT 2
-static const int8_t l13r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L13R16_ENEMY_COUNT 0
+static const int8_t l13r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L13R16_START_X  -75
 #define L13R16_START_Y  40
@@ -5595,7 +5131,7 @@ static const int8_t l13r16_enemies[] = {
 
 // Room lookup tables for level 13
 static const int8_t * const l13_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -5721,7 +5257,7 @@ static const int8_t l13_room_miners[] = {
     L13R16_MINER_X, L13R16_MINER_Y,
 };
 static const int8_t * const l13_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -5739,7 +5275,7 @@ static const int8_t * const l13_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l13_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -5790,7 +5326,7 @@ static const uint8_t l13_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l13_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -5845,240 +5381,165 @@ static const int8_t l14r1_enemies[] = { 0, 0, 0, 0 };
 #define L14R1_MINER_X  0
 #define L14R1_MINER_Y  -40
 
-#define L14R2_WALL_COUNT 1
-static const int8_t l14r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R2_WALL_COUNT 0
+static const int8_t l14r2_walls[] = { 0, 0, 0, 0 };
 
-#define L14R2_ENEMY_COUNT 2
-static const int8_t l14r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R2_ENEMY_COUNT 0
+static const int8_t l14r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R2_START_X  -75
 #define L14R2_START_Y  40
 #define L14R2_MINER_X  0
 #define L14R2_MINER_Y  -40
 
-#define L14R3_WALL_COUNT 1
-static const int8_t l14r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R3_WALL_COUNT 0
+static const int8_t l14r3_walls[] = { 0, 0, 0, 0 };
 
-#define L14R3_ENEMY_COUNT 2
-static const int8_t l14r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R3_ENEMY_COUNT 0
+static const int8_t l14r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R3_START_X  -75
 #define L14R3_START_Y  40
 #define L14R3_MINER_X  0
 #define L14R3_MINER_Y  -40
 
-#define L14R4_WALL_COUNT 1
-static const int8_t l14r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R4_WALL_COUNT 0
+static const int8_t l14r4_walls[] = { 0, 0, 0, 0 };
 
-#define L14R4_ENEMY_COUNT 2
-static const int8_t l14r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R4_ENEMY_COUNT 0
+static const int8_t l14r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R4_START_X  -75
 #define L14R4_START_Y  40
 #define L14R4_MINER_X  0
 #define L14R4_MINER_Y  -40
 
-#define L14R5_WALL_COUNT 1
-static const int8_t l14r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R5_WALL_COUNT 0
+static const int8_t l14r5_walls[] = { 0, 0, 0, 0 };
 
-#define L14R5_ENEMY_COUNT 2
-static const int8_t l14r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R5_ENEMY_COUNT 0
+static const int8_t l14r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R5_START_X  -75
 #define L14R5_START_Y  40
 #define L14R5_MINER_X  0
 #define L14R5_MINER_Y  -40
 
-#define L14R6_WALL_COUNT 1
-static const int8_t l14r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R6_WALL_COUNT 0
+static const int8_t l14r6_walls[] = { 0, 0, 0, 0 };
 
-#define L14R6_ENEMY_COUNT 2
-static const int8_t l14r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R6_ENEMY_COUNT 0
+static const int8_t l14r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R6_START_X  -75
 #define L14R6_START_Y  40
 #define L14R6_MINER_X  0
 #define L14R6_MINER_Y  -40
 
-#define L14R7_WALL_COUNT 1
-static const int8_t l14r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R7_WALL_COUNT 0
+static const int8_t l14r7_walls[] = { 0, 0, 0, 0 };
 
-#define L14R7_ENEMY_COUNT 2
-static const int8_t l14r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R7_ENEMY_COUNT 0
+static const int8_t l14r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R7_START_X  -75
 #define L14R7_START_Y  40
 #define L14R7_MINER_X  0
 #define L14R7_MINER_Y  -40
 
-#define L14R8_WALL_COUNT 1
-static const int8_t l14r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R8_WALL_COUNT 0
+static const int8_t l14r8_walls[] = { 0, 0, 0, 0 };
 
-#define L14R8_ENEMY_COUNT 2
-static const int8_t l14r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R8_ENEMY_COUNT 0
+static const int8_t l14r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R8_START_X  -75
 #define L14R8_START_Y  40
 #define L14R8_MINER_X  0
 #define L14R8_MINER_Y  -40
 
-#define L14R9_WALL_COUNT 1
-static const int8_t l14r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R9_WALL_COUNT 0
+static const int8_t l14r9_walls[] = { 0, 0, 0, 0 };
 
-#define L14R9_ENEMY_COUNT 2
-static const int8_t l14r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R9_ENEMY_COUNT 0
+static const int8_t l14r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R9_START_X  -75
 #define L14R9_START_Y  40
 #define L14R9_MINER_X  0
 #define L14R9_MINER_Y  -40
 
-#define L14R10_WALL_COUNT 1
-static const int8_t l14r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R10_WALL_COUNT 0
+static const int8_t l14r10_walls[] = { 0, 0, 0, 0 };
 
-#define L14R10_ENEMY_COUNT 2
-static const int8_t l14r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R10_ENEMY_COUNT 0
+static const int8_t l14r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R10_START_X  -75
 #define L14R10_START_Y  40
 #define L14R10_MINER_X  0
 #define L14R10_MINER_Y  -40
 
-#define L14R11_WALL_COUNT 1
-static const int8_t l14r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R11_WALL_COUNT 0
+static const int8_t l14r11_walls[] = { 0, 0, 0, 0 };
 
-#define L14R11_ENEMY_COUNT 2
-static const int8_t l14r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R11_ENEMY_COUNT 0
+static const int8_t l14r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R11_START_X  -75
 #define L14R11_START_Y  40
 #define L14R11_MINER_X  0
 #define L14R11_MINER_Y  -40
 
-#define L14R12_WALL_COUNT 1
-static const int8_t l14r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R12_WALL_COUNT 0
+static const int8_t l14r12_walls[] = { 0, 0, 0, 0 };
 
-#define L14R12_ENEMY_COUNT 2
-static const int8_t l14r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R12_ENEMY_COUNT 0
+static const int8_t l14r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R12_START_X  -75
 #define L14R12_START_Y  40
 #define L14R12_MINER_X  0
 #define L14R12_MINER_Y  -40
 
-#define L14R13_WALL_COUNT 1
-static const int8_t l14r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R13_WALL_COUNT 0
+static const int8_t l14r13_walls[] = { 0, 0, 0, 0 };
 
-#define L14R13_ENEMY_COUNT 2
-static const int8_t l14r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R13_ENEMY_COUNT 0
+static const int8_t l14r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R13_START_X  -75
 #define L14R13_START_Y  40
 #define L14R13_MINER_X  0
 #define L14R13_MINER_Y  -40
 
-#define L14R14_WALL_COUNT 1
-static const int8_t l14r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R14_WALL_COUNT 0
+static const int8_t l14r14_walls[] = { 0, 0, 0, 0 };
 
-#define L14R14_ENEMY_COUNT 2
-static const int8_t l14r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R14_ENEMY_COUNT 0
+static const int8_t l14r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R14_START_X  -75
 #define L14R14_START_Y  40
 #define L14R14_MINER_X  0
 #define L14R14_MINER_Y  -40
 
-#define L14R15_WALL_COUNT 1
-static const int8_t l14r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R15_WALL_COUNT 0
+static const int8_t l14r15_walls[] = { 0, 0, 0, 0 };
 
-#define L14R15_ENEMY_COUNT 2
-static const int8_t l14r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R15_ENEMY_COUNT 0
+static const int8_t l14r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R15_START_X  -75
 #define L14R15_START_Y  40
 #define L14R15_MINER_X  0
 #define L14R15_MINER_Y  -40
 
-#define L14R16_WALL_COUNT 1
-static const int8_t l14r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L14R16_WALL_COUNT 0
+static const int8_t l14r16_walls[] = { 0, 0, 0, 0 };
 
-#define L14R16_ENEMY_COUNT 2
-static const int8_t l14r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L14R16_ENEMY_COUNT 0
+static const int8_t l14r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L14R16_START_X  -75
 #define L14R16_START_Y  40
@@ -6087,7 +5548,7 @@ static const int8_t l14r16_enemies[] = {
 
 // Room lookup tables for level 14
 static const int8_t * const l14_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -6213,7 +5674,7 @@ static const int8_t l14_room_miners[] = {
     L14R16_MINER_X, L14R16_MINER_Y,
 };
 static const int8_t * const l14_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -6231,7 +5692,7 @@ static const int8_t * const l14_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l14_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -6282,7 +5743,7 @@ static const uint8_t l14_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l14_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -6337,240 +5798,165 @@ static const int8_t l15r1_enemies[] = { 0, 0, 0, 0 };
 #define L15R1_MINER_X  0
 #define L15R1_MINER_Y  -40
 
-#define L15R2_WALL_COUNT 1
-static const int8_t l15r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R2_WALL_COUNT 0
+static const int8_t l15r2_walls[] = { 0, 0, 0, 0 };
 
-#define L15R2_ENEMY_COUNT 2
-static const int8_t l15r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R2_ENEMY_COUNT 0
+static const int8_t l15r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R2_START_X  -75
 #define L15R2_START_Y  40
 #define L15R2_MINER_X  0
 #define L15R2_MINER_Y  -40
 
-#define L15R3_WALL_COUNT 1
-static const int8_t l15r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R3_WALL_COUNT 0
+static const int8_t l15r3_walls[] = { 0, 0, 0, 0 };
 
-#define L15R3_ENEMY_COUNT 2
-static const int8_t l15r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R3_ENEMY_COUNT 0
+static const int8_t l15r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R3_START_X  -75
 #define L15R3_START_Y  40
 #define L15R3_MINER_X  0
 #define L15R3_MINER_Y  -40
 
-#define L15R4_WALL_COUNT 1
-static const int8_t l15r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R4_WALL_COUNT 0
+static const int8_t l15r4_walls[] = { 0, 0, 0, 0 };
 
-#define L15R4_ENEMY_COUNT 2
-static const int8_t l15r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R4_ENEMY_COUNT 0
+static const int8_t l15r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R4_START_X  -75
 #define L15R4_START_Y  40
 #define L15R4_MINER_X  0
 #define L15R4_MINER_Y  -40
 
-#define L15R5_WALL_COUNT 1
-static const int8_t l15r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R5_WALL_COUNT 0
+static const int8_t l15r5_walls[] = { 0, 0, 0, 0 };
 
-#define L15R5_ENEMY_COUNT 2
-static const int8_t l15r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R5_ENEMY_COUNT 0
+static const int8_t l15r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R5_START_X  -75
 #define L15R5_START_Y  40
 #define L15R5_MINER_X  0
 #define L15R5_MINER_Y  -40
 
-#define L15R6_WALL_COUNT 1
-static const int8_t l15r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R6_WALL_COUNT 0
+static const int8_t l15r6_walls[] = { 0, 0, 0, 0 };
 
-#define L15R6_ENEMY_COUNT 2
-static const int8_t l15r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R6_ENEMY_COUNT 0
+static const int8_t l15r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R6_START_X  -75
 #define L15R6_START_Y  40
 #define L15R6_MINER_X  0
 #define L15R6_MINER_Y  -40
 
-#define L15R7_WALL_COUNT 1
-static const int8_t l15r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R7_WALL_COUNT 0
+static const int8_t l15r7_walls[] = { 0, 0, 0, 0 };
 
-#define L15R7_ENEMY_COUNT 2
-static const int8_t l15r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R7_ENEMY_COUNT 0
+static const int8_t l15r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R7_START_X  -75
 #define L15R7_START_Y  40
 #define L15R7_MINER_X  0
 #define L15R7_MINER_Y  -40
 
-#define L15R8_WALL_COUNT 1
-static const int8_t l15r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R8_WALL_COUNT 0
+static const int8_t l15r8_walls[] = { 0, 0, 0, 0 };
 
-#define L15R8_ENEMY_COUNT 2
-static const int8_t l15r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R8_ENEMY_COUNT 0
+static const int8_t l15r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R8_START_X  -75
 #define L15R8_START_Y  40
 #define L15R8_MINER_X  0
 #define L15R8_MINER_Y  -40
 
-#define L15R9_WALL_COUNT 1
-static const int8_t l15r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R9_WALL_COUNT 0
+static const int8_t l15r9_walls[] = { 0, 0, 0, 0 };
 
-#define L15R9_ENEMY_COUNT 2
-static const int8_t l15r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R9_ENEMY_COUNT 0
+static const int8_t l15r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R9_START_X  -75
 #define L15R9_START_Y  40
 #define L15R9_MINER_X  0
 #define L15R9_MINER_Y  -40
 
-#define L15R10_WALL_COUNT 1
-static const int8_t l15r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R10_WALL_COUNT 0
+static const int8_t l15r10_walls[] = { 0, 0, 0, 0 };
 
-#define L15R10_ENEMY_COUNT 2
-static const int8_t l15r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R10_ENEMY_COUNT 0
+static const int8_t l15r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R10_START_X  -75
 #define L15R10_START_Y  40
 #define L15R10_MINER_X  0
 #define L15R10_MINER_Y  -40
 
-#define L15R11_WALL_COUNT 1
-static const int8_t l15r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R11_WALL_COUNT 0
+static const int8_t l15r11_walls[] = { 0, 0, 0, 0 };
 
-#define L15R11_ENEMY_COUNT 2
-static const int8_t l15r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R11_ENEMY_COUNT 0
+static const int8_t l15r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R11_START_X  -75
 #define L15R11_START_Y  40
 #define L15R11_MINER_X  0
 #define L15R11_MINER_Y  -40
 
-#define L15R12_WALL_COUNT 1
-static const int8_t l15r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R12_WALL_COUNT 0
+static const int8_t l15r12_walls[] = { 0, 0, 0, 0 };
 
-#define L15R12_ENEMY_COUNT 2
-static const int8_t l15r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R12_ENEMY_COUNT 0
+static const int8_t l15r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R12_START_X  -75
 #define L15R12_START_Y  40
 #define L15R12_MINER_X  0
 #define L15R12_MINER_Y  -40
 
-#define L15R13_WALL_COUNT 1
-static const int8_t l15r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R13_WALL_COUNT 0
+static const int8_t l15r13_walls[] = { 0, 0, 0, 0 };
 
-#define L15R13_ENEMY_COUNT 2
-static const int8_t l15r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R13_ENEMY_COUNT 0
+static const int8_t l15r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R13_START_X  -75
 #define L15R13_START_Y  40
 #define L15R13_MINER_X  0
 #define L15R13_MINER_Y  -40
 
-#define L15R14_WALL_COUNT 1
-static const int8_t l15r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R14_WALL_COUNT 0
+static const int8_t l15r14_walls[] = { 0, 0, 0, 0 };
 
-#define L15R14_ENEMY_COUNT 2
-static const int8_t l15r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R14_ENEMY_COUNT 0
+static const int8_t l15r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R14_START_X  -75
 #define L15R14_START_Y  40
 #define L15R14_MINER_X  0
 #define L15R14_MINER_Y  -40
 
-#define L15R15_WALL_COUNT 1
-static const int8_t l15r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R15_WALL_COUNT 0
+static const int8_t l15r15_walls[] = { 0, 0, 0, 0 };
 
-#define L15R15_ENEMY_COUNT 2
-static const int8_t l15r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R15_ENEMY_COUNT 0
+static const int8_t l15r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R15_START_X  -75
 #define L15R15_START_Y  40
 #define L15R15_MINER_X  0
 #define L15R15_MINER_Y  -40
 
-#define L15R16_WALL_COUNT 1
-static const int8_t l15r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L15R16_WALL_COUNT 0
+static const int8_t l15r16_walls[] = { 0, 0, 0, 0 };
 
-#define L15R16_ENEMY_COUNT 2
-static const int8_t l15r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L15R16_ENEMY_COUNT 0
+static const int8_t l15r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L15R16_START_X  -75
 #define L15R16_START_Y  40
@@ -6579,7 +5965,7 @@ static const int8_t l15r16_enemies[] = {
 
 // Room lookup tables for level 15
 static const int8_t * const l15_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -6705,7 +6091,7 @@ static const int8_t l15_room_miners[] = {
     L15R16_MINER_X, L15R16_MINER_Y,
 };
 static const int8_t * const l15_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -6723,7 +6109,7 @@ static const int8_t * const l15_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l15_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -6774,7 +6160,7 @@ static const uint8_t l15_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l15_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -6829,240 +6215,165 @@ static const int8_t l16r1_enemies[] = { 0, 0, 0, 0 };
 #define L16R1_MINER_X  0
 #define L16R1_MINER_Y  -40
 
-#define L16R2_WALL_COUNT 1
-static const int8_t l16r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R2_WALL_COUNT 0
+static const int8_t l16r2_walls[] = { 0, 0, 0, 0 };
 
-#define L16R2_ENEMY_COUNT 2
-static const int8_t l16r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R2_ENEMY_COUNT 0
+static const int8_t l16r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R2_START_X  -75
 #define L16R2_START_Y  40
 #define L16R2_MINER_X  0
 #define L16R2_MINER_Y  -40
 
-#define L16R3_WALL_COUNT 1
-static const int8_t l16r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R3_WALL_COUNT 0
+static const int8_t l16r3_walls[] = { 0, 0, 0, 0 };
 
-#define L16R3_ENEMY_COUNT 2
-static const int8_t l16r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R3_ENEMY_COUNT 0
+static const int8_t l16r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R3_START_X  -75
 #define L16R3_START_Y  40
 #define L16R3_MINER_X  0
 #define L16R3_MINER_Y  -40
 
-#define L16R4_WALL_COUNT 1
-static const int8_t l16r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R4_WALL_COUNT 0
+static const int8_t l16r4_walls[] = { 0, 0, 0, 0 };
 
-#define L16R4_ENEMY_COUNT 2
-static const int8_t l16r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R4_ENEMY_COUNT 0
+static const int8_t l16r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R4_START_X  -75
 #define L16R4_START_Y  40
 #define L16R4_MINER_X  0
 #define L16R4_MINER_Y  -40
 
-#define L16R5_WALL_COUNT 1
-static const int8_t l16r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R5_WALL_COUNT 0
+static const int8_t l16r5_walls[] = { 0, 0, 0, 0 };
 
-#define L16R5_ENEMY_COUNT 2
-static const int8_t l16r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R5_ENEMY_COUNT 0
+static const int8_t l16r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R5_START_X  -75
 #define L16R5_START_Y  40
 #define L16R5_MINER_X  0
 #define L16R5_MINER_Y  -40
 
-#define L16R6_WALL_COUNT 1
-static const int8_t l16r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R6_WALL_COUNT 0
+static const int8_t l16r6_walls[] = { 0, 0, 0, 0 };
 
-#define L16R6_ENEMY_COUNT 2
-static const int8_t l16r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R6_ENEMY_COUNT 0
+static const int8_t l16r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R6_START_X  -75
 #define L16R6_START_Y  40
 #define L16R6_MINER_X  0
 #define L16R6_MINER_Y  -40
 
-#define L16R7_WALL_COUNT 1
-static const int8_t l16r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R7_WALL_COUNT 0
+static const int8_t l16r7_walls[] = { 0, 0, 0, 0 };
 
-#define L16R7_ENEMY_COUNT 2
-static const int8_t l16r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R7_ENEMY_COUNT 0
+static const int8_t l16r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R7_START_X  -75
 #define L16R7_START_Y  40
 #define L16R7_MINER_X  0
 #define L16R7_MINER_Y  -40
 
-#define L16R8_WALL_COUNT 1
-static const int8_t l16r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R8_WALL_COUNT 0
+static const int8_t l16r8_walls[] = { 0, 0, 0, 0 };
 
-#define L16R8_ENEMY_COUNT 2
-static const int8_t l16r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R8_ENEMY_COUNT 0
+static const int8_t l16r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R8_START_X  -75
 #define L16R8_START_Y  40
 #define L16R8_MINER_X  0
 #define L16R8_MINER_Y  -40
 
-#define L16R9_WALL_COUNT 1
-static const int8_t l16r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R9_WALL_COUNT 0
+static const int8_t l16r9_walls[] = { 0, 0, 0, 0 };
 
-#define L16R9_ENEMY_COUNT 2
-static const int8_t l16r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R9_ENEMY_COUNT 0
+static const int8_t l16r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R9_START_X  -75
 #define L16R9_START_Y  40
 #define L16R9_MINER_X  0
 #define L16R9_MINER_Y  -40
 
-#define L16R10_WALL_COUNT 1
-static const int8_t l16r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R10_WALL_COUNT 0
+static const int8_t l16r10_walls[] = { 0, 0, 0, 0 };
 
-#define L16R10_ENEMY_COUNT 2
-static const int8_t l16r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R10_ENEMY_COUNT 0
+static const int8_t l16r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R10_START_X  -75
 #define L16R10_START_Y  40
 #define L16R10_MINER_X  0
 #define L16R10_MINER_Y  -40
 
-#define L16R11_WALL_COUNT 1
-static const int8_t l16r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R11_WALL_COUNT 0
+static const int8_t l16r11_walls[] = { 0, 0, 0, 0 };
 
-#define L16R11_ENEMY_COUNT 2
-static const int8_t l16r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R11_ENEMY_COUNT 0
+static const int8_t l16r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R11_START_X  -75
 #define L16R11_START_Y  40
 #define L16R11_MINER_X  0
 #define L16R11_MINER_Y  -40
 
-#define L16R12_WALL_COUNT 1
-static const int8_t l16r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R12_WALL_COUNT 0
+static const int8_t l16r12_walls[] = { 0, 0, 0, 0 };
 
-#define L16R12_ENEMY_COUNT 2
-static const int8_t l16r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R12_ENEMY_COUNT 0
+static const int8_t l16r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R12_START_X  -75
 #define L16R12_START_Y  40
 #define L16R12_MINER_X  0
 #define L16R12_MINER_Y  -40
 
-#define L16R13_WALL_COUNT 1
-static const int8_t l16r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R13_WALL_COUNT 0
+static const int8_t l16r13_walls[] = { 0, 0, 0, 0 };
 
-#define L16R13_ENEMY_COUNT 2
-static const int8_t l16r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R13_ENEMY_COUNT 0
+static const int8_t l16r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R13_START_X  -75
 #define L16R13_START_Y  40
 #define L16R13_MINER_X  0
 #define L16R13_MINER_Y  -40
 
-#define L16R14_WALL_COUNT 1
-static const int8_t l16r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R14_WALL_COUNT 0
+static const int8_t l16r14_walls[] = { 0, 0, 0, 0 };
 
-#define L16R14_ENEMY_COUNT 2
-static const int8_t l16r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R14_ENEMY_COUNT 0
+static const int8_t l16r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R14_START_X  -75
 #define L16R14_START_Y  40
 #define L16R14_MINER_X  0
 #define L16R14_MINER_Y  -40
 
-#define L16R15_WALL_COUNT 1
-static const int8_t l16r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R15_WALL_COUNT 0
+static const int8_t l16r15_walls[] = { 0, 0, 0, 0 };
 
-#define L16R15_ENEMY_COUNT 2
-static const int8_t l16r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R15_ENEMY_COUNT 0
+static const int8_t l16r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R15_START_X  -75
 #define L16R15_START_Y  40
 #define L16R15_MINER_X  0
 #define L16R15_MINER_Y  -40
 
-#define L16R16_WALL_COUNT 1
-static const int8_t l16r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L16R16_WALL_COUNT 0
+static const int8_t l16r16_walls[] = { 0, 0, 0, 0 };
 
-#define L16R16_ENEMY_COUNT 2
-static const int8_t l16r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L16R16_ENEMY_COUNT 0
+static const int8_t l16r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L16R16_START_X  -75
 #define L16R16_START_Y  40
@@ -7071,7 +6382,7 @@ static const int8_t l16r16_enemies[] = {
 
 // Room lookup tables for level 16
 static const int8_t * const l16_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -7197,7 +6508,7 @@ static const int8_t l16_room_miners[] = {
     L16R16_MINER_X, L16R16_MINER_Y,
 };
 static const int8_t * const l16_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -7215,7 +6526,7 @@ static const int8_t * const l16_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l16_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -7266,7 +6577,7 @@ static const uint8_t l16_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l16_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -7321,240 +6632,165 @@ static const int8_t l17r1_enemies[] = { 0, 0, 0, 0 };
 #define L17R1_MINER_X  0
 #define L17R1_MINER_Y  -40
 
-#define L17R2_WALL_COUNT 1
-static const int8_t l17r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R2_WALL_COUNT 0
+static const int8_t l17r2_walls[] = { 0, 0, 0, 0 };
 
-#define L17R2_ENEMY_COUNT 2
-static const int8_t l17r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R2_ENEMY_COUNT 0
+static const int8_t l17r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R2_START_X  -75
 #define L17R2_START_Y  40
 #define L17R2_MINER_X  0
 #define L17R2_MINER_Y  -40
 
-#define L17R3_WALL_COUNT 1
-static const int8_t l17r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R3_WALL_COUNT 0
+static const int8_t l17r3_walls[] = { 0, 0, 0, 0 };
 
-#define L17R3_ENEMY_COUNT 2
-static const int8_t l17r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R3_ENEMY_COUNT 0
+static const int8_t l17r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R3_START_X  -75
 #define L17R3_START_Y  40
 #define L17R3_MINER_X  0
 #define L17R3_MINER_Y  -40
 
-#define L17R4_WALL_COUNT 1
-static const int8_t l17r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R4_WALL_COUNT 0
+static const int8_t l17r4_walls[] = { 0, 0, 0, 0 };
 
-#define L17R4_ENEMY_COUNT 2
-static const int8_t l17r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R4_ENEMY_COUNT 0
+static const int8_t l17r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R4_START_X  -75
 #define L17R4_START_Y  40
 #define L17R4_MINER_X  0
 #define L17R4_MINER_Y  -40
 
-#define L17R5_WALL_COUNT 1
-static const int8_t l17r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R5_WALL_COUNT 0
+static const int8_t l17r5_walls[] = { 0, 0, 0, 0 };
 
-#define L17R5_ENEMY_COUNT 2
-static const int8_t l17r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R5_ENEMY_COUNT 0
+static const int8_t l17r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R5_START_X  -75
 #define L17R5_START_Y  40
 #define L17R5_MINER_X  0
 #define L17R5_MINER_Y  -40
 
-#define L17R6_WALL_COUNT 1
-static const int8_t l17r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R6_WALL_COUNT 0
+static const int8_t l17r6_walls[] = { 0, 0, 0, 0 };
 
-#define L17R6_ENEMY_COUNT 2
-static const int8_t l17r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R6_ENEMY_COUNT 0
+static const int8_t l17r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R6_START_X  -75
 #define L17R6_START_Y  40
 #define L17R6_MINER_X  0
 #define L17R6_MINER_Y  -40
 
-#define L17R7_WALL_COUNT 1
-static const int8_t l17r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R7_WALL_COUNT 0
+static const int8_t l17r7_walls[] = { 0, 0, 0, 0 };
 
-#define L17R7_ENEMY_COUNT 2
-static const int8_t l17r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R7_ENEMY_COUNT 0
+static const int8_t l17r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R7_START_X  -75
 #define L17R7_START_Y  40
 #define L17R7_MINER_X  0
 #define L17R7_MINER_Y  -40
 
-#define L17R8_WALL_COUNT 1
-static const int8_t l17r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R8_WALL_COUNT 0
+static const int8_t l17r8_walls[] = { 0, 0, 0, 0 };
 
-#define L17R8_ENEMY_COUNT 2
-static const int8_t l17r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R8_ENEMY_COUNT 0
+static const int8_t l17r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R8_START_X  -75
 #define L17R8_START_Y  40
 #define L17R8_MINER_X  0
 #define L17R8_MINER_Y  -40
 
-#define L17R9_WALL_COUNT 1
-static const int8_t l17r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R9_WALL_COUNT 0
+static const int8_t l17r9_walls[] = { 0, 0, 0, 0 };
 
-#define L17R9_ENEMY_COUNT 2
-static const int8_t l17r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R9_ENEMY_COUNT 0
+static const int8_t l17r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R9_START_X  -75
 #define L17R9_START_Y  40
 #define L17R9_MINER_X  0
 #define L17R9_MINER_Y  -40
 
-#define L17R10_WALL_COUNT 1
-static const int8_t l17r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R10_WALL_COUNT 0
+static const int8_t l17r10_walls[] = { 0, 0, 0, 0 };
 
-#define L17R10_ENEMY_COUNT 2
-static const int8_t l17r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R10_ENEMY_COUNT 0
+static const int8_t l17r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R10_START_X  -75
 #define L17R10_START_Y  40
 #define L17R10_MINER_X  0
 #define L17R10_MINER_Y  -40
 
-#define L17R11_WALL_COUNT 1
-static const int8_t l17r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R11_WALL_COUNT 0
+static const int8_t l17r11_walls[] = { 0, 0, 0, 0 };
 
-#define L17R11_ENEMY_COUNT 2
-static const int8_t l17r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R11_ENEMY_COUNT 0
+static const int8_t l17r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R11_START_X  -75
 #define L17R11_START_Y  40
 #define L17R11_MINER_X  0
 #define L17R11_MINER_Y  -40
 
-#define L17R12_WALL_COUNT 1
-static const int8_t l17r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R12_WALL_COUNT 0
+static const int8_t l17r12_walls[] = { 0, 0, 0, 0 };
 
-#define L17R12_ENEMY_COUNT 2
-static const int8_t l17r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R12_ENEMY_COUNT 0
+static const int8_t l17r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R12_START_X  -75
 #define L17R12_START_Y  40
 #define L17R12_MINER_X  0
 #define L17R12_MINER_Y  -40
 
-#define L17R13_WALL_COUNT 1
-static const int8_t l17r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R13_WALL_COUNT 0
+static const int8_t l17r13_walls[] = { 0, 0, 0, 0 };
 
-#define L17R13_ENEMY_COUNT 2
-static const int8_t l17r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R13_ENEMY_COUNT 0
+static const int8_t l17r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R13_START_X  -75
 #define L17R13_START_Y  40
 #define L17R13_MINER_X  0
 #define L17R13_MINER_Y  -40
 
-#define L17R14_WALL_COUNT 1
-static const int8_t l17r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R14_WALL_COUNT 0
+static const int8_t l17r14_walls[] = { 0, 0, 0, 0 };
 
-#define L17R14_ENEMY_COUNT 2
-static const int8_t l17r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R14_ENEMY_COUNT 0
+static const int8_t l17r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R14_START_X  -75
 #define L17R14_START_Y  40
 #define L17R14_MINER_X  0
 #define L17R14_MINER_Y  -40
 
-#define L17R15_WALL_COUNT 1
-static const int8_t l17r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R15_WALL_COUNT 0
+static const int8_t l17r15_walls[] = { 0, 0, 0, 0 };
 
-#define L17R15_ENEMY_COUNT 2
-static const int8_t l17r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R15_ENEMY_COUNT 0
+static const int8_t l17r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R15_START_X  -75
 #define L17R15_START_Y  40
 #define L17R15_MINER_X  0
 #define L17R15_MINER_Y  -40
 
-#define L17R16_WALL_COUNT 1
-static const int8_t l17r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L17R16_WALL_COUNT 0
+static const int8_t l17r16_walls[] = { 0, 0, 0, 0 };
 
-#define L17R16_ENEMY_COUNT 2
-static const int8_t l17r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L17R16_ENEMY_COUNT 0
+static const int8_t l17r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L17R16_START_X  -75
 #define L17R16_START_Y  40
@@ -7563,7 +6799,7 @@ static const int8_t l17r16_enemies[] = {
 
 // Room lookup tables for level 17
 static const int8_t * const l17_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -7689,7 +6925,7 @@ static const int8_t l17_room_miners[] = {
     L17R16_MINER_X, L17R16_MINER_Y,
 };
 static const int8_t * const l17_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -7707,7 +6943,7 @@ static const int8_t * const l17_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l17_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -7758,7 +6994,7 @@ static const uint8_t l17_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l17_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -7813,240 +7049,165 @@ static const int8_t l18r1_enemies[] = { 0, 0, 0, 0 };
 #define L18R1_MINER_X  0
 #define L18R1_MINER_Y  -40
 
-#define L18R2_WALL_COUNT 1
-static const int8_t l18r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R2_WALL_COUNT 0
+static const int8_t l18r2_walls[] = { 0, 0, 0, 0 };
 
-#define L18R2_ENEMY_COUNT 2
-static const int8_t l18r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R2_ENEMY_COUNT 0
+static const int8_t l18r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R2_START_X  -75
 #define L18R2_START_Y  40
 #define L18R2_MINER_X  0
 #define L18R2_MINER_Y  -40
 
-#define L18R3_WALL_COUNT 1
-static const int8_t l18r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R3_WALL_COUNT 0
+static const int8_t l18r3_walls[] = { 0, 0, 0, 0 };
 
-#define L18R3_ENEMY_COUNT 2
-static const int8_t l18r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R3_ENEMY_COUNT 0
+static const int8_t l18r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R3_START_X  -75
 #define L18R3_START_Y  40
 #define L18R3_MINER_X  0
 #define L18R3_MINER_Y  -40
 
-#define L18R4_WALL_COUNT 1
-static const int8_t l18r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R4_WALL_COUNT 0
+static const int8_t l18r4_walls[] = { 0, 0, 0, 0 };
 
-#define L18R4_ENEMY_COUNT 2
-static const int8_t l18r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R4_ENEMY_COUNT 0
+static const int8_t l18r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R4_START_X  -75
 #define L18R4_START_Y  40
 #define L18R4_MINER_X  0
 #define L18R4_MINER_Y  -40
 
-#define L18R5_WALL_COUNT 1
-static const int8_t l18r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R5_WALL_COUNT 0
+static const int8_t l18r5_walls[] = { 0, 0, 0, 0 };
 
-#define L18R5_ENEMY_COUNT 2
-static const int8_t l18r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R5_ENEMY_COUNT 0
+static const int8_t l18r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R5_START_X  -75
 #define L18R5_START_Y  40
 #define L18R5_MINER_X  0
 #define L18R5_MINER_Y  -40
 
-#define L18R6_WALL_COUNT 1
-static const int8_t l18r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R6_WALL_COUNT 0
+static const int8_t l18r6_walls[] = { 0, 0, 0, 0 };
 
-#define L18R6_ENEMY_COUNT 2
-static const int8_t l18r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R6_ENEMY_COUNT 0
+static const int8_t l18r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R6_START_X  -75
 #define L18R6_START_Y  40
 #define L18R6_MINER_X  0
 #define L18R6_MINER_Y  -40
 
-#define L18R7_WALL_COUNT 1
-static const int8_t l18r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R7_WALL_COUNT 0
+static const int8_t l18r7_walls[] = { 0, 0, 0, 0 };
 
-#define L18R7_ENEMY_COUNT 2
-static const int8_t l18r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R7_ENEMY_COUNT 0
+static const int8_t l18r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R7_START_X  -75
 #define L18R7_START_Y  40
 #define L18R7_MINER_X  0
 #define L18R7_MINER_Y  -40
 
-#define L18R8_WALL_COUNT 1
-static const int8_t l18r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R8_WALL_COUNT 0
+static const int8_t l18r8_walls[] = { 0, 0, 0, 0 };
 
-#define L18R8_ENEMY_COUNT 2
-static const int8_t l18r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R8_ENEMY_COUNT 0
+static const int8_t l18r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R8_START_X  -75
 #define L18R8_START_Y  40
 #define L18R8_MINER_X  0
 #define L18R8_MINER_Y  -40
 
-#define L18R9_WALL_COUNT 1
-static const int8_t l18r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R9_WALL_COUNT 0
+static const int8_t l18r9_walls[] = { 0, 0, 0, 0 };
 
-#define L18R9_ENEMY_COUNT 2
-static const int8_t l18r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R9_ENEMY_COUNT 0
+static const int8_t l18r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R9_START_X  -75
 #define L18R9_START_Y  40
 #define L18R9_MINER_X  0
 #define L18R9_MINER_Y  -40
 
-#define L18R10_WALL_COUNT 1
-static const int8_t l18r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R10_WALL_COUNT 0
+static const int8_t l18r10_walls[] = { 0, 0, 0, 0 };
 
-#define L18R10_ENEMY_COUNT 2
-static const int8_t l18r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R10_ENEMY_COUNT 0
+static const int8_t l18r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R10_START_X  -75
 #define L18R10_START_Y  40
 #define L18R10_MINER_X  0
 #define L18R10_MINER_Y  -40
 
-#define L18R11_WALL_COUNT 1
-static const int8_t l18r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R11_WALL_COUNT 0
+static const int8_t l18r11_walls[] = { 0, 0, 0, 0 };
 
-#define L18R11_ENEMY_COUNT 2
-static const int8_t l18r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R11_ENEMY_COUNT 0
+static const int8_t l18r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R11_START_X  -75
 #define L18R11_START_Y  40
 #define L18R11_MINER_X  0
 #define L18R11_MINER_Y  -40
 
-#define L18R12_WALL_COUNT 1
-static const int8_t l18r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R12_WALL_COUNT 0
+static const int8_t l18r12_walls[] = { 0, 0, 0, 0 };
 
-#define L18R12_ENEMY_COUNT 2
-static const int8_t l18r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R12_ENEMY_COUNT 0
+static const int8_t l18r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R12_START_X  -75
 #define L18R12_START_Y  40
 #define L18R12_MINER_X  0
 #define L18R12_MINER_Y  -40
 
-#define L18R13_WALL_COUNT 1
-static const int8_t l18r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R13_WALL_COUNT 0
+static const int8_t l18r13_walls[] = { 0, 0, 0, 0 };
 
-#define L18R13_ENEMY_COUNT 2
-static const int8_t l18r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R13_ENEMY_COUNT 0
+static const int8_t l18r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R13_START_X  -75
 #define L18R13_START_Y  40
 #define L18R13_MINER_X  0
 #define L18R13_MINER_Y  -40
 
-#define L18R14_WALL_COUNT 1
-static const int8_t l18r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R14_WALL_COUNT 0
+static const int8_t l18r14_walls[] = { 0, 0, 0, 0 };
 
-#define L18R14_ENEMY_COUNT 2
-static const int8_t l18r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R14_ENEMY_COUNT 0
+static const int8_t l18r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R14_START_X  -75
 #define L18R14_START_Y  40
 #define L18R14_MINER_X  0
 #define L18R14_MINER_Y  -40
 
-#define L18R15_WALL_COUNT 1
-static const int8_t l18r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R15_WALL_COUNT 0
+static const int8_t l18r15_walls[] = { 0, 0, 0, 0 };
 
-#define L18R15_ENEMY_COUNT 2
-static const int8_t l18r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R15_ENEMY_COUNT 0
+static const int8_t l18r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R15_START_X  -75
 #define L18R15_START_Y  40
 #define L18R15_MINER_X  0
 #define L18R15_MINER_Y  -40
 
-#define L18R16_WALL_COUNT 1
-static const int8_t l18r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L18R16_WALL_COUNT 0
+static const int8_t l18r16_walls[] = { 0, 0, 0, 0 };
 
-#define L18R16_ENEMY_COUNT 2
-static const int8_t l18r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L18R16_ENEMY_COUNT 0
+static const int8_t l18r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L18R16_START_X  -75
 #define L18R16_START_Y  40
@@ -8055,7 +7216,7 @@ static const int8_t l18r16_enemies[] = {
 
 // Room lookup tables for level 18
 static const int8_t * const l18_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -8181,7 +7342,7 @@ static const int8_t l18_room_miners[] = {
     L18R16_MINER_X, L18R16_MINER_Y,
 };
 static const int8_t * const l18_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -8199,7 +7360,7 @@ static const int8_t * const l18_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l18_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -8250,7 +7411,7 @@ static const uint8_t l18_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l18_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -8305,240 +7466,165 @@ static const int8_t l19r1_enemies[] = { 0, 0, 0, 0 };
 #define L19R1_MINER_X  0
 #define L19R1_MINER_Y  -40
 
-#define L19R2_WALL_COUNT 1
-static const int8_t l19r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R2_WALL_COUNT 0
+static const int8_t l19r2_walls[] = { 0, 0, 0, 0 };
 
-#define L19R2_ENEMY_COUNT 2
-static const int8_t l19r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R2_ENEMY_COUNT 0
+static const int8_t l19r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R2_START_X  -75
 #define L19R2_START_Y  40
 #define L19R2_MINER_X  0
 #define L19R2_MINER_Y  -40
 
-#define L19R3_WALL_COUNT 1
-static const int8_t l19r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R3_WALL_COUNT 0
+static const int8_t l19r3_walls[] = { 0, 0, 0, 0 };
 
-#define L19R3_ENEMY_COUNT 2
-static const int8_t l19r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R3_ENEMY_COUNT 0
+static const int8_t l19r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R3_START_X  -75
 #define L19R3_START_Y  40
 #define L19R3_MINER_X  0
 #define L19R3_MINER_Y  -40
 
-#define L19R4_WALL_COUNT 1
-static const int8_t l19r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R4_WALL_COUNT 0
+static const int8_t l19r4_walls[] = { 0, 0, 0, 0 };
 
-#define L19R4_ENEMY_COUNT 2
-static const int8_t l19r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R4_ENEMY_COUNT 0
+static const int8_t l19r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R4_START_X  -75
 #define L19R4_START_Y  40
 #define L19R4_MINER_X  0
 #define L19R4_MINER_Y  -40
 
-#define L19R5_WALL_COUNT 1
-static const int8_t l19r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R5_WALL_COUNT 0
+static const int8_t l19r5_walls[] = { 0, 0, 0, 0 };
 
-#define L19R5_ENEMY_COUNT 2
-static const int8_t l19r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R5_ENEMY_COUNT 0
+static const int8_t l19r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R5_START_X  -75
 #define L19R5_START_Y  40
 #define L19R5_MINER_X  0
 #define L19R5_MINER_Y  -40
 
-#define L19R6_WALL_COUNT 1
-static const int8_t l19r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R6_WALL_COUNT 0
+static const int8_t l19r6_walls[] = { 0, 0, 0, 0 };
 
-#define L19R6_ENEMY_COUNT 2
-static const int8_t l19r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R6_ENEMY_COUNT 0
+static const int8_t l19r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R6_START_X  -75
 #define L19R6_START_Y  40
 #define L19R6_MINER_X  0
 #define L19R6_MINER_Y  -40
 
-#define L19R7_WALL_COUNT 1
-static const int8_t l19r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R7_WALL_COUNT 0
+static const int8_t l19r7_walls[] = { 0, 0, 0, 0 };
 
-#define L19R7_ENEMY_COUNT 2
-static const int8_t l19r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R7_ENEMY_COUNT 0
+static const int8_t l19r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R7_START_X  -75
 #define L19R7_START_Y  40
 #define L19R7_MINER_X  0
 #define L19R7_MINER_Y  -40
 
-#define L19R8_WALL_COUNT 1
-static const int8_t l19r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R8_WALL_COUNT 0
+static const int8_t l19r8_walls[] = { 0, 0, 0, 0 };
 
-#define L19R8_ENEMY_COUNT 2
-static const int8_t l19r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R8_ENEMY_COUNT 0
+static const int8_t l19r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R8_START_X  -75
 #define L19R8_START_Y  40
 #define L19R8_MINER_X  0
 #define L19R8_MINER_Y  -40
 
-#define L19R9_WALL_COUNT 1
-static const int8_t l19r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R9_WALL_COUNT 0
+static const int8_t l19r9_walls[] = { 0, 0, 0, 0 };
 
-#define L19R9_ENEMY_COUNT 2
-static const int8_t l19r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R9_ENEMY_COUNT 0
+static const int8_t l19r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R9_START_X  -75
 #define L19R9_START_Y  40
 #define L19R9_MINER_X  0
 #define L19R9_MINER_Y  -40
 
-#define L19R10_WALL_COUNT 1
-static const int8_t l19r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R10_WALL_COUNT 0
+static const int8_t l19r10_walls[] = { 0, 0, 0, 0 };
 
-#define L19R10_ENEMY_COUNT 2
-static const int8_t l19r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R10_ENEMY_COUNT 0
+static const int8_t l19r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R10_START_X  -75
 #define L19R10_START_Y  40
 #define L19R10_MINER_X  0
 #define L19R10_MINER_Y  -40
 
-#define L19R11_WALL_COUNT 1
-static const int8_t l19r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R11_WALL_COUNT 0
+static const int8_t l19r11_walls[] = { 0, 0, 0, 0 };
 
-#define L19R11_ENEMY_COUNT 2
-static const int8_t l19r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R11_ENEMY_COUNT 0
+static const int8_t l19r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R11_START_X  -75
 #define L19R11_START_Y  40
 #define L19R11_MINER_X  0
 #define L19R11_MINER_Y  -40
 
-#define L19R12_WALL_COUNT 1
-static const int8_t l19r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R12_WALL_COUNT 0
+static const int8_t l19r12_walls[] = { 0, 0, 0, 0 };
 
-#define L19R12_ENEMY_COUNT 2
-static const int8_t l19r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R12_ENEMY_COUNT 0
+static const int8_t l19r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R12_START_X  -75
 #define L19R12_START_Y  40
 #define L19R12_MINER_X  0
 #define L19R12_MINER_Y  -40
 
-#define L19R13_WALL_COUNT 1
-static const int8_t l19r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R13_WALL_COUNT 0
+static const int8_t l19r13_walls[] = { 0, 0, 0, 0 };
 
-#define L19R13_ENEMY_COUNT 2
-static const int8_t l19r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R13_ENEMY_COUNT 0
+static const int8_t l19r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R13_START_X  -75
 #define L19R13_START_Y  40
 #define L19R13_MINER_X  0
 #define L19R13_MINER_Y  -40
 
-#define L19R14_WALL_COUNT 1
-static const int8_t l19r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R14_WALL_COUNT 0
+static const int8_t l19r14_walls[] = { 0, 0, 0, 0 };
 
-#define L19R14_ENEMY_COUNT 2
-static const int8_t l19r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R14_ENEMY_COUNT 0
+static const int8_t l19r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R14_START_X  -75
 #define L19R14_START_Y  40
 #define L19R14_MINER_X  0
 #define L19R14_MINER_Y  -40
 
-#define L19R15_WALL_COUNT 1
-static const int8_t l19r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R15_WALL_COUNT 0
+static const int8_t l19r15_walls[] = { 0, 0, 0, 0 };
 
-#define L19R15_ENEMY_COUNT 2
-static const int8_t l19r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R15_ENEMY_COUNT 0
+static const int8_t l19r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R15_START_X  -75
 #define L19R15_START_Y  40
 #define L19R15_MINER_X  0
 #define L19R15_MINER_Y  -40
 
-#define L19R16_WALL_COUNT 1
-static const int8_t l19r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L19R16_WALL_COUNT 0
+static const int8_t l19r16_walls[] = { 0, 0, 0, 0 };
 
-#define L19R16_ENEMY_COUNT 2
-static const int8_t l19r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L19R16_ENEMY_COUNT 0
+static const int8_t l19r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L19R16_START_X  -75
 #define L19R16_START_Y  40
@@ -8547,7 +7633,7 @@ static const int8_t l19r16_enemies[] = {
 
 // Room lookup tables for level 19
 static const int8_t * const l19_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -8673,7 +7759,7 @@ static const int8_t l19_room_miners[] = {
     L19R16_MINER_X, L19R16_MINER_Y,
 };
 static const int8_t * const l19_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -8691,7 +7777,7 @@ static const int8_t * const l19_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l19_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -8742,7 +7828,7 @@ static const uint8_t l19_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l19_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -8797,240 +7883,165 @@ static const int8_t l20r1_enemies[] = { 0, 0, 0, 0 };
 #define L20R1_MINER_X  0
 #define L20R1_MINER_Y  -40
 
-#define L20R2_WALL_COUNT 1
-static const int8_t l20r2_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R2_WALL_COUNT 0
+static const int8_t l20r2_walls[] = { 0, 0, 0, 0 };
 
-#define L20R2_ENEMY_COUNT 2
-static const int8_t l20r2_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R2_ENEMY_COUNT 0
+static const int8_t l20r2_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R2_START_X  -75
 #define L20R2_START_Y  40
 #define L20R2_MINER_X  0
 #define L20R2_MINER_Y  -40
 
-#define L20R3_WALL_COUNT 1
-static const int8_t l20r3_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R3_WALL_COUNT 0
+static const int8_t l20r3_walls[] = { 0, 0, 0, 0 };
 
-#define L20R3_ENEMY_COUNT 2
-static const int8_t l20r3_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R3_ENEMY_COUNT 0
+static const int8_t l20r3_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R3_START_X  -75
 #define L20R3_START_Y  40
 #define L20R3_MINER_X  0
 #define L20R3_MINER_Y  -40
 
-#define L20R4_WALL_COUNT 1
-static const int8_t l20r4_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R4_WALL_COUNT 0
+static const int8_t l20r4_walls[] = { 0, 0, 0, 0 };
 
-#define L20R4_ENEMY_COUNT 2
-static const int8_t l20r4_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R4_ENEMY_COUNT 0
+static const int8_t l20r4_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R4_START_X  -75
 #define L20R4_START_Y  40
 #define L20R4_MINER_X  0
 #define L20R4_MINER_Y  -40
 
-#define L20R5_WALL_COUNT 1
-static const int8_t l20r5_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R5_WALL_COUNT 0
+static const int8_t l20r5_walls[] = { 0, 0, 0, 0 };
 
-#define L20R5_ENEMY_COUNT 2
-static const int8_t l20r5_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R5_ENEMY_COUNT 0
+static const int8_t l20r5_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R5_START_X  -75
 #define L20R5_START_Y  40
 #define L20R5_MINER_X  0
 #define L20R5_MINER_Y  -40
 
-#define L20R6_WALL_COUNT 1
-static const int8_t l20r6_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R6_WALL_COUNT 0
+static const int8_t l20r6_walls[] = { 0, 0, 0, 0 };
 
-#define L20R6_ENEMY_COUNT 2
-static const int8_t l20r6_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R6_ENEMY_COUNT 0
+static const int8_t l20r6_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R6_START_X  -75
 #define L20R6_START_Y  40
 #define L20R6_MINER_X  0
 #define L20R6_MINER_Y  -40
 
-#define L20R7_WALL_COUNT 1
-static const int8_t l20r7_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R7_WALL_COUNT 0
+static const int8_t l20r7_walls[] = { 0, 0, 0, 0 };
 
-#define L20R7_ENEMY_COUNT 2
-static const int8_t l20r7_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R7_ENEMY_COUNT 0
+static const int8_t l20r7_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R7_START_X  -75
 #define L20R7_START_Y  40
 #define L20R7_MINER_X  0
 #define L20R7_MINER_Y  -40
 
-#define L20R8_WALL_COUNT 1
-static const int8_t l20r8_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R8_WALL_COUNT 0
+static const int8_t l20r8_walls[] = { 0, 0, 0, 0 };
 
-#define L20R8_ENEMY_COUNT 2
-static const int8_t l20r8_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R8_ENEMY_COUNT 0
+static const int8_t l20r8_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R8_START_X  -75
 #define L20R8_START_Y  40
 #define L20R8_MINER_X  0
 #define L20R8_MINER_Y  -40
 
-#define L20R9_WALL_COUNT 1
-static const int8_t l20r9_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R9_WALL_COUNT 0
+static const int8_t l20r9_walls[] = { 0, 0, 0, 0 };
 
-#define L20R9_ENEMY_COUNT 2
-static const int8_t l20r9_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R9_ENEMY_COUNT 0
+static const int8_t l20r9_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R9_START_X  -75
 #define L20R9_START_Y  40
 #define L20R9_MINER_X  0
 #define L20R9_MINER_Y  -40
 
-#define L20R10_WALL_COUNT 1
-static const int8_t l20r10_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R10_WALL_COUNT 0
+static const int8_t l20r10_walls[] = { 0, 0, 0, 0 };
 
-#define L20R10_ENEMY_COUNT 2
-static const int8_t l20r10_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R10_ENEMY_COUNT 0
+static const int8_t l20r10_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R10_START_X  -75
 #define L20R10_START_Y  40
 #define L20R10_MINER_X  0
 #define L20R10_MINER_Y  -40
 
-#define L20R11_WALL_COUNT 1
-static const int8_t l20r11_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R11_WALL_COUNT 0
+static const int8_t l20r11_walls[] = { 0, 0, 0, 0 };
 
-#define L20R11_ENEMY_COUNT 2
-static const int8_t l20r11_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R11_ENEMY_COUNT 0
+static const int8_t l20r11_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R11_START_X  -75
 #define L20R11_START_Y  40
 #define L20R11_MINER_X  0
 #define L20R11_MINER_Y  -40
 
-#define L20R12_WALL_COUNT 1
-static const int8_t l20r12_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R12_WALL_COUNT 0
+static const int8_t l20r12_walls[] = { 0, 0, 0, 0 };
 
-#define L20R12_ENEMY_COUNT 2
-static const int8_t l20r12_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R12_ENEMY_COUNT 0
+static const int8_t l20r12_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R12_START_X  -75
 #define L20R12_START_Y  40
 #define L20R12_MINER_X  0
 #define L20R12_MINER_Y  -40
 
-#define L20R13_WALL_COUNT 1
-static const int8_t l20r13_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R13_WALL_COUNT 0
+static const int8_t l20r13_walls[] = { 0, 0, 0, 0 };
 
-#define L20R13_ENEMY_COUNT 2
-static const int8_t l20r13_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R13_ENEMY_COUNT 0
+static const int8_t l20r13_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R13_START_X  -75
 #define L20R13_START_Y  40
 #define L20R13_MINER_X  0
 #define L20R13_MINER_Y  -40
 
-#define L20R14_WALL_COUNT 1
-static const int8_t l20r14_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R14_WALL_COUNT 0
+static const int8_t l20r14_walls[] = { 0, 0, 0, 0 };
 
-#define L20R14_ENEMY_COUNT 2
-static const int8_t l20r14_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R14_ENEMY_COUNT 0
+static const int8_t l20r14_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R14_START_X  -75
 #define L20R14_START_Y  40
 #define L20R14_MINER_X  0
 #define L20R14_MINER_Y  -40
 
-#define L20R15_WALL_COUNT 1
-static const int8_t l20r15_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R15_WALL_COUNT 0
+static const int8_t l20r15_walls[] = { 0, 0, 0, 0 };
 
-#define L20R15_ENEMY_COUNT 2
-static const int8_t l20r15_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R15_ENEMY_COUNT 0
+static const int8_t l20r15_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R15_START_X  -75
 #define L20R15_START_Y  40
 #define L20R15_MINER_X  0
 #define L20R15_MINER_Y  -40
 
-#define L20R16_WALL_COUNT 1
-static const int8_t l20r16_walls[] = {
-    0, -20, 10, 10,   // wall 0 (destroyable)
-};
+#define L20R16_WALL_COUNT 0
+static const int8_t l20r16_walls[] = { 0, 0, 0, 0 };
 
-#define L20R16_ENEMY_COUNT 2
-static const int8_t l20r16_enemies[] = {
-    -40, 30, 1, 0,   // enemy 0 (bat)
-    40, 10, -1, 1,   // enemy 1 (spider)
-};
+#define L20R16_ENEMY_COUNT 0
+static const int8_t l20r16_enemies[] = { 0, 0, 0, 0 };
 
 #define L20R16_START_X  -75
 #define L20R16_START_Y  40
@@ -9039,7 +8050,7 @@ static const int8_t l20r16_enemies[] = {
 
 // Room lookup tables for level 20
 static const int8_t * const l20_room_caves[] = {
-    cave_r0_1_2,    // room 0 rows [0, 1, 2]
+    cave_r6_0_5,    // room 0 rows [6, 0, 5]
     cave_r0_1_2,    // room 1 rows [0, 1, 2]
     cave_r0_1_2,    // room 2 rows [0, 1, 2]
     cave_r0_1_2,    // room 3 rows [0, 1, 2]
@@ -9165,7 +8176,7 @@ static const int8_t l20_room_miners[] = {
     L20R16_MINER_X, L20R16_MINER_Y,
 };
 static const int8_t * const l20_room_cave_segs[] = {
-    cave_r0_1_2_segs,
+    cave_r6_0_5_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
     cave_r0_1_2_segs,
@@ -9183,7 +8194,7 @@ static const int8_t * const l20_room_cave_segs[] = {
     cave_r0_1_2_segs,
 };
 static const uint8_t l20_room_seg_counts[] = {
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R6_0_5_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
     CAVE_R0_1_2_SEG_COUNT,
@@ -9234,7 +8245,7 @@ static const uint8_t l20_room_has_lava[] = {
     0,
     0,
     0,
-    0,
+    1,
 };
 static const uint8_t l20_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
