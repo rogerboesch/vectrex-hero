@@ -3505,18 +3505,22 @@ int main(void) {{
             // Check room exits using per-room cave bounds
             {{
                 uint8_t exit_room = NONE;
-                if (player_x <= room_bounds[current_room * 4 + 0]) {{
+                if (player_x <= room_bounds[current_room * 4 + 0]
+                    && room_exits[current_room * 4 + 0] != NONE) {{
                     exit_room = room_exits[current_room * 4 + 0];
-                    if (exit_room != NONE) player_x = room_bounds[exit_room * 4 + 1];
-                }} else if (player_x >= room_bounds[current_room * 4 + 1]) {{
+                    player_x = room_bounds[exit_room * 4 + 1];
+                }} else if (player_x >= room_bounds[current_room * 4 + 1]
+                    && room_exits[current_room * 4 + 1] != NONE) {{
                     exit_room = room_exits[current_room * 4 + 1];
-                    if (exit_room != NONE) player_x = room_bounds[exit_room * 4 + 0];
-                }} else if (player_y >= room_bounds[current_room * 4 + 2]) {{
+                    player_x = room_bounds[exit_room * 4 + 0];
+                }} else if (player_y >= room_bounds[current_room * 4 + 2]
+                    && room_exits[current_room * 4 + 2] != NONE) {{
                     exit_room = room_exits[current_room * 4 + 2];
-                    if (exit_room != NONE) player_y = room_bounds[exit_room * 4 + 3];
-                }} else if (player_y <= room_bounds[current_room * 4 + 3]) {{
+                    player_y = room_bounds[exit_room * 4 + 3];
+                }} else if (player_y <= room_bounds[current_room * 4 + 3]
+                    && room_exits[current_room * 4 + 3] != NONE) {{
                     exit_room = room_exits[current_room * 4 + 3];
-                    if (exit_room != NONE) player_y = room_bounds[exit_room * 4 + 2];
+                    player_y = room_bounds[exit_room * 4 + 2];
                 }}
                 if (exit_room != NONE) {{
                     room_walls_destroyed[current_room] = walls_destroyed;
