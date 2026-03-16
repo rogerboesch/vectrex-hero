@@ -946,8 +946,25 @@ class LevelCanvas(tk.Canvas):
 class LayoutCanvas(tk.Canvas):
     TOOLS = ("select", "cave_line")
 
+    # Room grid: 50 boxes wide x 20 boxes tall, 10px per box, 10px margin
+    BOX_PX = 10
+    GRID_W = 50      # boxes wide
+    GRID_H = 20      # boxes tall
+    MARGIN = 10
+    CANVAS_W = GRID_W * BOX_PX + 2 * MARGIN   # 520
+    CANVAS_H = GRID_H * BOX_PX + 2 * MARGIN   # 220
+
+    # Vectrex room bounds
+    ROOM_LEFT = -125
+    ROOM_RIGHT = 125
+    ROOM_BOTTOM = -50
+    ROOM_TOP = 50
+
+    # Block marker lines (cyan) — every 6 boxes from top
+    BLOCK_ROWS = 6
+
     def __init__(self, parent, app):
-        super().__init__(parent, width=CANVAS_SIZE, height=CANVAS_SIZE,
+        super().__init__(parent, width=self.CANVAS_W, height=self.CANVAS_H,
                          bg="#0a0a1a", highlightthickness=0)
         self.app = app
         self.tool = "select"
@@ -978,61 +995,90 @@ class LayoutCanvas(tk.Canvas):
         return self.app._current_layout_data()
 
     def _vx(self, cx, cy):
-        vx, vy = canvas_to_vx(cx, cy)
+        """Canvas pixels → Vectrex coords (room-local mapping)."""
+        vx = (cx - self.MARGIN) / (self.GRID_W * self.BOX_PX) * 250 + self.ROOM_LEFT
+        vy = self.ROOM_TOP - (cy - self.MARGIN) / (self.GRID_H * self.BOX_PX) * 100
         if self.snap_enabled:
             vx, vy = snap(vx), snap(vy)
-        return clamp(vx), clamp(vy)
+        return clamp(vx, self.ROOM_LEFT, self.ROOM_RIGHT), clamp(vy, self.ROOM_BOTTOM, self.ROOM_TOP)
 
     def _cx(self, vx, vy):
-        return vx_to_canvas(vx, vy)
+        """Vectrex coords → canvas pixels (room-local mapping)."""
+        cx = (vx - self.ROOM_LEFT) / 250.0 * (self.GRID_W * self.BOX_PX) + self.MARGIN
+        cy = (self.ROOM_TOP - vy) / 100.0 * (self.GRID_H * self.BOX_PX) + self.MARGIN
+        return cx, cy
 
     # ---- Drawing ----
 
     def redraw(self):
         self.delete("all")
-        self._draw_grid()
-        self._draw_axes()
         layout = self.layout
-        if layout is None:
-            return
-        if self.app._layout_bg_show_var.get():
+        if layout is not None and self.app._layout_bg_show_var.get():
             self._draw_bg_image(layout)
-        self._draw_cave_lines(layout)
+        self._draw_grid()
+        if layout is not None:
+            self._draw_cave_lines(layout)
 
     def _draw_grid(self):
-        step = GRID_SNAP
-        for v in range(VX_MIN, VX_MAX + 1, step):
-            cx, _ = self._cx(v, 0)
-            _, cy = self._cx(0, v)
-            color = "#1a1a2e" if v % 50 != 0 else "#2a2a3e"
-            self.create_line(cx, 0, cx, CANVAS_SIZE, fill=color, tags="grid")
-            self.create_line(0, cy, CANVAS_SIZE, cy, fill=color, tags="grid")
-
-    def _draw_axes(self):
-        cx0, cy0 = self._cx(0, 0)
-        self.create_line(cx0, 0, cx0, CANVAS_SIZE, fill="#333355", dash=(2, 4), tags="axis")
-        self.create_line(0, cy0, CANVAS_SIZE, cy0, fill="#333355", dash=(2, 4), tags="axis")
+        m = self.MARGIN
+        w = self.GRID_W * self.BOX_PX
+        h = self.GRID_H * self.BOX_PX
+        # Vertical grid lines
+        for col in range(self.GRID_W + 1):
+            x = m + col * self.BOX_PX
+            self.create_line(x, m, x, m + h, fill="#1a1a2e", tags="grid")
+        # Horizontal grid lines
+        for row in range(self.GRID_H + 1):
+            y = m + row * self.BOX_PX
+            self.create_line(m, y, m + w, y, fill="#1a1a2e", tags="grid")
+        # Cyan horizontal block markers every 6 rows from top
+        for blk in range(1, 4):
+            y = m + blk * self.BLOCK_ROWS * self.BOX_PX
+            self.create_line(m, y, m + w, y, fill="#00cccc", width=1, tags="block_marker")
+        # Blue vertical markers 5 and 8 grids from left/right
+        for col in (5, 8, self.GRID_W // 2 - 3, self.GRID_W // 2 + 3, self.GRID_W - 8, self.GRID_W - 5):
+            x = m + col * self.BOX_PX
+            self.create_line(x, m, x, m + h, fill="#4444ff", width=1, tags="block_marker")
+        # Cyan vertical center line
+        cx = m + (self.GRID_W // 2) * self.BOX_PX
+        self.create_line(cx, m, cx, m + h, fill="#00cccc", width=1, tags="block_marker")
+        # Border rectangle
+        self.create_rectangle(m, m, m + w, m + h, outline="#2a2a3e", tags="border")
 
     def _draw_bg_image(self, layout):
         bg = layout.get("bg_image")
         if not bg or not bg.get("path"):
             return
         path = bg["path"]
-        scale = bg.get("scale", 1.0)
-        if path != self._bg_path_loaded or scale != self._bg_scale_loaded:
-            self._bg_photo = load_bg_image(path, CANVAS_SIZE, scale)
+        y_off = bg.get("y_offset", 0)
+        cache_key = (path, y_off)
+        if path != self._bg_path_loaded or y_off != self._bg_scale_loaded:
+            self._bg_photo = self._load_bg_fit_width(path)
             self._bg_path_loaded = path
-            self._bg_scale_loaded = scale
+            self._bg_scale_loaded = y_off
         if self._bg_photo:
-            cx, cy = self._cx(bg.get("x", 0), bg.get("y", 0))
-            self.create_image(cx, cy, image=self._bg_photo, anchor="center",
+            draw_w = self.GRID_W * self.BOX_PX  # 500
+            # Center horizontally in the grid area, apply y_offset in pixels
+            img_cx = self.MARGIN + draw_w / 2
+            img_cy = self.MARGIN + self._bg_photo.height() / 2 - y_off
+            self.create_image(img_cx, img_cy, image=self._bg_photo, anchor="center",
                               tags="bg_image")
-            if not bg.get("locked", False):
-                hw = self._bg_photo.width() // 2
-                hh = self._bg_photo.height() // 2
-                hx, hy = cx - hw, cy + hh
-                self.create_rectangle(hx - 4, hy - 4, hx + 4, hy + 4,
-                                      outline="#888", fill="#444", tags="bg_handle")
+
+    def _load_bg_fit_width(self, path):
+        """Load BG image scaled to exactly fill the grid width (500px), with opacity."""
+        if not HAS_PIL or not path or not os.path.isfile(path):
+            return None
+        try:
+            img = Image.open(path).convert("RGBA")
+            target_w = self.GRID_W * self.BOX_PX  # 500
+            scale = target_w / img.width
+            new_h = max(1, int(img.height * scale))
+            img = img.resize((target_w, new_h), Image.LANCZOS)
+            bg = Image.new("RGBA", img.size, (10, 10, 26, 255))
+            blended = Image.blend(bg, img, 0.5)
+            return ImageTk.PhotoImage(blended)
+        except Exception:
+            return None
 
     def _draw_cave_lines(self, layout):
         for pi, polyline in enumerate(layout["cave_lines"]):
@@ -1067,24 +1113,13 @@ class LayoutCanvas(tk.Canvas):
                 px, py = self._cx(pt[0], pt[1])
                 if abs(cx - px) < tol + 4 and abs(cy - py) < tol + 4:
                     return ("cave_point", (pi, vi))
-        # Background
-        if layout.get("bg_image") and self._bg_photo:
-            if not layout["bg_image"].get("locked", False):
-                bg = layout["bg_image"]
-                bcx, bcy = self._cx(bg.get("x", 0), bg.get("y", 0))
-                hw = self._bg_photo.width() // 2
-                hh = self._bg_photo.height() // 2
-                hx, hy = bcx - hw, bcy + hh
-                if abs(cx - hx) < tol + 6 and abs(cy - hy) < tol + 6:
-                    return ("bg_resize", 0)
-                return ("bg_image", 0)
         return None
 
     # ---- Event handlers ----
 
     def _on_motion(self, event):
-        vx, vy = canvas_to_vx(event.x, event.y)
-        self.app.update_status(f"Layout: ({int(vx)}, {int(vy)})  |  Tool: {self.tool}")
+        vx, vy = self._vx(event.x, event.y)
+        self.app.update_status(f"Layout: ({vx}, {vy})  |  Tool: {self.tool}")
 
     def _on_click(self, event):
         self.focus_set()
@@ -1094,10 +1129,6 @@ class LayoutCanvas(tk.Canvas):
             hit = self._hit_test(event.x, event.y)
             if hit:
                 self._drag_type, self._drag_idx = hit
-                if self._drag_type == "bg_resize":
-                    bg = self.layout.get("bg_image", {})
-                    self._bg_resize_start_scale = bg.get("scale", 1.0)
-                    self._bg_resize_start_y = event.y
             else:
                 self._drag_type = None
                 self._drag_idx = None
@@ -1113,16 +1144,6 @@ class LayoutCanvas(tk.Canvas):
             if self._drag_type == "cave_point":
                 pi, vi = self._drag_idx
                 layout["cave_lines"][pi][vi] = [vx, vy]
-            elif self._drag_type == "bg_resize" and layout.get("bg_image"):
-                dy = event.y - self._bg_resize_start_y
-                new_scale = max(0.1, self._bg_resize_start_scale + dy * 0.005)
-                new_scale = round(new_scale, 2)
-                layout["bg_image"]["scale"] = new_scale
-                self.app._layout_bg_scale.set(new_scale)
-                self.app._layout_bg_scale_label.config(text=f"{new_scale:.1f}x")
-            elif self._drag_type == "bg_image" and layout.get("bg_image"):
-                layout["bg_image"]["x"] = vx
-                layout["bg_image"]["y"] = vy
             self.redraw()
 
     def _on_release(self, event):
@@ -1735,7 +1756,7 @@ class App:
         self.layout_canvas.pack()
 
         # -- Right panel: BG image controls --
-        right = ttk.Frame(outer, width=250)
+        right = ttk.Frame(outer, width=180)
         right.pack(side="right", fill="y", padx=(0, 4), pady=4)
         right.pack_propagate(False)
 
@@ -1749,18 +1770,19 @@ class App:
         ttk.Checkbutton(right, text="Show BG",
                         variable=self._layout_bg_show_var,
                         command=self._on_layout_bg_show).pack(fill="x", padx=4, pady=2)
-        self._layout_bg_lock_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(right, text="Lock BG",
-                        variable=self._layout_bg_lock_var,
-                        command=self._on_layout_bg_lock).pack(fill="x", padx=4, pady=2)
-        ttk.Label(right, text="BG Scale:", font=("Courier", 8)).pack(
-            anchor="w", padx=4, pady=(4, 0))
-        self._layout_bg_scale = tk.DoubleVar(value=1.0)
-        ttk.Scale(right, from_=0.1, to=5.0,
-                  variable=self._layout_bg_scale, orient="horizontal",
-                  command=self._on_layout_bg_scale).pack(fill="x", padx=4)
-        self._layout_bg_scale_label = ttk.Label(right, text="1.0x", font=("Courier", 8))
-        self._layout_bg_scale_label.pack(anchor="w", padx=4)
+
+        ttk.Separator(right, orient="horizontal").pack(fill="x", pady=4)
+
+        ttk.Label(right, text="Y Offset", font=("Courier", 9)).pack(
+            anchor="w", padx=4, pady=(4, 2))
+        self._layout_bg_yoff_label = ttk.Label(right, text="0", font=("Courier", 9))
+        self._layout_bg_yoff_label.pack(anchor="w", padx=4)
+        yoff_row = ttk.Frame(right)
+        yoff_row.pack(padx=4, pady=4)
+        ttk.Button(yoff_row, text="\u2191 Up",
+                   command=lambda: self._move_layout_bg_y(1), width=6).pack(side="left", padx=2)
+        ttk.Button(yoff_row, text="\u2193 Down",
+                   command=lambda: self._move_layout_bg_y(-1), width=6).pack(side="left", padx=2)
 
     def _refresh_layout_editor_combo(self):
         layouts = self.project.get("layouts", [])
@@ -1799,25 +1821,19 @@ class App:
         layout = self._current_layout_data()
         if layout and layout.get("bg_image"):
             bg = layout["bg_image"]
-            s = bg.get("scale", 1.0)
-            self._layout_bg_scale.set(s)
-            self._layout_bg_scale_label.config(text=f"{s:.1f}x")
-            self._layout_bg_lock_var.set(bg.get("locked", False))
             self._layout_bg_show_var.set(bg.get("show", True))
+            self._layout_bg_yoff_label.config(text=str(bg.get("y_offset", 0)))
         else:
-            self._layout_bg_scale.set(1.0)
-            self._layout_bg_scale_label.config(text="1.0x")
-            self._layout_bg_lock_var.set(False)
             self._layout_bg_show_var.set(True)
+            self._layout_bg_yoff_label.config(text="0")
 
     def _load_layout_bg(self):
         layout = self._current_layout_data()
         if layout:
             self._load_bg_image_for(layout, self.layout_canvas)
             if layout.get("bg_image"):
-                self._layout_bg_scale.set(layout["bg_image"].get("scale", 1.0))
-                self._layout_bg_scale_label.config(
-                    text=f"{layout['bg_image']['scale']:.1f}x")
+                layout["bg_image"]["y_offset"] = layout["bg_image"].get("y_offset", 0)
+            self._sync_layout_bg_controls()
 
     def _clear_layout_bg(self):
         layout = self._current_layout_data()
@@ -1826,8 +1842,7 @@ class App:
             self.layout_canvas._bg_photo = None
             self.layout_canvas._bg_path_loaded = None
             self.layout_canvas.redraw()
-            self._layout_bg_scale.set(1.0)
-            self._layout_bg_scale_label.config(text="1.0x")
+            self._layout_bg_yoff_label.config(text="0")
 
     def _on_layout_bg_show(self):
         layout = self._current_layout_data()
@@ -1835,18 +1850,13 @@ class App:
             layout["bg_image"]["show"] = self._layout_bg_show_var.get()
         self.layout_canvas.redraw()
 
-    def _on_layout_bg_lock(self):
+    def _move_layout_bg_y(self, direction):
+        """Move BG image Y offset by 1 pixel up or down."""
         layout = self._current_layout_data()
         if layout and layout.get("bg_image"):
-            layout["bg_image"]["locked"] = self._layout_bg_lock_var.get()
-            self.layout_canvas.redraw()
-
-    def _on_layout_bg_scale(self, val=None):
-        layout = self._current_layout_data()
-        s = round(self._layout_bg_scale.get(), 1)
-        self._layout_bg_scale_label.config(text=f"{s:.1f}x")
-        if layout and layout.get("bg_image"):
-            layout["bg_image"]["scale"] = s
+            y_off = layout["bg_image"].get("y_offset", 0) + direction
+            layout["bg_image"]["y_offset"] = y_off
+            self._layout_bg_yoff_label.config(text=str(y_off))
             self.layout_canvas.redraw()
 
     def _build_sprite_tab(self, parent):
