@@ -1330,6 +1330,402 @@ static const int8_t cave_r7_15_7_segs[] = {
     -125, -40, 125, -40,
 };
 
+// Row combo [4, 0, 2]
+static const int8_t cave_r4_0_2[] = {
+    9, -40, -125, 0, 60, 30, 0, 0, -60, 0, 25, 30,
+    0, 0, -25, 0, 100, 30, 0, 0, -100, 9, -40, 125,
+    0, -60, 30, 0, 0, 60, 0, -25, 30, 0, 0, 25,
+    0, -100, 30, 0, 0, 100, 0,
+};
+#define CAVE_R4_0_2_SEG_COUNT 18
+static const int8_t cave_r4_0_2_segs[] = {
+    -125, 20, -25, 20,
+    -25, 20, -25, 50,
+    -25, 50, -125, 50,
+    125, 20, 25, 20,
+    25, 20, 25, 50,
+    25, 50, 125, 50,
+    -125, -10, -100, -10,
+    -100, -10, -100, 20,
+    -100, 20, -125, 20,
+    125, 20, 100, 20,
+    100, 20, 100, -10,
+    100, -10, 125, -10,
+    -125, -10, -65, -10,
+    -65, -10, -65, -40,
+    -65, -40, -125, -40,
+    125, -10, 65, -10,
+    65, -10, 65, -40,
+    65, -40, 125, -40,
+};
+
+// Row combo [2, 3, 4]
+static const int8_t cave_r2_3_4[] = {
+    9, 50, -125, 0, 60, -30, 0, 0, -60, 0, 80, -30,
+    0, 0, -80, 0, 100, -30, 0, 0, -100, 9, 50, 125,
+    0, -60, -30, 0, 0, 60, 0, -80, -30, 0, 0, 80,
+    0, -100, -30, 0, 0, 100, 0,
+};
+#define CAVE_R2_3_4_SEG_COUNT 18
+static const int8_t cave_r2_3_4_segs[] = {
+    -125, 50, -65, 50,
+    -65, 50, -65, 20,
+    -65, 20, -125, 20,
+    125, 50, 65, 50,
+    65, 50, 65, 20,
+    65, 20, 125, 20,
+    -125, 20, -45, 20,
+    -45, 20, -45, -10,
+    -45, -10, -125, -10,
+    125, 20, 45, 20,
+    45, 20, 45, -10,
+    45, -10, 125, -10,
+    -125, -40, -25, -40,
+    -25, -40, -25, -10,
+    -25, -10, -125, -10,
+    125, -40, 25, -40,
+    25, -40, 25, -10,
+    25, -10, 125, -10,
+};
+
+// Row combo [4, 0, 8]
+static const int8_t cave_r4_0_8[] = {
+    9, -40, -125, 0, 75, 30, 0, 0, -75, 0, 25, 30,
+    0, 0, -25, 0, 100, 30, 0, 0, -100, 9, -40, 125,
+    0, -75, 30, 0, 0, 75, 0, -25, 30, 0, 0, 25,
+    0, -100, 30, 0, 0, 100, 4, -10, -30, -30, 0, 0,
+    60, 30, 0, 0, -60, 0,
+};
+#define CAVE_R4_0_8_SEG_COUNT 22
+static const int8_t cave_r4_0_8_segs[] = {
+    -125, 20, -25, 20,
+    -25, 20, -25, 50,
+    -25, 50, -125, 50,
+    125, 20, 25, 20,
+    25, 20, 25, 50,
+    25, 50, 125, 50,
+    -125, -10, -100, -10,
+    -100, -10, -100, 20,
+    -100, 20, -125, 20,
+    125, 20, 100, 20,
+    100, 20, 100, -10,
+    100, -10, 125, -10,
+    -125, -10, -50, -10,
+    -50, -10, -50, -40,
+    -50, -40, -125, -40,
+    125, -10, 50, -10,
+    50, -10, 50, -40,
+    50, -40, 125, -40,
+    -30, -10, -30, -40,
+    -30, -40, 30, -40,
+    30, -40, 30, -10,
+    30, -10, -30, -10,
+};
+
+// Row combo [8, 14, 13]
+static const int8_t cave_r8_14_13[] = {
+    9, 50, -125, 0, 75, -30, 0, 0, -75, 0, 40, -30,
+    0, 0, -40, 0, 50, -30, 0, 0, -50, 9, 50, 125,
+    0, -75, -30, 0, 0, 75, 0, -40, -30, 0, 0, 40,
+    0, -50, -30, 0, 0, 50, 4, 50, -30, -30, 0, 0,
+    60, 30, 0, 0, -60, 4, 20, -5, -30, 0, 0, 10,
+    30, 0, 0, -10, 4, -10, -50, -30, 0, 0, 100, 30,
+    0, 0, -100, 0,
+};
+#define CAVE_R8_14_13_SEG_COUNT 30
+static const int8_t cave_r8_14_13_segs[] = {
+    -125, 50, -50, 50,
+    -50, 50, -50, 20,
+    -50, 20, -125, 20,
+    125, 50, 50, 50,
+    50, 50, 50, 20,
+    50, 20, 125, 20,
+    -30, 50, -30, 20,
+    -30, 20, 30, 20,
+    30, 20, 30, 50,
+    30, 50, -30, 50,
+    -125, 20, -85, 20,
+    -85, 20, -85, -10,
+    -85, -10, -125, -10,
+    -5, 20, -5, -10,
+    -5, -10, 5, -10,
+    5, -10, 5, 20,
+    5, 20, -5, 20,
+    125, 20, 85, 20,
+    85, 20, 85, -10,
+    85, -10, 125, -10,
+    -50, -10, -50, -40,
+    -50, -40, 50, -40,
+    50, -40, 50, -10,
+    50, -10, -50, -10,
+    -125, -10, -75, -10,
+    -75, -10, -75, -40,
+    -75, -40, -125, -40,
+    125, -10, 75, -10,
+    75, -10, 75, -40,
+    75, -40, 125, -40,
+};
+
+// Row combo [13, 1, 5]
+static const int8_t cave_r13_1_5[] = {
+    4, 50, -50, -30, 0, 0, 100, 30, 0, 0, -100, 9,
+    50, -125, 0, 50, -30, 0, 0, -50, 0, 40, -30, 0,
+    0, -40, 0, 110, -30, 0, 0, -110, 9, 50, 125, 0,
+    -50, -30, 0, 0, 50, 0, -40, -30, 0, 0, 40, 0,
+    -110, -30, 0, 0, 110, 0,
+};
+#define CAVE_R13_1_5_SEG_COUNT 22
+static const int8_t cave_r13_1_5_segs[] = {
+    -50, 50, -50, 20,
+    -50, 20, 50, 20,
+    50, 20, 50, 50,
+    50, 50, -50, 50,
+    -125, 50, -75, 50,
+    -75, 50, -75, 20,
+    -75, 20, -125, 20,
+    125, 50, 75, 50,
+    75, 50, 75, 20,
+    75, 20, 125, 20,
+    -125, 20, -85, 20,
+    -85, 20, -85, -10,
+    -85, -10, -125, -10,
+    125, 20, 85, 20,
+    85, 20, 85, -10,
+    85, -10, 125, -10,
+    -125, -10, -15, -10,
+    -15, -10, -15, -40,
+    -15, -40, -125, -40,
+    125, -40, 15, -40,
+    15, -40, 15, -10,
+    15, -10, 125, -10,
+};
+
+// Row combo [11, 14, 8]
+static const int8_t cave_r11_14_8[] = {
+    9, 50, -125, 0, 35, -30, 0, 0, -35, 0, 40, -30,
+    0, 0, -40, 0, 75, -30, 0, 0, -75, 9, -40, 125,
+    0, -75, 30, 0, 0, 75, 0, -40, 30, 0, 0, 40,
+    0, -35, 30, 0, 0, 35, 6, 50, -70, 0, 127, 0,
+    13, -30, 0, 0, -128, 0, -12, 30, 0, 4, 20, -5,
+    -30, 0, 0, 10, 30, 0, 0, -10, 4, -10, -30, -30,
+    0, 0, 60, 30, 0, 0, -60, 0,
+};
+#define CAVE_R11_14_8_SEG_COUNT 30
+static const int8_t cave_r11_14_8_segs[] = {
+    -125, 50, -90, 50,
+    -90, 50, -90, 20,
+    -90, 20, -125, 20,
+    125, 20, 90, 20,
+    90, 20, 90, 50,
+    90, 50, 125, 50,
+    -70, 50, 70, 50,
+    70, 50, 70, 20,
+    70, 20, -70, 20,
+    -70, 20, -70, 50,
+    -125, 20, -85, 20,
+    -85, 20, -85, -10,
+    -85, -10, -125, -10,
+    -5, 20, -5, -10,
+    -5, -10, 5, -10,
+    5, -10, 5, 20,
+    5, 20, -5, 20,
+    125, 20, 85, 20,
+    85, 20, 85, -10,
+    85, -10, 125, -10,
+    -125, -10, -50, -10,
+    -50, -10, -50, -40,
+    -50, -40, -125, -40,
+    125, -10, 50, -10,
+    50, -10, 50, -40,
+    50, -40, 125, -40,
+    -30, -10, -30, -40,
+    -30, -40, 30, -40,
+    30, -40, 30, -10,
+    30, -10, -30, -10,
+};
+
+// Row combo [8, 14, 12]
+static const int8_t cave_r8_14_12[] = {
+    9, 50, -125, 0, 75, -30, 0, 0, -75, 0, 40, -30,
+    0, 0, -40, 0, 25, -30, 0, 0, -25, 9, 50, 125,
+    0, -75, -30, 0, 0, 75, 0, -40, -30, 0, 0, 40,
+    0, -25, -30, 0, 0, 25, 4, 50, -30, -30, 0, 0,
+    60, 30, 0, 0, -60, 4, 20, -5, -30, 0, 0, 10,
+    30, 0, 0, -10, 4, -40, -55, 30, 0, 0, 110, -30,
+    0, 0, -110, 0,
+};
+#define CAVE_R8_14_12_SEG_COUNT 30
+static const int8_t cave_r8_14_12_segs[] = {
+    -125, 50, -50, 50,
+    -50, 50, -50, 20,
+    -50, 20, -125, 20,
+    125, 50, 50, 50,
+    50, 50, 50, 20,
+    50, 20, 125, 20,
+    -30, 50, -30, 20,
+    -30, 20, 30, 20,
+    30, 20, 30, 50,
+    30, 50, -30, 50,
+    -125, 20, -85, 20,
+    -85, 20, -85, -10,
+    -85, -10, -125, -10,
+    -5, 20, -5, -10,
+    -5, -10, 5, -10,
+    5, -10, 5, 20,
+    5, 20, -5, 20,
+    125, 20, 85, 20,
+    85, 20, 85, -10,
+    85, -10, 125, -10,
+    -125, -10, -100, -10,
+    -100, -10, -100, -40,
+    -100, -40, -125, -40,
+    125, -40, 100, -40,
+    100, -40, 100, -10,
+    100, -10, 125, -10,
+    -55, -40, -55, -10,
+    -55, -10, 55, -10,
+    55, -10, 55, -40,
+    55, -40, -55, -40,
+};
+
+// Row combo [12, 11, 12]
+static const int8_t cave_r12_11_12[] = {
+    9, 50, -125, 0, 25, -30, 0, 0, -25, 0, 35, -30,
+    0, 0, -35, 0, 25, -30, 0, 0, -25, 9, -40, 125,
+    0, -25, 30, 0, 0, 25, 0, -35, 30, 0, 0, 35,
+    0, -25, 30, 0, 0, 25, 4, 20, -55, 30, 0, 0,
+    110, -30, 0, 0, -110, 6, 20, -70, 0, 127, 0, 13,
+    -30, 0, 0, -128, 0, -12, 30, 0, 4, -40, -55, 30,
+    0, 0, 110, -30, 0, 0, -110, 0,
+};
+#define CAVE_R12_11_12_SEG_COUNT 30
+static const int8_t cave_r12_11_12_segs[] = {
+    -125, 50, -100, 50,
+    -100, 50, -100, 20,
+    -100, 20, -125, 20,
+    125, 20, 100, 20,
+    100, 20, 100, 50,
+    100, 50, 125, 50,
+    -55, 20, -55, 50,
+    -55, 50, 55, 50,
+    55, 50, 55, 20,
+    55, 20, -55, 20,
+    -125, 20, -90, 20,
+    -90, 20, -90, -10,
+    -90, -10, -125, -10,
+    125, -10, 90, -10,
+    90, -10, 90, 20,
+    90, 20, 125, 20,
+    -70, 20, 70, 20,
+    70, 20, 70, -10,
+    70, -10, -70, -10,
+    -70, -10, -70, 20,
+    -125, -10, -100, -10,
+    -100, -10, -100, -40,
+    -100, -40, -125, -40,
+    125, -40, 100, -40,
+    100, -40, 100, -10,
+    100, -10, 125, -10,
+    -55, -40, -55, -10,
+    -55, -10, 55, -10,
+    55, -10, 55, -40,
+    55, -40, -55, -40,
+};
+
+// Row combo [12, 15, 2]
+static const int8_t cave_r12_15_2[] = {
+    3, 50, -125, 0, 25, -30, 0, 0, -25, 9, -40, 125,
+    0, -60, 30, 0, 0, 60, 0, -30, 30, 0, 0, 30,
+    0, -25, 30, 0, 0, 25, 4, 20, -55, 30, 0, 0,
+    110, -30, 0, 0, -110, 3, -10, -125, 0, 60, -30, 0,
+    0, -60, 0,
+};
+#define CAVE_R12_15_2_SEG_COUNT 19
+static const int8_t cave_r12_15_2_segs[] = {
+    -125, 50, -100, 50,
+    -100, 50, -100, 20,
+    -100, 20, -125, 20,
+    125, 20, 100, 20,
+    100, 20, 100, 50,
+    100, 50, 125, 50,
+    -55, 20, -55, 50,
+    -55, 50, 55, 50,
+    55, 50, 55, 20,
+    55, 20, -55, 20,
+    125, 20, 95, 20,
+    95, 20, 95, -10,
+    95, -10, 125, -10,
+    -125, -10, -65, -10,
+    -65, -10, -65, -40,
+    -65, -40, -125, -40,
+    125, -10, 65, -10,
+    65, -10, 65, -40,
+    65, -40, 125, -40,
+};
+
+// Row combo [7, 21, 2]
+static const int8_t cave_r7_21_2[] = {
+    2, 50, -125, 0, 127, 0, 123, 2, 20, -125, 0, 127,
+    0, 123, 4, 20, -35, -30, 0, 0, 70, 30, 0, 0,
+    -70, 3, -10, -125, 0, 60, -30, 0, 0, -60, 3, -10,
+    125, 0, -60, -30, 0, 0, 60, 0,
+};
+#define CAVE_R7_21_2_SEG_COUNT 12
+static const int8_t cave_r7_21_2_segs[] = {
+    -125, 50, 125, 50,
+    -125, 20, 125, 20,
+    -35, 20, -35, -10,
+    -35, -10, 35, -10,
+    35, -10, 35, 20,
+    35, 20, -35, 20,
+    -125, -10, -65, -10,
+    -65, -10, -65, -40,
+    -65, -40, -125, -40,
+    125, -10, 65, -10,
+    65, -10, 65, -40,
+    65, -40, 125, -40,
+};
+
+// Row combo [7, 31, 14]
+static const int8_t cave_r7_31_14[] = {
+    2, 50, -125, 0, 127, 0, 123, 2, 20, -125, 0, 127,
+    0, 123, 3, -10, -125, 0, 40, -30, 0, 0, -40, 4,
+    -10, -5, -30, 0, 0, 10, 30, 0, 0, -10, 3, -10,
+    125, 0, -40, -30, 0, 0, 40, 0,
+};
+#define CAVE_R7_31_14_SEG_COUNT 12
+static const int8_t cave_r7_31_14_segs[] = {
+    -125, 50, 125, 50,
+    -125, 20, 125, 20,
+    -125, -10, -85, -10,
+    -85, -10, -85, -40,
+    -85, -40, -125, -40,
+    -5, -10, -5, -40,
+    -5, -40, 5, -40,
+    5, -40, 5, -10,
+    5, -10, -5, -10,
+    125, -10, 85, -10,
+    85, -10, 85, -40,
+    85, -40, 125, -40,
+};
+
+// Row combo [7, 16, 7]
+static const int8_t cave_r7_16_7[] = {
+    2, 50, -125, 0, 127, 0, 123, 7, -10, 125, 0, -123,
+    0, -127, 0, 30, 30, 0, 0, -30, 0, 127, 0, 123,
+    2, -40, -125, 0, 127, 0, 123, 0,
+};
+#define CAVE_R7_16_7_SEG_COUNT 7
+static const int8_t cave_r7_16_7_segs[] = {
+    -125, 50, 125, 50,
+    -125, 20, 125, 20,
+    -125, 20, -95, 20,
+    -95, 20, -95, -10,
+    -95, -10, -125, -10,
+    -125, -10, 125, -10,
+    -125, -40, 125, -40,
+};
+
 // Row combo [0, 1, 2]
 static const int8_t cave_r0_1_2[] = {
     9, -40, -125, 0, 60, 30, 0, 0, -60, 0, 40, 30,
@@ -2935,7 +3331,7 @@ static const int8_t l7_room_bounds[] = {
     -128, 127, 50, -50,   // room 11
 };
 // ============================================================
-// Level 8 (13 room(s))
+// Level 8 (14 room(s))
 // ============================================================
 
 #define L8R1_WALL_COUNT 1
@@ -2954,8 +3350,11 @@ static const int8_t l8r1_enemies[] = { 0, 0, 0, 0 };
 #define L8R2_WALL_COUNT 0
 static const int8_t l8r2_walls[] = { 0, 0, 0, 0 };
 
-#define L8R2_ENEMY_COUNT 0
-static const int8_t l8r2_enemies[] = { 0, 0, 0, 0 };
+#define L8R2_ENEMY_COUNT 2
+static const int8_t l8r2_enemies[] = {
+    -35, 10, 1, 1,   // enemy 0 (spider)
+    10, -20, 1, 1,   // enemy 1 (spider)
+};
 
 #define L8R2_START_X  -75
 #define L8R2_START_Y  40
@@ -2965,19 +3364,26 @@ static const int8_t l8r2_enemies[] = { 0, 0, 0, 0 };
 #define L8R3_WALL_COUNT 0
 static const int8_t l8r3_walls[] = { 0, 0, 0, 0 };
 
-#define L8R3_ENEMY_COUNT 0
-static const int8_t l8r3_enemies[] = { 0, 0, 0, 0 };
+#define L8R3_ENEMY_COUNT 1
+static const int8_t l8r3_enemies[] = {
+    10, -25, 1, 1,   // enemy 0 (spider)
+};
 
 #define L8R3_START_X  -75
 #define L8R3_START_Y  40
 #define L8R3_MINER_X  0
 #define L8R3_MINER_Y  -40
 
-#define L8R4_WALL_COUNT 0
-static const int8_t l8r4_walls[] = { 0, 0, 0, 0 };
+#define L8R4_WALL_COUNT 1
+static const int8_t l8r4_walls[] = {
+    5, -30, 12, 5,   // wall 0 (destroyable)
+};
 
-#define L8R4_ENEMY_COUNT 0
-static const int8_t l8r4_enemies[] = { 0, 0, 0, 0 };
+#define L8R4_ENEMY_COUNT 2
+static const int8_t l8r4_enemies[] = {
+    40, -25, 1, 1,   // enemy 0 (spider)
+    -70, 5, 1, 0,   // enemy 1 (bat)
+};
 
 #define L8R4_START_X  -75
 #define L8R4_START_Y  40
@@ -2987,41 +3393,55 @@ static const int8_t l8r4_enemies[] = { 0, 0, 0, 0 };
 #define L8R5_WALL_COUNT 0
 static const int8_t l8r5_walls[] = { 0, 0, 0, 0 };
 
-#define L8R5_ENEMY_COUNT 0
-static const int8_t l8r5_enemies[] = { 0, 0, 0, 0 };
+#define L8R5_ENEMY_COUNT 1
+static const int8_t l8r5_enemies[] = {
+    -75, -25, 1, 2,   // enemy 0 (snake)
+};
 
 #define L8R5_START_X  -75
 #define L8R5_START_Y  40
 #define L8R5_MINER_X  0
 #define L8R5_MINER_Y  -40
 
-#define L8R6_WALL_COUNT 0
-static const int8_t l8r6_walls[] = { 0, 0, 0, 0 };
+#define L8R6_WALL_COUNT 1
+static const int8_t l8r6_walls[] = {
+    5, -35, 12, 10,   // wall 0 (destroyable)
+};
 
-#define L8R6_ENEMY_COUNT 0
-static const int8_t l8r6_enemies[] = { 0, 0, 0, 0 };
+#define L8R6_ENEMY_COUNT 1
+static const int8_t l8r6_enemies[] = {
+    -5, 5, 1, 1,   // enemy 0 (spider)
+};
 
 #define L8R6_START_X  -75
 #define L8R6_START_Y  40
 #define L8R6_MINER_X  0
 #define L8R6_MINER_Y  -40
 
-#define L8R7_WALL_COUNT 0
-static const int8_t l8r7_walls[] = { 0, 0, 0, 0 };
+#define L8R7_WALL_COUNT 1
+static const int8_t l8r7_walls[] = {
+    5, -30, 12, 10,   // wall 0 (destroyable)
+};
 
-#define L8R7_ENEMY_COUNT 0
-static const int8_t l8r7_enemies[] = { 0, 0, 0, 0 };
+#define L8R7_ENEMY_COUNT 1
+static const int8_t l8r7_enemies[] = {
+    50, 10, 1, 1,   // enemy 0 (spider)
+};
 
 #define L8R7_START_X  -75
 #define L8R7_START_Y  40
 #define L8R7_MINER_X  0
 #define L8R7_MINER_Y  -40
 
-#define L8R8_WALL_COUNT 0
-static const int8_t l8r8_walls[] = { 0, 0, 0, 0 };
+#define L8R8_WALL_COUNT 1
+static const int8_t l8r8_walls[] = {
+    5, 52, 12, 10,   // wall 0 (destroyable)
+};
 
-#define L8R8_ENEMY_COUNT 0
-static const int8_t l8r8_enemies[] = { 0, 0, 0, 0 };
+#define L8R8_ENEMY_COUNT 1
+static const int8_t l8r8_enemies[] = {
+    10, 5, 1, 2,   // enemy 0 (snake)
+};
 
 #define L8R8_START_X  -75
 #define L8R8_START_Y  40
@@ -3031,8 +3451,11 @@ static const int8_t l8r8_enemies[] = { 0, 0, 0, 0 };
 #define L8R9_WALL_COUNT 0
 static const int8_t l8r9_walls[] = { 0, 0, 0, 0 };
 
-#define L8R9_ENEMY_COUNT 0
-static const int8_t l8r9_enemies[] = { 0, 0, 0, 0 };
+#define L8R9_ENEMY_COUNT 2
+static const int8_t l8r9_enemies[] = {
+    55, -25, 1, 2,   // enemy 0 (snake)
+    -75, 10, 1, 0,   // enemy 1 (bat)
+};
 
 #define L8R9_START_X  -75
 #define L8R9_START_Y  40
@@ -3053,51 +3476,76 @@ static const int8_t l8r10_enemies[] = { 0, 0, 0, 0 };
 #define L8R11_WALL_COUNT 0
 static const int8_t l8r11_walls[] = { 0, 0, 0, 0 };
 
-#define L8R11_ENEMY_COUNT 0
-static const int8_t l8r11_enemies[] = { 0, 0, 0, 0 };
+#define L8R11_ENEMY_COUNT 1
+static const int8_t l8r11_enemies[] = {
+    -5, 10, 1, 1,   // enemy 0 (spider)
+};
 
 #define L8R11_START_X  -75
 #define L8R11_START_Y  40
 #define L8R11_MINER_X  0
 #define L8R11_MINER_Y  -40
 
-#define L8R12_WALL_COUNT 0
-static const int8_t l8r12_walls[] = { 0, 0, 0, 0 };
+#define L8R12_WALL_COUNT 1
+static const int8_t l8r12_walls[] = {
+    5, -100, 12, 10,   // wall 0 (destroyable)
+};
 
-#define L8R12_ENEMY_COUNT 0
-static const int8_t l8r12_enemies[] = { 0, 0, 0, 0 };
+#define L8R12_ENEMY_COUNT 1
+static const int8_t l8r12_enemies[] = {
+    -25, -15, 1, 0,   // enemy 0 (bat)
+};
 
 #define L8R12_START_X  -75
 #define L8R12_START_Y  40
 #define L8R12_MINER_X  0
 #define L8R12_MINER_Y  -40
 
-#define L8R13_WALL_COUNT 0
-static const int8_t l8r13_walls[] = { 0, 0, 0, 0 };
+#define L8R13_WALL_COUNT 1
+static const int8_t l8r13_walls[] = {
+    5, -5, 12, 10,   // wall 0 (destroyable)
+};
 
-#define L8R13_ENEMY_COUNT 0
-static const int8_t l8r13_enemies[] = { 0, 0, 0, 0 };
+#define L8R13_ENEMY_COUNT 2
+static const int8_t l8r13_enemies[] = {
+    5, -25, 1, 2,   // enemy 0 (snake)
+    -55, 5, 1, 1,   // enemy 1 (spider)
+};
 
 #define L8R13_START_X  -75
 #define L8R13_START_Y  40
-#define L8R13_MINER_X  79
-#define L8R13_MINER_Y  -4
+#define L8R13_MINER_X  0
+#define L8R13_MINER_Y  -40
+
+#define L8R14_WALL_COUNT 0
+static const int8_t l8r14_walls[] = { 0, 0, 0, 0 };
+
+#define L8R14_ENEMY_COUNT 1
+static const int8_t l8r14_enemies[] = {
+    0, 11, 1, 1,   // enemy 0 (spider)
+};
+
+#define L8R14_START_X  -75
+#define L8R14_START_Y  40
+#define L8R14_MINER_X  -89
+#define L8R14_MINER_Y  -4
 
 // Room lookup tables for level 8
 static const int8_t * const l8_room_caves[] = {
     cave_r6_0_5,    // room 0 rows [6, 0, 5]
-    cave_r0_1_2,    // room 1 rows [0, 1, 2]
-    cave_r0_1_2,    // room 2 rows [0, 1, 2]
-    cave_r0_1_2,    // room 3 rows [0, 1, 2]
-    cave_r0_1_2,    // room 4 rows [0, 1, 2]
-    cave_r0_1_2,    // room 5 rows [0, 1, 2]
-    cave_r0_1_2,    // room 6 rows [0, 1, 2]
-    cave_r0_1_2,    // room 7 rows [0, 1, 2]
-    cave_r0_1_2,    // room 8 rows [0, 1, 2]
-    cave_r0_1_2,    // room 9 rows [0, 1, 2]
-    cave_r0_1_2,    // room 10 rows [0, 1, 2]
-    cave_r0_1_2,    // room 11 rows [0, 1, 2]
-    cave_r0_1_2,    // room 12 rows [0, 1, 2]
+    cave_r4_0_2,    // room 1 rows [4, 0, 2]
+    cave_r2_3_4,    // room 2 rows [2, 3, 4]
+    cave_r4_0_8,    // room 3 rows [4, 0, 8]
+    cave_r8_14_13,    // room 4 rows [8, 14, 13]
+    cave_r13_1_5,    // room 5 rows [13, 1, 5]
+    cave_r5_0_11,    // room 6 rows [5, 0, 11]
+    cave_r11_14_8,    // room 7 rows [11, 14, 8]
+    cave_r8_14_12,    // room 8 rows [8, 14, 12]
+    cave_r12_11_12,    // room 9 rows [12, 11, 12]
+    cave_r12_15_2,    // room 10 rows [12, 15, 2]
+    cave_r7_21_2,    // room 11 rows [7, 21, 2]
+    cave_r7_31_14,    // room 12 rows [7, 31, 14]
+    cave_r7_16_7,    // room 13 rows [7, 16, 7]
 };
 static const int8_t * const l8_room_walls[] = {
     l8r1_walls,
@@ -3113,6 +3561,7 @@ static const int8_t * const l8_room_walls[] = {
     l8r11_walls,
     l8r12_walls,
     l8r13_walls,
+    l8r14_walls,
 };
 static const uint8_t l8_room_wall_counts[] = {
     L8R1_WALL_COUNT,
@@ -3128,6 +3577,7 @@ static const uint8_t l8_room_wall_counts[] = {
     L8R11_WALL_COUNT,
     L8R12_WALL_COUNT,
     L8R13_WALL_COUNT,
+    L8R14_WALL_COUNT,
 };
 static const int8_t * const l8_room_enemies[] = {
     l8r1_enemies,
@@ -3143,6 +3593,7 @@ static const int8_t * const l8_room_enemies[] = {
     l8r11_enemies,
     l8r12_enemies,
     l8r13_enemies,
+    l8r14_enemies,
 };
 static const uint8_t l8_room_enemy_counts[] = {
     L8R1_ENEMY_COUNT,
@@ -3158,6 +3609,7 @@ static const uint8_t l8_room_enemy_counts[] = {
     L8R11_ENEMY_COUNT,
     L8R12_ENEMY_COUNT,
     L8R13_ENEMY_COUNT,
+    L8R14_ENEMY_COUNT,
 };
 static const int8_t l8_room_starts[] = {
     L8R1_START_X, L8R1_START_Y,
@@ -3173,6 +3625,7 @@ static const int8_t l8_room_starts[] = {
     L8R11_START_X, L8R11_START_Y,
     L8R12_START_X, L8R12_START_Y,
     L8R13_START_X, L8R13_START_Y,
+    L8R14_START_X, L8R14_START_Y,
 };
 static const int8_t l8_room_miners[] = {
     L8R1_MINER_X, L8R1_MINER_Y,
@@ -3188,38 +3641,42 @@ static const int8_t l8_room_miners[] = {
     L8R11_MINER_X, L8R11_MINER_Y,
     L8R12_MINER_X, L8R12_MINER_Y,
     L8R13_MINER_X, L8R13_MINER_Y,
+    L8R14_MINER_X, L8R14_MINER_Y,
 };
 static const int8_t * const l8_room_cave_segs[] = {
     cave_r6_0_5_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
-    cave_r0_1_2_segs,
+    cave_r4_0_2_segs,
+    cave_r2_3_4_segs,
+    cave_r4_0_8_segs,
+    cave_r8_14_13_segs,
+    cave_r13_1_5_segs,
+    cave_r5_0_11_segs,
+    cave_r11_14_8_segs,
+    cave_r8_14_12_segs,
+    cave_r12_11_12_segs,
+    cave_r12_15_2_segs,
+    cave_r7_21_2_segs,
+    cave_r7_31_14_segs,
+    cave_r7_16_7_segs,
 };
 static const uint8_t l8_room_seg_counts[] = {
     CAVE_R6_0_5_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
-    CAVE_R0_1_2_SEG_COUNT,
+    CAVE_R4_0_2_SEG_COUNT,
+    CAVE_R2_3_4_SEG_COUNT,
+    CAVE_R4_0_8_SEG_COUNT,
+    CAVE_R8_14_13_SEG_COUNT,
+    CAVE_R13_1_5_SEG_COUNT,
+    CAVE_R5_0_11_SEG_COUNT,
+    CAVE_R11_14_8_SEG_COUNT,
+    CAVE_R8_14_12_SEG_COUNT,
+    CAVE_R12_11_12_SEG_COUNT,
+    CAVE_R12_15_2_SEG_COUNT,
+    CAVE_R7_21_2_SEG_COUNT,
+    CAVE_R7_31_14_SEG_COUNT,
+    CAVE_R7_16_7_SEG_COUNT,
 };
 static const uint8_t l8_room_has_miner[] = {
+    0,
     0,
     0,
     0,
@@ -3245,9 +3702,10 @@ static const uint8_t l8_room_has_lava[] = {
     0,
     0,
     0,
-    0,
-    0,
-    0,
+    1,
+    1,
+    1,
+    1,
 };
 static const uint8_t l8_room_exits[] = {
     NONE, NONE, NONE, 1,   // room 0
@@ -3260,9 +3718,10 @@ static const uint8_t l8_room_exits[] = {
     NONE, NONE, 6, 8,   // room 7
     NONE, NONE, 7, 9,   // room 8
     NONE, NONE, 8, 10,   // room 9
-    NONE, NONE, 9, 11,   // room 10
-    NONE, NONE, 10, 12,   // room 11
-    NONE, NONE, 11, NONE,   // room 12
+    11, NONE, 9, NONE,   // room 10
+    12, 10, NONE, NONE,   // room 11
+    13, 11, NONE, NONE,   // room 12
+    NONE, NONE, NONE, NONE,   // room 13
 };
 static const int8_t l8_room_bounds[] = {
     -128, 127, 50, -50,   // room 0
@@ -3278,6 +3737,7 @@ static const int8_t l8_room_bounds[] = {
     -128, 127, 50, -50,   // room 10
     -128, 127, 50, -50,   // room 11
     -128, 127, 50, -50,   // room 12
+    -128, 127, 50, -50,   // room 13
 };
 // ============================================================
 // Level 9 (16 room(s))
