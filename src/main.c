@@ -7,11 +7,17 @@
 #include "hero.h"
 #include "sprites.h"
 
+#ifndef EDITOR_TEST
 #pragma vx_copyright "2026"
 #pragma vx_title_pos 0,-80
 #pragma vx_title_size -8, 80
 #pragma vx_title "g HERO"
 #pragma vx_music vx_music_1
+#else
+#pragma vx_copyright "2026"
+#pragma vx_title "LEVEL TEST"
+#pragma vx_music vx_music_1
+#endif
 
 // =========================================================================
 // Global variable definitions
@@ -123,13 +129,18 @@ void vectrex_init(void) {
 
 int main(void) {
     vectrex_init();
+#ifdef EDITOR_TEST
+    start_new_game();
+#else
     game_state = STATE_TITLE;
+#endif
 
     while (TRUE) {
         wait_recal();
         intensity_a(INTENSITY_NORMAL);
         controller_check_buttons();
 
+#ifndef EDITOR_TEST
         if (game_state == STATE_TITLE) {
             anim_tick++;
             draw_title_screen();
@@ -147,7 +158,9 @@ int main(void) {
                 game_state = STATE_PLAYING;
             }
         }
-        else if (game_state == STATE_PLAYING) {
+        else
+#endif
+        if (game_state == STATE_PLAYING) {
             anim_tick++;
 
             handle_input();
@@ -214,23 +227,43 @@ int main(void) {
             if (death_timer == 0) {
                 player_lives--;
                 if (player_lives == 0) {
+#ifdef EDITOR_TEST
+                    start_new_game();
+#else
                     game_state = STATE_GAME_OVER;
+#endif
                 } else {
                     player_fuel = START_FUEL;
                     player_dynamite = START_DYNAMITE;
+#ifdef EDITOR_TEST
+                    init_level();
+                    game_state = STATE_PLAYING;
+#else
                     game_state = STATE_LEVEL_FAILED;
+#endif
                 }
             }
         }
         else if (game_state == STATE_LEVEL_COMPLETE) {
             draw_cave();
             draw_lava();
+#ifdef EDITOR_TEST
+            zero_beam();
+            set_scale(0x7F);
+            draw_text(100, -35, "RESCUED", 0x50, 10);
+#endif
 
             level_msg_timer--;
             if (level_msg_timer == 0) {
+#ifdef EDITOR_TEST
+                init_level();
+                game_state = STATE_PLAYING;
+#else
                 game_state = STATE_RESCUED;
+#endif
             }
         }
+#ifndef EDITOR_TEST
         else if (game_state == STATE_RESCUED) {
             draw_rescued_screen();
             if (controller_button_1_1_pressed() ||
@@ -257,7 +290,11 @@ int main(void) {
                 level_msg_timer = LEVEL_INTRO_TIME;
             }
         }
+#endif
         else if (game_state == STATE_GAME_OVER) {
+#ifdef EDITOR_TEST
+            start_new_game();
+#else
             draw_game_over_screen();
             if (controller_button_1_1_pressed() ||
                 controller_button_1_2_pressed() ||
@@ -265,6 +302,7 @@ int main(void) {
                 controller_button_1_4_pressed()) {
                 game_state = STATE_TITLE;
             }
+#endif
         }
     }
 
