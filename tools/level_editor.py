@@ -1682,6 +1682,7 @@ class App:
         file_menu.add_command(label="Save Project As...", command=self._save_project_as)
         file_menu.add_separator()
         file_menu.add_command(label="Export Files...", command=self._export_headers)
+        file_menu.add_command(label="Export PDF...", command=self._export_pdf_dialog)
         file_menu.add_separator()
         file_menu.add_command(label="Quit", command=self.root.quit)
         menubar.add_cascade(label="File", menu=file_menu)
@@ -3854,6 +3855,256 @@ void start_new_game(void) {{
         except Exception as e:
             messagebox.showerror("Load Error", str(e))
 
+    # ---- PDF Export ----
+
+    def _pdf_vcx(self, vx, vy, ox, oy, scale):
+        """Vectrex room coords -> PDF coords (mm)."""
+        cx = (vx + 125) / 250.0 * self._VW_DRAW_W * scale + ox
+        cy = (50 - vy) / 100.0 * self._VW_DRAW_H * scale + oy
+        return cx, cy
+
+    def _export_pdf_levels(self, path, from_level, to_level):
+        """Export levels from_level..to_level (1-based) to a PDF."""
+        from fpdf import FPDF
+
+        levels = self.project.get("levels", [])
+        row_types = self.project.get("row_types", [])
+        from_idx = max(0, from_level - 1)
+        to_idx = min(len(levels), to_level)
+
+        pdf = FPDF(orientation='L', unit='mm', format='A4')
+        pdf.set_auto_page_break(auto=False)
+
+        for lvl_idx in range(from_idx, to_idx):
+            lvl = levels[lvl_idx]
+            rooms = lvl.get("rooms", [])
+            if not rooms:
+                continue
+
+            pdf.add_page()
+
+            # Title
+            pdf.set_font("Helvetica", "B", 18)
+            pdf.set_xy(10, 8)
+            pdf.cell(0, 10, f"LEVEL {lvl_idx + 1}")
+
+            # Stats
+            total_enemies = sum(len(r.get("enemies", [])) for r in rooms)
+            total_walls = sum(len(r.get("walls", [])) for r in rooms)
+            total_destr = sum(1 for r in rooms for w in r.get("walls", []) if w.get("destroyable"))
+            has_lava_count = sum(1 for r in rooms if r.get("has_lava"))
+            miner_room = None
+            for ri, r in enumerate(rooms):
+                if r.get("miner"):
+                    miner_room = ri + 1
+
+            pdf.set_font("Helvetica", "", 9)
+            stats_x = 220
+            stats_y = 8
+            stats = [
+                f"Rooms: {len(rooms)}",
+                f"Enemies: {total_enemies}",
+                f"Walls: {total_walls} ({total_destr} destroyable)",
+                f"Lava rooms: {has_lava_count}",
+                f"Miner in room: {miner_room or '-'}",
+            ]
+            # Count enemy types
+            etype_counts = {}
+            for r in rooms:
+                for e in r.get("enemies", []):
+                    t = e.get("type", "bat")
+                    etype_counts[t] = etype_counts.get(t, 0) + 1
+            if etype_counts:
+                parts = [f"{v} {k}{'s' if v > 1 else ''}" for k, v in sorted(etype_counts.items())]
+                stats.append(f"  ({', '.join(parts)})")
+
+            for si, s in enumerate(stats):
+                pdf.set_xy(stats_x, stats_y + si * 5)
+                pdf.cell(0, 5, s)
+
+            # Layout computation (same as viewer)
+            layout = self._compute_room_layout(lvl)
+            min_gx = min(gx for gx, gy in layout.values())
+            min_gy = min(gy for gx, gy in layout.values())
+            layout = {ri: (gx - min_gx, gy - min_gy) for ri, (gx, gy) in layout.items()}
+            max_gx = max(gx for gx, gy in layout.values())
+            max_gy = max(gy for gx, gy in layout.values())
+
+            row_heights = {}
+            for ri, (gx, gy) in layout.items():
+                h = self._viewer_room_height(rooms[ri])
+                row_heights[gy] = max(row_heights.get(gy, 0), h)
+
+            row_y_offsets = {}
+            cum_y = 0
+            for gy in range(max_gy + 1):
+                row_y_offsets[gy] = cum_y
+                cum_y += row_heights.get(gy, self._VW_ROOM_H_NO_LAVA)
+
+            # Scale to fit on page
+            map_area_w = 200.0  # mm available width
+            map_area_h = 165.0  # mm available height
+            map_y_start = 22.0  # mm from top
+
+            raw_w = (max_gx + 1) * self._VW_DRAW_W
+            raw_h = cum_y
+            if raw_w == 0 or raw_h == 0:
+                continue
+
+            scale = min(map_area_w / raw_w, map_area_h / raw_h)
+            cell_w = self._VW_DRAW_W * scale
+            map_x_start = 10.0
+
+            # Draw rooms
+            for ri, (gx, gy) in layout.items():
+                room = rooms[ri]
+                room_h = self._viewer_room_height(room) * scale
+                ox = gx * cell_w + map_x_start
+                oy = row_y_offsets[gy] * scale + map_y_start
+
+                # Room border
+                pdf.set_draw_color(80, 80, 100)
+                pdf.set_line_width(0.2)
+                pdf.rect(ox, oy, cell_w, room_h)
+
+                # Room label
+                pdf.set_font("Courier", "", 5)
+                pdf.set_text_color(100, 130, 170)
+                pdf.set_xy(ox + 0.5, oy + 0.5)
+                pdf.cell(0, 3, f"R{room.get('number', ri+1)}")
+
+                # Cave lines
+                rows_idx = room.get("rows", [0, 0, 0])
+                rts = []
+                for idx in rows_idx:
+                    if 0 <= idx < len(row_types):
+                        rts.append(row_types[idx])
+                    else:
+                        rts.append(None)
+                while len(rts) < 3:
+                    rts.append(None)
+
+                y_off_list = [20, -10, -40]
+                pdf.set_draw_color(60, 60, 80)
+                pdf.set_line_width(0.15)
+                for slot_idx, rt in enumerate(rts):
+                    if rt is None:
+                        continue
+                    y_off = y_off_list[slot_idx]
+                    for polyline in rt.get("cave_lines", []):
+                        if len(polyline) < 2:
+                            continue
+                        for pi in range(len(polyline) - 1):
+                            x1, y1 = self._pdf_vcx(polyline[pi][0], polyline[pi][1] + y_off, ox, oy, scale)
+                            x2, y2 = self._pdf_vcx(polyline[pi+1][0], polyline[pi+1][1] + y_off, ox, oy, scale)
+                            pdf.line(x1, y1, x2, y2)
+
+                # Lava
+                if room.get("has_lava", False):
+                    lx1, ly1 = self._pdf_vcx(-125, -40, ox, oy, scale)
+                    lx2, ly2 = self._pdf_vcx(125, -50, ox, oy, scale)
+                    pdf.set_fill_color(200, 80, 0)
+                    pdf.set_draw_color(255, 100, 0)
+                    pdf.set_line_width(0.3)
+                    pdf.rect(lx1, ly1, lx2 - lx1, ly2 - ly1, style='DF')
+
+                # Walls
+                for w in room.get("walls", []):
+                    wy, wx, wh, ww = w["y"], w["x"], w["h"], w["w"]
+                    wx1, wy1 = self._pdf_vcx(wx, wy + wh, ox, oy, scale)
+                    wx2, wy2 = self._pdf_vcx(wx + ww, wy - wh, ox, oy, scale)
+                    if w.get("destroyable", False):
+                        pdf.set_draw_color(255, 100, 70)
+                    else:
+                        pdf.set_draw_color(130, 170, 255)
+                    pdf.set_line_width(0.2)
+                    pdf.rect(wx1, wy1, wx2 - wx1, wy2 - wy1)
+
+                # Enemies
+                pdf.set_font("Courier", "B", 4)
+                for e in room.get("enemies", []):
+                    ex, ey = self._pdf_vcx(e["x"], e["y"], ox, oy, scale)
+                    etype = e.get("type", "bat")
+                    if etype == "spider":
+                        pdf.set_draw_color(200, 50, 255)
+                        pdf.set_text_color(200, 50, 255)
+                        lbl = "S"
+                    elif etype == "snake":
+                        pdf.set_draw_color(50, 200, 50)
+                        pdf.set_text_color(50, 200, 50)
+                        lbl = "K"
+                    else:
+                        pdf.set_draw_color(255, 50, 50)
+                        pdf.set_text_color(255, 50, 50)
+                        lbl = "B"
+                    r = 1.5
+                    pdf.ellipse(ex - r, ey - r, r * 2, r * 2)
+                    pdf.set_xy(ex - 1, ey - 1)
+                    pdf.cell(2, 2, lbl, align='C')
+
+                # Miner
+                if room.get("miner") is not None:
+                    mx, my = self._pdf_vcx(room["miner"]["x"], room["miner"]["y"], ox, oy, scale)
+                    r = 1.5
+                    pdf.set_draw_color(0, 255, 130)
+                    pdf.set_text_color(0, 200, 100)
+                    pdf.rect(mx - r, my - r, r * 2, r * 2)
+                    pdf.set_font("Courier", "B", 4)
+                    pdf.set_xy(mx - 1, my - 1)
+                    pdf.cell(2, 2, "M", align='C')
+
+                # Player start
+                if room.get("player_start") is not None:
+                    px, py = self._pdf_vcx(room["player_start"]["x"],
+                                           room["player_start"]["y"], ox, oy, scale)
+                    pdf.set_draw_color(255, 255, 0)
+                    pdf.set_text_color(200, 200, 0)
+                    pdf.set_font("Courier", "B", 4)
+                    pdf.set_xy(px - 1, py - 1)
+                    pdf.cell(2, 2, "P", align='C')
+
+            # Reset text color
+            pdf.set_text_color(0, 0, 0)
+
+        pdf.output(path)
+
+    def _export_pdf_dialog(self):
+        """Show dialog to pick level range and export PDF."""
+        n = len(self.project.get("levels", []))
+        if n == 0:
+            messagebox.showwarning("No Levels", "No levels to export.")
+            return
+
+        dlg = tk.Toplevel(self.root)
+        dlg.title("Export PDF")
+        dlg.geometry("250x130")
+        dlg.resizable(False, False)
+
+        ttk.Label(dlg, text="From level:").grid(row=0, column=0, padx=8, pady=4, sticky="w")
+        from_var = tk.IntVar(value=1)
+        ttk.Spinbox(dlg, from_=1, to=n, textvariable=from_var, width=5).grid(row=0, column=1, padx=4)
+
+        ttk.Label(dlg, text="To level:").grid(row=1, column=0, padx=8, pady=4, sticky="w")
+        to_var = tk.IntVar(value=n)
+        ttk.Spinbox(dlg, from_=1, to=n, textvariable=to_var, width=5).grid(row=1, column=1, padx=4)
+
+        def do_export():
+            dlg.destroy()
+            path = filedialog.asksaveasfilename(
+                title="Save PDF",
+                defaultextension=".pdf",
+                filetypes=[("PDF files", "*.pdf")],
+                initialfile=f"levels_{from_var.get()}-{to_var.get()}.pdf")
+            if not path:
+                return
+            try:
+                self._export_pdf_levels(path, from_var.get(), to_var.get())
+                messagebox.showinfo("PDF Export", f"Exported to {path}")
+            except Exception as e:
+                messagebox.showerror("PDF Export Error", str(e))
+
+        ttk.Button(dlg, text="Export", command=do_export).grid(row=2, column=0, columnspan=2, pady=12)
+
     # ---- Export ----
 
     def _export_headers(self):
@@ -4156,13 +4407,16 @@ def main():
     parser.add_argument('--cart', default=None, help='Path to cartridge ROM')
     parser.add_argument('--plain', action='store_true', help='Emulator only, no editors or CPU state')
     parser.add_argument('--export', default=None, help='Export .h files to folder and exit (no GUI)')
+    parser.add_argument('--pdf', default=None, help='Export levels PDF to file (no GUI)')
+    parser.add_argument('--from-level', type=int, default=1, help='First level for PDF export')
+    parser.add_argument('--to-level', type=int, default=None, help='Last level for PDF export')
     args = parser.parse_args()
 
     if args.plain:
         _run_plain(args)
         return
 
-    if args.export:
+    if args.export or args.pdf:
         root = tk.Tk()
         root.withdraw()
         app = App(root)
@@ -4170,12 +4424,19 @@ def main():
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "assets", "hero.json")
         app._load_project_file(os.path.abspath(project_path))
-        folder = args.export
-        os.makedirs(folder, exist_ok=True)
-        app._export_levels_h(os.path.join(folder, "levels.h"))
-        app._export_sprites(os.path.join(folder, "sprites.h"),
-                            os.path.join(folder, "sprites.c"))
-        print(f"Exported to {folder}/")
+        if args.export:
+            folder = args.export
+            os.makedirs(folder, exist_ok=True)
+            app._export_levels_h(os.path.join(folder, "levels.h"))
+            app._export_sprites(os.path.join(folder, "sprites.h"),
+                                os.path.join(folder, "sprites.c"))
+            print(f"Exported to {folder}/")
+        if args.pdf:
+            n = len(app.project.get("levels", []))
+            from_lvl = args.from_level
+            to_lvl = args.to_level if args.to_level else n
+            app._export_pdf_levels(args.pdf, from_lvl, to_lvl)
+            print(f"PDF exported to {args.pdf} (levels {from_lvl}-{to_lvl})")
         root.destroy()
         return
 
