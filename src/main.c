@@ -73,7 +73,7 @@ const int8_t *cur_walls;
 uint8_t cur_wall_count;
 const int8_t *cur_enemies_data;
 uint8_t cur_enemy_count;
-const int8_t *cur_cave_segs;
+int8_t *cur_cave_segs;
 uint8_t cur_seg_count;
 int8_t cur_miner_x;
 int8_t cur_miner_y;

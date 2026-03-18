@@ -143,7 +143,7 @@ extern const int8_t *cur_walls;
 extern uint8_t cur_wall_count;
 extern const int8_t *cur_enemies_data;
 extern uint8_t cur_enemy_count;
-extern const int8_t *cur_cave_segs;
+extern int8_t *cur_cave_segs;
 extern uint8_t cur_seg_count;
 extern int8_t cur_miner_x;
 extern int8_t cur_miner_y;
@@ -158,8 +158,6 @@ extern uint8_t room_enemy_counts[MAX_ROOMS];
 extern int8_t room_starts[MAX_ROOMS * 2];
 extern int8_t room_miners[MAX_ROOMS * 2];
 extern uint8_t room_exits[MAX_ROOMS * 4];
-extern const int8_t *room_cave_segs[MAX_ROOMS];
-extern uint8_t room_seg_counts[MAX_ROOMS];
 extern uint8_t room_has_miner[MAX_ROOMS];
 extern uint8_t room_has_lava[MAX_ROOMS];
 #define ROOM_BOUND_LEFT   (-128)

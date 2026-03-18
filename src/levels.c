@@ -7,8 +7,6 @@
 
 // Room table pointers (set by set_level_data based on current_level)
 const int8_t *room_cave_lines[MAX_ROOMS];
-const int8_t *room_cave_segs[MAX_ROOMS];
-uint8_t room_seg_counts[MAX_ROOMS];
 uint8_t room_has_miner[MAX_ROOMS];
 uint8_t room_has_lava[MAX_ROOMS];
 const int8_t *room_walls[MAX_ROOMS];
@@ -20,13 +18,15 @@ int8_t room_miners[MAX_ROOMS * 2];
 uint8_t room_exits[MAX_ROOMS * 4];
 static uint8_t num_rooms;
 
+// Collision segments computed at runtime from cave_lines draw data
+#define MAX_CAVE_SEGS 34
+static int8_t cave_seg_buf[MAX_CAVE_SEGS * 4];
+
 void set_level_data(void) {
     uint8_t i;
     num_rooms = 2;
     for (i = 0; i < num_rooms; i++) {
         room_cave_lines[i] = l1_room_caves[i];
-        room_cave_segs[i] = l1_room_cave_segs[i];
-        room_seg_counts[i] = l1_room_seg_counts[i];
         room_has_miner[i] = l1_room_has_miner[i];
         room_has_lava[i] = l1_room_has_lava[i];
         room_walls[i] = l1_room_walls[i];
@@ -46,9 +46,33 @@ void set_level_data(void) {
 }
 
 void set_room_data(void) {
+    const int8_t *p;
+    uint8_t n, i, seg_idx;
+    int8_t cx, cy;
+
     cur_cave_lines = room_cave_lines[current_room];
-    cur_cave_segs = room_cave_segs[current_room];
-    cur_seg_count = room_seg_counts[current_room];
+
+    // Compute collision segments from cave_lines draw data
+    p = cur_cave_lines;
+    seg_idx = 0;
+    while ((n = (uint8_t)*p++) != 0 && seg_idx < MAX_CAVE_SEGS) {
+        cy = p[0];  // start y
+        cx = p[1];  // start x
+        p += 2;
+        for (i = 0; i < n && seg_idx < MAX_CAVE_SEGS; i++) {
+            cave_seg_buf[seg_idx * 4]     = cx;
+            cave_seg_buf[seg_idx * 4 + 1] = cy;
+            cy += p[0];
+            cx += p[1];
+            cave_seg_buf[seg_idx * 4 + 2] = cx;
+            cave_seg_buf[seg_idx * 4 + 3] = cy;
+            p += 2;
+            seg_idx++;
+        }
+    }
+    cur_cave_segs = cave_seg_buf;
+    cur_seg_count = seg_idx;
+
     cur_cave_left = ROOM_BOUND_LEFT;
     cur_cave_right = ROOM_BOUND_RIGHT;
     cur_cave_top = ROOM_BOUND_TOP;
