@@ -16,7 +16,7 @@ BIN = $(BINDIR)/$(TARGET).bin
 all: $(BIN)
 
 $(BIN): $(SRC) $(HDR) | $(BINDIR)
-	$(CMOC) -I$(STDLIB) -L$(STDLIB) --vectrex --verbose --intermediate -o $(BIN) $(SRC)
+	$(CMOC) -I$(STDLIB) -L$(STDLIB) --vectrex --verbose --intermediate --intdir=$(BINDIR) -o $(BIN) $(SRC)
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
@@ -25,7 +25,7 @@ run: $(BIN)
 	python3 tools/level_editor.py --rom $(ROM) --cart $(BIN)
 
 clean:
-	rm -f $(BINDIR)/*.bin $(BINDIR)/*.link $(BINDIR)/*.map *.lst *.i *.asm *.o *.s *.link *.map
+	rm -rf $(BINDIR)
 
 stats: $(BIN)
 	@bin_size=$$(wc -c < $(BIN) | tr -d ' '); \
