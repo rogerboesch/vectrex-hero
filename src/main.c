@@ -271,7 +271,7 @@ int main(void) {
                 controller_button_1_3_pressed() ||
                 controller_button_1_4_pressed()) {
                 current_level++;
-                if (current_level > 1) {
+                if (current_level >= NUM_LEVELS) {
                     current_level = 0;
                 }
                 init_level();

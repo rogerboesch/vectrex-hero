@@ -22,25 +22,51 @@ static uint8_t num_rooms;
 #define MAX_CAVE_SEGS 34
 static int8_t cave_seg_buf[MAX_CAVE_SEGS * 4];
 
-void set_level_data(void) {
+static void load_level(uint8_t nr,
+                       const int8_t * const *caves,
+                       const uint8_t *has_miner,
+                       const uint8_t *has_lava,
+                       const int8_t * const *walls,
+                       const uint8_t *wall_cnts,
+                       const int8_t * const *enemies,
+                       const uint8_t *enemy_cnts,
+                       const int8_t *starts,
+                       const int8_t *miners,
+                       const uint8_t *exits) {
     uint8_t i;
-    num_rooms = 2;
-    for (i = 0; i < num_rooms; i++) {
-        room_cave_lines[i] = l1_room_caves[i];
-        room_has_miner[i] = l1_room_has_miner[i];
-        room_has_lava[i] = l1_room_has_lava[i];
-        room_walls[i] = l1_room_walls[i];
-        room_wall_counts[i] = l1_room_wall_counts[i];
-        room_enemies_data[i] = l1_room_enemies[i];
-        room_enemy_counts[i] = l1_room_enemy_counts[i];
-        room_starts[i * 2] = l1_room_starts[i * 2];
-        room_starts[i * 2 + 1] = l1_room_starts[i * 2 + 1];
-        room_miners[i * 2] = l1_room_miners[i * 2];
-        room_miners[i * 2 + 1] = l1_room_miners[i * 2 + 1];
-        room_exits[i * 4] = l1_room_exits[i * 4];
-        room_exits[i * 4 + 1] = l1_room_exits[i * 4 + 1];
-        room_exits[i * 4 + 2] = l1_room_exits[i * 4 + 2];
-        room_exits[i * 4 + 3] = l1_room_exits[i * 4 + 3];
+    num_rooms = nr;
+    for (i = 0; i < nr; i++) {
+        room_cave_lines[i] = caves[i];
+        room_has_miner[i] = has_miner[i];
+        room_has_lava[i] = has_lava[i];
+        room_walls[i] = walls[i];
+        room_wall_counts[i] = wall_cnts[i];
+        room_enemies_data[i] = enemies[i];
+        room_enemy_counts[i] = enemy_cnts[i];
+        room_starts[i * 2] = starts[i * 2];
+        room_starts[i * 2 + 1] = starts[i * 2 + 1];
+        room_miners[i * 2] = miners[i * 2];
+        room_miners[i * 2 + 1] = miners[i * 2 + 1];
+        room_exits[i * 4] = exits[i * 4];
+        room_exits[i * 4 + 1] = exits[i * 4 + 1];
+        room_exits[i * 4 + 2] = exits[i * 4 + 2];
+        room_exits[i * 4 + 3] = exits[i * 4 + 3];
+    }
+}
+
+void set_level_data(void) {
+    switch (current_level) {
+        case 0: load_level(2, l1_room_caves, l1_room_has_miner, l1_room_has_lava, l1_room_walls, l1_room_wall_counts, l1_room_enemies, l1_room_enemy_counts, l1_room_starts, l1_room_miners, l1_room_exits); break;
+        case 1: load_level(4, l2_room_caves, l2_room_has_miner, l2_room_has_lava, l2_room_walls, l2_room_wall_counts, l2_room_enemies, l2_room_enemy_counts, l2_room_starts, l2_room_miners, l2_room_exits); break;
+        case 2: load_level(6, l3_room_caves, l3_room_has_miner, l3_room_has_lava, l3_room_walls, l3_room_wall_counts, l3_room_enemies, l3_room_enemy_counts, l3_room_starts, l3_room_miners, l3_room_exits); break;
+        case 3: load_level(8, l4_room_caves, l4_room_has_miner, l4_room_has_lava, l4_room_walls, l4_room_wall_counts, l4_room_enemies, l4_room_enemy_counts, l4_room_starts, l4_room_miners, l4_room_exits); break;
+        case 4: load_level(8, l5_room_caves, l5_room_has_miner, l5_room_has_lava, l5_room_walls, l5_room_wall_counts, l5_room_enemies, l5_room_enemy_counts, l5_room_starts, l5_room_miners, l5_room_exits); break;
+        case 5: load_level(10, l6_room_caves, l6_room_has_miner, l6_room_has_lava, l6_room_walls, l6_room_wall_counts, l6_room_enemies, l6_room_enemy_counts, l6_room_starts, l6_room_miners, l6_room_exits); break;
+        case 6: load_level(12, l7_room_caves, l7_room_has_miner, l7_room_has_lava, l7_room_walls, l7_room_wall_counts, l7_room_enemies, l7_room_enemy_counts, l7_room_starts, l7_room_miners, l7_room_exits); break;
+        case 7: load_level(14, l8_room_caves, l8_room_has_miner, l8_room_has_lava, l8_room_walls, l8_room_wall_counts, l8_room_enemies, l8_room_enemy_counts, l8_room_starts, l8_room_miners, l8_room_exits); break;
+        case 8: load_level(16, l9_room_caves, l9_room_has_miner, l9_room_has_lava, l9_room_walls, l9_room_wall_counts, l9_room_enemies, l9_room_enemy_counts, l9_room_starts, l9_room_miners, l9_room_exits); break;
+        case 9: load_level(16, l10_room_caves, l10_room_has_miner, l10_room_has_lava, l10_room_walls, l10_room_wall_counts, l10_room_enemies, l10_room_enemy_counts, l10_room_starts, l10_room_miners, l10_room_exits); break;
+        default: load_level(2, l1_room_caves, l1_room_has_miner, l1_room_has_lava, l1_room_walls, l1_room_wall_counts, l1_room_enemies, l1_room_enemy_counts, l1_room_starts, l1_room_miners, l1_room_exits); break;
     }
     set_room_data();
 }
