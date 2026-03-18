@@ -60,4 +60,12 @@ stats: $(BIN)
 	echo "=== RAM ==="; \
 	echo "  Used:  $$bss_total / 896 bytes ($$(echo "scale=1; $$bss_total*100/896" | bc)%)"
 
-.PHONY: all run clean stats
+TESTBIN = $(BINDIR)/test.bin
+
+test:
+	@if [ -z "$(LEVEL)" ]; then echo "Usage: make test LEVEL=3"; exit 1; fi
+	mkdir -p $(BINDIR)
+	$(CMOC) -I$(STDLIB) -L$(STDLIB) --vectrex --verbose --intermediate --intdir=$(BINDIR) -DSTART_LEVEL=$$(($(LEVEL)-1)) -o $(TESTBIN) $(SRC)
+	python3 tools/level_editor.py --rom $(ROM) --cart $(TESTBIN)
+
+.PHONY: all run clean stats test

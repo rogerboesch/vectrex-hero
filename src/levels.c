@@ -156,7 +156,11 @@ void start_new_game(void) {
     player_lives = START_LIVES;
     player_fuel = START_FUEL;
     player_dynamite = START_DYNAMITE;
+#ifdef START_LEVEL
+    current_level = START_LEVEL;
+#else
     current_level = 0;
+#endif
     init_level();
     game_state = STATE_LEVEL_INTRO;
     level_msg_timer = LEVEL_INTRO_TIME;
