@@ -2839,9 +2839,9 @@
         },
         {
           "number": 14,
-          "exit_left": 13,
-          "exit_right": 15,
-          "exit_top": 13,
+          "exit_left": 15,
+          "exit_right": 13,
+          "exit_top": null,
           "exit_bottom": null,
           "walls": [],
           "enemies": [],

@@ -3630,9 +3630,10 @@ void start_new_game(void) {{
             row_y_offsets[gy] = cum_y
             cum_y += row_heights.get(gy, self._VW_ROOM_H_NO_LAVA)
 
+        pad = 10
         cell_w = self._VW_DRAW_W
-        total_w = (max_gx + 1) * cell_w
-        total_h = cum_y
+        total_w = (max_gx + 1) * cell_w + pad * 2
+        total_h = cum_y + pad * 2
         c.configure(scrollregion=(0, 0, total_w, total_h))
 
         row_types = self.project.get("row_types", [])
@@ -3643,8 +3644,8 @@ void start_new_game(void) {{
         for ri, (gx, gy) in layout.items():
             room = rooms[ri]
             room_h = self._viewer_room_height(room)
-            ox = gx * cell_w
-            oy = row_y_offsets[gy]
+            ox = gx * cell_w + pad
+            oy = row_y_offsets[gy] + pad
 
             self._viewer_room_rects[ri] = (ox, oy, ox + cell_w, oy + room_h)
 
