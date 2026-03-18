@@ -3857,7 +3857,9 @@ void start_new_game(void) {{
     # ---- Export ----
 
     def _export_headers(self):
-        folder = filedialog.askdirectory(title="Export .h files to folder")
+        default_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+        folder = filedialog.askdirectory(title="Export .h files to folder",
+                                         initialdir=default_dir if os.path.isdir(default_dir) else None)
         if not folder:
             return
         try:
