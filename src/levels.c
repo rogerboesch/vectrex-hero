@@ -18,7 +18,6 @@ uint8_t room_enemy_counts[MAX_ROOMS];
 int8_t room_starts[MAX_ROOMS * 2];
 int8_t room_miners[MAX_ROOMS * 2];
 uint8_t room_exits[MAX_ROOMS * 4];
-int8_t room_bounds[MAX_ROOMS * 4];
 static uint8_t num_rooms;
 
 void set_level_data(void) {
@@ -42,10 +41,6 @@ void set_level_data(void) {
         room_exits[i * 4 + 1] = l1_room_exits[i * 4 + 1];
         room_exits[i * 4 + 2] = l1_room_exits[i * 4 + 2];
         room_exits[i * 4 + 3] = l1_room_exits[i * 4 + 3];
-        room_bounds[i * 4] = l1_room_bounds[i * 4];
-        room_bounds[i * 4 + 1] = l1_room_bounds[i * 4 + 1];
-        room_bounds[i * 4 + 2] = l1_room_bounds[i * 4 + 2];
-        room_bounds[i * 4 + 3] = l1_room_bounds[i * 4 + 3];
     }
     set_room_data();
 }
@@ -54,10 +49,10 @@ void set_room_data(void) {
     cur_cave_lines = room_cave_lines[current_room];
     cur_cave_segs = room_cave_segs[current_room];
     cur_seg_count = room_seg_counts[current_room];
-    cur_cave_left = room_bounds[current_room * 4];
-    cur_cave_right = room_bounds[current_room * 4 + 1];
-    cur_cave_top = room_bounds[current_room * 4 + 2];
-    cur_cave_floor = room_bounds[current_room * 4 + 3];
+    cur_cave_left = ROOM_BOUND_LEFT;
+    cur_cave_right = ROOM_BOUND_RIGHT;
+    cur_cave_top = ROOM_BOUND_TOP;
+    cur_cave_floor = ROOM_BOUND_FLOOR;
     cur_has_miner = room_has_miner[current_room];
     cur_has_lava = room_has_lava[current_room];
     cur_walls = room_walls[current_room];

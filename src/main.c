@@ -179,22 +179,22 @@ int main(void) {
             // Check room exits using per-room cave bounds
             {
                 uint8_t exit_room = NONE;
-                if (player_x <= room_bounds[current_room * 4 + 0]
+                if (player_x <= ROOM_BOUND_LEFT
                     && room_exits[current_room * 4 + 0] != NONE) {
                     exit_room = room_exits[current_room * 4 + 0];
-                    player_x = room_bounds[exit_room * 4 + 1];
-                } else if (player_x >= room_bounds[current_room * 4 + 1]
+                    player_x = ROOM_BOUND_RIGHT;
+                } else if (player_x >= ROOM_BOUND_RIGHT
                     && room_exits[current_room * 4 + 1] != NONE) {
                     exit_room = room_exits[current_room * 4 + 1];
-                    player_x = room_bounds[exit_room * 4 + 0];
-                } else if (player_y >= room_bounds[current_room * 4 + 2]
+                    player_x = ROOM_BOUND_LEFT;
+                } else if (player_y >= ROOM_BOUND_TOP
                     && room_exits[current_room * 4 + 2] != NONE) {
                     exit_room = room_exits[current_room * 4 + 2];
-                    player_y = room_bounds[exit_room * 4 + 3];
-                } else if (player_y <= room_bounds[current_room * 4 + 3]
+                    player_y = ROOM_BOUND_FLOOR;
+                } else if (player_y <= ROOM_BOUND_FLOOR
                     && room_exits[current_room * 4 + 3] != NONE) {
                     exit_room = room_exits[current_room * 4 + 3];
-                    player_y = room_bounds[exit_room * 4 + 2];
+                    player_y = ROOM_BOUND_TOP;
                 }
                 if (exit_room != NONE) {
                     room_walls_destroyed[current_room] = walls_destroyed;

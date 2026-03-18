@@ -162,7 +162,10 @@ extern const int8_t *room_cave_segs[MAX_ROOMS];
 extern uint8_t room_seg_counts[MAX_ROOMS];
 extern uint8_t room_has_miner[MAX_ROOMS];
 extern uint8_t room_has_lava[MAX_ROOMS];
-extern int8_t room_bounds[MAX_ROOMS * 4];  // left, right, top, floor per room
+#define ROOM_BOUND_LEFT   (-128)
+#define ROOM_BOUND_RIGHT  (127)
+#define ROOM_BOUND_TOP    (50)
+#define ROOM_BOUND_FLOOR  (-50)
 
 extern char str_buf[16];
 
