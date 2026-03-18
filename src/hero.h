@@ -33,7 +33,7 @@
 #define LAVA_HEIGHT      3
 #define MAX_ENEMIES     3
 #define MAX_ROOMS       16
-#define NUM_LEVELS      10
+#define NUM_LEVELS      20
 #define NONE            255
 
 // Enemy types

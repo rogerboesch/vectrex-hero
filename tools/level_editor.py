@@ -3919,17 +3919,6 @@ void start_new_game(void) {{
                     chunk = data[k:k+12]
                     lines.append("    " + ", ".join(str(v) for v in chunk) + ",")
                 lines.append("};")
-                segs = extract_segments(combined)
-                seg_count_name = f"CAVE_R{combo[0]}_{combo[1]}_{combo[2]}_SEG_COUNT"
-                lines.append(f"#define {seg_count_name} {len(segs)}")
-                seg_arr_name = f"{arr_name}_segs"
-                if segs:
-                    lines.append(f"static const int8_t {seg_arr_name}[] = {{")
-                    for s in segs:
-                        lines.append(f"    {s[0]}, {s[1]}, {s[2]}, {s[3]},")
-                    lines.append("};")
-                else:
-                    lines.append(f"static const int8_t {seg_arr_name}[] = {{ 0, 0, 0, 0 }};")
                 lines.append("")
 
         for i, lvl in enumerate(self.project["levels"]):
@@ -4031,20 +4020,6 @@ void start_new_game(void) {{
                 lines.append(f"    L{li}R{ri+1}_MINER_X, L{li}R{ri+1}_MINER_Y,")
             lines.append("};")
 
-            lines.append(f"static const int8_t * const {lp}_room_cave_segs[] = {{")
-            for ri, rm in enumerate(rooms):
-                combo = tuple(rm.get("rows", [0, 0, 0]))
-                arr_name = emitted_combos[combo]
-                lines.append(f"    {arr_name}_segs,")
-            lines.append("};")
-
-            lines.append(f"static const uint8_t {lp}_room_seg_counts[] = {{")
-            for ri, rm in enumerate(rooms):
-                combo = tuple(rm.get("rows", [0, 0, 0]))
-                seg_count_name = f"CAVE_R{combo[0]}_{combo[1]}_{combo[2]}_SEG_COUNT"
-                lines.append(f"    {seg_count_name},")
-            lines.append("};")
-
             lines.append(f"static const uint8_t {lp}_room_has_miner[] = {{")
             for ri, rm in enumerate(rooms):
                 lines.append(f"    {1 if rm.get('miner') else 0},")
@@ -4065,12 +4040,6 @@ void start_new_game(void) {{
                     else:
                         exits.append("NONE")
                 lines.append(f"    {', '.join(exits)},   // room {ri}")
-            lines.append("};")
-
-            # Room bounds: use global wide-open bounds for all rooms
-            lines.append(f"static const int8_t {lp}_room_bounds[] = {{")
-            for ri in range(nr):
-                lines.append(f"    -128, 127, 50, -50,   // room {ri}")
             lines.append("};")
 
         lines.append("#endif")
@@ -4186,10 +4155,28 @@ def main():
     parser.add_argument('--rom', default=None, help='Path to Vectrex system ROM')
     parser.add_argument('--cart', default=None, help='Path to cartridge ROM')
     parser.add_argument('--plain', action='store_true', help='Emulator only, no editors or CPU state')
+    parser.add_argument('--export', default=None, help='Export .h files to folder and exit (no GUI)')
     args = parser.parse_args()
 
     if args.plain:
         _run_plain(args)
+        return
+
+    if args.export:
+        root = tk.Tk()
+        root.withdraw()
+        app = App(root)
+        project_path = args.project or os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "assets", "hero.json")
+        app._load_project_file(os.path.abspath(project_path))
+        folder = args.export
+        os.makedirs(folder, exist_ok=True)
+        app._export_levels_h(os.path.join(folder, "levels.h"))
+        app._export_sprites(os.path.join(folder, "sprites.h"),
+                            os.path.join(folder, "sprites.c"))
+        print(f"Exported to {folder}/")
+        root.destroy()
         return
 
     root = tk.Tk()
