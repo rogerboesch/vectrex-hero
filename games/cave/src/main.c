@@ -119,7 +119,7 @@ int main(void) {
         switch (game_state) {
         case STATE_TITLE:
             draw_title_screen();
-            if (joystick_1_button_1_pressed()) {
+            if (controller_button_1_1_pressed()) {
                 start_new_game();
                 game_state = STATE_LEVEL_INTRO;
                 level_msg_timer = LEVEL_INTRO_TIME;
@@ -197,7 +197,7 @@ int main(void) {
         case STATE_GAME_OVER:
             draw_game_over_screen();
             if (level_msg_timer > 0) level_msg_timer--;
-            if (level_msg_timer == 0 && joystick_1_button_1_pressed()) {
+            if (level_msg_timer == 0 && controller_button_1_1_pressed()) {
                 game_state = STATE_TITLE;
             }
             break;

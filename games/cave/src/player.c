@@ -112,24 +112,24 @@ void handle_input(void) {
     player_swimming = 0;
 
     // Horizontal movement
-    if (joystick_1_left()) {
+    if (controller_joystick_1_left()) {
         player_vx = -WALK_SPEED;
         player_facing = -1;
     }
-    else if (joystick_1_right()) {
+    else if (controller_joystick_1_right()) {
         player_vx = WALK_SPEED;
         player_facing = 1;
     }
 
     // Swim up (thrust)
-    if (joystick_1_up()) {
+    if (controller_joystick_1_up()) {
         player_vy += SWIM_THRUST;
         if (player_vy > MAX_VEL_Y) player_vy = MAX_VEL_Y;
         player_swimming = 1;
     }
 
     // Sonar pulse
-    if (joystick_1_button_1_pressed() && !sonar_active) {
+    if (controller_button_1_1_pressed() && !sonar_active) {
         activate_sonar();
     }
 }
