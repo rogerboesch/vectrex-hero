@@ -37,6 +37,9 @@ $(BINDIR):
 run: $(BIN)
 	python3 tools/level_editor.py --game $(GAME) --rom $(ROM) --cart $(BIN)
 
+play: $(BIN)
+	python3 tools/level_editor.py --plain --rom $(ROM) --cart $(BIN)
+
 clean:
 	rm -rf bin/
 
@@ -81,4 +84,4 @@ test:
 	$(CMOC) -I$(STDLIB) -I$(ENGINEDIR) -I$(GAMEDIR) -L$(STDLIB) --vectrex --verbose --intermediate --intdir=$(BINDIR) -DSTART_LEVEL=$$(($(LEVEL)-1)) -o $(TESTBIN) $(SRC)
 	python3 tools/level_editor.py --rom $(ROM) --cart $(TESTBIN)
 
-.PHONY: all run clean stats test
+.PHONY: all run play clean stats test

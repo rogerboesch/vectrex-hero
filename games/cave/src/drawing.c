@@ -104,13 +104,13 @@ void draw_hud(void) {
     str_buf[0] = 'S';
     str_buf[1] = ' ';
     p = int_to_str(score, 2);
-    draw_text(120, -120, str_buf, 5, 5);
+    draw_text(120, -120, str_buf, 0x30, 6);
 
     // Lives
     str_buf[0] = 'L';
     str_buf[1] = ' ';
     p = int_to_str(player_lives, 2);
-    draw_text(120, 60, str_buf, 5, 5);
+    draw_text(120, 60, str_buf, 0x30, 6);
 }
 
 void draw_oxygen_bar(void) {
@@ -128,14 +128,15 @@ void draw_oxygen_bar(void) {
 }
 
 void draw_title_screen(void) {
-    draw_text(40, -60, "CAVE DIVER", 8, 7);
-    draw_text(-20, -50, "PRESS START", 5, 5);
+    draw_text(40, -80, "CAVE DIVER", 0x70, 16);
+    draw_text(-20, -58, "PRESS BTN", 0x50, 13);
 }
 
 void draw_game_over_screen(void) {
-    draw_text(20, -50, "GAME OVER", 8, 7);
+    draw_text(30, -45, "GAME OVER", 0x50, 10);
     uint8_t p = int_to_str(score, 0);
-    draw_text(-20, -30, str_buf, 6, 5);
+    draw_text(-20, -30, str_buf, 0x50, 10);
+    draw_text(-60, -45, "PRESS BTN", 0x50, 10);
 }
 
 void draw_level_intro_screen(void) {
@@ -146,13 +147,13 @@ void draw_level_intro_screen(void) {
     str_buf[4] = 'L';
     str_buf[5] = ' ';
     int_to_str(current_level + 1, 6);
-    draw_text(20, -50, str_buf, 8, 7);
+    draw_text(20, -48, str_buf, 0xA0, 18);
 }
 
 void draw_rescued_screen(void) {
-    draw_text(20, -50, "RESCUED", 8, 7);
+    draw_text(30, -50, "RESCUED", 0xA0, 18);
 }
 
 void draw_failed_screen(void) {
-    draw_text(20, -40, "FAILED", 8, 7);
+    draw_text(30, -45, "FAILED", 0xA0, 18);
 }
