@@ -13,4 +13,4 @@ __pycache__/
 build/
 test_level/
 test_sprite/
-*.egg-info/
+*.egg-info/a.out
