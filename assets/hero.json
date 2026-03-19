@@ -2959,14 +2959,21 @@
           "exit_top": 1,
           "exit_bottom": 3,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -2976,14 +2983,21 @@
           "exit_top": 2,
           "exit_bottom": 4,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -2992,15 +3006,30 @@
           "exit_right": null,
           "exit_top": 3,
           "exit_bottom": 5,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -45,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 30,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3010,14 +3039,27 @@
           "exit_top": 4,
           "exit_bottom": 6,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3026,15 +3068,36 @@
           "exit_right": null,
           "exit_top": 5,
           "exit_bottom": 7,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -20,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -70,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3043,15 +3106,36 @@
           "exit_right": null,
           "exit_top": 6,
           "exit_bottom": 8,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 20,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 15,
+              "y": 5,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": -30,
+              "y": -15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
-            0
+            10,
+            10,
+            10
           ]
         },
         {
@@ -3060,15 +3144,30 @@
           "exit_right": null,
           "exit_top": 7,
           "exit_bottom": 9,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -10,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3078,14 +3177,21 @@
           "exit_top": 8,
           "exit_bottom": 10,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -55,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3094,120 +3200,223 @@
           "exit_right": null,
           "exit_top": 9,
           "exit_bottom": 11,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 15,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
+            10,
+            5,
             0
           ]
         },
         {
           "number": 11,
-          "exit_left": 12,
-          "exit_right": null,
+          "exit_left": null,
+          "exit_right": 12,
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -105,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -80,
+              "y": -15,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
           "number": 12,
-          "exit_left": 13,
-          "exit_right": 11,
-          "exit_top": null,
-          "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
-          "miner": null,
-          "player_start": null,
-          "has_lava": false,
-          "rows": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "number": 13,
-          "exit_left": 14,
-          "exit_right": 12,
-          "exit_top": null,
-          "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
-          "miner": null,
-          "player_start": null,
-          "has_lava": false,
-          "rows": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "number": 14,
-          "exit_left": 15,
+          "exit_left": 11,
           "exit_right": 13,
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
-          "number": 15,
-          "exit_left": 16,
+          "number": 13,
+          "exit_left": 12,
           "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -20,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 5,
+              "y": -25,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
-          "number": 16,
-          "exit_left": null,
+          "number": 14,
+          "exit_left": 13,
           "exit_right": 15,
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            7,
+            26,
+            1
+          ]
+        },
+        {
+          "number": 15,
+          "exit_left": 14,
+          "exit_right": 16,
+          "exit_top": null,
+          "exit_bottom": null,
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            7,
+            31,
+            14
+          ]
+        },
+        {
+          "number": 16,
+          "exit_left": 15,
+          "exit_right": null,
+          "exit_top": null,
+          "exit_bottom": null,
+          "walls": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": {
-            "x": -89,
+            "x": 89,
             "y": -4
           },
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -3250,14 +3459,21 @@
           "exit_top": 1,
           "exit_bottom": 3,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3267,14 +3483,21 @@
           "exit_top": 2,
           "exit_bottom": 4,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3283,15 +3506,30 @@
           "exit_right": null,
           "exit_top": 3,
           "exit_bottom": 5,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -45,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 30,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3300,15 +3538,30 @@
           "exit_right": null,
           "exit_top": 4,
           "exit_bottom": 6,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3318,14 +3571,27 @@
           "exit_top": 5,
           "exit_bottom": 7,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3335,14 +3601,27 @@
           "exit_top": 6,
           "exit_bottom": 8,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 15,
+              "y": 5,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": -30,
+              "y": -15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
-            0
+            10,
+            10,
+            5
           ]
         },
         {
@@ -3351,15 +3630,30 @@
           "exit_right": null,
           "exit_top": 7,
           "exit_bottom": 9,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -10,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            24
           ]
         },
         {
@@ -3368,15 +3662,30 @@
           "exit_right": null,
           "exit_top": 8,
           "exit_bottom": 10,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -55,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            24,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3385,14 +3694,35 @@
           "exit_right": null,
           "exit_top": 9,
           "exit_bottom": 11,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 15,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
+            10,
+            5,
             0
           ]
         },
@@ -3403,14 +3733,27 @@
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -105,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -80,
+              "y": -15,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
@@ -3420,14 +3763,27 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
@@ -3436,15 +3792,36 @@
           "exit_right": 12,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -20,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 5,
+              "y": -25,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -3454,14 +3831,21 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            26,
+            1
           ]
         },
         {
@@ -3470,15 +3854,36 @@
           "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -3488,7 +3893,14 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": {
             "x": -89,
             "y": -4
@@ -3496,9 +3908,9 @@
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -3541,14 +3953,21 @@
           "exit_top": 1,
           "exit_bottom": 3,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3557,15 +3976,30 @@
           "exit_right": null,
           "exit_top": 2,
           "exit_bottom": 4,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3574,15 +4008,30 @@
           "exit_right": null,
           "exit_top": 3,
           "exit_bottom": 5,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 30,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3592,14 +4041,27 @@
           "exit_top": 4,
           "exit_bottom": 6,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3608,15 +4070,30 @@
           "exit_right": null,
           "exit_top": 5,
           "exit_bottom": 7,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3626,14 +4103,27 @@
           "exit_top": 6,
           "exit_bottom": 8,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -30,
+              "y": -15,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
-            0
+            10,
+            10,
+            5
           ]
         },
         {
@@ -3643,14 +4133,21 @@
           "exit_top": 7,
           "exit_bottom": 9,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -10,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3660,14 +4157,27 @@
           "exit_top": 8,
           "exit_bottom": 10,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -55,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 30,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3676,15 +4186,30 @@
           "exit_right": null,
           "exit_top": 9,
           "exit_bottom": 11,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3694,14 +4219,27 @@
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -105,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -80,
+              "y": -15,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
@@ -3711,14 +4249,27 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
@@ -3727,15 +4278,36 @@
           "exit_right": 12,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -3745,14 +4317,21 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            26,
+            1
           ]
         },
         {
@@ -3761,15 +4340,36 @@
           "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -3779,7 +4379,14 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": {
             "x": -89,
             "y": -4
@@ -3787,9 +4394,9 @@
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -3831,15 +4438,30 @@
           "exit_right": null,
           "exit_top": 1,
           "exit_bottom": 3,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3849,14 +4471,27 @@
           "exit_top": 2,
           "exit_bottom": 4,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3866,14 +4501,21 @@
           "exit_top": 3,
           "exit_bottom": 5,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 30,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3882,15 +4524,30 @@
           "exit_right": null,
           "exit_top": 4,
           "exit_bottom": 6,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3900,14 +4557,27 @@
           "exit_top": 5,
           "exit_bottom": 7,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -3916,15 +4586,30 @@
           "exit_right": null,
           "exit_top": 6,
           "exit_bottom": 8,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -3934,14 +4619,21 @@
           "exit_top": 7,
           "exit_bottom": 9,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -10,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            24
           ]
         },
         {
@@ -3950,15 +4642,30 @@
           "exit_right": null,
           "exit_top": 8,
           "exit_bottom": 10,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -55,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
-            0
+            24,
+            19,
+            5
           ]
         },
         {
@@ -3968,119 +4675,214 @@
           "exit_top": 9,
           "exit_bottom": 11,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
           "number": 11,
-          "exit_left": 12,
-          "exit_right": null,
+          "exit_left": null,
+          "exit_right": 12,
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 85,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -10,
+              "y": -17,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
           "number": 12,
-          "exit_left": 13,
-          "exit_right": 11,
-          "exit_top": null,
-          "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
-          "miner": null,
-          "player_start": null,
-          "has_lava": false,
-          "rows": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "number": 13,
-          "exit_left": 14,
-          "exit_right": 12,
-          "exit_top": null,
-          "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
-          "miner": null,
-          "player_start": null,
-          "has_lava": false,
-          "rows": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "number": 14,
-          "exit_left": 15,
+          "exit_left": 11,
           "exit_right": 13,
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
-          "number": 15,
-          "exit_left": 16,
+          "number": 13,
+          "exit_left": 12,
           "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -20,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 5,
+              "y": -25,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
-          "number": 16,
-          "exit_left": null,
+          "number": 14,
+          "exit_left": 13,
           "exit_right": 15,
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            7,
+            26,
+            1
+          ]
+        },
+        {
+          "number": 15,
+          "exit_left": 14,
+          "exit_right": 16,
+          "exit_top": null,
+          "exit_bottom": null,
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            7,
+            31,
+            14
+          ]
+        },
+        {
+          "number": 16,
+          "exit_left": 15,
+          "exit_right": null,
+          "exit_top": null,
+          "exit_bottom": null,
+          "walls": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": {
-            "x": -89,
+            "x": 89,
             "y": -4
           },
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -4122,15 +4924,30 @@
           "exit_right": null,
           "exit_top": 1,
           "exit_bottom": 3,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4140,14 +4957,21 @@
           "exit_top": 2,
           "exit_bottom": 4,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4156,15 +4980,30 @@
           "exit_right": null,
           "exit_top": 3,
           "exit_bottom": 5,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4173,15 +5012,36 @@
           "exit_right": null,
           "exit_top": 4,
           "exit_bottom": 6,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4191,14 +5051,27 @@
           "exit_top": 5,
           "exit_bottom": 7,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4208,14 +5081,27 @@
           "exit_top": 6,
           "exit_bottom": 8,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 15,
+              "y": 5,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": -30,
+              "y": -15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
-            0
+            10,
+            10,
+            10
           ]
         },
         {
@@ -4224,15 +5110,30 @@
           "exit_right": null,
           "exit_top": 7,
           "exit_bottom": 9,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -10,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4242,14 +5143,21 @@
           "exit_top": 8,
           "exit_bottom": 10,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4259,14 +5167,27 @@
           "exit_top": 9,
           "exit_bottom": 11,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4276,14 +5197,27 @@
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -105,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -80,
+              "y": -15,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
@@ -4293,14 +5227,27 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
@@ -4309,15 +5256,36 @@
           "exit_right": 12,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -4327,14 +5295,21 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            26,
+            1
           ]
         },
         {
@@ -4343,15 +5318,36 @@
           "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -4361,7 +5357,14 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": {
             "x": -89,
             "y": -4
@@ -4369,9 +5372,9 @@
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -4413,15 +5416,30 @@
           "exit_right": null,
           "exit_top": 1,
           "exit_bottom": 3,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4430,15 +5448,36 @@
           "exit_right": null,
           "exit_top": 2,
           "exit_bottom": 4,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4448,14 +5487,27 @@
           "exit_top": 3,
           "exit_bottom": 5,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4464,15 +5516,30 @@
           "exit_right": null,
           "exit_top": 4,
           "exit_bottom": 6,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4482,14 +5549,27 @@
           "exit_top": 5,
           "exit_bottom": 7,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4498,15 +5578,30 @@
           "exit_right": null,
           "exit_top": 6,
           "exit_bottom": 8,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4516,14 +5611,27 @@
           "exit_top": 7,
           "exit_bottom": 9,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4533,14 +5641,27 @@
           "exit_top": 8,
           "exit_bottom": 10,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
-            0
+            10,
+            10,
+            5
           ]
         },
         {
@@ -4549,120 +5670,227 @@
           "exit_right": null,
           "exit_top": 9,
           "exit_bottom": 11,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
           "number": 11,
-          "exit_left": 12,
-          "exit_right": null,
+          "exit_left": null,
+          "exit_right": 12,
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 85,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -10,
+              "y": -17,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
           "number": 12,
-          "exit_left": 13,
-          "exit_right": 11,
+          "exit_left": 11,
+          "exit_right": 13,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 75,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
           "number": 13,
-          "exit_left": 14,
-          "exit_right": 12,
+          "exit_left": 12,
+          "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
           "number": 14,
-          "exit_left": 15,
-          "exit_right": 13,
+          "exit_left": 13,
+          "exit_right": 15,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 85,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            26,
+            1
           ]
         },
         {
           "number": 15,
-          "exit_left": 16,
-          "exit_right": 14,
+          "exit_left": 14,
+          "exit_right": 16,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
           "number": 16,
-          "exit_left": null,
-          "exit_right": 15,
+          "exit_left": 15,
+          "exit_right": null,
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": {
-            "x": -89,
+            "x": 89,
             "y": -4
           },
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -4705,14 +5933,27 @@
           "exit_top": 1,
           "exit_bottom": 3,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4721,15 +5962,30 @@
           "exit_right": null,
           "exit_top": 2,
           "exit_bottom": 4,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4738,15 +5994,30 @@
           "exit_right": null,
           "exit_top": 3,
           "exit_bottom": 5,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4755,15 +6026,36 @@
           "exit_right": null,
           "exit_top": 4,
           "exit_bottom": 6,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4772,15 +6064,30 @@
           "exit_right": null,
           "exit_top": 5,
           "exit_bottom": 7,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4790,14 +6097,27 @@
           "exit_top": 6,
           "exit_bottom": 8,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -30,
+              "y": -15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
-            0
+            10,
+            10,
+            5
           ]
         },
         {
@@ -4806,15 +6126,30 @@
           "exit_right": null,
           "exit_top": 7,
           "exit_bottom": 9,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            24
           ]
         },
         {
@@ -4824,14 +6159,21 @@
           "exit_top": 8,
           "exit_bottom": 10,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -10,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            24,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -4840,15 +6182,36 @@
           "exit_right": null,
           "exit_top": 9,
           "exit_bottom": 11,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -50,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -4858,14 +6221,27 @@
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -105,
+              "y": 15,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": -80,
+              "y": -15,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
@@ -4874,15 +6250,36 @@
           "exit_right": 11,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 75,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
@@ -4891,15 +6288,36 @@
           "exit_right": 12,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -4909,14 +6327,21 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            26,
+            1
           ]
         },
         {
@@ -4925,15 +6350,36 @@
           "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -4943,7 +6389,14 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": {
             "x": -89,
             "y": -4
@@ -4951,9 +6404,9 @@
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -4995,15 +6448,30 @@
           "exit_right": null,
           "exit_top": 1,
           "exit_bottom": 3,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5013,14 +6481,27 @@
           "exit_top": 2,
           "exit_bottom": 4,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -30,
+              "y": -15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5029,15 +6510,30 @@
           "exit_right": null,
           "exit_top": 3,
           "exit_bottom": 5,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5046,15 +6542,30 @@
           "exit_right": null,
           "exit_top": 4,
           "exit_bottom": 6,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5064,14 +6575,27 @@
           "exit_top": 5,
           "exit_bottom": 7,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5080,15 +6604,30 @@
           "exit_right": null,
           "exit_top": 6,
           "exit_bottom": 8,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5098,14 +6637,27 @@
           "exit_top": 7,
           "exit_bottom": 9,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            31
           ]
         },
         {
@@ -5114,15 +6666,30 @@
           "exit_right": null,
           "exit_top": 8,
           "exit_bottom": 10,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            31,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5132,119 +6699,222 @@
           "exit_top": 9,
           "exit_bottom": 11,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
           "number": 11,
-          "exit_left": 12,
-          "exit_right": null,
+          "exit_left": null,
+          "exit_right": 12,
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 85,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -10,
+              "y": -17,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
           "number": 12,
-          "exit_left": 13,
-          "exit_right": 11,
+          "exit_left": 11,
+          "exit_right": 13,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 75,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
           "number": 13,
-          "exit_left": 14,
-          "exit_right": 12,
+          "exit_left": 12,
+          "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
           "number": 14,
-          "exit_left": 15,
-          "exit_right": 13,
-          "exit_top": null,
-          "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
-          "miner": null,
-          "player_start": null,
-          "has_lava": false,
-          "rows": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "number": 15,
-          "exit_left": 16,
-          "exit_right": 14,
-          "exit_top": null,
-          "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
-          "miner": null,
-          "player_start": null,
-          "has_lava": false,
-          "rows": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "number": 16,
-          "exit_left": null,
+          "exit_left": 13,
           "exit_right": 15,
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            7,
+            26,
+            1
+          ]
+        },
+        {
+          "number": 15,
+          "exit_left": 14,
+          "exit_right": 16,
+          "exit_top": null,
+          "exit_bottom": null,
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            7,
+            31,
+            14
+          ]
+        },
+        {
+          "number": 16,
+          "exit_left": 15,
+          "exit_right": null,
+          "exit_top": null,
+          "exit_bottom": null,
+          "walls": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": {
-            "x": -89,
+            "x": 89,
             "y": -4
           },
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -5286,15 +6956,30 @@
           "exit_right": null,
           "exit_top": 1,
           "exit_bottom": 3,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5304,14 +6989,21 @@
           "exit_top": 2,
           "exit_bottom": 4,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5320,15 +7012,36 @@
           "exit_right": null,
           "exit_top": 3,
           "exit_bottom": 5,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5338,14 +7051,27 @@
           "exit_top": 4,
           "exit_bottom": 6,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5354,15 +7080,30 @@
           "exit_right": null,
           "exit_top": 5,
           "exit_bottom": 7,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5372,14 +7113,27 @@
           "exit_top": 6,
           "exit_bottom": 8,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -30,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
-            0,
-            0,
-            0
+            10,
+            10,
+            5
           ]
         },
         {
@@ -5388,15 +7142,36 @@
           "exit_right": null,
           "exit_top": 7,
           "exit_bottom": 9,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5405,15 +7180,30 @@
           "exit_right": null,
           "exit_top": 8,
           "exit_bottom": 10,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5423,14 +7213,27 @@
           "exit_top": 9,
           "exit_bottom": 11,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5440,14 +7243,27 @@
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -105,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -80,
+              "y": -15,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
@@ -5457,14 +7273,27 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
@@ -5473,15 +7302,36 @@
           "exit_right": 12,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -5491,14 +7341,21 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            26,
+            1
           ]
         },
         {
@@ -5507,15 +7364,36 @@
           "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
@@ -5525,7 +7403,14 @@
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": {
             "x": -89,
             "y": -4
@@ -5533,9 +7418,9 @@
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
@@ -5577,15 +7462,36 @@
           "exit_right": null,
           "exit_top": 1,
           "exit_bottom": 3,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5595,14 +7501,27 @@
           "exit_top": 2,
           "exit_bottom": 4,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -30,
+              "y": -15,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5611,15 +7530,30 @@
           "exit_right": null,
           "exit_top": 3,
           "exit_bottom": 5,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5628,15 +7562,36 @@
           "exit_right": null,
           "exit_top": 4,
           "exit_bottom": 6,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5646,14 +7601,27 @@
           "exit_top": 5,
           "exit_bottom": 7,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5662,15 +7630,30 @@
           "exit_right": null,
           "exit_top": 6,
           "exit_bottom": 8,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5680,14 +7663,27 @@
           "exit_top": 7,
           "exit_bottom": 9,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": -50,
+              "y": 15,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
@@ -5696,15 +7692,36 @@
           "exit_right": null,
           "exit_top": 8,
           "exit_bottom": 10,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -40,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -60,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": 40,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            10,
             0,
-            0,
-            0
+            5
           ]
         },
         {
@@ -5714,119 +7731,222 @@
           "exit_top": 9,
           "exit_bottom": 11,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -50,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
           "has_lava": false,
           "rows": [
+            5,
             0,
-            0,
-            0
+            10
           ]
         },
         {
           "number": 11,
-          "exit_left": 12,
-          "exit_right": null,
+          "exit_left": null,
+          "exit_right": 12,
           "exit_top": 10,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 85,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -10,
+              "y": -17,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
             0,
-            0,
-            0
+            25,
+            1
           ]
         },
         {
           "number": 12,
-          "exit_left": 13,
-          "exit_right": 11,
+          "exit_left": 11,
+          "exit_right": 13,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": 75,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -55,
+              "y": 10,
+              "vx": 1,
+              "type": "bat"
+            },
+            {
+              "x": -5,
+              "y": -20,
+              "vx": 1,
+              "type": "spider"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            1
           ]
         },
         {
           "number": 13,
-          "exit_left": 14,
-          "exit_right": 12,
+          "exit_left": 12,
+          "exit_right": 14,
           "exit_top": null,
           "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            },
+            {
+              "x": -20,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
           "miner": null,
           "player_start": null,
-          "has_lava": false,
+          "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            31,
+            14
           ]
         },
         {
           "number": 14,
-          "exit_left": 15,
-          "exit_right": 13,
-          "exit_top": null,
-          "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
-          "miner": null,
-          "player_start": null,
-          "has_lava": false,
-          "rows": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "number": 15,
-          "exit_left": 16,
-          "exit_right": 14,
-          "exit_top": null,
-          "exit_bottom": null,
-          "walls": [],
-          "enemies": [],
-          "miner": null,
-          "player_start": null,
-          "has_lava": false,
-          "rows": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "number": 16,
-          "exit_left": null,
+          "exit_left": 13,
           "exit_right": 15,
           "exit_top": null,
           "exit_bottom": null,
           "walls": [],
-          "enemies": [],
+          "enemies": [
+            {
+              "x": 20,
+              "y": -18,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            7,
+            26,
+            1
+          ]
+        },
+        {
+          "number": 15,
+          "exit_left": 14,
+          "exit_right": 16,
+          "exit_top": null,
+          "exit_bottom": null,
+          "walls": [
+            {
+              "y": 5,
+              "x": -5,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [
+            {
+              "x": -35,
+              "y": 10,
+              "vx": 1,
+              "type": "spider"
+            },
+            {
+              "x": -60,
+              "y": -20,
+              "vx": 1,
+              "type": "bat"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            7,
+            31,
+            14
+          ]
+        },
+        {
+          "number": 16,
+          "exit_left": 15,
+          "exit_right": null,
+          "exit_top": null,
+          "exit_bottom": null,
+          "walls": [],
+          "enemies": [
+            {
+              "x": 55,
+              "y": 5,
+              "vx": 1,
+              "type": "snake"
+            }
+          ],
           "miner": {
-            "x": -89,
+            "x": 89,
             "y": -4
           },
           "player_start": null,
           "has_lava": true,
           "rows": [
-            0,
-            0,
-            0
+            7,
+            16,
+            7
           ]
         }
       ]
