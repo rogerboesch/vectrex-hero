@@ -13,15 +13,13 @@ static int8_t cave_seg_buf[MAX_CAVE_SEGS * 4];
 
 // ---- Hardcoded test level (1 room) until levels.h is generated ----
 
-// Simple open room cave shape
+// Room shape — same format as hero's generated cave data
+// Based on row combo [6, 0, 5] from hero levels.h
 static const int8_t test_cave[] = {
-    5, 50, -90,      // 5 segments, start at y=50, x=-90
-    0, 180,           // right
-    -100, 0,          // down
-    0, -180,          // left
-    100, 0,           // up
-    0, 0,             // close
-    0                 // terminator
+    9, 50, -125, 0, 40, -30, 0, 0, -40, 0, 25, -30,
+    0, 0, -25, 0, 110, -30, 0, 0, -110, 11, 50, 125,
+    0, -128, 0, -32, -30, 0, 0, 127, 0, 33, 0, -25,
+    -30, 0, 0, 25, 0, -110, -30, 0, 0, 110, 0,
 };
 
 static const int8_t test_walls[] = { 0, 0, 0, 0 };

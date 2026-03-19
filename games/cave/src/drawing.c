@@ -38,10 +38,20 @@ void draw_sprite(int8_t y, int8_t x, int8_t *shape) {
 }
 
 void draw_cave(void) {
-    zero_beam();
+    const int8_t *p = cur_cave_lines;
+    uint8_t n, i;
+
     intensity_a(INTENSITY_DIM);
     set_scale(0x7F);
-    draw_vlc(cur_cave_lines);
+    while ((n = (uint8_t)*p++) != 0) {
+        zero_beam();
+        moveto_d(p[0], p[1]);
+        p += 2;
+        for (i = 0; i < n; i++) {
+            draw_line_d(p[0], p[1]);
+            p += 2;
+        }
+    }
 }
 
 void draw_lava(void) {

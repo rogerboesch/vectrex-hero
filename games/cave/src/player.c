@@ -108,6 +108,8 @@ void update_player_physics(void) {
 }
 
 void handle_input(void) {
+    controller_check_joysticks();
+
     player_vx = 0;
     player_swimming = 0;
 
