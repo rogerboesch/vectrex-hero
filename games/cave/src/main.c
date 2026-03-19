@@ -111,18 +111,20 @@ int main(void) {
     vectrex_init();
     game_state = STATE_TITLE;
 
-    for (;;) {
+    while (TRUE) {
         wait_recal();
-        joy_digital();
+        intensity_a(INTENSITY_NORMAL);
+        controller_check_buttons();
         anim_tick++;
 
         switch (game_state) {
         case STATE_TITLE:
             draw_title_screen();
-            if (controller_button_1_1_pressed()) {
+            if (controller_button_1_1_pressed() ||
+                controller_button_1_2_pressed() ||
+                controller_button_1_3_pressed() ||
+                controller_button_1_4_pressed()) {
                 start_new_game();
-                game_state = STATE_LEVEL_INTRO;
-                level_msg_timer = LEVEL_INTRO_TIME;
             }
             break;
 
