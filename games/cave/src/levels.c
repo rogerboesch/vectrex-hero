@@ -5,17 +5,6 @@
 #include "cave.h"
 #include "levels.h"
 
-// Room table pointers
-const int8_t *room_cave_lines[MAX_ROOMS];
-uint8_t room_has_miner[MAX_ROOMS];
-uint8_t room_has_lava[MAX_ROOMS];
-const int8_t *room_walls[MAX_ROOMS];
-uint8_t room_wall_counts[MAX_ROOMS];
-const int8_t *room_enemies_data[MAX_ROOMS];
-uint8_t room_enemy_counts[MAX_ROOMS];
-int8_t room_starts[MAX_ROOMS * 2];
-int8_t room_miners[MAX_ROOMS * 2];
-uint8_t room_exits[MAX_ROOMS * 4];
 static uint8_t num_rooms;
 
 #define MAX_CAVE_SEGS 34
