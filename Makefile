@@ -35,7 +35,7 @@ $(BINDIR):
 	mkdir -p $(BINDIR)
 
 run: $(BIN)
-	python3 tools/level_editor.py --rom $(ROM) --cart $(BIN) --project games/$(GAME)/assets/$(GAME).json
+	python3 tools/level_editor.py --game $(GAME) --rom $(ROM) --cart $(BIN)
 
 clean:
 	rm -rf bin/

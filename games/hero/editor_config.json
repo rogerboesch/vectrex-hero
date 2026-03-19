@@ -1,0 +1,11 @@
+{
+  "title": "Vectrex H.E.R.O.",
+  "project_file": "assets/hero.json",
+  "main_header": "hero.h",
+  "enemy_types": ["bat", "spider", "snake"],
+  "hazard_type": "lava",
+  "rescue_target": "miner",
+  "player_start_default": { "x": -66, "y": 40 },
+  "has_fuel": true,
+  "has_dynamite": true
+}
