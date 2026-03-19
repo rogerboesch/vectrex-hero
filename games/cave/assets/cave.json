@@ -1,0 +1,104 @@
+{
+  "levels": [
+    {
+      "name": "Level 1",
+      "rooms": [
+        {
+          "number": 1,
+          "exit_left": null,
+          "exit_right": null,
+          "exit_top": null,
+          "exit_bottom": 2,
+          "walls": [
+            {
+              "y": 5,
+              "x": -35,
+              "h": 12,
+              "w": 10,
+              "destroyable": true
+            }
+          ],
+          "enemies": [],
+          "miner": null,
+          "player_start": {
+            "x": -66,
+            "y": 40
+          },
+          "has_lava": false,
+          "rows": [
+            6,
+            0,
+            5
+          ]
+        },
+        {
+          "number": 2,
+          "exit_left": null,
+          "exit_right": null,
+          "exit_top": 1,
+          "exit_bottom": 3,
+          "walls": [],
+          "enemies": [
+            {
+              "x": -40,
+              "y": 9,
+              "vx": 1,
+              "type": "fish"
+            }
+          ],
+          "miner": null,
+          "player_start": null,
+          "has_lava": false,
+          "rows": [
+            5,
+            0,
+            10
+          ]
+        },
+        {
+          "number": 3,
+          "exit_left": null,
+          "exit_right": null,
+          "exit_top": 2,
+          "exit_bottom": null,
+          "walls": [],
+          "enemies": [
+            {
+              "x": 30,
+              "y": 15,
+              "vx": 1,
+              "type": "jellyfish"
+            }
+          ],
+          "miner": {
+            "x": -80,
+            "y": -4
+          },
+          "player_start": null,
+          "has_lava": true,
+          "rows": [
+            10,
+            0,
+            5
+          ]
+        }
+      ]
+    }
+  ],
+  "sprites": [
+    {
+      "name": "player_right",
+      "frames": [
+        {
+          "points": [
+            [0, 0],
+            [6, -4],
+            [6, 4],
+            [0, 0]
+          ]
+        }
+      ]
+    }
+  ],
+  "row_types": []
+}
