@@ -4490,8 +4490,11 @@ def main():
         app._update_vlc_text()
     app.sprite_canvas.redraw = sprite_redraw_with_vlc
 
-    if args.project:
-        app._load_project_file(os.path.abspath(args.project))
+    project_path = args.project
+    if not project_path and GAME_DIR:
+        project_path = os.path.join(GAME_DIR, GAME_CONFIG["project_file"])
+    if project_path and os.path.exists(project_path):
+        app._load_project_file(os.path.abspath(project_path))
     if args.rom:
         app._emu_rom_var.set(args.rom)
     if args.cart:
