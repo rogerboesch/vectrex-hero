@@ -5,31 +5,44 @@ STDLIB = $(VECTREC)/stdlib
 ROM = $(VECTREC)/roms/romfast.bin
 OVERLAY = $(VECTREC)/roms/empty.png
 
-SRCDIR = src
-BINDIR = bin
+# Select game: make GAME=hero  or  make GAME=cave
+GAME ?= hero
+
+ENGINEDIR = engine
+GAMEDIR = games/$(GAME)/src
+BINDIR = bin/$(GAME)
+
+# Engine sources (shared)
+ENGINE_SRC = $(ENGINEDIR)/font.c
+ENGINE_HDR = $(ENGINEDIR)/engine.h $(ENGINEDIR)/font.h
+
+# Game sources (game-specific)
+GAME_SRC = $(GAMEDIR)/main.c $(GAMEDIR)/player.c $(GAMEDIR)/enemies.c $(GAMEDIR)/drawing.c $(GAMEDIR)/levels.c $(GAMEDIR)/sprites.c
+GAME_HDR = $(wildcard $(GAMEDIR)/*.h)
+
+SRC = $(ENGINE_SRC) $(GAME_SRC)
+HDR = $(ENGINE_HDR) $(GAME_HDR)
 
 TARGET = main
-SRC = $(SRCDIR)/main.c $(SRCDIR)/player.c $(SRCDIR)/enemies.c $(SRCDIR)/drawing.c $(SRCDIR)/levels.c $(SRCDIR)/sprites.c $(SRCDIR)/font.c
-HDR = $(SRCDIR)/hero.h $(SRCDIR)/sprites.h $(SRCDIR)/levels.h $(SRCDIR)/font.h
 BIN = $(BINDIR)/$(TARGET).bin
 
 all: $(BIN)
 
 $(BIN): $(SRC) $(HDR) | $(BINDIR)
-	$(CMOC) -I$(STDLIB) -L$(STDLIB) --vectrex --verbose --intermediate --intdir=$(BINDIR) -o $(BIN) $(SRC)
+	$(CMOC) -I$(STDLIB) -I$(ENGINEDIR) -I$(GAMEDIR) -L$(STDLIB) --vectrex --verbose --intermediate --intdir=$(BINDIR) -o $(BIN) $(SRC)
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
 run: $(BIN)
-	python3 tools/level_editor.py --rom $(ROM) --cart $(BIN)
+	python3 tools/level_editor.py --rom $(ROM) --cart $(BIN) --project games/$(GAME)/assets/$(GAME).json
 
 clean:
-	rm -rf $(BINDIR)
+	rm -rf bin/
 
 stats: $(BIN)
 	@bin_size=$$(wc -c < $(BIN) | tr -d ' '); \
-	echo "=== ROM ==="; \
+	echo "=== ROM ($(GAME)) ==="; \
 	echo "  Size:  $$bin_size / 32768 bytes ($$(echo "scale=1; $$bin_size*100/32768" | bc)%)"; \
 	echo "  Free:  $$((32768 - bin_size)) bytes"; \
 	echo ""; \
@@ -63,9 +76,9 @@ stats: $(BIN)
 TESTBIN = $(BINDIR)/test.bin
 
 test:
-	@if [ -z "$(LEVEL)" ]; then echo "Usage: make test LEVEL=3"; exit 1; fi
+	@if [ -z "$(LEVEL)" ]; then echo "Usage: make test GAME=hero LEVEL=3"; exit 1; fi
 	mkdir -p $(BINDIR)
-	$(CMOC) -I$(STDLIB) -L$(STDLIB) --vectrex --verbose --intermediate --intdir=$(BINDIR) -DSTART_LEVEL=$$(($(LEVEL)-1)) -o $(TESTBIN) $(SRC)
+	$(CMOC) -I$(STDLIB) -I$(ENGINEDIR) -I$(GAMEDIR) -L$(STDLIB) --vectrex --verbose --intermediate --intdir=$(BINDIR) -DSTART_LEVEL=$$(($(LEVEL)-1)) -o $(TESTBIN) $(SRC)
 	python3 tools/level_editor.py --rom $(ROM) --cart $(TESTBIN)
 
 .PHONY: all run clean stats test
