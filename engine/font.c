@@ -6,6 +6,7 @@
 //
 
 #include "font.h"
+#include <vectrex.h>
 
 // Digits 0-9
 static const int8_t glyph_0[] = { 0, 0, 3,  0,6, -8,0, 0,-6, 8,0 };
@@ -63,4 +64,22 @@ const int8_t *font_glyph(char c) {
     if (c >= '0' && c <= '9') return font_table[c - '0'];
     if (c >= 'A' && c <= 'Z') return font_table[c - 'A' + 10];
     return 0;
+}
+
+void draw_text(int8_t y, int8_t x, const char *str, uint8_t scale, uint8_t advance) {
+    const int8_t *g;
+    int cx = (int)x;
+    uint8_t i;
+    for (i = 0; str[i] != '\0'; i++) {
+        g = font_glyph(str[i]);
+        if (g != 0) {
+            zero_beam();
+            set_scale(0x7F);
+            moveto_d(y, (int8_t)cx);
+            set_scale(scale);
+            moveto_d(g[0], g[1]);
+            draw_vlc((char *)&g[2]);
+        }
+        cx += advance;
+    }
 }

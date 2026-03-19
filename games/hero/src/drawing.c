@@ -198,24 +198,6 @@ void draw_miner(void) {
     draw_sprite(cur_miner_y, cur_miner_x, miner);
 }
 
-void draw_text(int8_t y, int8_t x, const char *str, uint8_t scale, uint8_t advance) {
-    const int8_t *g;
-    int cx = (int)x;
-    uint8_t i;
-    for (i = 0; str[i] != '\0'; i++) {
-        g = font_glyph(str[i]);
-        if (g != 0) {
-            zero_beam();
-            set_scale(0x7F);
-            moveto_d(y, (int8_t)cx);
-            set_scale(scale);
-            moveto_d(g[0], g[1]);
-            draw_vlc((char *)&g[2]);
-        }
-        cx += advance;
-    }
-}
-
 void draw_hud(void) {
     uint8_t p;
     int8_t bar_on, bar_off;
