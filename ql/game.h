@@ -53,7 +53,7 @@ typedef unsigned long  uint32_t;
 #define ENEMY_BAT       0
 #define ENEMY_SPIDER    1
 #define ENEMY_SNAKE     2
-#define SPIDER_PATROL   20
+#define SPIDER_PATROL   10
 
 /* Sprite collision boxes */
 #define PLAYER_HW  5
