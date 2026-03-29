@@ -594,10 +594,6 @@ void render_hud(void) {
         /* Full HUD redraw */
         filled_rect(SCREEN_BASE, 0, 0, SCREEN_W, HUD_HEIGHT, COL_BLACK);
 
-        /* Bottom separator line */
-        hline(SCREEN_BASE, 0, 255, HUD_HEIGHT - 1, COL_WHITE);
-        hline(SCREEN_BASE, 0, 255, HUD_HEIGHT - 2, COL_BLUE);
-
         /* Level — far left */
         draw_string(SCREEN_BASE, 2, 2, "LV", COL_CYAN);
         buf[0] = '0' + ((current_level + 1) / 10);
@@ -666,8 +662,7 @@ void render_hud(void) {
         filled_rect(SCREEN_BASE, 16, 15, 233, 6, COL_BLACK);
         /* Draw filled portion */
         if (filled > 0) {
-            uint8_t col = (filled > 60) ? COL_CYAN :
-                          (filled > 30) ? COL_YELLOW : COL_RED;
+            uint8_t col = COL_RED;
             filled_rect(SCREEN_BASE, 16, 15, filled, 6, col);
         }
         hud_last_fuel = player_fuel;
