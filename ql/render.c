@@ -52,6 +52,12 @@ typedef struct {
 
 static SaveSlot slots[MAX_SLOTS];
 
+/* Per-slot tracking to skip unchanged sprites */
+static int16_t slot_last_sx[MAX_SLOTS];
+static int16_t slot_last_sy[MAX_SLOTS];
+static const uint8_t *slot_last_spr[MAX_SLOTS];
+static uint8_t slot_drawn[MAX_SLOTS];
+
 /* ===================================================================
  * Mode 8 pixel primitives
  *
@@ -565,11 +571,11 @@ void render_room(void) {
 
     /* Reset save-behind slots and HUD */
     hud_drawn = 0;
-    for (i = 0; i < MAX_SLOTS; i++)
+    for (i = 0; i < MAX_SLOTS; i++) {
+        slot_drawn[i] = 0;
         slots[i].active = 0;
+    }
 }
-
-/* HUD dirty tracking (forward declared for render_room) */
 
 void render_hud(void) {
     char buf[8];
@@ -636,11 +642,23 @@ void render_hud(void) {
     }
 }
 
-/* Helper: erase sprite slot, then draw sprite at new position. */
+/* Erase + draw sprite. Skip if position and sprite are identical. */
 static void erase_draw(uint8_t slot, const Sprite *spr,
                        int16_t sx, int16_t sy, uint8_t flip) {
+    if (slot_drawn[slot] && sx == slot_last_sx[slot]
+        && sy == slot_last_sy[slot] && spr->data == slot_last_spr[slot])
+        return;  /* nothing changed — leave pixels untouched */
     restore_behind(slot);
     blit_sprite(spr, sx, sy, slot, flip);
+    slot_last_sx[slot] = sx;
+    slot_last_sy[slot] = sy;
+    slot_last_spr[slot] = spr->data;
+    slot_drawn[slot] = 1;
+}
+
+/* Force redraw of a slot next frame (call when another sprite may overlap) */
+static void invalidate_slot(uint8_t slot) {
+    slot_drawn[slot] = 0;
 }
 
 void render_frame(void) {

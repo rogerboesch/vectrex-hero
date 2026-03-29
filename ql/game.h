@@ -28,11 +28,12 @@ typedef unsigned long  uint32_t;
  * Game constants (identical to all ports)
  * =================================================================== */
 
-#define GRAVITY         1
-#define THRUST          3
-#define MAX_VEL_Y       4
-#define MAX_VEL_X       3
-#define WALK_SPEED      2
+/* Speed constants scaled for ~17 FPS (original is 60 FPS, ratio ~3.5x) */
+#define GRAVITY         2
+#define THRUST          7
+#define MAX_VEL_Y       8
+#define MAX_VEL_X       7
+#define WALK_SPEED      5
 #define FUEL_DRAIN      1
 #define START_FUEL      255
 #define START_DYNAMITE  3
