@@ -13,6 +13,13 @@
 /* Background buffer — allocated at runtime via QDOS MT.ALCHP */
 static uint8_t *bg_buffer;
 
+/* HUD dirty tracking */
+static int16_t hud_last_score;
+static uint8_t hud_last_fuel;
+static uint8_t hud_last_lives;
+static uint8_t hud_last_dyn;
+static uint8_t hud_drawn;
+
 /* ===================================================================
  * Cave grid for rasterization (64x60 cells, each = 4x4 pixels)
  * =================================================================== */
@@ -316,35 +323,27 @@ static void render_lava_bg(void) {
  * =================================================================== */
 
 /* Save/restore use raw byte offsets into screen memory.
- * x is the byte offset within the row (NOT pixel x). */
-static void save_behind(uint8_t slot, int16_t x, int16_t y,
-                        uint8_t wb, uint8_t h) {
-    uint8_t *src, *dst;
-    uint8_t r, c;
-    SaveSlot *s = &slots[slot];
-    s->x = x; s->y = y; s->wb = wb; s->h = h; s->active = 1;
-    for (r = 0; r < h; r++) {
-        if ((uint16_t)(y + r) >= SCREEN_H) break;
-        src = SCREEN_BASE + (uint16_t)(y + r) * SCREEN_STRIDE + x;
-        dst = s->data + r * wb;
-        for (c = 0; c < wb; c++)
-            dst[c] = src[c];
-    }
-}
-
+ * Restore from bg_buffer instead of saved data — avoids separate save step. */
 static void restore_behind(uint8_t slot) {
+    SaveSlot *s = &slots[slot];
     uint8_t *src, *dst;
     uint8_t r, c;
-    SaveSlot *s = &slots[slot];
     if (!s->active) return;
     for (r = 0; r < s->h; r++) {
         if ((uint16_t)(s->y + r) >= SCREEN_H) break;
         dst = SCREEN_BASE + (uint16_t)(s->y + r) * SCREEN_STRIDE + s->x;
-        src = s->data + r * s->wb;
+        src = bg_buffer   + (uint16_t)(s->y + r) * SCREEN_STRIDE + s->x;
         for (c = 0; c < s->wb; c++)
             dst[c] = src[c];
     }
     s->active = 0;
+}
+
+/* Mark area for restore (no need to save — we restore from bg_buffer) */
+static void mark_behind(uint8_t slot, int16_t x, int16_t y,
+                        uint8_t wb, uint8_t h) {
+    SaveSlot *s = &slots[slot];
+    s->x = x; s->y = y; s->wb = wb; s->h = h; s->active = 1;
 }
 
 /*
@@ -365,7 +364,7 @@ static void blit_sprite(const Sprite *spr, int16_t sx, int16_t sy,
     save_wb = ((spr->w + 3) >> 2) << 1;  /* byte-pairs needed */
     if (save_wb > MAX_SAVE_W) save_wb = MAX_SAVE_W;
     if (sx >= 0 && sx < SCREEN_W && sy >= 0 && sy + spr->h <= SCREEN_H) {
-        save_behind(slot, save_x, sy, (uint8_t)save_wb, spr->h);
+        mark_behind(slot, save_x, sy, (uint8_t)save_wb, spr->h);
     }
 
     /* Blit pixel by pixel */
@@ -482,10 +481,11 @@ static void draw_string(uint8_t *base, int16_t x, int16_t y,
  * =================================================================== */
 
 static void copy_bg_to_screen(void) {
-    uint8_t *src = bg_buffer;
-    uint8_t *dst = SCREEN_BASE;
+    uint32_t *src = (uint32_t *)bg_buffer;
+    uint32_t *dst = (uint32_t *)SCREEN_BASE;
     uint16_t i;
-    for (i = 0; i < SCREEN_SIZE; i++)
+    /* Copy 32KB as longwords — 6x faster than bytes on 68008 */
+    for (i = 0; i < SCREEN_SIZE / 4; i++)
         *dst++ = *src++;
 }
 
@@ -504,10 +504,11 @@ void render_init(void) {
 void render_room(void) {
     uint8_t sr, sc, i;
 
-    /* Clear background buffer */
+    /* Clear background buffer (longword for speed) */
     {
+        uint32_t *p = (uint32_t *)bg_buffer;
         uint16_t j;
-        for (j = 0; j < SCREEN_SIZE; j++) bg_buffer[j] = 0;
+        for (j = 0; j < SCREEN_SIZE / 4; j++) p[j] = 0;
     }
 
     /* Rasterize cave */
@@ -525,7 +526,7 @@ void render_room(void) {
     flood_fill(sr, sc);
 
     render_cave_cells();
-    render_cave_lines();
+    /* Skip render_cave_lines — cell rendering is sufficient and much faster */
     render_walls_bg();
     render_lava_bg();
 
@@ -534,39 +535,53 @@ void render_room(void) {
 
     copy_bg_to_screen();
 
-    /* Reset save-behind slots */
+    /* Reset save-behind slots and HUD */
+    hud_drawn = 0;
     for (i = 0; i < MAX_SLOTS; i++)
         slots[i].active = 0;
 }
+
+/* HUD dirty tracking (forward declared for render_room) */
 
 void render_hud(void) {
     char buf[8];
     int16_t i, filled;
 
-    /* Clear HUD area on screen */
-    filled_rect(SCREEN_BASE, 0, 0, SCREEN_W, HUD_HEIGHT, COL_BLACK);
-
-    /* Level */
-    draw_string(SCREEN_BASE, 2, 2, "L", COL_WHITE);
-    buf[0] = '0' + ((current_level + 1) / 10);
-    buf[1] = '0' + ((current_level + 1) % 10);
-    buf[2] = 0;
-    draw_string(SCREEN_BASE, 7, 2, buf, COL_WHITE);
-
-    /* Lives (hearts) */
-    for (i = 0; i < START_LIVES; i++) {
-        uint8_t color = (i < player_lives) ? COL_RED : COL_BLACK;
-        draw_char(SCREEN_BASE, 25 + i * 6, 2, 'O', color);
+    if (!hud_drawn) {
+        /* First draw: full HUD */
+        filled_rect(SCREEN_BASE, 0, 0, SCREEN_W, HUD_HEIGHT, COL_BLACK);
+        draw_string(SCREEN_BASE, 2, 2, "L", COL_WHITE);
+        buf[0] = '0' + ((current_level + 1) / 10);
+        buf[1] = '0' + ((current_level + 1) % 10);
+        buf[2] = 0;
+        draw_string(SCREEN_BASE, 7, 2, buf, COL_WHITE);
+        hud_last_score = -1;
+        hud_last_fuel = 255;
+        hud_last_lives = 255;
+        hud_last_dyn = 255;
+        hud_drawn = 1;
     }
 
-    /* Dynamite */
-    for (i = 0; i < START_DYNAMITE; i++) {
-        uint8_t color = (i < player_dynamite) ? COL_YELLOW : COL_BLACK;
-        draw_char(SCREEN_BASE, 50 + i * 6, 2, '!', color);
+    /* Lives — only if changed */
+    if (player_lives != hud_last_lives) {
+        for (i = 0; i < START_LIVES; i++) {
+            uint8_t color = (i < player_lives) ? COL_RED : COL_BLACK;
+            draw_char(SCREEN_BASE, 25 + i * 6, 2, 'O', color);
+        }
+        hud_last_lives = player_lives;
     }
 
-    /* Score */
-    {
+    /* Dynamite — only if changed */
+    if (player_dynamite != hud_last_dyn) {
+        for (i = 0; i < START_DYNAMITE; i++) {
+            uint8_t color = (i < player_dynamite) ? COL_YELLOW : COL_BLACK;
+            draw_char(SCREEN_BASE, 50 + i * 6, 2, '!', color);
+        }
+        hud_last_dyn = player_dynamite;
+    }
+
+    /* Score — only if changed */
+    if (score != hud_last_score) {
         int16_t s = score;
         uint8_t d;
         for (d = 0; d < 5; d++) {
@@ -575,17 +590,21 @@ void render_hud(void) {
         }
         buf[5] = 0;
         draw_string(SCREEN_BASE, 200, 2, buf, COL_WHITE);
+        hud_last_score = score;
     }
 
-    /* Fuel bar */
-    filled = (int16_t)((uint16_t)player_fuel * 200 / START_FUEL);
-    hline(SCREEN_BASE, 20, 20 + 200, 10, COL_BLACK);
-    hline(SCREEN_BASE, 20, 20 + 200, 11, COL_BLACK);
-    if (filled > 0) {
-        hline(SCREEN_BASE, 20, 20 + filled, 10,
-              filled > 50 ? COL_GREEN : COL_RED);
-        hline(SCREEN_BASE, 20, 20 + filled, 11,
-              filled > 50 ? COL_GREEN : COL_RED);
+    /* Fuel bar — only if changed */
+    if (player_fuel != hud_last_fuel) {
+        filled = (int16_t)((uint16_t)player_fuel * 200 / START_FUEL);
+        hline(SCREEN_BASE, 20, 220, 10, COL_BLACK);
+        hline(SCREEN_BASE, 20, 220, 11, COL_BLACK);
+        if (filled > 0) {
+            hline(SCREEN_BASE, 20, 20 + filled, 10,
+                  filled > 50 ? COL_GREEN : COL_RED);
+            hline(SCREEN_BASE, 20, 20 + filled, 11,
+                  filled > 50 ? COL_GREEN : COL_RED);
+        }
+        hud_last_fuel = player_fuel;
     }
 }
 
