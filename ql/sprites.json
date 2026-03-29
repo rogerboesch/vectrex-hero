@@ -742,7 +742,7 @@
       ]
     },
     {
-      "name": "bat0",
+      "name": "bat_0",
       "width": 12,
       "height": 10,
       "pixels": [
@@ -889,7 +889,7 @@
       ]
     },
     {
-      "name": "bat1",
+      "name": "bat_1",
       "width": 12,
       "height": 10,
       "pixels": [

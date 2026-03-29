@@ -761,7 +761,7 @@ void render_frame(void) {
                 erase_draw(1 + i, spr, sx - 7,
                            sy + HH_PX(SNAKE_HH) - spr->h, flip);
             } else {
-                spr = (enemies[i].anim & 8) ? &spr_bat0 : &spr_bat1;
+                spr = (enemies[i].anim & 8) ? &spr_bat_0 : &spr_bat_1;
                 erase_draw(1 + i, spr, sx - 6,
                            sy + HH_PX(BAT_HH) - spr->h, 0);
             }
