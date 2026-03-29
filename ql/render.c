@@ -301,7 +301,11 @@ static void render_cave_cells(void) {
     }
 }
 
-/* Draw cave polylines — fast path for H/V segments, Bresenham for diagonals */
+/* Forward declarations for tile rendering */
+static void blit_sprite_to_buf(uint8_t *buf, const Sprite *spr,
+                               int16_t sx, int16_t sy);
+
+/* Draw cave polylines — tile sprites along H/V segments, Bresenham for diagonals */
 static void render_cave_lines(void) {
     const int8_t *p = cur_cave_lines;
     uint8_t n, i;
@@ -316,18 +320,25 @@ static void render_cave_lines(void) {
             int8_t nx = cx + dx;
 
             if (dy == 0) {
-                /* Horizontal segment — use fast hline */
+                /* Horizontal segment — tile cave_h sprite along it */
                 int16_t sx1 = SCREEN_X(cx);
                 int16_t sx2 = SCREEN_X(nx);
-                int16_t scy = SCREEN_Y(cy);
+                int16_t scy = SCREEN_Y(cy) - (spr_cave_h_0.h / 2);
+                int16_t tx;
                 if (sx1 > sx2) { int16_t t = sx1; sx1 = sx2; sx2 = t; }
-                hline(bg_buffer, sx1, sx2, scy, COL_GREEN);
+                for (tx = sx1; tx <= sx2; tx += spr_cave_h_0.w)
+                    blit_sprite_to_buf(bg_buffer, &spr_cave_h_0, tx, scy);
             } else if (dx == 0) {
-                /* Vertical segment — use fast vline */
-                vline(bg_buffer, SCREEN_X(cx),
-                      SCREEN_Y(cy), SCREEN_Y(ny), COL_GREEN);
+                /* Vertical segment — tile cave_v sprite along it */
+                int16_t scx = SCREEN_X(cx) - (spr_cave_v_0.w / 2);
+                int16_t sy1 = SCREEN_Y(cy);
+                int16_t sy2 = SCREEN_Y(ny);
+                int16_t ty;
+                if (sy1 > sy2) { int16_t t = sy1; sy1 = sy2; sy2 = t; }
+                for (ty = sy1; ty <= sy2; ty += spr_cave_v_0.h)
+                    blit_sprite_to_buf(bg_buffer, &spr_cave_v_0, scx, ty);
             } else {
-                /* Diagonal — Bresenham */
+                /* Diagonal — Bresenham (keep as line for now) */
                 draw_line(bg_buffer,
                           SCREEN_X(cx), SCREEN_Y(cy),
                           SCREEN_X(nx), SCREEN_Y(ny), COL_GREEN);

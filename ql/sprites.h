@@ -26,5 +26,7 @@ extern const Sprite spr_dynamite_0;
 extern const Sprite spr_explode_0;
 extern const Sprite spr_wall_0;
 extern const Sprite spr_lava_0;
+extern const Sprite spr_cave_h_0;
+extern const Sprite spr_cave_v_0;
 
 #endif
