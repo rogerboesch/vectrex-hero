@@ -582,12 +582,12 @@ void render_hud(void) {
     int16_t i, filled;
 
     /*
-     * HUD layout (24px height):
+     * HUD layout (26px height):
      *
-     *  Row 1:     LV01    ♥♥♥    !!!    SC:00000
-     *  Row 10-11: label   ───────────────────────  separator
-     *  Row 13-18: F: [████████████████████░░░░░░]  fuel bar
-     *  Row 22:    ════════════════════════════════  bottom border
+     *  Row 2:     LV01  ♥♥♥ | !!! SC:00000
+     *                   left   right
+     *  Row 14-21: F: [████████████████████░░░░░]  fuel bar
+     *  Row 24-25: ═══════════════════════════════  bottom border
      */
 
     if (!hud_drawn) {
@@ -598,22 +598,22 @@ void render_hud(void) {
         hline(SCREEN_BASE, 0, 255, HUD_HEIGHT - 1, COL_WHITE);
         hline(SCREEN_BASE, 0, 255, HUD_HEIGHT - 2, COL_BLUE);
 
-        /* Static labels */
+        /* Level — far left */
         draw_string(SCREEN_BASE, 2, 2, "LV", COL_CYAN);
         buf[0] = '0' + ((current_level + 1) / 10);
         buf[1] = '0' + ((current_level + 1) % 10);
         buf[2] = 0;
         draw_string(SCREEN_BASE, 12, 2, buf, COL_WHITE);
 
-        draw_string(SCREEN_BASE, 195, 2, "SC:", COL_CYAN);
+        /* Score label — right side */
+        draw_string(SCREEN_BASE, 206, 2, "SC:", COL_CYAN);
 
         /* Fuel bar label + frame */
-        draw_string(SCREEN_BASE, 2, 14, "F:", COL_CYAN);
-        /* Frame around fuel bar */
-        hline(SCREEN_BASE, 14, 245, 12, COL_WHITE);
-        hline(SCREEN_BASE, 14, 245, 19, COL_WHITE);
-        vline(SCREEN_BASE, 14, 12, 19, COL_WHITE);
-        vline(SCREEN_BASE, 245, 12, 19, COL_WHITE);
+        draw_string(SCREEN_BASE, 2, 16, "F:", COL_CYAN);
+        hline(SCREEN_BASE, 14, 250, 14, COL_WHITE);
+        hline(SCREEN_BASE, 14, 250, 21, COL_WHITE);
+        vline(SCREEN_BASE, 14, 14, 21, COL_WHITE);
+        vline(SCREEN_BASE, 250, 14, 21, COL_WHITE);
 
         /* Force all dynamic elements to redraw */
         hud_last_score = -1;
@@ -623,35 +623,30 @@ void render_hud(void) {
         hud_drawn = 1;
     }
 
-    /* Lives — small colored blocks */
+    /* Lives — left of center (centered around x=108) */
     if (player_lives != hud_last_lives) {
         for (i = 0; i < START_LIVES; i++) {
             uint8_t color = (i < player_lives) ? COL_RED : COL_BLACK;
-            /* Draw 4x5 filled block as life indicator */
-            filled_rect(SCREEN_BASE, 70 + i * 8, 2, 5, 5, color);
-            /* Small white outline when active */
-            if (i < player_lives) {
-                plot_pixel(SCREEN_BASE, 72 + i * 8, 3, COL_WHITE);
-            }
+            filled_rect(SCREEN_BASE, 96 + i * 8, 2, 5, 5, color);
+            if (i < player_lives)
+                plot_pixel(SCREEN_BASE, 98 + i * 8, 3, COL_WHITE);
         }
         hud_last_lives = player_lives;
     }
 
-    /* Dynamite — small yellow sticks */
+    /* Dynamite — right of center (centered around x=148) */
     if (player_dynamite != hud_last_dyn) {
         for (i = 0; i < START_DYNAMITE; i++) {
             uint8_t color = (i < player_dynamite) ? COL_YELLOW : COL_BLACK;
-            vline(SCREEN_BASE, 120 + i * 6, 2, 6, color);
-            vline(SCREEN_BASE, 121 + i * 6, 2, 6, color);
-            if (i < player_dynamite) {
-                /* Fuse spark */
-                plot_pixel(SCREEN_BASE, 122 + i * 6, 1, COL_RED);
-            }
+            vline(SCREEN_BASE, 136 + i * 6, 2, 7, color);
+            vline(SCREEN_BASE, 137 + i * 6, 2, 7, color);
+            if (i < player_dynamite)
+                plot_pixel(SCREEN_BASE, 138 + i * 6, 1, COL_RED);
         }
         hud_last_dyn = player_dynamite;
     }
 
-    /* Score — only if changed */
+    /* Score — right aligned (5 digits at x=221, ends at x=246) */
     if (score != hud_last_score) {
         int16_t s = score;
         uint8_t d;
@@ -660,20 +655,20 @@ void render_hud(void) {
             s /= 10;
         }
         buf[5] = 0;
-        draw_string(SCREEN_BASE, 210, 2, buf, COL_WHITE);
+        draw_string(SCREEN_BASE, 221, 2, buf, COL_WHITE);
         hud_last_score = score;
     }
 
     /* Fuel bar — thick with frame, only if changed */
     if (player_fuel != hud_last_fuel) {
-        filled = (int16_t)((uint16_t)player_fuel * 228 / START_FUEL);
+        filled = (int16_t)((uint16_t)player_fuel * 234 / START_FUEL);
         /* Clear interior */
-        filled_rect(SCREEN_BASE, 16, 13, 228, 6, COL_BLACK);
+        filled_rect(SCREEN_BASE, 16, 15, 233, 6, COL_BLACK);
         /* Draw filled portion */
         if (filled > 0) {
             uint8_t col = (filled > 60) ? COL_CYAN :
                           (filled > 30) ? COL_YELLOW : COL_RED;
-            filled_rect(SCREEN_BASE, 16, 13, filled, 6, col);
+            filled_rect(SCREEN_BASE, 16, 15, filled, 6, col);
         }
         hud_last_fuel = player_fuel;
     }
