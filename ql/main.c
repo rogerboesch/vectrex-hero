@@ -104,15 +104,14 @@ int main(void) {
             anim_tick++;
             if (key_enter_pressed || key_space_pressed) {
                 start_new_game();
+                game_state = STATE_PLAYING;
                 render_room();
             }
         }
         else if (game_state == STATE_LEVEL_INTRO) {
-            level_msg_timer--;
-            if (level_msg_timer == 0) {
-                game_state = STATE_PLAYING;
-                render_room();
-            }
+            /* Skip intro delay — go straight to playing */
+            game_state = STATE_PLAYING;
+            render_room();
         }
         else if (game_state == STATE_PLAYING) {
             anim_tick++;
@@ -192,17 +191,15 @@ int main(void) {
                 current_level++;
                 if (current_level >= NUM_LEVELS) current_level = 0;
                 init_level();
-                game_state = STATE_LEVEL_INTRO;
-                level_msg_timer = LEVEL_INTRO_TIME;
-                render_level_intro();
+                game_state = STATE_PLAYING;
+                render_room();
             }
         }
         else if (game_state == STATE_LEVEL_FAILED) {
             if (key_enter_pressed || key_space_pressed) {
                 init_level();
-                game_state = STATE_LEVEL_INTRO;
-                level_msg_timer = LEVEL_INTRO_TIME;
-                render_level_intro();
+                game_state = STATE_PLAYING;
+                render_room();
             }
         }
         else if (game_state == STATE_GAME_OVER) {
