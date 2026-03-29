@@ -523,6 +523,21 @@ void render_room(void) {
 
     sr = grid_row(room_starts[current_room * 2 + 1]);
     sc = grid_col(room_starts[current_room * 2]);
+
+    /* If start cell is on a border line, search nearby for a solid cell */
+    if (sr < GRID_H && sc < GRID_W && cave_grid[sr][sc] != CELL_SOLID) {
+        int8_t dr, dc;
+        uint8_t found = 0;
+        for (dr = -2; dr <= 2 && !found; dr++) {
+            for (dc = -2; dc <= 2 && !found; dc++) {
+                uint8_t tr = sr + dr;
+                uint8_t tc = sc + dc;
+                if (tr < GRID_H && tc < GRID_W && cave_grid[tr][tc] == CELL_SOLID) {
+                    sr = tr; sc = tc; found = 1;
+                }
+            }
+        }
+    }
     flood_fill(sr, sc);
 
     render_cave_cells();
