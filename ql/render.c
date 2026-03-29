@@ -715,9 +715,9 @@ void render_frame(void) {
         if (!player_on_ground || player_thrusting)
             spr = &spr_player_fly;
         else if (player_vx != 0 && (anim_tick & 8))
-            spr = &spr_player_walk;
+            spr = &spr_player_walk_1;
         else
-            spr = &spr_player_r;
+            spr = &spr_player_walk_0;
         erase_draw(0, spr, sx, sy, flip);
     } else {
         restore_behind(0);

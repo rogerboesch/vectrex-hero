@@ -34,7 +34,7 @@ static const uint8_t spr_player_fly_data[] = {
 const Sprite spr_player_fly = { 10, 20, spr_player_fly_data };
 
 /* player_r — 10x20 (5 bytes/row x 20 rows) */
-static const uint8_t spr_player_r_data[] = {
+static const uint8_t spr_player_walk_0_data[] = {
     0x00, 0x06, 0x60, 0x00, 0x00,
     0x00, 0x66, 0x66, 0x00, 0x00,
     0x00, 0x06, 0x60, 0x00, 0x00,
@@ -56,10 +56,10 @@ static const uint8_t spr_player_r_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00,
 };
-const Sprite spr_player_r = { 10, 20, spr_player_r_data };
+const Sprite spr_player_walk_0 = { 10, 20, spr_player_walk_0_data };
 
 /* player_walk — 10x20 (5 bytes/row x 20 rows) */
-static const uint8_t spr_player_walk_data[] = {
+static const uint8_t spr_player_walk_1_data[] = {
     0x00, 0x06, 0x60, 0x00, 0x00,
     0x00, 0x66, 0x66, 0x00, 0x00,
     0x00, 0x06, 0x60, 0x00, 0x00,
@@ -81,7 +81,7 @@ static const uint8_t spr_player_walk_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00,
 };
-const Sprite spr_player_walk = { 10, 20, spr_player_walk_data };
+const Sprite spr_player_walk_1 = { 10, 20, spr_player_walk_1_data };
 
 /* bat0 — 12x10 (6 bytes/row x 10 rows) */
 static const uint8_t spr_bat0_data[] = {

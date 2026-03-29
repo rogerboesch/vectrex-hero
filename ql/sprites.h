@@ -15,8 +15,8 @@ typedef struct {
 } Sprite;
 
 extern const Sprite spr_player_fly;
-extern const Sprite spr_player_r;
-extern const Sprite spr_player_walk;
+extern const Sprite spr_player_walk_0;
+extern const Sprite spr_player_walk_1;
 extern const Sprite spr_bat0;
 extern const Sprite spr_bat1;
 extern const Sprite spr_spider;

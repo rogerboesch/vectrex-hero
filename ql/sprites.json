@@ -248,7 +248,7 @@
       ]
     },
     {
-      "name": "player_r",
+      "name": "player_walk_0",
       "width": 10,
       "height": 20,
       "pixels": [
@@ -495,7 +495,7 @@
       ]
     },
     {
-      "name": "player_walk",
+      "name": "player_walk_1",
       "width": 10,
       "height": 20,
       "pixels": [
