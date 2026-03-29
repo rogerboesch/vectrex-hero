@@ -698,7 +698,25 @@ void render_frame(void) {
             sy = SCREEN_Y(enemies[i].y);
 
             if (enemies[i].type == ENEMY_SPIDER) {
-                restore_behind(1 + i);
+                /* Erase old thread + sprite by restoring full column from bg */
+                {
+                    int16_t top_y = SCREEN_Y(enemies[i].home_y);
+                    int16_t bot_y = sy + HH_PX(SPIDER_HH);
+                    int16_t col_x = ((sx - 5) >> 2) << 1;
+                    uint8_t row_w = (uint8_t)(((10 + 7) >> 2) << 1);
+                    int16_t h = bot_y - top_y + 1;
+                    uint8_t *src, *dst;
+                    int16_t r;
+                    if (h > 0 && top_y >= 0) {
+                        for (r = 0; r < h && (top_y + r) < SCREEN_H; r++) {
+                            uint8_t c;
+                            dst = SCREEN_BASE + (uint16_t)(top_y + r) * SCREEN_STRIDE + col_x;
+                            src = bg_buffer   + (uint16_t)(top_y + r) * SCREEN_STRIDE + col_x;
+                            for (c = 0; c < row_w; c++) dst[c] = src[c];
+                        }
+                    }
+                }
+                /* Draw thread + sprite fresh */
                 draw_line(SCREEN_BASE, sx, SCREEN_Y(enemies[i].home_y),
                           sx, sy, COL_WHITE);
                 spr = &spr_spider;
