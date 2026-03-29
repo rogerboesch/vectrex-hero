@@ -1,0 +1,5 @@
+build/
+hero
+
+# Override root .gitignore exclusion of *.s — we need our asm sources
+!*.s
