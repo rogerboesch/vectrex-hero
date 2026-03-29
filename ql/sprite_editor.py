@@ -176,12 +176,13 @@ class SpriteEditor:
         self.canvas.bind("<B1-Motion>", self._on_drag)
         self.canvas.bind("<Button-3>", self._on_right_click)
         self.canvas.bind("<B3-Motion>", self._on_right_click)
+        self.canvas.bind("<Configure>", lambda e: self._redraw())
 
         # Right: palette + preview
         right = ttk.Frame(main)
         right.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
 
-        # Palette
+        # Palette — use Canvas swatches (tk.Button ignores bg on macOS)
         pal_frame = ttk.LabelFrame(right, text="Palette")
         pal_frame.pack(fill=tk.X, pady=(0, 5))
 
@@ -190,12 +191,13 @@ class SpriteEditor:
             color, name = QL_COLORS[i]
             f = tk.Frame(pal_frame, bd=2, relief=tk.RAISED)
             f.pack(fill=tk.X, padx=2, pady=1)
-            btn = tk.Button(f, bg=color, width=3, height=1,
-                           activebackground=color,
-                           command=lambda c=i: self._set_color(c))
-            btn.pack(side=tk.LEFT, padx=2)
+            swatch = tk.Canvas(f, width=24, height=18, highlightthickness=0)
+            swatch.pack(side=tk.LEFT, padx=2)
+            swatch.create_rectangle(0, 0, 25, 19, fill=color, outline="#888888")
+            swatch.bind("<Button-1>", lambda e, c=i: self._set_color(c))
             lbl = tk.Label(f, text=f"{i}: {name}", anchor=tk.W)
             lbl.pack(side=tk.LEFT, fill=tk.X)
+            lbl.bind("<Button-1>", lambda e, c=i: self._set_color(c))
             self.pal_buttons.append(f)
 
         # Current color indicator
