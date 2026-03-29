@@ -617,10 +617,18 @@ void render_frame(void) {
     const Sprite *spr;
     uint8_t flip;
 
-    /* Player — erase old, draw new immediately */
+    /*
+     * Sprite positioning: align sprite bottom with collision box bottom.
+     * Game HH in screen pixels: hh_px = (hh * 77) >> 5
+     * Sprite Y = SCREEN_Y(game_y) + hh_px - sprite_height
+     * Sprite X = SCREEN_X(game_x) - sprite_width/2
+     */
+#define HH_PX(hh) (((int16_t)(hh) * 77) >> 5)
+
+    /* Player */
     if (!(game_state == STATE_DYING && !(death_timer & 2))) {
         sx = SCREEN_X(player_x) - 5;
-        sy = SCREEN_Y(player_y) - 10;
+        sy = SCREEN_Y(player_y) + HH_PX(PLAYER_HH) - 20;
         flip = (player_facing < 0) ? 1 : 0;
         if (!player_on_ground || player_thrusting)
             spr = &spr_player_fly;
@@ -633,7 +641,7 @@ void render_frame(void) {
         restore_behind(0);
     }
 
-    /* Enemies — erase+draw each one individually */
+    /* Enemies */
     for (i = 0; i < 3; i++) {
         if (i < enemy_count && enemies[i].alive) {
             sx = SCREEN_X(enemies[i].x);
@@ -644,35 +652,41 @@ void render_frame(void) {
                 draw_line(SCREEN_BASE, sx, SCREEN_Y(enemies[i].home_y),
                           sx, sy, COL_WHITE);
                 spr = &spr_spider;
-                blit_sprite(spr, sx - 5, sy - 5, 1 + i, 0);
+                blit_sprite(spr, sx - 5,
+                            sy + HH_PX(SPIDER_HH) - spr->h, 1 + i, 0);
             } else if (enemies[i].type == ENEMY_SNAKE) {
                 spr = &spr_snake_r;
                 flip = (enemies[i].vx < 0) ? 1 : 0;
-                erase_draw(1 + i, spr, sx - 7, sy - 3, flip);
+                erase_draw(1 + i, spr, sx - 7,
+                           sy + HH_PX(SNAKE_HH) - spr->h, flip);
             } else {
                 spr = (enemies[i].anim & 8) ? &spr_bat0 : &spr_bat1;
-                erase_draw(1 + i, spr, sx - 6, sy - 5, 0);
+                erase_draw(1 + i, spr, sx - 6,
+                           sy + HH_PX(BAT_HH) - spr->h, 0);
             }
         } else {
             restore_behind(1 + i);
         }
     }
 
-    /* Miner — static, only draw once (slot 4) */
+    /* Miner — static, only draw once */
     if (cur_has_miner && !slots[4].active) {
         blit_sprite(&spr_miner,
                     SCREEN_X(cur_miner_x) - 5,
-                    SCREEN_Y(cur_miner_y) - 7, 4, 0);
+                    SCREEN_Y(cur_miner_y) + HH_PX(MINER_HH) - spr_miner.h,
+                    4, 0);
     }
 
     /* Dynamite / Explosion */
     if (dyn_active) {
         if (dyn_exploding)
             erase_draw(5, &spr_explode,
-                       SCREEN_X(dyn_x) - 6, SCREEN_Y(dyn_y) - 6, 0);
+                       SCREEN_X(dyn_x) - 6,
+                       SCREEN_Y(dyn_y) - 6, 0);
         else
             erase_draw(5, &spr_dynamite,
-                       SCREEN_X(dyn_x) - 2, SCREEN_Y(dyn_y) - 5, 0);
+                       SCREEN_X(dyn_x) - 2,
+                       SCREEN_Y(dyn_y) - 5, 0);
     } else {
         restore_behind(5);
     }
