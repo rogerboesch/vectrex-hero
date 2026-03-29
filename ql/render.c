@@ -351,7 +351,7 @@ static void render_walls_bg(void) {
         wh = SCREEN_Y(wall_y(i) - wall_h(i)) - wy;
         if (ww < 2) ww = 2;
         if (wh < 2) wh = 2;
-        filled_rect(bg_buffer, wx, wy, ww, wh, COL_YELLOW);
+        filled_rect(bg_buffer, wx, wy, ww, wh, COL_MAGENTA);
     }
 }
 
