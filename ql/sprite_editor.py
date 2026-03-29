@@ -120,9 +120,15 @@ class SpriteEditor:
         menubar.add_cascade(label="File", menu=filemenu)
 
         editmenu = tk.Menu(menubar, tearoff=0)
+        editmenu.add_command(label="Copy Sprite", command=self._copy_sprite, accelerator="Cmd+C")
+        editmenu.add_command(label="Paste Sprite", command=self._paste_sprite, accelerator="Cmd+V")
+        editmenu.add_separator()
         editmenu.add_command(label="Flip Horizontal", command=self._flip_h)
         editmenu.add_command(label="Clear Sprite", command=self._clear_sprite)
         menubar.add_cascade(label="Edit", menu=editmenu)
+
+        self.root.bind("<Command-c>", lambda e: self._copy_sprite())
+        self.root.bind("<Command-v>", lambda e: self._paste_sprite())
 
         self.root.config(menu=menubar)
 
@@ -298,6 +304,25 @@ class SpriteEditor:
             w += 1
             self.width_var.set(w)
         s.resize(w, h)
+        self._redraw()
+
+    def _copy_sprite(self):
+        s = self._cur()
+        if s:
+            self._clipboard = s.to_dict()
+
+    def _paste_sprite(self):
+        if not hasattr(self, '_clipboard') or not self._clipboard:
+            return
+        s = self._cur()
+        if not s:
+            return
+        src = self._clipboard
+        # Paste pixels into current sprite (resize to match if needed)
+        s.resize(src['width'], src['height'])
+        s.pixels = [row[:] for row in src['pixels']]
+        self.width_var.set(s.width)
+        self.height_var.set(s.height)
         self._redraw()
 
     def _flip_h(self):
