@@ -589,8 +589,9 @@ void render_hud(void) {
         buf[1] = '0' + ((current_level + 1) % 10);
         buf[2] = 0;
         draw_string(SCREEN_BASE, 7, 2, buf, COL_WHITE);
+        /* Force all elements to redraw */
         hud_last_score = -1;
-        hud_last_fuel = 255;
+        hud_last_fuel = 254;
         hud_last_lives = 255;
         hud_last_dyn = 255;
         hud_drawn = 1;
@@ -634,9 +635,9 @@ void render_hud(void) {
         hline(SCREEN_BASE, 20, 220, 11, COL_BLACK);
         if (filled > 0) {
             hline(SCREEN_BASE, 20, 20 + filled, 10,
-                  filled > 50 ? COL_GREEN : COL_RED);
+                  filled > 50 ? COL_CYAN : COL_YELLOW);
             hline(SCREEN_BASE, 20, 20 + filled, 11,
-                  filled > 50 ? COL_GREEN : COL_RED);
+                  filled > 50 ? COL_CYAN : COL_YELLOW);
         }
         hud_last_fuel = player_fuel;
     }
