@@ -756,7 +756,7 @@ void render_frame(void) {
                 blit_sprite(spr, sx - 5,
                             sy + HH_PX(SPIDER_HH) - spr->h, 1 + i, 0);
             } else if (enemies[i].type == ENEMY_SNAKE) {
-                spr = &spr_snake_r;
+                spr = &spr_snake;
                 flip = (enemies[i].vx < 0) ? 1 : 0;
                 erase_draw(1 + i, spr, sx - 7,
                            sy + HH_PX(SNAKE_HH) - spr->h, flip);

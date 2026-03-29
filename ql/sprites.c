@@ -129,7 +129,7 @@ static const uint8_t spr_spider_data[] = {
 const Sprite spr_spider = { 10, 10, spr_spider_data };
 
 /* snake_r — 14x6 (7 bytes/row x 6 rows) */
-static const uint8_t spr_snake_r_data[] = {
+static const uint8_t spr_snake_data[] = {
     0x00, 0x00, 0x22, 0x22, 0x00, 0x00, 0x00,
     0x00, 0x22, 0x27, 0x72, 0x22, 0x00, 0x00,
     0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
@@ -137,7 +137,7 @@ static const uint8_t spr_snake_r_data[] = {
     0x00, 0x00, 0x22, 0x22, 0x22, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00,
 };
-const Sprite spr_snake_r = { 14, 6, spr_snake_r_data };
+const Sprite spr_snake = { 14, 6, spr_snake_data };
 
 /* miner — 10x14 (5 bytes/row x 14 rows) */
 static const uint8_t spr_miner_data[] = {
