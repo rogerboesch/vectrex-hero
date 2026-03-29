@@ -339,7 +339,39 @@ static void render_cave_lines(void) {
     }
 }
 
-/* Draw destroyable walls */
+/* Blit sprite into a buffer (bg_buffer), not screen. No save-behind. */
+static void blit_sprite_to_buf(uint8_t *buf, const Sprite *spr,
+                               int16_t sx, int16_t sy) {
+    uint8_t wb, r, c;
+    const uint8_t *src;
+
+    wb = spr->w >> 1;
+    for (r = 0; r < spr->h; r++) {
+        int16_t py = sy + r;
+        if ((uint16_t)py >= SCREEN_H) continue;
+        src = spr->data + r * wb;
+        for (c = 0; c < wb; c++) {
+            uint8_t byte = src[c];
+            uint8_t hi = (byte >> 4) & 0x0F;
+            uint8_t lo = byte & 0x0F;
+            int16_t pixel_x = sx + c * 2;
+            if (hi) plot_pixel(buf, pixel_x, py, hi);
+            if (lo) plot_pixel(buf, pixel_x + 1, py, lo);
+        }
+    }
+}
+
+/* Tile a sprite across a rectangular area in bg_buffer */
+static void tile_sprite_to_buf(uint8_t *buf, const Sprite *spr,
+                               int16_t x, int16_t y,
+                               int16_t w, int16_t h) {
+    int16_t ty, tx;
+    for (ty = y; ty < y + h; ty += spr->h)
+        for (tx = x; tx < x + w; tx += spr->w)
+            blit_sprite_to_buf(buf, spr, tx, ty);
+}
+
+/* Draw destroyable walls — tiled with wall sprite */
 static void render_walls_bg(void) {
     uint8_t i;
     for (i = 0; i < cur_wall_count; i++) {
@@ -351,21 +383,18 @@ static void render_walls_bg(void) {
         wh = SCREEN_Y(wall_y(i) - wall_h(i)) - wy;
         if (ww < 2) ww = 2;
         if (wh < 2) wh = 2;
-        filled_rect(bg_buffer, wx, wy, ww, wh, COL_MAGENTA);
+        tile_sprite_to_buf(bg_buffer, &spr_wall_0, wx, wy, ww, wh);
     }
 }
 
-/* Draw lava strip */
+/* Draw lava strip — tiled with lava sprite */
 static void render_lava_bg(void) {
     int16_t lx1, lx2, ly;
     if (!cur_has_lava) return;
     lx1 = SCREEN_X(cur_cave_left);
     lx2 = SCREEN_X(cur_cave_right);
     ly = SCREEN_Y(cur_cave_floor);
-    hline(bg_buffer, lx1, lx2, ly,     COL_RED);
-    hline(bg_buffer, lx1, lx2, ly + 1, COL_RED);
-    hline(bg_buffer, lx1, lx2, ly + 2, COL_MAGENTA);
-    hline(bg_buffer, lx1, lx2, ly + 3, COL_RED);
+    tile_sprite_to_buf(bg_buffer, &spr_lava_0, lx1, ly, lx2 - lx1, spr_lava_0.h);
 }
 
 /* ===================================================================

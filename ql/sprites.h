@@ -24,5 +24,7 @@ extern const Sprite spr_snake_0;
 extern const Sprite spr_miner_0;
 extern const Sprite spr_dynamite_0;
 extern const Sprite spr_explode_0;
+extern const Sprite spr_wall_0;
+extern const Sprite spr_lava_0;
 
 #endif
