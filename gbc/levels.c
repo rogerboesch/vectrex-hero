@@ -3,7 +3,7 @@
 //
 
 #include "game.h"
-#include "../src/levels.h"
+#include "../vectrex/src/levels.h"
 
 const int8_t *room_cave_lines[MAX_ROOMS];
 uint8_t room_has_miner[MAX_ROOMS];

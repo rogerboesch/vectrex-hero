@@ -4,7 +4,7 @@
 //
 
 #include "game.h"
-#include "../src/levels.h"
+#include "../vectrex/src/levels.h"
 
 // Room table pointers
 const int8_t *room_cave_lines[MAX_ROOMS];
