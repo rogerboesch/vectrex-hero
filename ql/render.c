@@ -698,10 +698,11 @@ void render_frame(void) {
             sy = SCREEN_Y(enemies[i].y);
 
             if (enemies[i].type == ENEMY_SPIDER) {
-                /* Erase old thread + sprite by restoring full column from bg */
+                /* Erase full patrol range (home_y to home_y-SPIDER_PATROL + sprite) */
                 {
                     int16_t top_y = SCREEN_Y(enemies[i].home_y);
-                    int16_t bot_y = sy + HH_PX(SPIDER_HH);
+                    int16_t bot_y = SCREEN_Y(enemies[i].home_y - SPIDER_PATROL)
+                                    + HH_PX(SPIDER_HH) + 2;
                     int16_t col_x = ((sx - 5) >> 2) << 1;
                     uint8_t row_w = (uint8_t)(((10 + 7) >> 2) << 1);
                     int16_t h = bot_y - top_y + 1;
