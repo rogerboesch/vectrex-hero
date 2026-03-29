@@ -409,9 +409,9 @@ static void blit_sprite(const Sprite *spr, int16_t sx, int16_t sy,
 
     wb = spr->w >> 1;  /* bytes per row in sprite data */
 
-    /* Save behind (save the screen byte-pairs under the sprite) */
+    /* Save behind: cover from aligned start to end of sprite + alignment overshoot */
     save_x = (sx >> 2) << 1;  /* align to byte-pair boundary */
-    save_wb = ((spr->w + 3) >> 2) << 1;  /* byte-pairs needed */
+    save_wb = (((sx + spr->w + 3) >> 2) << 1) - save_x;  /* exact coverage */
     if (save_wb > MAX_SAVE_W) save_wb = MAX_SAVE_W;
     if (sx >= 0 && sx < SCREEN_W && sy >= 0 && sy + spr->h <= SCREEN_H) {
         mark_behind(slot, save_x, sy, (uint8_t)save_wb, spr->h);
@@ -734,7 +734,28 @@ void render_frame(void) {
                            sy + HH_PX(BAT_HH) - spr->h, 0);
             }
         } else {
-            restore_behind(1 + i);
+            /* Dead or absent — erase. For spiders, erase full thread column */
+            if (i < enemy_count && enemies[i].type == ENEMY_SPIDER) {
+                int16_t top_y = SCREEN_Y(enemies[i].home_y);
+                int16_t bot_y = SCREEN_Y(enemies[i].home_y - SPIDER_PATROL)
+                                + HH_PX(SPIDER_HH) + 2;
+                int16_t ex = SCREEN_X(enemies[i].x);
+                int16_t col_x = ((ex - 5) >> 2) << 1;
+                uint8_t row_w = (uint8_t)(((10 + 7) >> 2) << 1);
+                int16_t h = bot_y - top_y + 1;
+                int16_t r;
+                if (h > 0 && top_y >= 0) {
+                    for (r = 0; r < h && (top_y + r) < SCREEN_H; r++) {
+                        uint8_t c;
+                        uint8_t *dst = SCREEN_BASE + (uint16_t)(top_y+r)*SCREEN_STRIDE + col_x;
+                        uint8_t *src = bg_buffer   + (uint16_t)(top_y+r)*SCREEN_STRIDE + col_x;
+                        for (c = 0; c < row_w; c++) dst[c] = src[c];
+                    }
+                }
+            } else {
+                restore_behind(1 + i);
+            }
+            slot_drawn[1 + i] = 0;
         }
     }
 

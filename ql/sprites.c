@@ -187,13 +187,12 @@ static const uint8_t spr_dyn_data[] = {
 const Sprite spr_dynamite = { 4, 10, spr_dyn_data };
 
 /* Laser segment — 8x4 */
+/* Laser — thin 8x2 bar */
 static const uint8_t spr_laser_data[] = {
     0x77, 0x77, 0x77, 0x77,
     0x77, 0x77, 0x77, 0x77,
-    0x77, 0x77, 0x77, 0x77,
-    0x77, 0x77, 0x77, 0x77,
 };
-const Sprite spr_laser = { 8, 4, spr_laser_data };
+const Sprite spr_laser = { 8, 2, spr_laser_data };
 
 /* Explosion — 12x12 */
 static const uint8_t spr_explode_data[] = {
