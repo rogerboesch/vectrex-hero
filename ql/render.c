@@ -521,24 +521,36 @@ void render_room(void) {
 
     trace_cave();
 
-    sr = grid_row(room_starts[current_room * 2 + 1]);
-    sc = grid_col(room_starts[current_room * 2]);
+    /*
+     * Inverted flood fill: fill from OUTSIDE edges inward.
+     * 1. All non-border cells start as CELL_SOLID
+     * 2. Flood fill from every edge cell → marks outside rock as CELL_EMPTY temporarily
+     * 3. Swap: EMPTY↔SOLID so outside=SOLID(rock), inside=EMPTY(cave)
+     */
+    {
+        uint8_t r, c;
 
-    /* If start cell is on a border line, search nearby for a solid cell */
-    if (sr < GRID_H && sc < GRID_W && cave_grid[sr][sc] != CELL_SOLID) {
-        int8_t dr, dc;
-        uint8_t found = 0;
-        for (dr = -2; dr <= 2 && !found; dr++) {
-            for (dc = -2; dc <= 2 && !found; dc++) {
-                uint8_t tr = sr + dr;
-                uint8_t tc = sc + dc;
-                if (tr < GRID_H && tc < GRID_W && cave_grid[tr][tc] == CELL_SOLID) {
-                    sr = tr; sc = tc; found = 1;
-                }
+        /* Flood from all 4 edges — any edge cell that's SOLID is outside the cave */
+        for (c = 0; c < GRID_W; c++) {
+            if (cave_grid[0][c] == CELL_SOLID) flood_fill(0, c);
+            if (cave_grid[GRID_H-1][c] == CELL_SOLID) flood_fill(GRID_H-1, c);
+        }
+        for (r = 0; r < GRID_H; r++) {
+            if (cave_grid[r][0] == CELL_SOLID) flood_fill(r, 0);
+            if (cave_grid[r][GRID_W-1] == CELL_SOLID) flood_fill(r, GRID_W-1);
+        }
+
+        /* Now: EMPTY = outside rock, SOLID = inside cave, BORDER = wall line */
+        /* Swap EMPTY↔SOLID */
+        for (r = 0; r < GRID_H; r++) {
+            for (c = 0; c < GRID_W; c++) {
+                if (cave_grid[r][c] == CELL_EMPTY)
+                    cave_grid[r][c] = CELL_SOLID;  /* outside → rock */
+                else if (cave_grid[r][c] == CELL_SOLID)
+                    cave_grid[r][c] = CELL_EMPTY;  /* inside → cave */
             }
         }
     }
-    flood_fill(sr, sc);
 
     render_cave_cells();
     /* Skip render_cave_lines — cell rendering is sufficient and much faster */
