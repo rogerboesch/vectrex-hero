@@ -602,7 +602,7 @@ void render_hud(void) {
         draw_string(SCREEN_BASE, 12, 4, buf, COL_WHITE);
 
         /* Score label — right side */
-        draw_string(SCREEN_BASE, 206, 4, "SC:", COL_CYAN);
+        draw_string(SCREEN_BASE, 214, 4, "SC:", COL_CYAN);
 
         /* Fuel bar label + frame */
         draw_string(SCREEN_BASE, 2, 16, "F:", COL_CYAN);
@@ -651,7 +651,7 @@ void render_hud(void) {
             s /= 10;
         }
         buf[5] = 0;
-        draw_string(SCREEN_BASE, 221, 4, buf, COL_WHITE);
+        draw_string(SCREEN_BASE, 229, 4, buf, COL_WHITE);
         hud_last_score = score;
     }
 
