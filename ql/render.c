@@ -655,15 +655,20 @@ void render_hud(void) {
         hud_last_score = score;
     }
 
-    /* Fuel bar — thick with frame, only if changed */
+    /* Fuel bar — erase from right edge only (no full redraw = no flicker) */
     if (player_fuel != hud_last_fuel) {
-        filled = (int16_t)((uint16_t)player_fuel * 234 / START_FUEL);
-        /* Clear interior */
-        filled_rect(SCREEN_BASE, 16, 15, 233, 6, COL_BLACK);
-        /* Draw filled portion */
-        if (filled > 0) {
-            uint8_t col = COL_RED;
-            filled_rect(SCREEN_BASE, 16, 15, filled, 6, col);
+        int16_t new_filled = (int16_t)((uint16_t)player_fuel * 234 / START_FUEL);
+        int16_t old_filled = (int16_t)((uint16_t)hud_last_fuel * 234 / START_FUEL);
+        if (hud_last_fuel == 254) {
+            /* First draw: fill entire bar */
+            if (new_filled > 0)
+                filled_rect(SCREEN_BASE, 16, 15, new_filled, 6, COL_RED);
+        } else if (new_filled < old_filled) {
+            /* Fuel decreased: black out the difference from right */
+            int16_t erase_x = 16 + new_filled;
+            int16_t erase_w = old_filled - new_filled;
+            if (erase_w > 0)
+                filled_rect(SCREEN_BASE, erase_x, 15, erase_w, 6, COL_BLACK);
         }
         hud_last_fuel = player_fuel;
     }
