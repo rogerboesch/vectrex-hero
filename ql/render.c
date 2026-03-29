@@ -758,13 +758,22 @@ static void clear_screen(void) {
         SCREEN_BASE[i] = 0;
 }
 
+/* Center a string on screen: x = (256 - len*5) / 2 */
+static void draw_centered(uint8_t *base, int16_t y,
+                          const char *str, uint8_t color) {
+    int16_t len = 0;
+    const char *p = str;
+    while (*p++) len++;
+    draw_string(base, (256 - len * 5) / 2, y, str, color);
+}
+
 void render_title_screen(void) {
     clear_screen();
-    draw_string(SCREEN_BASE, 72, 80, "H.E.R.O.", COL_YELLOW);
-    draw_string(SCREEN_BASE, 52, 100, "SINCLAIR QL", COL_CYAN);
-    draw_string(SCREEN_BASE, 42, 140, "Q:UP A:DN O:LT P:RT", COL_WHITE);
-    draw_string(SCREEN_BASE, 52, 155, "SPACE:LASER D:DYN", COL_WHITE);
-    draw_string(SCREEN_BASE, 52, 185, "PRESS ENTER TO START", COL_GREEN);
+    draw_centered(SCREEN_BASE, 70, "H.E.R.O.", COL_YELLOW);
+    draw_centered(SCREEN_BASE, 90, "SINCLAIR QL", COL_CYAN);
+    draw_centered(SCREEN_BASE, 130, "Q:UP  A:DN  O:LT  P:RT", COL_WHITE);
+    draw_centered(SCREEN_BASE, 145, "SPACE:LASER  D:DYNAMITE", COL_WHITE);
+    draw_centered(SCREEN_BASE, 175, "PRESS ENTER TO START", COL_GREEN);
 }
 
 void render_level_intro(void) {
