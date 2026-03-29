@@ -127,6 +127,32 @@ static void hline(uint8_t *base, int16_t x1, int16_t x2, int16_t y, uint8_t colo
     }
 }
 
+/* Fast vertical line — avoids plot_pixel, writes directly */
+static void vline(uint8_t *base, int16_t x, int16_t y1, int16_t y2, uint8_t color) {
+    int16_t y, tmp;
+    uint8_t *even_addr, *odd_addr;
+    uint8_t pos, clear, g_bits, r_bits;
+    if ((uint16_t)x >= SCREEN_W) return;
+    if (y1 > y2) { tmp = y1; y1 = y2; y2 = tmp; }
+    if (y1 < 0) y1 = 0;
+    if (y2 >= SCREEN_H) y2 = SCREEN_H - 1;
+
+    pos = x & 3;
+    clear = pix_clear[pos];
+    g_bits = (color & 4) ? pix_mask[pos] & 0xAA : 0;
+    r_bits = (color & 1) ? pix_mask[pos] & 0xAA : 0;
+    r_bits |= (color & 2) ? pix_mask[pos] & 0x55 : 0;
+
+    even_addr = base + (uint16_t)y1 * SCREEN_STRIDE + ((x >> 2) << 1);
+    odd_addr = even_addr + 1;
+    for (y = y1; y <= y2; y++) {
+        *even_addr = (*even_addr & clear) | g_bits;
+        *odd_addr  = (*odd_addr  & clear) | r_bits;
+        even_addr += SCREEN_STRIDE;
+        odd_addr  += SCREEN_STRIDE;
+    }
+}
+
 static void filled_rect(uint8_t *base, int16_t x, int16_t y,
                         int16_t w, int16_t h, uint8_t color) {
     int16_t r;
@@ -134,7 +160,7 @@ static void filled_rect(uint8_t *base, int16_t x, int16_t y,
         hline(base, x, x + w - 1, r, color);
 }
 
-/* Bresenham line drawing */
+/* Bresenham line drawing (for diagonals only) */
 static void draw_line(uint8_t *base, int16_t x1, int16_t y1,
                       int16_t x2, int16_t y2, uint8_t color) {
     int16_t dx, dy, sx, sy, err, e2;
@@ -269,7 +295,7 @@ static void render_cave_cells(void) {
     }
 }
 
-/* Draw polylines on top of cells for sharp borders */
+/* Draw cave polylines — fast path for H/V segments, Bresenham for diagonals */
 static void render_cave_lines(void) {
     const int8_t *p = cur_cave_lines;
     uint8_t n, i;
@@ -278,11 +304,29 @@ static void render_cave_lines(void) {
     while ((n = (uint8_t)*p++) != 0) {
         cy = p[0]; cx = p[1]; p += 2;
         for (i = 0; i < n; i++) {
-            int8_t ny = cy + p[0];
-            int8_t nx = cx + p[1];
-            draw_line(bg_buffer,
-                      SCREEN_X(cx), SCREEN_Y(cy),
-                      SCREEN_X(nx), SCREEN_Y(ny), COL_WHITE);
+            int8_t dy = p[0];
+            int8_t dx = p[1];
+            int8_t ny = cy + dy;
+            int8_t nx = cx + dx;
+
+            if (dy == 0) {
+                /* Horizontal segment — use fast hline */
+                int16_t sx1 = SCREEN_X(cx);
+                int16_t sx2 = SCREEN_X(nx);
+                int16_t scy = SCREEN_Y(cy);
+                if (sx1 > sx2) { int16_t t = sx1; sx1 = sx2; sx2 = t; }
+                hline(bg_buffer, sx1, sx2, scy, COL_GREEN);
+            } else if (dx == 0) {
+                /* Vertical segment — use fast vline */
+                vline(bg_buffer, SCREEN_X(cx),
+                      SCREEN_Y(cy), SCREEN_Y(ny), COL_GREEN);
+            } else {
+                /* Diagonal — Bresenham */
+                draw_line(bg_buffer,
+                          SCREEN_X(cx), SCREEN_Y(cy),
+                          SCREEN_X(nx), SCREEN_Y(ny), COL_GREEN);
+            }
+
             cy = ny; cx = nx;
             p += 2;
         }
