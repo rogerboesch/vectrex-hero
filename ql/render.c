@@ -713,7 +713,7 @@ void render_frame(void) {
         sy = SCREEN_Y(player_y) + HH_PX(PLAYER_HH) - 20;
         flip = (player_facing < 0) ? 1 : 0;
         if (!player_on_ground || player_thrusting)
-            spr = &spr_player_fly;
+            spr = &spr_player_fly_0;
         else if (player_vx != 0 && (anim_tick & 8))
             spr = &spr_player_walk_1;
         else
@@ -752,11 +752,11 @@ void render_frame(void) {
                 /* Draw thread + sprite fresh */
                 draw_line(SCREEN_BASE, sx, SCREEN_Y(enemies[i].home_y),
                           sx, sy, COL_WHITE);
-                spr = &spr_spider;
+                spr = &spr_spider_0;
                 blit_sprite(spr, sx - 5,
                             sy + HH_PX(SPIDER_HH) - spr->h, 1 + i, 0);
             } else if (enemies[i].type == ENEMY_SNAKE) {
-                spr = &spr_snake;
+                spr = &spr_snake_0;
                 flip = (enemies[i].vx < 0) ? 1 : 0;
                 erase_draw(1 + i, spr, sx - 7,
                            sy + HH_PX(SNAKE_HH) - spr->h, flip);
@@ -793,9 +793,9 @@ void render_frame(void) {
 
     /* Miner — static, only draw once */
     if (cur_has_miner && !slots[4].active) {
-        blit_sprite(&spr_miner,
+        blit_sprite(&spr_miner_0,
                     SCREEN_X(cur_miner_x) - 5,
-                    SCREEN_Y(cur_miner_y) + HH_PX(MINER_HH) - spr_miner.h,
+                    SCREEN_Y(cur_miner_y) + HH_PX(MINER_HH) - spr_miner_0.h,
                     4, 0);
     }
 
@@ -824,7 +824,7 @@ void render_frame(void) {
         } else {
             /* Draw dynamite every frame (bypass skip — player overlap erases it) */
             restore_behind(5);
-            blit_sprite(&spr_dynamite,
+            blit_sprite(&spr_dynamite_0,
                         SCREEN_X(dyn_x) - 2,
                         SCREEN_Y(dyn_y) - 5, 5, 0);
         }

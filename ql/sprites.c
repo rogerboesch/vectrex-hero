@@ -9,7 +9,7 @@
 #include "sprites.h"
 
 /* player_fly — 10x20 (5 bytes/row x 20 rows) */
-static const uint8_t spr_player_fly_data[] = {
+static const uint8_t spr_player_fly_0_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x60, 0x00, 0x00, 0x00,
@@ -31,7 +31,7 @@ static const uint8_t spr_player_fly_data[] = {
     0x00, 0x07, 0x00, 0x00, 0x00,
     0x00, 0x07, 0x00, 0x00, 0x00,
 };
-const Sprite spr_player_fly = { 10, 20, spr_player_fly_data };
+const Sprite spr_player_fly_0 = { 10, 20, spr_player_fly_0_data };
 
 /* player_r — 10x20 (5 bytes/row x 20 rows) */
 static const uint8_t spr_player_walk_0_data[] = {
@@ -114,7 +114,7 @@ static const uint8_t spr_bat_1_data[] = {
 const Sprite spr_bat_1 = { 12, 10, spr_bat_1_data };
 
 /* spider — 10x10 (5 bytes/row x 10 rows) */
-static const uint8_t spr_spider_data[] = {
+static const uint8_t spr_spider_0_data[] = {
     0x00, 0x03, 0x30, 0x00, 0x00,
     0x00, 0x03, 0x30, 0x00, 0x00,
     0x00, 0x33, 0x33, 0x00, 0x00,
@@ -126,10 +126,10 @@ static const uint8_t spr_spider_data[] = {
     0x30, 0x00, 0x00, 0x03, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00,
 };
-const Sprite spr_spider = { 10, 10, spr_spider_data };
+const Sprite spr_spider_0 = { 10, 10, spr_spider_0_data };
 
 /* snake_r — 14x6 (7 bytes/row x 6 rows) */
-static const uint8_t spr_snake_data[] = {
+static const uint8_t spr_snake_0_data[] = {
     0x00, 0x00, 0x22, 0x22, 0x00, 0x00, 0x00,
     0x00, 0x22, 0x27, 0x72, 0x22, 0x00, 0x00,
     0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
@@ -137,10 +137,10 @@ static const uint8_t spr_snake_data[] = {
     0x00, 0x00, 0x22, 0x22, 0x22, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00,
 };
-const Sprite spr_snake = { 14, 6, spr_snake_data };
+const Sprite spr_snake_0 = { 14, 6, spr_snake_0_data };
 
 /* miner — 10x14 (5 bytes/row x 14 rows) */
-static const uint8_t spr_miner_data[] = {
+static const uint8_t spr_miner_0_data[] = {
     0x00, 0x06, 0x60, 0x00, 0x00,
     0x00, 0x55, 0x50, 0x00, 0x00,
     0x05, 0x55, 0x55, 0x00, 0x00,
@@ -156,10 +156,10 @@ static const uint8_t spr_miner_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00,
 };
-const Sprite spr_miner = { 10, 14, spr_miner_data };
+const Sprite spr_miner_0 = { 10, 14, spr_miner_0_data };
 
 /* dynamite — 4x10 (2 bytes/row x 10 rows) */
-static const uint8_t spr_dynamite_data[] = {
+static const uint8_t spr_dynamite_0_data[] = {
     0x06, 0x00,
     0x60, 0x00,
     0x66, 0x00,
@@ -171,10 +171,10 @@ static const uint8_t spr_dynamite_data[] = {
     0x00, 0x00,
     0x00, 0x00,
 };
-const Sprite spr_dynamite = { 4, 10, spr_dynamite_data };
+const Sprite spr_dynamite_0 = { 4, 10, spr_dynamite_0_data };
 
 /* explode — 12x12 (6 bytes/row x 12 rows) */
-static const uint8_t spr_explode_data[] = {
+static const uint8_t spr_explode_0_data[] = {
     0x00, 0x00, 0x02, 0x20, 0x00, 0x00,
     0x00, 0x20, 0x00, 0x02, 0x00, 0x00,
     0x02, 0x00, 0x02, 0x00, 0x20, 0x00,
@@ -188,4 +188,4 @@ static const uint8_t spr_explode_data[] = {
     0x00, 0x00, 0x02, 0x20, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
-const Sprite spr_explode = { 12, 12, spr_explode_data };
+const Sprite spr_explode_0 = { 12, 12, spr_explode_0_data };

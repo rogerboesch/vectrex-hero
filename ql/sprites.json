@@ -1,7 +1,7 @@
 {
   "sprites": [
     {
-      "name": "player_fly",
+      "name": "player_fly_0",
       "width": 10,
       "height": 20,
       "pixels": [
@@ -1036,7 +1036,7 @@
       ]
     },
     {
-      "name": "spider",
+      "name": "spider_0",
       "width": 10,
       "height": 10,
       "pixels": [
@@ -1163,7 +1163,7 @@
       ]
     },
     {
-      "name": "snake",
+      "name": "snake_0",
       "width": 14,
       "height": 6,
       "pixels": [
@@ -1266,7 +1266,7 @@
       ]
     },
     {
-      "name": "miner",
+      "name": "miner_0",
       "width": 10,
       "height": 14,
       "pixels": [
@@ -1441,7 +1441,7 @@
       ]
     },
     {
-      "name": "dynamite",
+      "name": "dynamite_0",
       "width": 4,
       "height": 10,
       "pixels": [
@@ -1508,7 +1508,7 @@
       ]
     },
     {
-      "name": "explode",
+      "name": "explode_0",
       "width": 12,
       "height": 12,
       "pixels": [
