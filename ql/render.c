@@ -592,19 +592,21 @@ void render_hud(void) {
     }
 }
 
+/* Helper: erase sprite slot, then draw sprite at new position.
+ * Minimizes flicker by keeping erase-to-draw time per sprite very short. */
+static void erase_draw(uint8_t slot, const Sprite *spr,
+                       int16_t sx, int16_t sy, uint8_t flip) {
+    restore_behind(slot);
+    blit_sprite(spr, sx, sy, slot, flip);
+}
+
 void render_frame(void) {
     uint8_t i;
     int16_t sx, sy;
     const Sprite *spr;
     uint8_t flip;
 
-    /* Restore all save-behind slots (reverse order) */
-    for (i = MAX_SLOTS; i > 0; i--)
-        restore_behind(i - 1);
-
-    /* Draw sprites */
-
-    /* Player */
+    /* Player — erase old, draw new immediately */
     if (!(game_state == STATE_DYING && !(death_timer & 2))) {
         sx = SCREEN_X(player_x) - 5;
         sy = SCREEN_Y(player_y) - 10;
@@ -615,33 +617,38 @@ void render_frame(void) {
             spr = &spr_player_walk;
         else
             spr = &spr_player_r;
-        blit_sprite(spr, sx, sy, 0, flip);
+        erase_draw(0, spr, sx, sy, flip);
+    } else {
+        restore_behind(0);
     }
 
-    /* Enemies */
-    for (i = 0; i < enemy_count; i++) {
-        if (!enemies[i].alive) continue;
-        sx = SCREEN_X(enemies[i].x);
-        sy = SCREEN_Y(enemies[i].y);
+    /* Enemies — erase+draw each one individually */
+    for (i = 0; i < 3; i++) {
+        if (i < enemy_count && enemies[i].alive) {
+            sx = SCREEN_X(enemies[i].x);
+            sy = SCREEN_Y(enemies[i].y);
 
-        if (enemies[i].type == ENEMY_SPIDER) {
-            /* Draw thread */
-            draw_line(SCREEN_BASE, sx, SCREEN_Y(enemies[i].home_y),
-                      sx, sy, COL_WHITE);
-            spr = &spr_spider;
-            blit_sprite(spr, sx - 5, sy - 5, 1 + i, 0);
-        } else if (enemies[i].type == ENEMY_SNAKE) {
-            spr = &spr_snake_r;
-            flip = (enemies[i].vx < 0) ? 1 : 0;
-            blit_sprite(spr, sx - 7, sy - 3, 1 + i, flip);
+            if (enemies[i].type == ENEMY_SPIDER) {
+                restore_behind(1 + i);
+                draw_line(SCREEN_BASE, sx, SCREEN_Y(enemies[i].home_y),
+                          sx, sy, COL_WHITE);
+                spr = &spr_spider;
+                blit_sprite(spr, sx - 5, sy - 5, 1 + i, 0);
+            } else if (enemies[i].type == ENEMY_SNAKE) {
+                spr = &spr_snake_r;
+                flip = (enemies[i].vx < 0) ? 1 : 0;
+                erase_draw(1 + i, spr, sx - 7, sy - 3, flip);
+            } else {
+                spr = (enemies[i].anim & 8) ? &spr_bat0 : &spr_bat1;
+                erase_draw(1 + i, spr, sx - 6, sy - 5, 0);
+            }
         } else {
-            spr = (enemies[i].anim & 8) ? &spr_bat0 : &spr_bat1;
-            blit_sprite(spr, sx - 6, sy - 5, 1 + i, 0);
+            restore_behind(1 + i);
         }
     }
 
-    /* Miner */
-    if (cur_has_miner) {
+    /* Miner — static, only draw once (slot 4) */
+    if (cur_has_miner && !slots[4].active) {
         blit_sprite(&spr_miner,
                     SCREEN_X(cur_miner_x) - 5,
                     SCREEN_Y(cur_miner_y) - 7, 4, 0);
@@ -650,11 +657,13 @@ void render_frame(void) {
     /* Dynamite / Explosion */
     if (dyn_active) {
         if (dyn_exploding)
-            blit_sprite(&spr_explode,
-                        SCREEN_X(dyn_x) - 6, SCREEN_Y(dyn_y) - 6, 5, 0);
+            erase_draw(5, &spr_explode,
+                       SCREEN_X(dyn_x) - 6, SCREEN_Y(dyn_y) - 6, 0);
         else
-            blit_sprite(&spr_dynamite,
-                        SCREEN_X(dyn_x) - 2, SCREEN_Y(dyn_y) - 5, 5, 0);
+            erase_draw(5, &spr_dynamite,
+                       SCREEN_X(dyn_x) - 2, SCREEN_Y(dyn_y) - 5, 0);
+    } else {
+        restore_behind(5);
     }
 
     /* Laser */
@@ -663,9 +672,8 @@ void render_frame(void) {
         int16_t step = LASER_LENGTH / 3;
         for (i = 0; i < 3; i++) {
             lx = laser_x + laser_dir * (int8_t)(step * i);
-            blit_sprite(&spr_laser,
-                        SCREEN_X(lx), SCREEN_Y(laser_y) - 2,
-                        6 + i, 0);
+            erase_draw(6 + i, &spr_laser,
+                       SCREEN_X(lx), SCREEN_Y(laser_y) - 2, 0);
         }
     }
 }
