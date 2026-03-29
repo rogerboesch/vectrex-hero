@@ -502,7 +502,7 @@ void render_init(void) {
 }
 
 void render_room(void) {
-    uint8_t sr, sc, i;
+    uint8_t i;
 
     /* Clear background buffer (longword for speed) */
     {
@@ -511,54 +511,11 @@ void render_room(void) {
         for (j = 0; j < SCREEN_SIZE / 4; j++) p[j] = 0;
     }
 
-    /* Rasterize cave */
-    {
-        uint8_t r, c;
-        for (r = 0; r < GRID_H; r++)
-            for (c = 0; c < GRID_W; c++)
-                cave_grid[r][c] = CELL_SOLID;
-    }
-
-    trace_cave();
-
-    /*
-     * Inverted flood fill: fill from OUTSIDE edges inward.
-     * 1. All non-border cells start as CELL_SOLID
-     * 2. Flood fill from every edge cell → marks outside rock as CELL_EMPTY temporarily
-     * 3. Swap: EMPTY↔SOLID so outside=SOLID(rock), inside=EMPTY(cave)
-     */
-    {
-        uint8_t r, c;
-
-        /* Flood from all 4 edges — any edge cell that's SOLID is outside the cave */
-        for (c = 0; c < GRID_W; c++) {
-            if (cave_grid[0][c] == CELL_SOLID) flood_fill(0, c);
-            if (cave_grid[GRID_H-1][c] == CELL_SOLID) flood_fill(GRID_H-1, c);
-        }
-        for (r = 0; r < GRID_H; r++) {
-            if (cave_grid[r][0] == CELL_SOLID) flood_fill(r, 0);
-            if (cave_grid[r][GRID_W-1] == CELL_SOLID) flood_fill(r, GRID_W-1);
-        }
-
-        /* Now: EMPTY = outside rock, SOLID = inside cave, BORDER = wall line */
-        /* Swap EMPTY↔SOLID */
-        for (r = 0; r < GRID_H; r++) {
-            for (c = 0; c < GRID_W; c++) {
-                if (cave_grid[r][c] == CELL_EMPTY)
-                    cave_grid[r][c] = CELL_SOLID;  /* outside → rock */
-                else if (cave_grid[r][c] == CELL_SOLID)
-                    cave_grid[r][c] = CELL_EMPTY;  /* inside → cave */
-            }
-        }
-    }
-
-    render_cave_cells();
-    /* Skip render_cave_lines — cell rendering is sufficient and much faster */
+    /* Draw cave polylines directly — no grid, no flood fill.
+     * Black background with green/white wall lines, like the Vectrex original. */
+    render_cave_lines();
     render_walls_bg();
     render_lava_bg();
-
-    /* HUD background bar */
-    filled_rect(bg_buffer, 0, 0, SCREEN_W, HUD_HEIGHT, COL_BLACK);
 
     copy_bg_to_screen();
 
