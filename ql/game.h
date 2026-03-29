@@ -98,7 +98,7 @@ typedef unsigned long  uint32_t;
 #define SCREEN_W      256
 #define SCREEN_H      256
 #define SCREEN_STRIDE 128   /* bytes per row */
-#define HUD_HEIGHT    26    /* pixel rows reserved for HUD at top */
+#define HUD_HEIGHT    36    /* pixel rows reserved for HUD at top */
 #define PLAY_HEIGHT   240   /* pixel rows for playfield */
 
 /*

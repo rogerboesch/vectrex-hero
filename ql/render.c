@@ -595,21 +595,21 @@ void render_hud(void) {
         filled_rect(SCREEN_BASE, 0, 0, SCREEN_W, HUD_HEIGHT, COL_BLACK);
 
         /* Level — far left */
-        draw_string(SCREEN_BASE, 2, 4, "LV", COL_CYAN);
+        draw_string(SCREEN_BASE, 2, 9, "LV", COL_CYAN);
         buf[0] = '0' + ((current_level + 1) / 10);
         buf[1] = '0' + ((current_level + 1) % 10);
         buf[2] = 0;
-        draw_string(SCREEN_BASE, 12, 4, buf, COL_WHITE);
+        draw_string(SCREEN_BASE, 12, 9, buf, COL_WHITE);
 
         /* Score label — right side */
-        draw_string(SCREEN_BASE, 214, 4, "SC:", COL_CYAN);
+        draw_string(SCREEN_BASE, 214, 9, "SC:", COL_CYAN);
 
         /* Fuel bar label + frame */
-        draw_string(SCREEN_BASE, 2, 16, "F:", COL_CYAN);
-        hline(SCREEN_BASE, 14, 250, 14, COL_WHITE);
-        hline(SCREEN_BASE, 14, 250, 21, COL_WHITE);
-        vline(SCREEN_BASE, 14, 14, 21, COL_WHITE);
-        vline(SCREEN_BASE, 250, 14, 21, COL_WHITE);
+        draw_string(SCREEN_BASE, 2, 21, "F:", COL_CYAN);
+        hline(SCREEN_BASE, 14, 250, 19, COL_WHITE);
+        hline(SCREEN_BASE, 14, 250, 26, COL_WHITE);
+        vline(SCREEN_BASE, 14, 19, 26, COL_WHITE);
+        vline(SCREEN_BASE, 250, 19, 26, COL_WHITE);
 
         /* Force all dynamic elements to redraw */
         hud_last_score = -1;
@@ -623,9 +623,9 @@ void render_hud(void) {
     if (player_lives != hud_last_lives) {
         for (i = 0; i < START_LIVES; i++) {
             uint8_t color = (i < player_lives) ? COL_RED : COL_BLACK;
-            filled_rect(SCREEN_BASE, 96 + i * 8, 4, 5, 5, color);
+            filled_rect(SCREEN_BASE, 96 + i * 8, 9, 5, 5, color);
             if (i < player_lives)
-                plot_pixel(SCREEN_BASE, 98 + i * 8, 5, COL_WHITE);
+                plot_pixel(SCREEN_BASE, 98 + i * 8, 10, COL_WHITE);
         }
         hud_last_lives = player_lives;
     }
@@ -634,10 +634,10 @@ void render_hud(void) {
     if (player_dynamite != hud_last_dyn) {
         for (i = 0; i < START_DYNAMITE; i++) {
             uint8_t color = (i < player_dynamite) ? COL_YELLOW : COL_BLACK;
-            vline(SCREEN_BASE, 136 + i * 6, 4, 9, color);
-            vline(SCREEN_BASE, 137 + i * 6, 4, 9, color);
+            vline(SCREEN_BASE, 136 + i * 6, 9, 14, color);
+            vline(SCREEN_BASE, 137 + i * 6, 9, 14, color);
             if (i < player_dynamite)
-                plot_pixel(SCREEN_BASE, 138 + i * 6, 3, COL_RED);
+                plot_pixel(SCREEN_BASE, 138 + i * 6, 8, COL_RED);
         }
         hud_last_dyn = player_dynamite;
     }
@@ -651,7 +651,7 @@ void render_hud(void) {
             s /= 10;
         }
         buf[5] = 0;
-        draw_string(SCREEN_BASE, 229, 4, buf, COL_WHITE);
+        draw_string(SCREEN_BASE, 229, 9, buf, COL_WHITE);
         hud_last_score = score;
     }
 
@@ -662,7 +662,7 @@ void render_hud(void) {
         if (hud_last_fuel == 254) {
             /* First draw: fill entire bar */
             if (new_filled > 0)
-                filled_rect(SCREEN_BASE, 16, 15, new_filled, 6, COL_RED);
+                filled_rect(SCREEN_BASE, 16, 20, new_filled, 6, COL_RED);
         } else if (new_filled < old_filled) {
             /* Fuel decreased: black out the difference from right */
             int16_t erase_x = 16 + new_filled;
