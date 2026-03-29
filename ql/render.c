@@ -47,6 +47,9 @@ typedef struct {
     int16_t x, y;
     uint8_t wb, h;  /* width in bytes, height in pixels */
     uint8_t active;
+    /* Track last drawn position to skip redundant redraws */
+    int16_t last_sx, last_sy;
+    const uint8_t *last_spr;  /* last sprite data pointer */
     uint8_t data[MAX_SAVE_W * MAX_SAVE_H];
 } SaveSlot;
 
@@ -593,11 +596,19 @@ void render_hud(void) {
 }
 
 /* Helper: erase sprite slot, then draw sprite at new position.
- * Minimizes flicker by keeping erase-to-draw time per sprite very short. */
+ * Skips entirely if position and sprite haven't changed. */
 static void erase_draw(uint8_t slot, const Sprite *spr,
                        int16_t sx, int16_t sy, uint8_t flip) {
+    SaveSlot *s = &slots[slot];
+    /* Skip if nothing changed */
+    if (s->active && sx == s->last_sx && sy == s->last_sy
+        && spr->data == s->last_spr)
+        return;
     restore_behind(slot);
     blit_sprite(spr, sx, sy, slot, flip);
+    s->last_sx = sx;
+    s->last_sy = sy;
+    s->last_spr = spr->data;
 }
 
 void render_frame(void) {
