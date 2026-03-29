@@ -783,23 +783,23 @@ void render_level_intro(void) {
     buf[6] = '0' + ((current_level + 1) / 10);
     buf[7] = '0' + ((current_level + 1) % 10);
     buf[8] = 0;
-    draw_string(SCREEN_BASE, 88, 120, buf, COL_YELLOW);
+    draw_centered(SCREEN_BASE, 120, buf, COL_YELLOW);
 }
 
 void render_game_over(void) {
     clear_screen();
-    draw_string(SCREEN_BASE, 72, 100, "GAME OVER", COL_RED);
-    draw_string(SCREEN_BASE, 52, 140, "PRESS ENTER", COL_WHITE);
+    draw_centered(SCREEN_BASE, 100, "GAME OVER", COL_RED);
+    draw_centered(SCREEN_BASE, 140, "PRESS ENTER", COL_WHITE);
 }
 
 void render_rescued(void) {
     clear_screen();
-    draw_string(SCREEN_BASE, 72, 100, "RESCUED!", COL_CYAN);
-    draw_string(SCREEN_BASE, 52, 140, "PRESS ENTER", COL_WHITE);
+    draw_centered(SCREEN_BASE, 100, "RESCUED!", COL_CYAN);
+    draw_centered(SCREEN_BASE, 140, "PRESS ENTER", COL_WHITE);
 }
 
 void render_failed(void) {
     clear_screen();
-    draw_string(SCREEN_BASE, 88, 100, "FAILED", COL_RED);
-    draw_string(SCREEN_BASE, 52, 140, "PRESS ENTER", COL_WHITE);
+    draw_centered(SCREEN_BASE, 100, "FAILED", COL_RED);
+    draw_centered(SCREEN_BASE, 140, "PRESS ENTER", COL_WHITE);
 }
