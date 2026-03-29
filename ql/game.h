@@ -38,10 +38,11 @@ typedef unsigned long  uint32_t;
 #define START_FUEL      255
 #define START_DYNAMITE  3
 #define START_LIVES     3
+/* Timing scaled for ~17 FPS (original 60 FPS, divide by ~3.5) */
 #define LASER_LENGTH    40
-#define LASER_LIFETIME  10
-#define DYNAMITE_FUSE   60
-#define EXPLOSION_TIME  20
+#define LASER_LIFETIME  3
+#define DYNAMITE_FUSE   17
+#define EXPLOSION_TIME  8
 #define EXPLOSION_RADIUS 25
 #define EXPLOSION_KILL   10
 #define LAVA_HEIGHT      3
@@ -73,9 +74,10 @@ typedef unsigned long  uint32_t;
 #define ROOM_BOUND_FLOOR  (-50)
 
 /* Timing */
-#define LEVEL_INTRO_TIME    120
-#define RESCUE_ANIM_TIME     60
-#define DEATH_ANIM_TIME      30
+/* Timing scaled for ~17 FPS */
+#define LEVEL_INTRO_TIME    34
+#define RESCUE_ANIM_TIME     17
+#define DEATH_ANIM_TIME      9
 
 /* Game states */
 #define STATE_TITLE         0

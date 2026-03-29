@@ -727,18 +727,38 @@ void render_frame(void) {
                     4, 0);
     }
 
-    /* Dynamite / Explosion */
+    /* Dynamite / Explosion — always redraw (no skip, stationary but overlapped) */
     if (dyn_active) {
-        if (dyn_exploding)
-            erase_draw(5, &spr_explode,
-                       SCREEN_X(dyn_x) - 6,
-                       SCREEN_Y(dyn_y) - 6, 0);
-        else
-            erase_draw(5, &spr_dynamite,
-                       SCREEN_X(dyn_x) - 2,
-                       SCREEN_Y(dyn_y) - 5, 0);
+        if (dyn_exploding) {
+            restore_behind(5);
+            /* Flash: draw expanding cross pattern directly */
+            {
+                int16_t ex = SCREEN_X(dyn_x);
+                int16_t ey = SCREEN_Y(dyn_y);
+                int16_t r = (int16_t)(EXPLOSION_TIME - dyn_expl_timer) * 4;
+                uint8_t col = (dyn_expl_timer > 4) ? COL_WHITE : COL_YELLOW;
+                if (r > 30) r = 30;
+                hline(SCREEN_BASE, ex - r, ex + r, ey, col);
+                vline(SCREEN_BASE, ex, ey - r, ey + r, col);
+                /* Diagonal lines */
+                if (r > 5) {
+                    draw_line(SCREEN_BASE, ex-r, ey-r, ex+r, ey+r, col);
+                    draw_line(SCREEN_BASE, ex+r, ey-r, ex-r, ey+r, col);
+                }
+                mark_behind(5, (ex - r - 2) >> 2 << 1, ey - r,
+                            (uint8_t)(((r * 2 + 8) >> 2) << 1),
+                            (uint8_t)(r * 2 + 1));
+            }
+        } else {
+            /* Draw dynamite every frame (bypass skip — player overlap erases it) */
+            restore_behind(5);
+            blit_sprite(&spr_dynamite,
+                        SCREEN_X(dyn_x) - 2,
+                        SCREEN_Y(dyn_y) - 5, 5, 0);
+        }
     } else {
         restore_behind(5);
+        slot_drawn[5] = 0;
     }
 
     /* Laser */
