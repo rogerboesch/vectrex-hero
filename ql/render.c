@@ -700,7 +700,7 @@ void render_frame(void) {
             if (enemies[i].type == ENEMY_SPIDER) {
                 /* Erase full patrol range (home_y to home_y-SPIDER_PATROL + sprite) */
                 {
-                    int16_t top_y = SCREEN_Y(enemies[i].home_y);
+                    int16_t top_y = SCREEN_Y(enemies[i].home_y) - 4;
                     int16_t bot_y = SCREEN_Y(enemies[i].home_y - SPIDER_PATROL)
                                     + HH_PX(SPIDER_HH) + 2;
                     int16_t col_x = ((sx - 5) >> 2) << 1;
@@ -736,7 +736,7 @@ void render_frame(void) {
         } else {
             /* Dead or absent — erase. For spiders, erase full thread column */
             if (i < enemy_count && enemies[i].type == ENEMY_SPIDER) {
-                int16_t top_y = SCREEN_Y(enemies[i].home_y);
+                int16_t top_y = SCREEN_Y(enemies[i].home_y) - 4;
                 int16_t bot_y = SCREEN_Y(enemies[i].home_y - SPIDER_PATROL)
                                 + HH_PX(SPIDER_HH) + 2;
                 int16_t ex = SCREEN_X(enemies[i].x);
@@ -801,15 +801,20 @@ void render_frame(void) {
         slot_drawn[5] = 0;
     }
 
-    /* Laser */
+    /* Laser — draw as 1px hline, erase by restoring from bg_buffer */
     if (laser_active) {
-        int8_t lx;
-        int16_t step = LASER_LENGTH / 3;
-        for (i = 0; i < 3; i++) {
-            lx = laser_x + laser_dir * (int8_t)(step * i);
-            erase_draw(6 + i, &spr_laser,
-                       SCREEN_X(lx), SCREEN_Y(laser_y) - 2, 0);
-        }
+        int16_t lx1 = SCREEN_X(laser_x);
+        int16_t lx2 = SCREEN_X(laser_x + laser_dir * LASER_LENGTH);
+        int16_t ly  = SCREEN_Y(laser_y);
+        if (lx1 > lx2) { int16_t t = lx1; lx1 = lx2; lx2 = t; }
+        /* Mark area for cleanup */
+        mark_behind(6, (lx1 >> 2) << 1, ly,
+                    (uint8_t)((((lx2 + 3) >> 2) << 1) - ((lx1 >> 2) << 1)),
+                    1);
+        hline(SCREEN_BASE, lx1, lx2, ly, COL_WHITE);
+    } else if (slots[6].active) {
+        restore_behind(6);
+        slot_drawn[6] = 0;
     }
 }
 
