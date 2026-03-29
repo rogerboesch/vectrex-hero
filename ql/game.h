@@ -108,10 +108,10 @@ typedef unsigned long  uint32_t;
  *   bits: x F G R  (x=unused, F=flash, G=green, R=red)
  */
 #define COL_BLACK   0
-#define COL_RED     2
+#define COL_RED     1
 #define COL_GREEN   4
 #define COL_YELLOW  6   /* green + red */
-#define COL_BLUE    1   /* flash bit = blue on some monitors */
+#define COL_BLUE    2
 #define COL_MAGENTA 3
 #define COL_CYAN    5
 #define COL_WHITE   7
