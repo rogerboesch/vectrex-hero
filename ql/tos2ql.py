@@ -259,29 +259,19 @@ def make_qdos_binary(code_data, fixups, bss_size, outfile):
     # Build final binary
     binary = bytes(s) + bytes(reloc_table) + code_data
 
-    # Prepend Q-emulator header
-    hdr = b']!QDOS File Header'
-    hdr += b'\x00'       # reserved
-    hdr += bytes([15])   # wordlen (15 words = 30 bytes)
-    hdr += bytes([0])    # access
-    hdr += bytes([1])    # type = executable
-    hdr += struct.pack('>I', bss_size + 4096)  # data space (BSS + stack)
-    hdr += struct.pack('>I', 0)   # reserved
-    hdr += b'\x00' * (30 - len(hdr))
-
-    # XTcc trailer (8 bytes at end) — for emulators that check file tail
-    # instead of Q-emulator header (e.g., iQL)
+    # XTcc trailer (8 bytes at end) — marks file as executable
+    # Works with sQLux (fallback), iQL, and other emulators
+    # No Q-emulator header needed — code starts at byte 0
     xtcc = b'XTcc' + struct.pack('>I', bss_size + 4096)
 
     with open(outfile, 'wb') as f:
-        f.write(hdr)
         f.write(binary)
         f.write(xtcc)
 
-    total = len(hdr) + len(binary) + len(xtcc)
+    total = len(binary) + len(xtcc)
     print(f"Output: {outfile} ({total} bytes)")
     print(f"  Stub: {stub_size}, Reloc: {len(reloc_table)}, Code: {len(code_data)}")
-    print(f"  Headers: Q-emulator (start) + XTcc (tail)")
+    print(f"  Header: XTcc trailer ({bss_size + 4096} data space)")
 
 
 if __name__ == '__main__':
