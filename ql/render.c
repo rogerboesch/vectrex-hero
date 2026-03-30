@@ -612,26 +612,33 @@ void render_hud(void) {
      *  Row 24-25: ═══════════════════════════════  bottom border
      */
 
+    /*
+     * Layout:
+     *   Top HUD (y=15): LV01  ♥♥♥  !!!  SC:00000  (vcentered in 36px)
+     *   Room: y=36 to ~217
+     *   Bottom bar (y=234): fuel bar (vcentered in 39px gap below room)
+     */
+#define HUD_TOP_Y     15
+#define FUEL_BAR_Y    234
+#define FUEL_BAR_W    200
+#define FUEL_BAR_X    28
+
     if (!hud_drawn) {
-        /* Full HUD redraw */
+        /* Clear top HUD area */
         filled_rect(SCREEN_BASE, 0, 0, SCREEN_W, HUD_HEIGHT, COL_BLACK);
 
         /* Level — far left */
-        draw_string(SCREEN_BASE, 2, 9, "LV", COL_CYAN);
+        draw_string(SCREEN_BASE, 2, HUD_TOP_Y, "LV", COL_CYAN);
         buf[0] = '0' + ((current_level + 1) / 10);
         buf[1] = '0' + ((current_level + 1) % 10);
         buf[2] = 0;
-        draw_string(SCREEN_BASE, 12, 9, buf, COL_WHITE);
+        draw_string(SCREEN_BASE, 12, HUD_TOP_Y, buf, COL_WHITE);
 
         /* Score label — right side */
-        draw_string(SCREEN_BASE, 214, 9, "SC:", COL_CYAN);
+        draw_string(SCREEN_BASE, 214, HUD_TOP_Y, "SC:", COL_CYAN);
 
-        /* Fuel bar label + frame */
-        draw_string(SCREEN_BASE, 2, 21, "F:", COL_CYAN);
-        hline(SCREEN_BASE, 14, 250, 19, COL_WHITE);
-        hline(SCREEN_BASE, 14, 250, 26, COL_WHITE);
-        vline(SCREEN_BASE, 14, 19, 26, COL_WHITE);
-        vline(SCREEN_BASE, 250, 19, 26, COL_WHITE);
+        /* Clear bottom fuel bar area */
+        filled_rect(SCREEN_BASE, 0, 220, SCREEN_W, 36, COL_BLACK);
 
         /* Force all dynamic elements to redraw */
         hud_last_score = -1;
@@ -641,30 +648,30 @@ void render_hud(void) {
         hud_drawn = 1;
     }
 
-    /* Lives — left of center (centered around x=108) */
+    /* Lives — left of center */
     if (player_lives != hud_last_lives) {
         for (i = 0; i < START_LIVES; i++) {
             uint8_t color = (i < player_lives) ? COL_RED : COL_BLACK;
-            filled_rect(SCREEN_BASE, 96 + i * 8, 9, 5, 5, color);
+            filled_rect(SCREEN_BASE, 96 + i * 8, HUD_TOP_Y, 5, 5, color);
             if (i < player_lives)
-                plot_pixel(SCREEN_BASE, 98 + i * 8, 10, COL_WHITE);
+                plot_pixel(SCREEN_BASE, 98 + i * 8, HUD_TOP_Y + 1, COL_WHITE);
         }
         hud_last_lives = player_lives;
     }
 
-    /* Dynamite — right of center (centered around x=148) */
+    /* Dynamite — right of center */
     if (player_dynamite != hud_last_dyn) {
         for (i = 0; i < START_DYNAMITE; i++) {
             uint8_t color = (i < player_dynamite) ? COL_YELLOW : COL_BLACK;
-            vline(SCREEN_BASE, 136 + i * 6, 9, 14, color);
-            vline(SCREEN_BASE, 137 + i * 6, 9, 14, color);
+            vline(SCREEN_BASE, 136 + i * 6, HUD_TOP_Y, HUD_TOP_Y + 5, color);
+            vline(SCREEN_BASE, 137 + i * 6, HUD_TOP_Y, HUD_TOP_Y + 5, color);
             if (i < player_dynamite)
-                plot_pixel(SCREEN_BASE, 138 + i * 6, 8, COL_RED);
+                plot_pixel(SCREEN_BASE, 138 + i * 6, HUD_TOP_Y - 1, COL_RED);
         }
         hud_last_dyn = player_dynamite;
     }
 
-    /* Score — right aligned (5 digits at x=221, ends at x=246) */
+    /* Score — right aligned */
     if (score != hud_last_score) {
         int16_t s = score;
         uint8_t d;
@@ -673,24 +680,22 @@ void render_hud(void) {
             s /= 10;
         }
         buf[5] = 0;
-        draw_string(SCREEN_BASE, 229, 9, buf, COL_WHITE);
+        draw_string(SCREEN_BASE, 229, HUD_TOP_Y, buf, COL_WHITE);
         hud_last_score = score;
     }
 
-    /* Fuel bar — erase from right edge only (no full redraw = no flicker) */
+    /* Fuel bar — below room, just a red bar, no frame */
     if (player_fuel != hud_last_fuel) {
-        int16_t new_filled = (int16_t)((uint16_t)player_fuel * 234 / START_FUEL);
-        int16_t old_filled = (int16_t)((uint16_t)hud_last_fuel * 234 / START_FUEL);
+        int16_t new_filled = (int16_t)((uint16_t)player_fuel * FUEL_BAR_W / START_FUEL);
+        int16_t old_filled = (int16_t)((uint16_t)hud_last_fuel * FUEL_BAR_W / START_FUEL);
         if (hud_last_fuel == 254) {
-            /* First draw: fill entire bar */
             if (new_filled > 0)
-                filled_rect(SCREEN_BASE, 16, 20, new_filled, 6, COL_RED);
+                filled_rect(SCREEN_BASE, FUEL_BAR_X, FUEL_BAR_Y, new_filled, 4, COL_RED);
         } else if (new_filled < old_filled) {
-            /* Fuel decreased: black out the difference from right */
-            int16_t erase_x = 16 + new_filled;
+            int16_t erase_x = FUEL_BAR_X + new_filled;
             int16_t erase_w = old_filled - new_filled;
             if (erase_w > 0)
-                filled_rect(SCREEN_BASE, erase_x, 15, erase_w, 6, COL_BLACK);
+                filled_rect(SCREEN_BASE, erase_x, FUEL_BAR_Y, erase_w, 4, COL_BLACK);
         }
         hud_last_fuel = player_fuel;
     }
