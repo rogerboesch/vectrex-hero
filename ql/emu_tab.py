@@ -141,6 +141,10 @@ class EmulatorTab:
                                     highlightthickness=0)
         self.emu_canvas.pack(expand=True)
 
+        # Make canvas focusable so it captures keys instead of buttons
+        self.emu_canvas.config(takefocus=True)
+        self.emu_canvas.bind("<Button-1>", lambda e: self.emu_canvas.focus_set())
+
     def _build_and_run(self):
         """Export sprites, compile the game, and start the emulator."""
         self.status_var.set("Exporting sprites...")
@@ -183,6 +187,9 @@ class EmulatorTab:
         # Bind keyboard events for this tab
         self.root.bind("<KeyPress>", self._on_emu_key_press)
         self.root.bind("<KeyRelease>", self._on_emu_key_release)
+
+        # Focus the canvas so Space/keys go to emulator, not buttons
+        self.emu_canvas.focus_set()
 
         # Start tick loop
         self._emu_tick()
@@ -258,6 +265,7 @@ class EmulatorTab:
         if self._emu_active:
             self.root.bind("<KeyPress>", self._on_emu_key_press)
             self.root.bind("<KeyRelease>", self._on_emu_key_release)
+            self.emu_canvas.focus_set()
 
     def on_tab_deselected(self):
         """Called when switching away from this tab."""
