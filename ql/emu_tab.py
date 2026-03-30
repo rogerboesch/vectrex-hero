@@ -34,75 +34,53 @@ try:
 except ImportError:
     HAS_PIL = False
 
-# Tkinter keysym → (iQL virtual key code, force_shift) mapping
-# force_shift: -1 = don't override, 0 = force off, 1 = force on
-_TK_TO_VK = {}
+# Keysym-based lookup for special keys (no printable char)
+_KEYSYM_TO_VK = {}
+
+# Character-based lookup: replicates iQL's character_to_vk() + ql_shift_key_fixes()
+_CHAR_TO_VK = {}
+
 if HAS_IQL:
-    # Base keys (no shift override)
-    _base = {
-        'a': _iql.VK_A, 'b': _iql.VK_B, 'c': _iql.VK_C, 'd': _iql.VK_D,
-        'e': _iql.VK_E, 'f': _iql.VK_F, 'g': _iql.VK_G, 'h': _iql.VK_H,
-        'i': _iql.VK_I, 'j': _iql.VK_J, 'k': _iql.VK_K, 'l': _iql.VK_L,
-        'm': _iql.VK_M, 'n': _iql.VK_N, 'o': _iql.VK_O, 'p': _iql.VK_P,
-        'q': _iql.VK_Q, 'r': _iql.VK_R, 's': _iql.VK_S, 't': _iql.VK_T,
-        'u': _iql.VK_U, 'v': _iql.VK_V, 'w': _iql.VK_W, 'x': _iql.VK_X,
-        'y': _iql.VK_Y, 'z': _iql.VK_Z,
-        '0': _iql.VK_0, '1': _iql.VK_1, '2': _iql.VK_2, '3': _iql.VK_3,
-        '4': _iql.VK_4, '5': _iql.VK_5, '6': _iql.VK_6, '7': _iql.VK_7,
-        '8': _iql.VK_8, '9': _iql.VK_9,
-        'space': _iql.VK_SPACE, 'Return': _iql.VK_RETURN,
-        'Escape': _iql.VK_ESCAPE, 'Tab': _iql.VK_TAB,
-        'BackSpace': _iql.VK_BACKSPACE,
-        'Left': _iql.VK_LEFT, 'Right': _iql.VK_RIGHT,
-        'Up': _iql.VK_UP, 'Down': _iql.VK_DOWN,
-        'F1': _iql.VK_F1, 'F2': _iql.VK_F2, 'F3': _iql.VK_F3,
-        'F4': _iql.VK_F4, 'F5': _iql.VK_F5,
-        'comma': _iql.VK_COMMA, 'period': _iql.VK_PERIOD,
-        'slash': _iql.VK_SLASH, 'semicolon': _iql.VK_SEMICOLON,
-        'minus': _iql.VK_DASH, 'equal': _iql.VK_EQUAL,
-        'quoteright': _iql.VK_QUOTE, 'apostrophe': _iql.VK_QUOTE,
-        'backslash': _iql.VK_BACKSLASH, 'grave': _iql.VK_GRAVE,
-        'bracketleft': _iql.VK_LBRACKET,
-        'bracketright': _iql.VK_RBRACKET,
-        'Shift_L': _iql.VK_LSHIFT, 'Shift_R': _iql.VK_RSHIFT,
-        'Control_L': _iql.VK_LCONTROL, 'Control_R': _iql.VK_RCONTROL,
-        'Alt_L': _iql.VK_LALT, 'Alt_R': _iql.VK_RALT,
+    # Special keys (keysym lookup, no shift override)
+    _KEYSYM_TO_VK = {
+        'space': (_iql.VK_SPACE, -1),
+        'Return': (_iql.VK_RETURN, -1),
+        'Escape': (_iql.VK_ESCAPE, -1),
+        'Tab': (_iql.VK_TAB, -1),
+        'BackSpace': (_iql.VK_BACKSPACE, -1),
+        'Left': (_iql.VK_LEFT, -1),
+        'Right': (_iql.VK_RIGHT, -1),
+        'Up': (_iql.VK_UP, -1),
+        'Down': (_iql.VK_DOWN, -1),
+        'F1': (_iql.VK_F1, -1), 'F2': (_iql.VK_F2, -1),
+        'F3': (_iql.VK_F3, -1), 'F4': (_iql.VK_F4, -1),
+        'F5': (_iql.VK_F5, -1),
+        'Shift_L': (_iql.VK_LSHIFT, -1),
+        'Shift_R': (_iql.VK_RSHIFT, -1),
+        'Control_L': (_iql.VK_LCONTROL, -1),
+        'Control_R': (_iql.VK_RCONTROL, -1),
+        'Alt_L': (_iql.VK_LALT, -1),
+        'Alt_R': (_iql.VK_RALT, -1),
     }
-    for k, v in _base.items():
-        _TK_TO_VK[k] = (v, -1)
 
-    # Shifted symbols: Tkinter keysym → (base VK, force_shift=1)
-    # Matches ql_shift_key_fixes() in rb_virtual_keys.c
-    _shifted = {
-        'exclam': _iql.VK_1,           # !
-        'at': _iql.VK_2,               # @
-        'numbersign': _iql.VK_3,       # #
-        'dollar': _iql.VK_4,           # $
-        'percent': _iql.VK_5,          # %
-        'asciicircum': _iql.VK_6,      # ^
-        'ampersand': _iql.VK_7,        # &
-        'asterisk': _iql.VK_8,         # *
-        'parenleft': _iql.VK_9,        # (
-        'parenright': _iql.VK_0,       # )
-        'underscore': _iql.VK_DASH,    # _
-        'plus': _iql.VK_EQUAL,         # +
-        'bar': _iql.VK_BACKSLASH,      # |
-        'asciitilde': _iql.VK_GRAVE,   # ~
-        'braceleft': _iql.VK_LBRACKET,   # {
-        'braceright': _iql.VK_RBRACKET,  # }
-        'colon': _iql.VK_SEMICOLON,    # :
-        'quotedbl': _iql.VK_QUOTE,     # "
-        'less': _iql.VK_COMMA,         # <
-        'greater': _iql.VK_PERIOD,     # >
-        'question': _iql.VK_SLASH,     # ?
+    # Replicate iQL's KeyCharacterSet: character → VK by position
+    _KEY_CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXZY0123456789()[]{}:;,.'\"/\\~=-+-*/<>!?@#$%^&|_` \t\r"
+    for i, ch in enumerate(_KEY_CHAR_SET):
+        _CHAR_TO_VK[ch] = i
+
+    # ql_shift_key_fixes(): shifted char → (base VK, force_shift=1)
+    _SHIFT_FIXES = {
+        '!': _iql.VK_1, '@': _iql.VK_2, '#': _iql.VK_3,
+        '$': _iql.VK_4, '%': _iql.VK_5, '^': _iql.VK_6,
+        '&': _iql.VK_7, '*': _iql.VK_8, '(': _iql.VK_9,
+        ')': _iql.VK_0, '_': _iql.VK_DASH, '+': _iql.VK_EQUAL,
+        '|': _iql.VK_BACKSLASH, '~': _iql.VK_GRAVE,
+        '{': _iql.VK_LBRACKET, '}': _iql.VK_RBRACKET,
+        '[': _iql.VK_LBRACKET, ']': _iql.VK_RBRACKET,
+        ':': _iql.VK_SEMICOLON, '"': _iql.VK_QUOTE,
+        '<': _iql.VK_COMMA, '>': _iql.VK_PERIOD,
+        '?': _iql.VK_SLASH,
     }
-    for k, v in _shifted.items():
-        _TK_TO_VK[k] = (v, 1)
-
-    # Uppercase letters: force shift on
-    for ch in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
-        vk = _base[ch.lower()]
-        _TK_TO_VK[ch] = (vk, 1)
 
 
 class EmulatorTab:
@@ -282,30 +260,63 @@ class EmulatorTab:
         # Schedule next tick
         self._after_id = self.root.after(EMU_TICK_MS, self._emu_tick)
 
+    def _resolve_key(self, event):
+        """Resolve Tkinter event to (vk, shift) matching iQL's processEvent.
+
+        Replicates rb_renderview.m: character_to_vk() + ql_shift_key_fixes().
+        Returns (vk_code, shift) or None.
+        """
+        shift = 1 if event.state & 0x0001 else 0
+
+        # 1. Special keys (no printable char) — lookup by keysym
+        entry = _KEYSYM_TO_VK.get(event.keysym)
+        if entry is not None:
+            vk, force_shift = entry
+            if force_shift >= 0:
+                shift = force_shift
+            return vk, shift
+
+        # 2. Printable chars — replicate iQL's character_to_vk + ql_shift_key_fixes
+        ch = event.char
+        if not ch:
+            return None
+
+        # Check shift fixes first (like iQL's ql_shift_key_fixes)
+        fix = _SHIFT_FIXES.get(ch)
+        if fix is not None:
+            return fix, 1
+
+        # Uppercase → base letter + shift (like iQL's charactersIgnoringModifiers)
+        if ch.isupper():
+            vk = _CHAR_TO_VK.get(ch)
+            if vk is not None:
+                return vk, 1
+
+        # Regular character lookup (like iQL's character_to_vk on uppercase)
+        vk = _CHAR_TO_VK.get(ch.upper())
+        if vk is not None:
+            return vk, shift
+
+        return None
+
     def _on_emu_key_press(self, event):
         """Forward key press to emulator."""
         if not self._emu_active:
             return
-        entry = _TK_TO_VK.get(event.keysym)
-        if entry is not None:
-            vk, force_shift = entry
-            shift = 1 if event.state & 0x0001 else 0
+        result = self._resolve_key(event)
+        if result is not None:
+            vk, shift = result
             ctrl = 1 if event.state & 0x0004 else 0
             alt = 1 if event.state & 0x0008 else 0
-            if force_shift >= 0:
-                shift = force_shift
             _iql.send_key(vk, 1, shift, ctrl, alt)
 
     def _on_emu_key_release(self, event):
         """Forward key release to emulator."""
         if not self._emu_active:
             return
-        entry = _TK_TO_VK.get(event.keysym)
-        if entry is not None:
-            vk, force_shift = entry
-            shift = 1 if event.state & 0x0001 else 0
-            if force_shift >= 0:
-                shift = force_shift
+        result = self._resolve_key(event)
+        if result is not None:
+            vk, shift = result
             _iql.send_key(vk, 0, shift)
 
     def on_tab_selected(self):
