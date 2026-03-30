@@ -276,6 +276,7 @@ _asm_blit_sprite:
         move.b  (a0)+,d0
         beq     .bncol              ; skip if both transparent
 
+        move.l  a0,-(sp)            ; SAVE src pointer
         move.w  d2,-(sp)            ; SAVE row counter
         move.w  d0,d1               ; d1 = save byte
         move.w  d3,d0
@@ -305,6 +306,7 @@ _asm_blit_sprite:
 .bskiplo:
 
         move.w  (sp)+,d2            ; RESTORE row counter
+        move.l  (sp)+,a0            ; RESTORE src pointer
 
 .bncol:
         addq.w  #1,d3
@@ -318,7 +320,8 @@ _asm_blit_sprite:
 
 ; ----- Inline pixel plot -----
 ; d2 = color (1-7), d0 = x (0-255), a3 = row base
-; Clobbers: a1, d0, d2 (!)
+; Clobbers: a0, a1, d0, d2
+; Preserves: a0 is NOT preserved — caller must save it!
 .bpx:
         ; pair addr = a3 + (x/4)*2
         move.w  d0,-(sp)
