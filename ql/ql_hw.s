@@ -219,6 +219,184 @@ _ql_beep:
         rts
 
 ; =====================================================================
+; asm_blit_sprite — Fast sprite blit to buffer in 68K assembly
+;
+; void asm_blit_sprite(uint8_t *buf, const Sprite *spr,
+;                      int16_t sx, int16_t sy)
+;
+; vbcc: args on stack. Sprite struct: byte w, byte h, long data_ptr
+; Nibble-packed sprite data → Mode 8 bit-plane screen memory.
+;
+; Uses a 32-byte lookup table: for each (color 0-7, pos 0-3),
+; stores the even-byte and odd-byte bits to OR in.
+; =====================================================================
+        xdef    _asm_blit_sprite
+_asm_blit_sprite:
+        movem.l d2-d7/a2-a4,-(sp)  ; 9 regs = 36 bytes
+        move.l  40(sp),a4           ; a4 = buf
+        move.l  44(sp),a0           ; a0 = spr
+        move.w  48(sp),d4           ; d4 = sx
+        move.w  50(sp),d5           ; d5 = sy
+
+        moveq   #0,d6
+        move.b  (a0),d6             ; d6 = w
+        moveq   #0,d7
+        move.b  1(a0),d7            ; d7 = h
+        move.l  2(a0),a2            ; a2 = data
+        lsr.w   #1,d6               ; d6 = wb
+
+        moveq   #0,d2               ; d2 = row
+.brow:  cmp.w   d7,d2
+        bge     .bdone
+
+        move.w  d5,d0
+        add.w   d2,d0               ; d0 = py
+        bmi     .bnrow
+        cmpi.w  #256,d0
+        bge     .bnrow
+
+        ; a3 = buf + py << 7
+        move.w  d0,d3
+        ext.l   d3
+        lsl.l   #7,d3
+        move.l  a4,a3
+        adda.l  d3,a3
+
+        ; a0 = data + row * wb
+        move.l  a2,a0
+        move.w  d2,d0
+        mulu    d6,d0
+        adda.l  d0,a0
+
+        moveq   #0,d3               ; d3 = col
+.bcol:  cmp.w   d6,d3
+        bge     .bnrow
+
+        moveq   #0,d0
+        move.b  (a0)+,d0
+        beq     .bncol              ; skip if both transparent
+
+        move.w  d2,-(sp)            ; SAVE row counter
+        move.w  d0,d1               ; d1 = save byte
+        move.w  d3,d0
+        add.w   d0,d0
+        add.w   d4,d0               ; d0 = pixel_x for left pixel
+
+        ; --- Left pixel (hi nibble) ---
+        move.w  d1,d2
+        lsr.w   #4,d2
+        andi.w  #7,d2               ; d2 = hi color
+        beq.s   .bskiphi
+        tst.w   d0
+        bmi.s   .bskiphi
+        cmpi.w  #256,d0
+        bge.s   .bskiphi
+        bsr.s   .bpx
+.bskiphi:
+
+        ; --- Right pixel (lo nibble) ---
+        addq.w  #1,d0               ; x+1
+        move.w  d1,d2
+        andi.w  #7,d2               ; d2 = lo color
+        beq.s   .bskiplo
+        cmpi.w  #256,d0
+        bge.s   .bskiplo
+        bsr.s   .bpx
+.bskiplo:
+
+        move.w  (sp)+,d2            ; RESTORE row counter
+
+.bncol:
+        addq.w  #1,d3
+        bra     .bcol
+
+.bnrow: addq.w  #1,d2
+        bra     .brow
+
+.bdone: movem.l (sp)+,d2-d7/a2-a4
+        rts
+
+; ----- Inline pixel plot -----
+; d2 = color (1-7), d0 = x (0-255), a3 = row base
+; Clobbers: a1, d0, d2 (!)
+.bpx:
+        ; pair addr = a3 + (x/4)*2
+        move.w  d0,-(sp)
+        lsr.w   #2,d0
+        add.w   d0,d0
+        lea     0(a3,d0.w),a1       ; a1 = even byte addr
+
+        ; index = color*4 + (x & 3)
+        move.w  (sp)+,d0
+        andi.w  #3,d0
+        lsl.w   #2,d2               ; color * 4
+        add.w   d0,d2               ; d2 = table index
+
+        ; Clear position bits first, then OR new bits
+        lea     .pxtab_cl(pc),a0
+        move.b  0(a0,d2.w),d0       ; d0 = clear mask
+        and.b   d0,(a1)             ; clear even byte position
+        and.b   d0,1(a1)            ; clear odd byte position
+
+        lea     .pxtab_ev(pc),a0
+        move.b  0(a0,d2.w),d0
+        or.b    d0,(a1)             ; set green bits
+
+        lea     .pxtab_od(pc),a0
+        move.b  0(a0,d2.w),d0
+        or.b    d0,1(a1)            ; set red/flash bits
+        rts
+
+; Pixel lookup tables: 8 colors * 4 positions = 32 entries each
+; even_bits[color][pos] — bits to OR into green byte
+; odd_bits[color][pos]  — bits to OR into red byte
+; clear[color][pos]     — bits to AND (clear position first)
+;
+; Color bits: G=bit2, R=bit1, B=bit0
+; Position N: G goes to bit (7-2N), B to bit (7-2N), R to bit (6-2N)
+;   pos0: G→bit7, R→bit6 of odd, B→bit7 of odd, clear=0x3F
+;   pos1: G→bit5, R→bit4, B→bit5, clear=0xCF
+;   pos2: G→bit3, R→bit2, B→bit3, clear=0xF3
+;   pos3: G→bit1, R→bit0, B→bit1, clear=0xFC
+
+; Clear mask per position (same for all colors)
+.pxtab_cl:
+        dc.b    $3F,$3F,$3F,$3F     ; color 0 (never used)
+        dc.b    $3F,$CF,$F3,$FC     ; color 1
+        dc.b    $3F,$CF,$F3,$FC     ; color 2
+        dc.b    $3F,$CF,$F3,$FC     ; color 3
+        dc.b    $3F,$CF,$F3,$FC     ; color 4
+        dc.b    $3F,$CF,$F3,$FC     ; color 5
+        dc.b    $3F,$CF,$F3,$FC     ; color 6
+        dc.b    $3F,$CF,$F3,$FC     ; color 7
+
+; Even byte (green plane) bits: G bit of color → high bit of position pair
+; G is color bit 2. pos0→bit7, pos1→bit5, pos2→bit3, pos3→bit1
+.pxtab_ev:
+        dc.b    $00,$00,$00,$00     ; color 0
+        dc.b    $00,$00,$00,$00     ; color 1 (G=0)
+        dc.b    $00,$00,$00,$00     ; color 2 (G=0)
+        dc.b    $00,$00,$00,$00     ; color 3 (G=0)
+        dc.b    $80,$20,$08,$02     ; color 4 (G=1)
+        dc.b    $80,$20,$08,$02     ; color 5 (G=1)
+        dc.b    $80,$20,$08,$02     ; color 6 (G=1)
+        dc.b    $80,$20,$08,$02     ; color 7 (G=1)
+
+; Odd byte (red/flash plane): R→low bit, B→high bit of position pair
+; R is color bit 1. pos0→bit6, pos1→bit4, pos2→bit2, pos3→bit0
+; B is color bit 0. pos0→bit7, pos1→bit5, pos2→bit3, pos3→bit1
+.pxtab_od:
+        dc.b    $00,$00,$00,$00     ; color 0
+        dc.b    $80,$20,$08,$02     ; color 1 (B=1,R=0)
+        dc.b    $40,$10,$04,$01     ; color 2 (B=0,R=1)
+        dc.b    $C0,$30,$0C,$03     ; color 3 (B=1,R=1)
+        dc.b    $00,$00,$00,$00     ; color 4 (B=0,R=0)
+        dc.b    $80,$20,$08,$02     ; color 5 (B=1,R=0)
+        dc.b    $40,$10,$04,$01     ; color 6 (B=0,R=1)
+        dc.b    $C0,$30,$0C,$03     ; color 7 (B=1,R=1)
+        even
+
+; =====================================================================
 ; Data section — C-accessible globals
 ; =====================================================================
         section DATA,data

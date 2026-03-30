@@ -301,9 +301,11 @@ static void render_cave_cells(void) {
     }
 }
 
-/* Forward declarations for tile rendering */
-static void blit_sprite_to_buf(uint8_t *buf, const Sprite *spr,
-                               int16_t sx, int16_t sy);
+/* Blit sprite to buffer — 68K asm in ql_hw.s */
+extern void asm_blit_sprite(uint8_t *buf, const Sprite *spr,
+                            int16_t sx, int16_t sy);
+#define blit_sprite_to_buf(buf, spr, sx, sy) \
+    asm_blit_sprite((buf), (spr), (sx), (sy))
 
 /* Draw cave polylines — tile sprites along H/V segments, Bresenham for diagonals */
 static void render_cave_lines(void) {
@@ -350,27 +352,7 @@ static void render_cave_lines(void) {
     }
 }
 
-/* Blit sprite into a buffer (bg_buffer), not screen. No save-behind. */
-static void blit_sprite_to_buf(uint8_t *buf, const Sprite *spr,
-                               int16_t sx, int16_t sy) {
-    uint8_t wb, r, c;
-    const uint8_t *src;
-
-    wb = spr->w >> 1;
-    for (r = 0; r < spr->h; r++) {
-        int16_t py = sy + r;
-        if ((uint16_t)py >= SCREEN_H) continue;
-        src = spr->data + r * wb;
-        for (c = 0; c < wb; c++) {
-            uint8_t byte = src[c];
-            uint8_t hi = (byte >> 4) & 0x0F;
-            uint8_t lo = byte & 0x0F;
-            int16_t pixel_x = sx + c * 2;
-            if (hi) plot_pixel(buf, pixel_x, py, hi);
-            if (lo) plot_pixel(buf, pixel_x + 1, py, lo);
-        }
-    }
-}
+/* (blit_sprite_to_buf macro defined above) */
 
 /* Tile a sprite across a rectangular area in bg_buffer */
 static void tile_sprite_to_buf(uint8_t *buf, const Sprite *spr,

@@ -245,6 +245,7 @@ uint16_t ql_get_ticks(void);
 void ql_beep(uint8_t pitch, uint8_t duration);
 void ql_wait_frame(void);
 void *ql_alloc(uint32_t size);
+/* asm_blit_sprite declared where Sprite type is known (render.c) */
 
 /* render.c */
 void render_init(void);
