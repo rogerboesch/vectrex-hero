@@ -337,7 +337,7 @@ static void render_cave_lines(void) {
                 int16_t sy2 = SCREEN_Y(ny);
                 int16_t ty;
                 if (sy1 > sy2) { int16_t t = sy1; sy1 = sy2; sy2 = t; }
-                for (ty = sy1; ty <= sy2; ty += spr_cave_v_0.h)
+                for (ty = sy1; ty < sy2; ty += spr_cave_v_0.h)
                     blit_sprite_to_buf(bg_buffer, &spr_cave_v_0, scx, ty);
             } else {
                 /* Diagonal — Bresenham (keep as line for now) */

@@ -216,18 +216,18 @@ const Sprite spr_lava_0 = { 8, 6, spr_lava_0_data };
 
 /* cave_h_0 — 4x4 (2 bytes/row x 4 rows) */
 static const uint8_t spr_cave_h_0_data[] = {
-    0x47, 0x44,
-    0x44, 0x47,
-    0x74, 0x74,
     0x44, 0x44,
+    0x44, 0x44,
+    0x04, 0x04,
+    0x04, 0x00,
 };
 const Sprite spr_cave_h_0 = { 4, 4, spr_cave_h_0_data };
 
 /* cave_v_0 — 4x4 (2 bytes/row x 4 rows) */
 static const uint8_t spr_cave_v_0_data[] = {
-    0x44, 0x74,
-    0x74, 0x44,
-    0x47, 0x44,
-    0x44, 0x47,
+    0x22, 0x00,
+    0x02, 0x20,
+    0x20, 0x00,
+    0x22, 0x00,
 };
 const Sprite spr_cave_v_0 = { 4, 4, spr_cave_v_0_data };
