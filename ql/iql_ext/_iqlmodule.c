@@ -287,6 +287,8 @@ static void add_vk_constants(PyObject *m) {
     PyModule_AddIntConstant(m, "VK_DASH", RBVK_Dash);
     PyModule_AddIntConstant(m, "VK_EQUAL", RBVK_Equal);
     PyModule_AddIntConstant(m, "VK_GRAVE", RBVK_Grave);
+    PyModule_AddIntConstant(m, "VK_LBRACKET", RBVK_LBracket);
+    PyModule_AddIntConstant(m, "VK_RBRACKET", RBVK_RBracket);
 }
 
 PyMODINIT_FUNC

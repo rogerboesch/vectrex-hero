@@ -34,10 +34,12 @@ try:
 except ImportError:
     HAS_PIL = False
 
-# Tkinter keysym → iQL virtual key code mapping
+# Tkinter keysym → (iQL virtual key code, force_shift) mapping
+# force_shift: -1 = don't override, 0 = force off, 1 = force on
 _TK_TO_VK = {}
 if HAS_IQL:
-    _TK_TO_VK = {
+    # Base keys (no shift override)
+    _base = {
         'a': _iql.VK_A, 'b': _iql.VK_B, 'c': _iql.VK_C, 'd': _iql.VK_D,
         'e': _iql.VK_E, 'f': _iql.VK_F, 'g': _iql.VK_G, 'h': _iql.VK_H,
         'i': _iql.VK_I, 'j': _iql.VK_J, 'k': _iql.VK_K, 'l': _iql.VK_L,
@@ -58,10 +60,49 @@ if HAS_IQL:
         'comma': _iql.VK_COMMA, 'period': _iql.VK_PERIOD,
         'slash': _iql.VK_SLASH, 'semicolon': _iql.VK_SEMICOLON,
         'minus': _iql.VK_DASH, 'equal': _iql.VK_EQUAL,
+        'quoteright': _iql.VK_QUOTE, 'apostrophe': _iql.VK_QUOTE,
+        'backslash': _iql.VK_BACKSLASH, 'grave': _iql.VK_GRAVE,
+        'bracketleft': _iql.VK_LBRACKET,
+        'bracketright': _iql.VK_RBRACKET,
         'Shift_L': _iql.VK_LSHIFT, 'Shift_R': _iql.VK_RSHIFT,
         'Control_L': _iql.VK_LCONTROL, 'Control_R': _iql.VK_RCONTROL,
         'Alt_L': _iql.VK_LALT, 'Alt_R': _iql.VK_RALT,
     }
+    for k, v in _base.items():
+        _TK_TO_VK[k] = (v, -1)
+
+    # Shifted symbols: Tkinter keysym → (base VK, force_shift=1)
+    # Matches ql_shift_key_fixes() in rb_virtual_keys.c
+    _shifted = {
+        'exclam': _iql.VK_1,           # !
+        'at': _iql.VK_2,               # @
+        'numbersign': _iql.VK_3,       # #
+        'dollar': _iql.VK_4,           # $
+        'percent': _iql.VK_5,          # %
+        'asciicircum': _iql.VK_6,      # ^
+        'ampersand': _iql.VK_7,        # &
+        'asterisk': _iql.VK_8,         # *
+        'parenleft': _iql.VK_9,        # (
+        'parenright': _iql.VK_0,       # )
+        'underscore': _iql.VK_DASH,    # _
+        'plus': _iql.VK_EQUAL,         # +
+        'bar': _iql.VK_BACKSLASH,      # |
+        'asciitilde': _iql.VK_GRAVE,   # ~
+        'braceleft': _iql.VK_LBRACKET,   # {
+        'braceright': _iql.VK_RBRACKET,  # }
+        'colon': _iql.VK_SEMICOLON,    # :
+        'quotedbl': _iql.VK_QUOTE,     # "
+        'less': _iql.VK_COMMA,         # <
+        'greater': _iql.VK_PERIOD,     # >
+        'question': _iql.VK_SLASH,     # ?
+    }
+    for k, v in _shifted.items():
+        _TK_TO_VK[k] = (v, 1)
+
+    # Uppercase letters: force shift on
+    for ch in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+        vk = _base[ch.lower()]
+        _TK_TO_VK[ch] = (vk, 1)
 
 
 class EmulatorTab:
@@ -245,20 +286,27 @@ class EmulatorTab:
         """Forward key press to emulator."""
         if not self._emu_active:
             return
-        vk = _TK_TO_VK.get(event.keysym)
-        if vk is not None:
+        entry = _TK_TO_VK.get(event.keysym)
+        if entry is not None:
+            vk, force_shift = entry
             shift = 1 if event.state & 0x0001 else 0
             ctrl = 1 if event.state & 0x0004 else 0
             alt = 1 if event.state & 0x0008 else 0
+            if force_shift >= 0:
+                shift = force_shift
             _iql.send_key(vk, 1, shift, ctrl, alt)
 
     def _on_emu_key_release(self, event):
         """Forward key release to emulator."""
         if not self._emu_active:
             return
-        vk = _TK_TO_VK.get(event.keysym)
-        if vk is not None:
-            _iql.send_key(vk, 0)
+        entry = _TK_TO_VK.get(event.keysym)
+        if entry is not None:
+            vk, force_shift = entry
+            shift = 1 if event.state & 0x0001 else 0
+            if force_shift >= 0:
+                shift = force_shift
+            _iql.send_key(vk, 0, shift)
 
     def on_tab_selected(self):
         """Called when this tab becomes active."""
