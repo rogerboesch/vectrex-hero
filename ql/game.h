@@ -1,5 +1,5 @@
 /*
- * game.h — Sinclair QL H.E.R.O. shared defines, types, externs
+ * game.h — Sinclair QL R.E.S.C.U.E. shared defines, types, externs
  *
  * Target: Motorola 68008 @ 7.5MHz, QDOS, Mode 8 (256x256, 8 colors)
  */

@@ -1,9 +1,9 @@
-# QL H.E.R.O. — Makefile
+# QL R.E.S.C.U.E. — Makefile
 #
 # Pipeline: vbccm68k (C→asm) → vasm (asm→obj) → vlink (→TOS exe) → tos2ql.py (→QDOS)
 #
 # Build: make
-# Output: hero (QDOS executable with self-relocating loader)
+# Output: rescue (QDOS executable with self-relocating loader)
 
 VBCC_DIR ?= /Users/roger/retro-tools/atarist-sdk/vbcc
 VBCC     = $(VBCC_DIR)/bin/vbccm68k
@@ -16,7 +16,7 @@ VBCC_FLAGS = -quiet -c99 -cpu=68000 -O=1 $(INCLUDES)
 VASM_FLAGS = -Fvobj -m68000 -quiet
 VLINK_FLAGS = -bataritos -EB -L$(VBCC_LIB)
 
-TARGET = hero
+TARGET = rescue
 BUILD  = build
 
 C_SRCS = main.c player.c enemies.c levels.c render.c sprites.c
@@ -32,12 +32,12 @@ $(BUILD):
 	mkdir -p $(BUILD)
 
 # Step 1: Link as TOS executable (has relocation table)
-$(BUILD)/hero.tos: $(C_OBJS) $(S_OBJS)
+$(BUILD)/rescue.tos: $(C_OBJS) $(S_OBJS)
 	$(VLINK) $(VLINK_FLAGS) -o $@ $(BUILD)/crt0.o $(C_OBJS) $(BUILD)/ql_hw.o -lvc
 
 # Step 2: Convert to self-relocating QDOS binary
-$(TARGET): $(BUILD)/hero.tos tools/tos2ql.py
-	python3 tools/tos2ql.py $(BUILD)/hero.tos $(TARGET)
+$(TARGET): $(BUILD)/rescue.tos tools/tos2ql.py
+	python3 tools/tos2ql.py $(BUILD)/rescue.tos $(TARGET)
 
 # C → asm → obj (all go into build/)
 $(BUILD)/main.o: main.c game.h sprites.h ql_hw.h | $(BUILD)

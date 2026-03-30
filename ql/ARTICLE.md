@@ -8,7 +8,7 @@ Pretty hard, as it turns out.
 
 The QL is a strange machine. Clive Sinclair launched it in 1984 with a Motorola 68008 at 7.5 MHz, 128KB RAM, and those infamous microdrives. It was marketed as a business computer but it has something most 8-bit home computers of the era didn't — a real multitasking operating system (QDOS) and a processor from the same family as the Macintosh and Amiga. The 68008 runs the full 68000 instruction set. It just does it through an 8-bit data bus, which makes everything roughly twice as slow as it should be.
 
-I chose to write H.E.R.O. — a cave exploration platformer with a propeller pack, laser, dynamite, and enemies. Small enough to finish, complex enough to hit every hard problem: pixel graphics, keyboard input, sprite animation, collision detection, and keeping it all fast enough to be playable.
+I chose to write R.E.S.C.U.E. (Remote Exploration & Sub-surface Cavern Utility Expert) — a cave exploration platformer with a propeller pack, laser, dynamite, and enemies. Small enough to finish, complex enough to hit every hard problem: pixel graphics, keyboard input, sprite animation, collision detection, and keeping it all fast enough to be playable.
 
 ## The Toolchain
 
@@ -41,7 +41,7 @@ After patching, all the function calls and variable accesses point to the right 
 
 The file also needs a Q-emulator header (30 bytes prepended) so sQLux recognizes it as an executable with the correct data space allocation.
 
-The Makefile pipeline: `vbcc → vasm → vlink → tos2ql.py → hero`. Type `make deploy` and it builds, converts, and copies to the emulator's virtual drive.
+The Makefile pipeline: `vbcc → vasm → vlink → tos2ql.py → rescue`. Type `make deploy` and it builds, converts, and copies to the emulator's virtual drive.
 
 ## Mode 8 Pixel Format
 

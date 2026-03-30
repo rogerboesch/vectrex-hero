@@ -1,5 +1,5 @@
 /*
- * main.c — Sinclair QL H.E.R.O. entry point and game loop
+ * main.c — Sinclair QL R.E.S.C.U.E. entry point and game loop
  */
 
 #include "game.h"
