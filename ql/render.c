@@ -301,7 +301,97 @@ static void render_cave_cells(void) {
     }
 }
 
-/* Forward declarations for tile rendering */
+/* ===================================================================
+ * Pre-converted tile cache — Mode 8 byte-pair format for fast blitting
+ *
+ * At init, each tile sprite is converted from nibble-packed to Mode 8
+ * interleaved bit-plane pairs. Blitting then writes 2 bytes per 4 pixels
+ * instead of calling plot_pixel per pixel (~10x faster).
+ * =================================================================== */
+
+#define MAX_TILE_W  4   /* max byte-pairs per row (= 16 pixels) */
+#define MAX_TILE_H  16  /* max rows */
+
+typedef struct {
+    uint8_t wp;         /* width in byte-pairs (4 pixels each) */
+    uint8_t h;          /* height in pixels */
+    uint8_t pw;         /* width in pixels (for positioning) */
+    uint8_t even[MAX_TILE_H][MAX_TILE_W];  /* green plane bytes */
+    uint8_t odd[MAX_TILE_H][MAX_TILE_W];   /* red/flash plane bytes */
+    uint8_t mask[MAX_TILE_H][MAX_TILE_W];  /* transparency mask (0=transparent pair) */
+} TileCache;
+
+static TileCache tc_cave_h, tc_cave_v, tc_wall, tc_lava;
+
+/* Convert a sprite to pre-computed Mode 8 byte-pairs */
+static void tile_cache_init(TileCache *tc, const Sprite *spr) {
+    uint8_t r, c, px;
+    uint8_t wb = spr->w >> 1;
+
+    tc->pw = spr->w;
+    tc->h = spr->h;
+    tc->wp = (spr->w + 3) >> 2;  /* byte-pairs needed */
+
+    for (r = 0; r < spr->h && r < MAX_TILE_H; r++) {
+        for (c = 0; c < tc->wp && c < MAX_TILE_W; c++) {
+            uint8_t ev = 0, od = 0, m = 0;
+            /* 4 pixels per byte-pair */
+            for (px = 0; px < 4; px++) {
+                uint8_t x = c * 4 + px;
+                uint8_t color = 0;
+                uint8_t nibble_idx, byte_idx;
+                if (x < spr->w) {
+                    byte_idx = x >> 1;
+                    if (byte_idx < wb) {
+                        uint8_t byte = spr->data[r * wb + byte_idx];
+                        color = (x & 1) ? (byte & 0x0F) : ((byte >> 4) & 0x0F);
+                    }
+                }
+                if (color) {
+                    uint8_t shift = (3 - px) * 2;
+                    /* Green: bit 2 of color → high bit of pair */
+                    if (color & 4) ev |= (2 << shift);
+                    /* Red: bit 1 of color → low bit of pair */
+                    if (color & 2) od |= (1 << shift);
+                    /* Blue/Flash: bit 0 → high bit of pair */
+                    if (color & 1) od |= (2 << shift);
+                    m = 1;
+                }
+            }
+            tc->even[r][c] = ev;
+            tc->odd[r][c] = od;
+            tc->mask[r][c] = m;
+        }
+    }
+}
+
+/* Fast blit: write pre-converted byte-pairs directly to buffer.
+ * Aligned to 4-pixel boundaries for maximum speed. */
+static void fast_tile_blit(uint8_t *buf, const TileCache *tc,
+                           int16_t sx, int16_t sy) {
+    uint8_t r, c;
+    int16_t aligned_x = sx & ~3;  /* align to 4-pixel boundary */
+    uint16_t pair_offset = (aligned_x >> 2) << 1;
+
+    for (r = 0; r < tc->h; r++) {
+        uint16_t row_base;
+        uint8_t *dst_e, *dst_o;
+        int16_t py = sy + r;
+        if ((uint16_t)py >= SCREEN_H) continue;
+        row_base = (uint16_t)py * SCREEN_STRIDE + pair_offset;
+        for (c = 0; c < tc->wp; c++) {
+            if (!tc->mask[r][c]) continue;
+            dst_e = buf + row_base + (c << 1);
+            dst_o = dst_e + 1;
+            if (tc->even[r][c] || tc->odd[r][c]) {
+                *dst_e |= tc->even[r][c];
+                *dst_o |= tc->odd[r][c];
+            }
+        }
+    }
+}
+
+/* Forward declaration */
 static void blit_sprite_to_buf(uint8_t *buf, const Sprite *spr,
                                int16_t sx, int16_t sy);
 
@@ -320,23 +410,23 @@ static void render_cave_lines(void) {
             int8_t nx = cx + dx;
 
             if (dy == 0) {
-                /* Horizontal segment — tile cave_h sprite along it */
+                /* Horizontal segment — fast tile blit */
                 int16_t sx1 = SCREEN_X(cx);
                 int16_t sx2 = SCREEN_X(nx);
-                int16_t scy = SCREEN_Y(cy) - (spr_cave_h_0.h / 2);
+                int16_t scy = SCREEN_Y(cy) - (tc_cave_h.h / 2);
                 int16_t tx;
                 if (sx1 > sx2) { int16_t t = sx1; sx1 = sx2; sx2 = t; }
-                for (tx = sx1; tx <= sx2; tx += spr_cave_h_0.w)
-                    blit_sprite_to_buf(bg_buffer, &spr_cave_h_0, tx, scy);
+                for (tx = sx1; tx <= sx2; tx += tc_cave_h.pw)
+                    fast_tile_blit(bg_buffer, &tc_cave_h, tx, scy);
             } else if (dx == 0) {
-                /* Vertical segment — tile cave_v sprite along it */
-                int16_t scx = SCREEN_X(cx) - (spr_cave_v_0.w / 2);
+                /* Vertical segment — fast tile blit */
+                int16_t scx = SCREEN_X(cx) - (tc_cave_v.pw / 2);
                 int16_t sy1 = SCREEN_Y(cy);
                 int16_t sy2 = SCREEN_Y(ny);
                 int16_t ty;
                 if (sy1 > sy2) { int16_t t = sy1; sy1 = sy2; sy2 = t; }
-                for (ty = sy1; ty <= sy2; ty += spr_cave_v_0.h)
-                    blit_sprite_to_buf(bg_buffer, &spr_cave_v_0, scx, ty);
+                for (ty = sy1; ty <= sy2; ty += tc_cave_v.h)
+                    fast_tile_blit(bg_buffer, &tc_cave_v, scx, ty);
             } else {
                 /* Diagonal — Bresenham (keep as line for now) */
                 draw_line(bg_buffer,
@@ -372,17 +462,17 @@ static void blit_sprite_to_buf(uint8_t *buf, const Sprite *spr,
     }
 }
 
-/* Tile a sprite across a rectangular area in bg_buffer */
-static void tile_sprite_to_buf(uint8_t *buf, const Sprite *spr,
-                               int16_t x, int16_t y,
-                               int16_t w, int16_t h) {
+/* Fast-tile a cached tile across a rectangular area */
+static void fast_tile_area(uint8_t *buf, const TileCache *tc,
+                           int16_t x, int16_t y,
+                           int16_t w, int16_t h) {
     int16_t ty, tx;
-    for (ty = y; ty < y + h; ty += spr->h)
-        for (tx = x; tx < x + w; tx += spr->w)
-            blit_sprite_to_buf(buf, spr, tx, ty);
+    for (ty = y; ty < y + h; ty += tc->h)
+        for (tx = x; tx < x + w; tx += tc->pw)
+            fast_tile_blit(buf, tc, tx, ty);
 }
 
-/* Draw destroyable walls — tiled with wall sprite */
+/* Draw destroyable walls — fast tiled */
 static void render_walls_bg(void) {
     uint8_t i;
     for (i = 0; i < cur_wall_count; i++) {
@@ -394,7 +484,7 @@ static void render_walls_bg(void) {
         wh = SCREEN_Y(wall_y(i) - wall_h(i)) - wy;
         if (ww < 2) ww = 2;
         if (wh < 2) wh = 2;
-        tile_sprite_to_buf(bg_buffer, &spr_wall_0, wx, wy, ww, wh);
+        fast_tile_area(bg_buffer, &tc_wall, wx, wy, ww, wh);
     }
 }
 
@@ -405,7 +495,7 @@ static void render_lava_bg(void) {
     lx1 = SCREEN_X(cur_cave_left);
     lx2 = SCREEN_X(cur_cave_right);
     ly = SCREEN_Y(cur_cave_floor);
-    tile_sprite_to_buf(bg_buffer, &spr_lava_0, lx1, ly, lx2 - lx1, spr_lava_0.h);
+    fast_tile_area(bg_buffer, &tc_lava, lx1, ly, lx2 - lx1, tc_lava.h);
 }
 
 /* ===================================================================
@@ -589,25 +679,46 @@ void render_init(void) {
         slots[i].active = 0;
     /* Allocate background buffer from QDOS common heap */
     bg_buffer = (uint8_t *)ql_alloc((uint32_t)SCREEN_SIZE);
+    /* Pre-convert tile sprites to Mode 8 byte-pair format */
+    tile_cache_init(&tc_cave_h, &spr_cave_h_0);
+    tile_cache_init(&tc_cave_v, &spr_cave_v_0);
+    tile_cache_init(&tc_wall, &spr_wall_0);
+    tile_cache_init(&tc_lava, &spr_lava_0);
+}
+
+static void copy_screen_to_bg(void) {
+    /* Copy playfield area (skip HUD) from screen to bg_buffer */
+    uint32_t *src = (uint32_t *)(SCREEN_BASE + HUD_HEIGHT * SCREEN_STRIDE);
+    uint32_t *dst = (uint32_t *)(bg_buffer + HUD_HEIGHT * SCREEN_STRIDE);
+    uint16_t i;
+    uint16_t count = (uint16_t)(SCREEN_SIZE - HUD_HEIGHT * SCREEN_STRIDE) / 4;
+    for (i = 0; i < count; i++)
+        *dst++ = *src++;
 }
 
 void render_room(void) {
     uint8_t i;
 
-    /* Clear background buffer (longword for speed) */
+    /* Clear screen directly (user sees it immediately) */
     {
-        uint32_t *p = (uint32_t *)bg_buffer;
+        uint32_t *p = (uint32_t *)SCREEN_BASE;
         uint16_t j;
         for (j = 0; j < SCREEN_SIZE / 4; j++) p[j] = 0;
     }
 
-    /* Draw cave polylines directly — no grid, no flood fill.
-     * Black background with green/white wall lines, like the Vectrex original. */
-    render_cave_lines();
-    render_walls_bg();
-    render_lava_bg();
+    /* Render tiles directly to screen — visible as they're drawn */
+    {
+        /* Temporarily point bg_buffer rendering to screen */
+        uint8_t *saved_bg = bg_buffer;
+        bg_buffer = SCREEN_BASE;
+        render_cave_lines();
+        render_walls_bg();
+        render_lava_bg();
+        bg_buffer = saved_bg;
+    }
 
-    copy_bg_to_screen();
+    /* Copy screen → bg_buffer (for sprite restore, skip HUD area) */
+    copy_screen_to_bg();
 
     /* Reset save-behind slots and HUD */
     hud_drawn = 0;
