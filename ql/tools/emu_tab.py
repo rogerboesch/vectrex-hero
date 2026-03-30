@@ -98,7 +98,7 @@ class EmulatorTab:
         self._after_id = None
         self._emu_active = False
         self._photo = None
-        self._ql_dir = os.path.dirname(os.path.abspath(__file__))
+        self._ql_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
         self._build_ui()
 

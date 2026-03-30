@@ -36,8 +36,8 @@ $(BUILD)/hero.tos: $(C_OBJS) $(S_OBJS)
 	$(VLINK) $(VLINK_FLAGS) -o $@ $(BUILD)/crt0.o $(C_OBJS) $(BUILD)/ql_hw.o -lvc
 
 # Step 2: Convert to self-relocating QDOS binary
-$(TARGET): $(BUILD)/hero.tos tos2ql.py
-	python3 tos2ql.py $(BUILD)/hero.tos $(TARGET)
+$(TARGET): $(BUILD)/hero.tos tools/tos2ql.py
+	python3 tools/tos2ql.py $(BUILD)/hero.tos $(TARGET)
 
 # C → asm → obj (all go into build/)
 $(BUILD)/main.o: main.c game.h sprites.h ql_hw.h | $(BUILD)

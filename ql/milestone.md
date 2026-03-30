@@ -6,18 +6,19 @@
 Integrated the iQL Sinclair QL emulator directly into the Python sprite editor tool, matching the Vectrex pattern where sprite/level editing and emulator testing happen in a single unified window.
 
 ### What was done
-- Created `ql/iql_ext/` — CPython extension module wrapping the iQL emulator core
+- Created `ql/tools/iql_ext/` — CPython extension module wrapping the iQL emulator core
   - `_iqlmodule.c`: Python bindings (init, tick, framebuffer, keyboard, stop/restart)
   - `iql_platform.c`: Headless platform stubs replacing Apple UI (rb_macapp.m, rb_platform.m)
   - `Makefile`: Compiles ~40 iQL C source files + stubs into `_iql.cpython-*.so`
-- Created `ql/emu_tab.py` — Emulator tab module for the sprite editor
+- Created `ql/tools/emu_tab.py` — Emulator tab module for the sprite editor
   - Displays iQL screen (512x256 RGBA, scaled 2x) via PIL/Pillow
   - Build & Run: exports sprites, runs make, starts emulator
   - Keyboard forwarding (character-based, replicating iQL's character_to_vk + ql_shift_key_fixes)
   - Speed control (Normal / Slow)
-- Modified `ql/sprite_editor.py` — Added ttk.Notebook with two tabs
+- Modified `ql/tools/sprite_editor.py` — Added ttk.Notebook with two tabs
   - Tab 0: Sprite Editor (existing functionality, unchanged)
   - Tab 1: Emulator (embedded iQL via _iql extension)
+- All Python tools live in `ql/tools/` (sprite_editor, emu_tab, tos2ql, iql_ext)
 
 ### Architecture
 - iQL emulator runs in a background thread via `QLStart()` (blocking loop)
