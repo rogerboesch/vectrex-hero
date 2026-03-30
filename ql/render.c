@@ -679,11 +679,6 @@ void render_init(void) {
         slots[i].active = 0;
     /* Allocate background buffer from QDOS common heap */
     bg_buffer = (uint8_t *)ql_alloc((uint32_t)SCREEN_SIZE);
-    /* Pre-convert tile sprites to Mode 8 byte-pair format */
-    tile_cache_init(&tc_cave_h, &spr_cave_h_0);
-    tile_cache_init(&tc_cave_v, &spr_cave_v_0);
-    tile_cache_init(&tc_wall, &spr_wall_0);
-    tile_cache_init(&tc_lava, &spr_lava_0);
 }
 
 static void copy_screen_to_bg(void) {
@@ -696,8 +691,19 @@ static void copy_screen_to_bg(void) {
         *dst++ = *src++;
 }
 
+static uint8_t tiles_cached;
+
 void render_room(void) {
     uint8_t i;
+
+    /* Lazy init: pre-convert tiles on first room load */
+    if (!tiles_cached) {
+        tile_cache_init(&tc_cave_h, &spr_cave_h_0);
+        tile_cache_init(&tc_cave_v, &spr_cave_v_0);
+        tile_cache_init(&tc_wall, &spr_wall_0);
+        tile_cache_init(&tc_lava, &spr_lava_0);
+        tiles_cached = 1;
+    }
 
     /* Clear screen directly (user sees it immediately) */
     {
