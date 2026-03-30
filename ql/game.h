@@ -110,10 +110,10 @@ typedef unsigned long  uint32_t;
 #define COL_BLACK   0
 #define COL_RED     1
 #define COL_GREEN   4
-#define COL_YELLOW  6   /* green + red */
+#define COL_YELLOW  5   /* green + bit0 */
 #define COL_BLUE    2
 #define COL_MAGENTA 3
-#define COL_CYAN    5
+#define COL_CYAN    6   /* green + bit1 */
 #define COL_WHITE   7
 
 /* Coordinate mapping: game -> screen pixels */

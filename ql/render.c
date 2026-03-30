@@ -80,7 +80,7 @@ static const uint8_t col_even[8] = {
     0x00, 0x00, 0x00, 0x00, 0xAA, 0xAA, 0xAA, 0xAA
 };
 static const uint8_t col_odd[8] = {
-    0x00, 0x55, 0xAA, 0xFF, 0x00, 0x55, 0xAA, 0xFF
+    0x00, 0xAA, 0x55, 0xFF, 0x00, 0xAA, 0x55, 0xFF
 };
 
 /* Bit masks for individual pixel positions within a byte */
@@ -98,12 +98,12 @@ static void plot_pixel(uint8_t *base, int16_t x, int16_t y, uint8_t color) {
     pos = x & 3;  /* pixel position 0-3 within the pair */
     clear = pix_clear[pos];
 
-    /* Green component: bit 2 of color → G position (even byte high bit) */
+    /* Green component: bit 2 of color → even byte high bit */
     g_bits = (color & 4) ? pix_mask[pos] & 0xAA : 0;
-    /* Red: bit 1 of color → odd byte high bit */
-    r_bits = (color & 2) ? pix_mask[pos] & 0xAA : 0;
-    /* Blue: bit 0 of color → odd byte low bit */
-    r_bits |= (color & 1) ? pix_mask[pos] & 0x55 : 0;
+    /* Bit 0 of color → odd byte high bit */
+    r_bits = (color & 1) ? pix_mask[pos] & 0xAA : 0;
+    /* Bit 1 of color → odd byte low bit */
+    r_bits |= (color & 2) ? pix_mask[pos] & 0x55 : 0;
 
     *even_addr = (*even_addr & clear) | g_bits;
     *odd_addr  = (*odd_addr  & clear) | r_bits;
@@ -146,8 +146,8 @@ static void vline(uint8_t *base, int16_t x, int16_t y1, int16_t y2, uint8_t colo
     pos = x & 3;
     clear = pix_clear[pos];
     g_bits = (color & 4) ? pix_mask[pos] & 0xAA : 0;
-    r_bits = (color & 2) ? pix_mask[pos] & 0xAA : 0;
-    r_bits |= (color & 1) ? pix_mask[pos] & 0x55 : 0;
+    r_bits = (color & 1) ? pix_mask[pos] & 0xAA : 0;
+    r_bits |= (color & 2) ? pix_mask[pos] & 0x55 : 0;
 
     even_addr = base + (uint16_t)y1 * SCREEN_STRIDE + ((x >> 2) << 1);
     odd_addr = even_addr + 1;
