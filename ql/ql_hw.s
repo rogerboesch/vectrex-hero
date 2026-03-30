@@ -390,18 +390,18 @@ _asm_blit_sprite:
         dc.b    $80,$20,$08,$02     ; color 6 (G=1)
         dc.b    $80,$20,$08,$02     ; color 7 (G=1)
 
-; Odd byte (red/flash plane): R→low bit, B→high bit of position pair
-; R is color bit 1. pos0→bit6, pos1→bit4, pos2→bit2, pos3→bit0
-; B is color bit 0. pos0→bit7, pos1→bit5, pos2→bit3, pos3→bit1
+; Odd byte (red/flash plane): R→high bit, B→low bit of position pair
+; R is color bit 1. pos0→bit7, pos1→bit5, pos2→bit3, pos3→bit1
+; B is color bit 0. pos0→bit6, pos1→bit4, pos2→bit2, pos3→bit0
 .pxtab_od:
         dc.b    $00,$00,$00,$00     ; color 0
-        dc.b    $80,$20,$08,$02     ; color 1 (B=1,R=0)
-        dc.b    $40,$10,$04,$01     ; color 2 (B=0,R=1)
-        dc.b    $C0,$30,$0C,$03     ; color 3 (B=1,R=1)
-        dc.b    $00,$00,$00,$00     ; color 4 (B=0,R=0)
-        dc.b    $80,$20,$08,$02     ; color 5 (B=1,R=0)
-        dc.b    $40,$10,$04,$01     ; color 6 (B=0,R=1)
-        dc.b    $C0,$30,$0C,$03     ; color 7 (B=1,R=1)
+        dc.b    $40,$10,$04,$01     ; color 1 (R=0,B=1)
+        dc.b    $80,$20,$08,$02     ; color 2 (R=1,B=0)
+        dc.b    $C0,$30,$0C,$03     ; color 3 (R=1,B=1)
+        dc.b    $00,$00,$00,$00     ; color 4 (R=0,B=0)
+        dc.b    $40,$10,$04,$01     ; color 5 (R=0,B=1)
+        dc.b    $80,$20,$08,$02     ; color 6 (R=1,B=0)
+        dc.b    $C0,$30,$0C,$03     ; color 7 (R=1,B=1)
         even
 
 ; =====================================================================
