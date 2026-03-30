@@ -684,14 +684,17 @@ void render_hud(void) {
         hud_last_score = score;
     }
 
-    /* Fuel bar — below room, just a red bar, no frame */
+    /* Fuel bar — below room, tiled fuel sprite */
     if (player_fuel != hud_last_fuel) {
         int16_t new_filled = (int16_t)((uint16_t)player_fuel * FUEL_BAR_W / START_FUEL);
         int16_t old_filled = (int16_t)((uint16_t)hud_last_fuel * FUEL_BAR_W / START_FUEL);
         if (hud_last_fuel == 254) {
-            if (new_filled > 0)
-                filled_rect(SCREEN_BASE, FUEL_BAR_X, FUEL_BAR_Y, new_filled, 4, COL_RED);
+            /* First draw: tile fuel sprite across filled area */
+            int16_t tx;
+            for (tx = FUEL_BAR_X; tx < FUEL_BAR_X + new_filled; tx += spr_fuel_0.w)
+                asm_blit_sprite(SCREEN_BASE, &spr_fuel_0, tx, FUEL_BAR_Y);
         } else if (new_filled < old_filled) {
+            /* Fuel decreased: black out the difference from right */
             int16_t erase_x = FUEL_BAR_X + new_filled;
             int16_t erase_w = old_filled - new_filled;
             if (erase_w > 0)

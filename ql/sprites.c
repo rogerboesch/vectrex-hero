@@ -231,3 +231,12 @@ static const uint8_t spr_cave_v_0_data[] = {
     0x22, 0x00,
 };
 const Sprite spr_cave_v_0 = { 4, 4, spr_cave_v_0_data };
+
+/* fuel_0 — 8x4 (4 bytes/row x 4 rows) */
+static const uint8_t spr_fuel_0_data[] = {
+    0x11, 0x17, 0x11, 0x17,
+    0x11, 0x11, 0x11, 0x11,
+    0x17, 0x11, 0x17, 0x11,
+    0x11, 0x11, 0x11, 0x11,
+};
+const Sprite spr_fuel_0 = { 8, 4, spr_fuel_0_data };
