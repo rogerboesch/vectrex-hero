@@ -727,7 +727,7 @@ void render_frame(void) {
      * Sprite Y = SCREEN_Y(game_y) + hh_px - sprite_height
      * Sprite X = SCREEN_X(game_x) - sprite_width/2
      */
-#define HH_PX(hh) (((int16_t)(hh) * 77) >> 5)
+#define HH_PX(hh) (((int16_t)(hh) * 58) >> 5)
 
     /* Player */
     if (!(game_state == STATE_DYING && !(death_timer & 2))) {

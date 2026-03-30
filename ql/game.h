@@ -120,9 +120,9 @@ typedef unsigned long  uint32_t;
 /* X: game -128..127 -> pixel 0..255 (1:1!) */
 #define SCREEN_X(gx)  ((uint16_t)((int16_t)(gx) + 128))
 
-/* Y: game 50..-50 -> pixel 16..255 (with HUD offset) */
-/* 240 pixels / 100 units = 2.4px/unit ≈ 77/32 */
-#define SCREEN_Y(gy)  ((uint16_t)(HUD_HEIGHT + (((int16_t)(50 - (gy)) * 77) >> 5)))
+/* Y: game 50..-50 -> ~180 pixels playfield (with HUD offset) */
+/* 180 pixels / 100 units = 1.8px/unit ≈ 58/32 */
+#define SCREEN_Y(gy)  ((uint16_t)(HUD_HEIGHT + (((int16_t)(50 - (gy)) * 58) >> 5)))
 
 /* ===================================================================
  * Types
