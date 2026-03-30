@@ -67,7 +67,4 @@ $(BUILD)/ql_hw.o: ql_hw.s | $(BUILD)
 clean:
 	rm -rf $(BUILD) $(TARGET)
 
-deploy: $(TARGET)
-	cp $(TARGET) /Users/roger/Documents/sqlux/win1/
-
-.PHONY: all clean deploy
+.PHONY: all clean
