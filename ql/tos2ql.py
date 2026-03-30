@@ -269,12 +269,19 @@ def make_qdos_binary(code_data, fixups, bss_size, outfile):
     hdr += struct.pack('>I', 0)   # reserved
     hdr += b'\x00' * (30 - len(hdr))
 
+    # XTcc trailer (8 bytes at end) — for emulators that check file tail
+    # instead of Q-emulator header (e.g., iQL)
+    xtcc = b'XTcc' + struct.pack('>I', bss_size + 4096)
+
     with open(outfile, 'wb') as f:
         f.write(hdr)
         f.write(binary)
+        f.write(xtcc)
 
-    print(f"Output: {outfile} ({len(hdr) + len(binary)} bytes)")
+    total = len(hdr) + len(binary) + len(xtcc)
+    print(f"Output: {outfile} ({total} bytes)")
     print(f"  Stub: {stub_size}, Reloc: {len(reloc_table)}, Code: {len(code_data)}")
+    print(f"  Headers: Q-emulator (start) + XTcc (tail)")
 
 
 if __name__ == '__main__':
