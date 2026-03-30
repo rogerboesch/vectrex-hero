@@ -933,6 +933,15 @@ void render_title_screen(void) {
     draw_centered(SCREEN_BASE, 130, "Q:UP  A:DN  O:LT  P:RT", COL_WHITE);
     draw_centered(SCREEN_BASE, 145, "SPACE:LASER  D:DYNAMITE", COL_WHITE);
     draw_centered(SCREEN_BASE, 175, "PRESS ENTER TO START", COL_GREEN);
+
+    /* Color test */
+    draw_string(SCREEN_BASE, 2, 200, "RED", COL_RED);
+    draw_string(SCREEN_BASE, 22, 200, "BLUE", COL_BLUE);
+    draw_string(SCREEN_BASE, 47, 200, "GREEN", COL_GREEN);
+    draw_string(SCREEN_BASE, 77, 200, "CYAN", COL_CYAN);
+    draw_string(SCREEN_BASE, 102, 200, "YELLOW", COL_YELLOW);
+    draw_string(SCREEN_BASE, 137, 200, "MAGENTA", COL_MAGENTA);
+    draw_string(SCREEN_BASE, 177, 200, "WHITE", COL_WHITE);
 }
 
 void render_level_intro(void) {
