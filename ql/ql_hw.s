@@ -390,15 +390,15 @@ _asm_blit_sprite:
         dc.b    $80,$20,$08,$02     ; color 6 (G=1)
         dc.b    $80,$20,$08,$02     ; color 7 (G=1)
 
-; Odd byte: bit0 of color → high bit, bit1 of color → low bit
+; Odd byte: bit0 → high bit, bit1 → low bit; colors 5/6 swapped for palette match
 .pxtab_od:
         dc.b    $00,$00,$00,$00     ; color 0
         dc.b    $80,$20,$08,$02     ; color 1 (bit0=1)
         dc.b    $40,$10,$04,$01     ; color 2 (bit1=1)
         dc.b    $C0,$30,$0C,$03     ; color 3 (bit0+bit1)
         dc.b    $00,$00,$00,$00     ; color 4
-        dc.b    $80,$20,$08,$02     ; color 5 (bit0=1)
-        dc.b    $40,$10,$04,$01     ; color 6 (bit1=1)
+        dc.b    $40,$10,$04,$01     ; color 5 → hw 6 (cyan)
+        dc.b    $80,$20,$08,$02     ; color 6 → hw 5 (yellow)
         dc.b    $C0,$30,$0C,$03     ; color 7 (bit0+bit1)
         even
 

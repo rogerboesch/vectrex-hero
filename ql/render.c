@@ -75,12 +75,20 @@ static uint8_t slot_drawn[MAX_SLOTS];
  * Pre-computed byte values for all-4-pixels-same-color:
  * =================================================================== */
 
+/*
+ * Color index remap: swap indices 5 and 6 so that the sprite editor's
+ * palette (5=cyan, 6=yellow) matches Mode 8 hardware output.
+ * Hardware: index 5 = green+bit0 = yellow, index 6 = green+bit1 = cyan.
+ * We want: index 5 → cyan (hw 6), index 6 → yellow (hw 5).
+ */
+static const uint8_t col_remap[8] = { 0, 1, 2, 3, 4, 6, 5, 7 };
+
 /* Even (green) and odd (red/flash) byte for 4 identical pixels */
 static const uint8_t col_even[8] = {
     0x00, 0x00, 0x00, 0x00, 0xAA, 0xAA, 0xAA, 0xAA
 };
 static const uint8_t col_odd[8] = {
-    0x00, 0xAA, 0x55, 0xFF, 0x00, 0xAA, 0x55, 0xFF
+    0x00, 0xAA, 0x55, 0xFF, 0x00, 0x55, 0xAA, 0xFF
 };
 
 /* Bit masks for individual pixel positions within a byte */
@@ -89,8 +97,10 @@ static const uint8_t pix_clear[4]  = { 0x3F, 0xCF, 0xF3, 0xFC };
 
 static void plot_pixel(uint8_t *base, int16_t x, int16_t y, uint8_t color) {
     uint8_t *even_addr, *odd_addr;
-    uint8_t pos, g_bits, r_bits, mask, clear;
+    uint8_t pos, g_bits, r_bits, mask, clear, c;
     if ((uint16_t)x >= SCREEN_W || (uint16_t)y >= SCREEN_H) return;
+
+    c = col_remap[color & 7];
 
     /* Byte pair address: 4 pixels per pair, pairs at even addresses */
     even_addr = base + (uint16_t)y * SCREEN_STRIDE + ((x >> 2) << 1);
@@ -99,11 +109,11 @@ static void plot_pixel(uint8_t *base, int16_t x, int16_t y, uint8_t color) {
     clear = pix_clear[pos];
 
     /* Green component: bit 2 of color → even byte high bit */
-    g_bits = (color & 4) ? pix_mask[pos] & 0xAA : 0;
+    g_bits = (c & 4) ? pix_mask[pos] & 0xAA : 0;
     /* Bit 0 of color → odd byte high bit */
-    r_bits = (color & 1) ? pix_mask[pos] & 0xAA : 0;
+    r_bits = (c & 1) ? pix_mask[pos] & 0xAA : 0;
     /* Bit 1 of color → odd byte low bit */
-    r_bits |= (color & 2) ? pix_mask[pos] & 0x55 : 0;
+    r_bits |= (c & 2) ? pix_mask[pos] & 0x55 : 0;
 
     *even_addr = (*even_addr & clear) | g_bits;
     *odd_addr  = (*odd_addr  & clear) | r_bits;
@@ -137,17 +147,18 @@ static void hline(uint8_t *base, int16_t x1, int16_t x2, int16_t y, uint8_t colo
 static void vline(uint8_t *base, int16_t x, int16_t y1, int16_t y2, uint8_t color) {
     int16_t y, tmp;
     uint8_t *even_addr, *odd_addr;
-    uint8_t pos, clear, g_bits, r_bits;
+    uint8_t pos, clear, g_bits, r_bits, c;
     if ((uint16_t)x >= SCREEN_W) return;
     if (y1 > y2) { tmp = y1; y1 = y2; y2 = tmp; }
     if (y1 < 0) y1 = 0;
     if (y2 >= SCREEN_H) y2 = SCREEN_H - 1;
 
+    c = col_remap[color & 7];
     pos = x & 3;
     clear = pix_clear[pos];
-    g_bits = (color & 4) ? pix_mask[pos] & 0xAA : 0;
-    r_bits = (color & 1) ? pix_mask[pos] & 0xAA : 0;
-    r_bits |= (color & 2) ? pix_mask[pos] & 0x55 : 0;
+    g_bits = (c & 4) ? pix_mask[pos] & 0xAA : 0;
+    r_bits = (c & 1) ? pix_mask[pos] & 0xAA : 0;
+    r_bits |= (c & 2) ? pix_mask[pos] & 0x55 : 0;
 
     even_addr = base + (uint16_t)y1 * SCREEN_STRIDE + ((x >> 2) << 1);
     odd_addr = even_addr + 1;
