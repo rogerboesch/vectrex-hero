@@ -505,7 +505,7 @@ static void blit_sprite(const Sprite *spr, int16_t sx, int16_t sy,
  * Simple 4x6 bitmap font for HUD
  * =================================================================== */
 
-static const uint8_t font_4x6[40][6] = {
+static const uint8_t font_4x6[41][6] = {
     /* 0 */ {0x06, 0x09, 0x0B, 0x0D, 0x09, 0x06},
     /* 1 */ {0x02, 0x06, 0x02, 0x02, 0x02, 0x07},
     /* 2 */ {0x06, 0x09, 0x01, 0x06, 0x08, 0x0F},
@@ -546,6 +546,7 @@ static const uint8_t font_4x6[40][6] = {
     /* - */ {0x00, 0x00, 0x0F, 0x00, 0x00, 0x00},
     /* ! */ {0x02, 0x02, 0x02, 0x02, 0x00, 0x02},
     /*   */ {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+    /* . */ {0x00, 0x00, 0x00, 0x00, 0x00, 0x02},
 };
 
 static uint8_t font_index(char ch) {
@@ -555,6 +556,7 @@ static uint8_t font_index(char ch) {
     if (ch == ':') return 36;
     if (ch == '-') return 37;
     if (ch == '!') return 38;
+    if (ch == '.') return 40;
     return 39; /* space */
 }
 
