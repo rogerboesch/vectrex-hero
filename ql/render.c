@@ -364,19 +364,21 @@ static void tile_sprite_to_buf(uint8_t *buf, const Sprite *spr,
             blit_sprite_to_buf(buf, spr, tx, ty);
 }
 
-/* Draw destroyable walls — tiled with wall sprite */
+/* Draw destroyable walls — single sprite column, centered horizontally */
 static void render_walls_bg(void) {
     uint8_t i;
     for (i = 0; i < cur_wall_count; i++) {
-        int16_t wx, wy, ww, wh;
+        int16_t wx, wy, ww, wh, cx;
         if (walls_destroyed & (1 << i)) continue;
         wx = SCREEN_X(wall_x(i));
         wy = SCREEN_Y(wall_y(i) + wall_h(i));
         ww = SCREEN_X(wall_x(i) + wall_w(i)) - wx;
         wh = SCREEN_Y(wall_y(i) - wall_h(i)) - wy;
-        if (ww < 2) ww = 2;
         if (wh < 2) wh = 2;
-        tile_sprite_to_buf(bg_buffer, &spr_wall_0, wx, wy, ww, wh);
+        /* Center a single sprite-width column */
+        cx = wx + (ww - spr_wall_0.w) / 2;
+        if (cx < wx) cx = wx;
+        tile_sprite_to_buf(bg_buffer, &spr_wall_0, cx, wy, spr_wall_0.w, wh);
     }
 }
 
@@ -604,21 +606,14 @@ void render_hud(void) {
     int16_t i, filled;
 
     /*
-     * HUD layout (26px height):
-     *
-     *  Row 2:     LV01  ♥♥♥ | !!! SC:00000
-     *                   left   right
-     *  Row 14-21: F: [████████████████████░░░░░]  fuel bar
-     *  Row 24-25: ═══════════════════════════════  bottom border
+     * HUD layout:
+     *   Top (y=0..35): LEVEL 01  [walk][walk][walk] [dyn][dyn][dyn]  SCORE 00000
+     *   Room: y=36..~217
+     *   Bottom bar (y=234): fuel bar
      */
-
-    /*
-     * Layout:
-     *   Top HUD (y=15): LV01  ♥♥♥  !!!  SC:00000  (vcentered in 36px)
-     *   Room: y=36 to ~217
-     *   Bottom bar (y=234): fuel bar (vcentered in 39px gap below room)
-     */
-#define HUD_TOP_Y     15
+#define HUD_TEXT_Y    15   /* text baseline — vertically centered in 36px */
+#define HUD_LIVES_Y    8   /* player_walk_0 is 20px tall: (36-20)/2 = 8 */
+#define HUD_DYN_Y     13   /* dynamite_0 is 10px tall: (36-10)/2 = 13 */
 #define FUEL_BAR_Y    234
 #define FUEL_BAR_W    200
 #define FUEL_BAR_X    28
@@ -628,14 +623,14 @@ void render_hud(void) {
         filled_rect(SCREEN_BASE, 0, 0, SCREEN_W, HUD_HEIGHT, COL_BLACK);
 
         /* Level — far left */
-        draw_string(SCREEN_BASE, 2, HUD_TOP_Y, "LV", COL_CYAN);
+        draw_string(SCREEN_BASE, 2, HUD_TEXT_Y, "LEVEL", COL_CYAN);
         buf[0] = '0' + ((current_level + 1) / 10);
         buf[1] = '0' + ((current_level + 1) % 10);
         buf[2] = 0;
-        draw_string(SCREEN_BASE, 12, HUD_TOP_Y, buf, COL_WHITE);
+        draw_string(SCREEN_BASE, 28, HUD_TEXT_Y, buf, COL_WHITE);
 
         /* Score label — right side */
-        draw_string(SCREEN_BASE, 214, HUD_TOP_Y, "SC:", COL_CYAN);
+        draw_string(SCREEN_BASE, 196, HUD_TEXT_Y, "SCORE", COL_CYAN);
 
         /* Clear bottom fuel bar area */
         filled_rect(SCREEN_BASE, 0, 220, SCREEN_W, 36, COL_BLACK);
@@ -648,25 +643,24 @@ void render_hud(void) {
         hud_drawn = 1;
     }
 
-    /* Lives — left of center */
+    /* Lives — player_walk_0 sprites, centered */
     if (player_lives != hud_last_lives) {
-        for (i = 0; i < START_LIVES; i++) {
-            uint8_t color = (i < player_lives) ? COL_RED : COL_BLACK;
-            filled_rect(SCREEN_BASE, 96 + i * 8, HUD_TOP_Y, 5, 5, color);
-            if (i < player_lives)
-                plot_pixel(SCREEN_BASE, 98 + i * 8, HUD_TOP_Y + 1, COL_WHITE);
+        /* Clear lives area first */
+        filled_rect(SCREEN_BASE, 80, 0, START_LIVES * 12, HUD_HEIGHT, COL_BLACK);
+        for (i = 0; i < player_lives; i++) {
+            asm_blit_sprite(SCREEN_BASE, &spr_player_walk_0,
+                            80 + i * 12, HUD_LIVES_Y);
         }
         hud_last_lives = player_lives;
     }
 
-    /* Dynamite — right of center */
+    /* Dynamite — dynamite_0 sprites */
     if (player_dynamite != hud_last_dyn) {
-        for (i = 0; i < START_DYNAMITE; i++) {
-            uint8_t color = (i < player_dynamite) ? COL_YELLOW : COL_BLACK;
-            vline(SCREEN_BASE, 136 + i * 6, HUD_TOP_Y, HUD_TOP_Y + 5, color);
-            vline(SCREEN_BASE, 137 + i * 6, HUD_TOP_Y, HUD_TOP_Y + 5, color);
-            if (i < player_dynamite)
-                plot_pixel(SCREEN_BASE, 138 + i * 6, HUD_TOP_Y - 1, COL_RED);
+        /* Clear dynamite area first */
+        filled_rect(SCREEN_BASE, 126, 0, START_DYNAMITE * 8, HUD_HEIGHT, COL_BLACK);
+        for (i = 0; i < player_dynamite; i++) {
+            asm_blit_sprite(SCREEN_BASE, &spr_dynamite_0,
+                            126 + i * 8, HUD_DYN_Y);
         }
         hud_last_dyn = player_dynamite;
     }
@@ -680,7 +674,7 @@ void render_hud(void) {
             s /= 10;
         }
         buf[5] = 0;
-        draw_string(SCREEN_BASE, 229, HUD_TOP_Y, buf, COL_WHITE);
+        draw_string(SCREEN_BASE, 222, HUD_TEXT_Y, buf, COL_WHITE);
         hud_last_score = score;
     }
 
@@ -881,16 +875,17 @@ void render_frame(void) {
 }
 
 void render_destroy_wall(uint8_t idx) {
-    int16_t wx, wy, ww, wh;
+    int16_t wx, wy, ww, wh, cx;
     wx = SCREEN_X(wall_x(idx));
     wy = SCREEN_Y(wall_y(idx) + wall_h(idx));
     ww = SCREEN_X(wall_x(idx) + wall_w(idx)) - wx;
     wh = SCREEN_Y(wall_y(idx) - wall_h(idx)) - wy;
-    if (ww < 2) ww = 2;
     if (wh < 2) wh = 2;
-    /* Clear on screen and in background buffer */
-    filled_rect(SCREEN_BASE, wx, wy, ww, wh, COL_BLACK);
-    filled_rect(bg_buffer, wx, wy, ww, wh, COL_BLACK);
+    /* Clear the single sprite-width column that was drawn */
+    cx = wx + (ww - spr_wall_0.w) / 2;
+    if (cx < wx) cx = wx;
+    filled_rect(SCREEN_BASE, cx, wy, spr_wall_0.w, wh, COL_BLACK);
+    filled_rect(bg_buffer, cx, wy, spr_wall_0.w, wh, COL_BLACK);
 }
 
 /* ===================================================================
