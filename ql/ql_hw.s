@@ -292,11 +292,13 @@ _asm_blit_sprite:
         bmi.s   .bskiphi
         cmpi.w  #256,d0
         bge.s   .bskiphi
+        move.w  d0,-(sp)            ; save pixel_x (bpx clobbers d0)
         bsr.s   .bpx
+        move.w  (sp)+,d0            ; restore pixel_x
 .bskiphi:
 
         ; --- Right pixel (lo nibble) ---
-        addq.w  #1,d0               ; x+1
+        addq.w  #1,d0               ; pixel_x + 1
         move.w  d1,d2
         andi.w  #7,d2               ; d2 = lo color
         beq.s   .bskiplo
