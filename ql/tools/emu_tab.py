@@ -2,7 +2,7 @@
 Emulator tab — Embeds the iQL Sinclair QL emulator in a Tkinter notebook tab.
 
 Provides Build & Run workflow: export sprites, compile, and test in the
-embedded emulator without leaving the sprite editor.
+embedded emulator without leaving QL Studio.
 """
 
 import tkinter as tk
@@ -84,7 +84,7 @@ if HAS_IQL:
 
 
 class EmulatorTab:
-    """Emulator tab for the QL sprite editor notebook."""
+    """Emulator tab for the QL Studio notebook."""
 
     def __init__(self, parent, editor):
         """
@@ -328,7 +328,7 @@ class EmulatorTab:
 
     def on_tab_deselected(self):
         """Called when switching away from this tab."""
-        # Restore sprite editor key bindings
+        # Restore Sprites tab key bindings
         self.root.bind("<KeyPress>", None)
         self.root.bind("<KeyRelease>", None)
         self.root.bind("<Key>", self.editor._on_key)
