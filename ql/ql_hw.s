@@ -233,10 +233,13 @@ _ql_beep:
         xdef    _asm_blit_sprite
 _asm_blit_sprite:
         movem.l d2-d7/a2-a4,-(sp)  ; 9 regs = 36 bytes
+        ; vbcc pushes all args as 32-bit longs (int16_t sign-extended)
+        ; stack: +36(saved) +4(return) = 40 offset
+        ; sp+40: buf(4) sp+44: spr(4) sp+48: sx(4) sp+52: sy(4)
         move.l  40(sp),a4           ; a4 = buf
         move.l  44(sp),a0           ; a0 = spr
-        move.w  48(sp),d4           ; d4 = sx
-        move.w  50(sp),d5           ; d5 = sy
+        move.w  50(sp),d4           ; d4 = sx (low word of 32-bit arg)
+        move.w  54(sp),d5           ; d5 = sy (low word of 32-bit arg)
 
         moveq   #0,d6
         move.b  (a0),d6             ; d6 = w
