@@ -13,7 +13,7 @@ Integrated the iQL Sinclair QL emulator directly into the Python sprite editor t
 - Created `ql/emu_tab.py` — Emulator tab module for the sprite editor
   - Displays iQL screen (512x256 RGBA, scaled 2x) via PIL/Pillow
   - Build & Run: exports sprites, runs make, starts emulator
-  - Keyboard forwarding (Tkinter keysym → iQL virtual key codes)
+  - Keyboard forwarding (character-based, replicating iQL's character_to_vk + ql_shift_key_fixes)
   - Speed control (Normal / Slow)
 - Modified `ql/sprite_editor.py` — Added ttk.Notebook with two tabs
   - Tab 0: Sprite Editor (existing functionality, unchanged)
@@ -23,7 +23,8 @@ Integrated the iQL Sinclair QL emulator directly into the Python sprite editor t
 - iQL emulator runs in a background thread via `QLStart()` (blocking loop)
 - Tkinter `after(20ms)` fires `_iql.tick()` which calls `QLTimer()` to advance emulation
 - `pixel_buffer` (512x256 RGBA8888) read directly from emulator memory
-- Keyboard events mapped from Tkinter keysyms to iQL RBVirtualKey codes
+- Keyboard: uses event.char with iQL's KeyCharacterSet + ql_shift_key_fixes for full character support
+- Exported VK_LBRACKET/VK_RBRACKET from _iqlmodule.c for bracket/brace keys
 
 ### Branch
 `feature/ql-emulator-integration`
