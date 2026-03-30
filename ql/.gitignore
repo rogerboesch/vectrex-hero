@@ -6,6 +6,7 @@ tools/iql_ext/build/
 tools/iql_ext/*.so
 tools/iql_ext/__pycache__/
 tools/__pycache__/
+__pycache__/
 
 # Override root .gitignore exclusion of *.s — we need our asm sources
 !*.s
