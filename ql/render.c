@@ -350,9 +350,7 @@ static void render_cave_lines(void) {
     }
 }
 
-/* Blit sprite into a buffer — fast: write Mode 8 byte-pairs directly.
- * Converts each nibble pair to green/red plane bytes inline,
- * avoiding per-pixel plot_pixel overhead (~5x faster). */
+/* Blit sprite into a buffer (bg_buffer), not screen. No save-behind. */
 static void blit_sprite_to_buf(uint8_t *buf, const Sprite *spr,
                                int16_t sx, int16_t sy) {
     uint8_t wb, r, c;
@@ -361,48 +359,15 @@ static void blit_sprite_to_buf(uint8_t *buf, const Sprite *spr,
     wb = spr->w >> 1;
     for (r = 0; r < spr->h; r++) {
         int16_t py = sy + r;
-        uint8_t *row;
         if ((uint16_t)py >= SCREEN_H) continue;
-        row = buf + (uint16_t)py * SCREEN_STRIDE;
         src = spr->data + r * wb;
         for (c = 0; c < wb; c++) {
             uint8_t byte = src[c];
-            uint8_t hi_col, lo_col;
-            int16_t px;
-            uint8_t *even_addr, *odd_addr;
-            uint8_t pos, clear, g_bits, r_bits;
-
-            if (!byte) continue;  /* both pixels transparent */
-
-            hi_col = (byte >> 4) & 0x0F;
-            lo_col = byte & 0x0F;
-            px = sx + c * 2;
-
-            /* Write left pixel (hi_col) */
-            if (hi_col && (uint16_t)px < SCREEN_W) {
-                pos = px & 3;
-                even_addr = row + ((px >> 2) << 1);
-                odd_addr = even_addr + 1;
-                clear = pix_clear[pos];
-                g_bits = (hi_col & 4) ? pix_mask[pos] & 0xAA : 0;
-                r_bits = (hi_col & 1) ? pix_mask[pos] & 0xAA : 0;
-                r_bits |= (hi_col & 2) ? pix_mask[pos] & 0x55 : 0;
-                *even_addr = (*even_addr & clear) | g_bits;
-                *odd_addr  = (*odd_addr  & clear) | r_bits;
-            }
-            /* Write right pixel (lo_col) */
-            px++;
-            if (lo_col && (uint16_t)px < SCREEN_W) {
-                pos = px & 3;
-                even_addr = row + ((px >> 2) << 1);
-                odd_addr = even_addr + 1;
-                clear = pix_clear[pos];
-                g_bits = (lo_col & 4) ? pix_mask[pos] & 0xAA : 0;
-                r_bits = (lo_col & 1) ? pix_mask[pos] & 0xAA : 0;
-                r_bits |= (lo_col & 2) ? pix_mask[pos] & 0x55 : 0;
-                *even_addr = (*even_addr & clear) | g_bits;
-                *odd_addr  = (*odd_addr  & clear) | r_bits;
-            }
+            uint8_t hi = (byte >> 4) & 0x0F;
+            uint8_t lo = byte & 0x0F;
+            int16_t pixel_x = sx + c * 2;
+            if (hi) plot_pixel(buf, pixel_x, py, hi);
+            if (lo) plot_pixel(buf, pixel_x + 1, py, lo);
         }
     }
 }
@@ -629,31 +594,20 @@ void render_init(void) {
 void render_room(void) {
     uint8_t i;
 
-    /* Clear screen directly — user sees black immediately */
+    /* Clear background buffer (longword for speed) */
     {
-        uint32_t *p = (uint32_t *)SCREEN_BASE;
+        uint32_t *p = (uint32_t *)bg_buffer;
         uint16_t j;
         for (j = 0; j < SCREEN_SIZE / 4; j++) p[j] = 0;
     }
 
-    /* Render directly to screen (visible as tiles appear) */
-    {
-        uint8_t *saved = bg_buffer;
-        bg_buffer = SCREEN_BASE;
-        render_cave_lines();
-        render_walls_bg();
-        render_lava_bg();
-        bg_buffer = saved;
-    }
+    /* Draw cave polylines directly — no grid, no flood fill.
+     * Black background with green/white wall lines, like the Vectrex original. */
+    render_cave_lines();
+    render_walls_bg();
+    render_lava_bg();
 
-    /* Copy screen → bg_buffer for sprite restore (skip HUD area) */
-    {
-        uint32_t *src = (uint32_t *)(SCREEN_BASE + HUD_HEIGHT * SCREEN_STRIDE);
-        uint32_t *dst = (uint32_t *)(bg_buffer + HUD_HEIGHT * SCREEN_STRIDE);
-        uint16_t j;
-        uint16_t count = (uint16_t)(SCREEN_SIZE - HUD_HEIGHT * SCREEN_STRIDE) / 4;
-        for (j = 0; j < count; j++) *dst++ = *src++;
-    }
+    copy_bg_to_screen();
 
     /* Reset save-behind slots and HUD */
     hud_drawn = 0;
