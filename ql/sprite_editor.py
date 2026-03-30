@@ -9,6 +9,7 @@ Features:
   - Export to sprites.c / sprites.h
   - Save/load project as JSON
   - Horizontal flip preview
+  - Embedded iQL emulator for build & test
 
 Usage: python3 sprite_editor.py [project.json]
 """
@@ -132,8 +133,24 @@ class SpriteEditor:
 
         self.root.config(menu=menubar)
 
+        # Notebook for Sprite Editor + Emulator tabs
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(fill=tk.BOTH, expand=True)
+        self.notebook.bind("<<NotebookTabChanged>>", self._on_tab_changed)
+
+        # Tab 0: Sprite Editor
+        sprite_tab = ttk.Frame(self.notebook)
+        self.notebook.add(sprite_tab, text="Sprite Editor")
+
+        # Tab 1: Emulator
+        emu_frame = ttk.Frame(self.notebook)
+        self.notebook.add(emu_frame, text="Emulator")
+
+        from emu_tab import EmulatorTab
+        self.emu_tab = EmulatorTab(emu_frame, self)
+
         # Main layout: left panel (sprite list), center (canvas), right (palette + info)
-        main = ttk.Frame(self.root)
+        main = ttk.Frame(sprite_tab)
         main.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Left: sprite list
@@ -242,6 +259,15 @@ class SpriteEditor:
     def _on_key(self, event):
         if event.char in "01234567":
             self._set_color(int(event.char))
+
+    def _on_tab_changed(self, event=None):
+        idx = self.notebook.index(self.notebook.select())
+        if idx == 1:
+            # Switching to Emulator tab
+            self.emu_tab.on_tab_selected()
+        else:
+            # Switching to Sprite Editor tab
+            self.emu_tab.on_tab_deselected()
 
     def _update_sprite_list(self):
         self.sprite_listbox.delete(0, tk.END)
@@ -540,9 +566,15 @@ class SpriteEditor:
 def main():
     import sys
     root = tk.Tk()
-    root.geometry("900x650")
+    root.geometry("1100x700")
     project = sys.argv[1] if len(sys.argv) > 1 else None
     app = SpriteEditor(root, project)
+
+    def on_close():
+        app.emu_tab.cleanup()
+        root.destroy()
+    root.protocol("WM_DELETE_WINDOW", on_close)
+
     root.mainloop()
 
 
