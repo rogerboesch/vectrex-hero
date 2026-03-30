@@ -382,13 +382,32 @@ static void render_walls_bg(void) {
     }
 }
 
-/* Draw lava strip — tiled with lava sprite */
+/* Find lowest y in cave lines (smallest game y = bottom of room) */
+static int8_t cave_bottom_y(void) {
+    const int8_t *p = cur_cave_lines;
+    uint8_t n, i;
+    int8_t cy, min_y;
+
+    min_y = 50;  /* start at top, find lowest */
+    while ((n = (uint8_t)*p++) != 0) {
+        cy = p[0]; p += 2;
+        if (cy < min_y) min_y = cy;
+        for (i = 0; i < n; i++) {
+            cy += p[0]; p += 2;
+            if (cy < min_y) min_y = cy;
+        }
+    }
+    return min_y;
+}
+
+/* Draw lava strip — tiled directly under the lowest room line */
 static void render_lava_bg(void) {
     int16_t lx1, lx2, ly;
     if (!cur_has_lava) return;
     lx1 = SCREEN_X(cur_cave_left);
     lx2 = SCREEN_X(cur_cave_right);
-    ly = SCREEN_Y(cur_cave_floor);
+    /* Position lava just below the bottom cave line sprite */
+    ly = SCREEN_Y(cave_bottom_y()) + (spr_cave_h_0.h / 2);
     tile_sprite_to_buf(bg_buffer, &spr_lava_0, lx1, ly, lx2 - lx1, spr_lava_0.h);
 }
 
