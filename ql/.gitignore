@@ -1,5 +1,10 @@
 build/
 hero
 
+# iql_ext build artifacts
+iql_ext/build/
+iql_ext/*.so
+iql_ext/__pycache__/
+
 # Override root .gitignore exclusion of *.s — we need our asm sources
 !*.s
