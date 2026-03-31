@@ -2,7 +2,7 @@
 
 I've wanted to write a game for the Sinclair QL for a long time. Not in SuperBASIC, not in 68K assembly — in C, cross-compiled from my Mac. How hard could it be?
 
-Pretty hard, as it turns out.
+Pretty hard, at leat for me as it turns out.
 
 ## Why the QL
 
