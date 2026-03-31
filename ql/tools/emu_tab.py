@@ -20,6 +20,9 @@ EMU_TICK_MS = 20
 # How often to update the debug panel (every Nth tick)
 DEBUG_UPDATE_INTERVAL = 5
 
+# Debug panel fixed width in pixels
+DEBUG_PANEL_WIDTH = 290
+
 # Try importing the _iql extension and PIL
 try:
     ext_dir = os.path.join(os.path.dirname(__file__), "iql_ext")
@@ -169,33 +172,70 @@ class EmulatorTab:
         main_frame = ttk.Frame(self.parent)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Emulator screen canvas (512x256 native, displayed at 2x)
+        # Debug panel (right side, fixed width, packed first so it claims space)
+        debug_frame = ttk.LabelFrame(main_frame, text="CPU State",
+                                     width=DEBUG_PANEL_WIDTH)
+        debug_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
+        debug_frame.pack_propagate(False)
+
+        self.debug_text = tk.Text(debug_frame, width=34, height=28,
+                                  font=("Courier", 11), state=tk.DISABLED,
+                                  bg="#1e1e1e", fg="#d4d4d4",
+                                  relief=tk.FLAT, padx=6, pady=6,
+                                  wrap=tk.NONE)
+        self.debug_text.pack(fill=tk.BOTH, expand=True)
+
+        # Emulator screen canvas (fills remaining space)
         screen_frame = ttk.Frame(main_frame)
         screen_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.emu_canvas = tk.Canvas(screen_frame, bg="#000000",
-                                    width=1024, height=512,
                                     highlightthickness=0)
-        self.emu_canvas.pack(expand=True)
+        self.emu_canvas.pack(fill=tk.BOTH, expand=True)
 
         # Make canvas focusable so it captures keys instead of buttons
         self.emu_canvas.config(takefocus=True)
         self.emu_canvas.bind("<Button-1>", lambda e: self.emu_canvas.focus_set())
-
-        # Debug panel (right side)
-        debug_frame = ttk.LabelFrame(main_frame, text="CPU State", width=240)
-        debug_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
-        debug_frame.pack_propagate(False)
-
-        self.debug_text = tk.Text(debug_frame, width=30, height=28,
-                                  font=("Courier", 11), state=tk.DISABLED,
-                                  bg="#1e1e1e", fg="#d4d4d4",
-                                  relief=tk.FLAT, padx=6, pady=6)
-        self.debug_text.pack(fill=tk.BOTH, expand=True)
+        self.emu_canvas.bind("<Configure>", self._on_canvas_resize)
 
         # Tag for highlighting PC line
         self.debug_text.tag_configure("highlight", foreground="#4ec9b0")
         self.debug_text.tag_configure("dim", foreground="#808080")
+
+    def _on_canvas_resize(self, event):
+        """Redraw framebuffer when canvas resizes."""
+        if self._emu_active and self._photo:
+            self._update_display()
+
+    def _update_display(self):
+        """Fetch framebuffer and scale to fit canvas."""
+        fb = _iql.get_framebuffer()
+        if not fb:
+            return
+
+        w, h = _iql.get_screen_size()
+        img = Image.frombytes('RGBA', (w, h), fb)
+
+        # Scale to fit canvas while maintaining 2:1 aspect ratio
+        cw = self.emu_canvas.winfo_width()
+        ch = self.emu_canvas.winfo_height()
+        if cw < 2 or ch < 2:
+            return
+
+        scale_x = cw / w
+        scale_y = ch / h
+        scale = min(scale_x, scale_y)
+        disp_w = max(1, int(w * scale))
+        disp_h = max(1, int(h * scale))
+
+        img = img.resize((disp_w, disp_h), Image.NEAREST)
+        self._photo = ImageTk.PhotoImage(img)
+        self.emu_canvas.delete("all")
+        # Center the image in the canvas
+        x_off = (cw - disp_w) // 2
+        y_off = (ch - disp_h) // 2
+        self.emu_canvas.create_image(x_off, y_off, anchor=tk.NW,
+                                     image=self._photo)
 
     def _build_and_run(self):
         """Export sprites, compile the game, and start the emulator."""
@@ -311,16 +351,8 @@ class EmulatorTab:
         # Advance emulation (skipped internally if paused)
         _iql.tick()
 
-        # Get framebuffer and display
-        fb = _iql.get_framebuffer()
-        if fb:
-            w, h = _iql.get_screen_size()
-            img = Image.frombytes('RGBA', (w, h), fb)
-            # Scale 2x for display
-            img = img.resize((w * 2, h * 2), Image.NEAREST)
-            self._photo = ImageTk.PhotoImage(img)
-            self.emu_canvas.delete("all")
-            self.emu_canvas.create_image(0, 0, anchor=tk.NW, image=self._photo)
+        # Update display
+        self._update_display()
 
         # Update debug panel periodically
         self._tick_count += 1
