@@ -1,5 +1,24 @@
 # QL Port — Milestone Log
 
+## 2026-03-31: Keyboard Input Fixes
+
+### Summary
+Fixed simultaneous key detection and Q/O/P key support. Uses hybrid approach: KEYROW matrix scan (MT.IPCOM) for cursor keys (Row 1) enabling simultaneous directional input, and IO.FBYTE console buffer for all letter keys (Q/A/O/P/D) since KEYROW rows 4-6 don't work in iQL emulator's embedded mode.
+
+### What was done
+- **Simultaneous cursors**: KEYROW Row 1 scan allows pressing UP+LEFT, UP+RIGHT etc. at the same time (solves "can only fly up/down, left/right does nothing")
+- **Q/O/P via IO.FBYTE**: Letter keys Q (up), O (left), P (right) work as aliases via console buffer
+- **A via IO.FBYTE**: Moved A (down) out of KEYROW Row 4 to avoid ghost input when P pressed (they share the same row)
+- **ESC via IO.FBYTE**: Prevents false quit on startup from stale KEYROW state
+- **Case-insensitive**: Uses `ori.b #$20` to lowercase letters before comparison, reducing code size
+- **Laser position**: Fixed X (fires from sprite edge based on facing) and Y (half sprite height)
+
+### Key findings
+- iQL emulator's `KeyRow()` returns 1=pressed (opposite of real QL active-low convention)
+- KEYROW Rows 4-6 don't return valid data in iQL embedded mode (CPython extension)
+- Keys sharing the same KEYROW row (A+P on Row 4) cause ghost input
+- Cursor keys on Row 1 work correctly via KEYROW in all modes
+
 ## 2026-03-31: Editor Improvements + Fly Animation
 
 ### Summary
