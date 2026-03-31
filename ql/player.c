@@ -72,6 +72,32 @@ void update_player_physics(void) {
         }
     }
 
+    /* X-axis collision with vertical cave segments (before Y move) */
+    segs = cur_cave_segs;
+    for (i = 0; i < cur_seg_count; i++) {
+        x1 = segs[i * 4];
+        y1 = segs[i * 4 + 1];
+        x2 = segs[i * 4 + 2];
+        y2 = segs[i * 4 + 3];
+        if (x1 == x2) {
+            seg_min = y1 < y2 ? y1 : y2;
+            seg_max = y1 > y2 ? y1 : y2;
+            if (player_y + PLAYER_HH > seg_min &&
+                player_y - PLAYER_HH < seg_max) {
+                if (player_x + PLAYER_HW > x1 &&
+                    player_x - PLAYER_HW < x1) {
+                    if (player_x <= x1) {
+                        player_x = x1 - PLAYER_HW;
+                    }
+                    else {
+                        player_x = x1 + PLAYER_HW;
+                    }
+                    player_vx = 0;
+                }
+            }
+        }
+    }
+
     /* === Y-axis: move vertically, then resolve collisions === */
     player_y += player_vy;
     player_on_ground = 0;
@@ -115,54 +141,27 @@ void update_player_physics(void) {
         player_vy = 0;
     }
 
-    /* === Cave segment collisions ===
-     * Segments come from the cave polyline data. Each is either
-     * horizontal (y1==y2) or vertical (x1==x2). Diagonal segments
-     * are drawn but not used for collision (too rare to matter). */
-    segs = cur_cave_segs;
+    /* Y-axis collision with horizontal cave segments (after Y move) */
     for (i = 0; i < cur_seg_count; i++) {
         x1 = segs[i * 4];
         y1 = segs[i * 4 + 1];
         x2 = segs[i * 4 + 2];
         y2 = segs[i * 4 + 3];
-
         if (y1 == y2) {
-            /* Horizontal segment — acts as floor or ceiling */
             seg_min = x1 < x2 ? x1 : x2;
             seg_max = x1 > x2 ? x1 : x2;
             if (player_x + PLAYER_HW > seg_min &&
                 player_x - PLAYER_HW < seg_max) {
                 if (player_y >= y1 &&
                     player_y - PLAYER_HH < y1) {
-                    /* Player's feet crossed the segment — land on it */
                     player_y = y1 + PLAYER_HH;
                     player_vy = 0;
                     player_on_ground = 1;
                 }
                 else if (player_y < y1 &&
                            player_y + PLAYER_HH > y1) {
-                    /* Player's head hit the segment — push down */
                     player_y = y1 - PLAYER_HH;
                     player_vy = 0;
-                }
-            }
-        }
-        else if (x1 == x2) {
-            /* Vertical segment — acts as left or right wall */
-            seg_min = y1 < y2 ? y1 : y2;
-            seg_max = y1 > y2 ? y1 : y2;
-            if (player_y + PLAYER_HH > seg_min &&
-                player_y - PLAYER_HH < seg_max) {
-                if (player_x + PLAYER_HW > x1 &&
-                    player_x - PLAYER_HW < x1) {
-                    /* Player straddles wall — push to nearest side */
-                    if (player_x <= x1) {
-                        player_x = x1 - PLAYER_HW;
-                    }
-                    else {
-                        player_x = x1 + PLAYER_HW;
-                    }
-                    player_vx = 0;
                 }
             }
         }
