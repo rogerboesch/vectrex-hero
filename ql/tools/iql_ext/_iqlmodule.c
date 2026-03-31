@@ -43,6 +43,7 @@ extern void QLRBSendEvent(RBEvent evt);
 
 static pthread_t emu_thread;
 static int emu_running = 0;
+static int emu_paused = 0;
 
 static void *emu_thread_func(void *arg) {
     (void)arg;
@@ -82,7 +83,7 @@ static PyObject *
 iql_tick(PyObject *self, PyObject *args)
 {
     (void)args;
-    if (emu_running) {
+    if (emu_running && !emu_paused) {
         QLTimer();
     }
     Py_RETURN_NONE;
@@ -175,6 +176,63 @@ iql_is_running(PyObject *self, PyObject *args)
     return PyBool_FromLong(emu_running);
 }
 
+static PyObject *
+iql_pause(PyObject *self, PyObject *args)
+{
+    (void)args;
+    emu_paused = 1;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+iql_resume(PyObject *self, PyObject *args)
+{
+    (void)args;
+    emu_paused = 0;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+iql_is_paused(PyObject *self, PyObject *args)
+{
+    (void)args;
+    return PyBool_FromLong(emu_paused);
+}
+
+static PyObject *
+iql_get_cpu_state(PyObject *self, PyObject *args)
+{
+    (void)args;
+    if (!emu_running) {
+        Py_RETURN_NONE;
+    }
+
+    unsigned int pc_addr = (unsigned int)((char *)pc - (char *)theROM);
+
+    return Py_BuildValue(
+        "{s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:I,"
+        "s:I,s:I,s:I,s:I,s:I,s:I,s:I,s:I,"
+        "s:I,s:I,s:I,s:H,"
+        "s:i,s:i,s:i,s:i}",
+        "D0", (unsigned int)reg[0],  "D1", (unsigned int)reg[1],
+        "D2", (unsigned int)reg[2],  "D3", (unsigned int)reg[3],
+        "D4", (unsigned int)reg[4],  "D5", (unsigned int)reg[5],
+        "D6", (unsigned int)reg[6],  "D7", (unsigned int)reg[7],
+        "A0", (unsigned int)reg[8],  "A1", (unsigned int)reg[9],
+        "A2", (unsigned int)reg[10], "A3", (unsigned int)reg[11],
+        "A4", (unsigned int)reg[12], "A5", (unsigned int)reg[13],
+        "A6", (unsigned int)reg[14], "A7", (unsigned int)reg[15],
+        "PC", pc_addr,
+        "USP", (unsigned int)usp,
+        "SSP", (unsigned int)ssp,
+        "SR", (unsigned short)GetSR(),
+        "key_down", gKeyDown,
+        "shift", shiftKey,
+        "control", controlKey,
+        "alt", altKey
+    );
+}
+
 /* --- Module definition --- */
 
 static PyMethodDef iql_methods[] = {
@@ -196,6 +254,14 @@ static PyMethodDef iql_methods[] = {
      "set_speed(ms) — Set CPU throttle (0=normal, 4=slow)"},
     {"is_running",       iql_is_running,       METH_NOARGS,
      "is_running() — Check if emulator thread is alive"},
+    {"pause",            iql_pause,            METH_NOARGS,
+     "pause() — Pause emulation (tick becomes no-op)"},
+    {"resume",           iql_resume,           METH_NOARGS,
+     "resume() — Resume emulation after pause"},
+    {"is_paused",        iql_is_paused,        METH_NOARGS,
+     "is_paused() — Check if emulator is paused"},
+    {"get_cpu_state",    iql_get_cpu_state,    METH_NOARGS,
+     "get_cpu_state() — Return dict of CPU registers and keyboard state"},
     {NULL, NULL, 0, NULL}
 };
 

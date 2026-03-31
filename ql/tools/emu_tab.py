@@ -2,21 +2,23 @@
 Emulator tab — Embeds the iQL Sinclair QL emulator in a Tkinter notebook tab.
 
 Provides Build & Run workflow: export sprites, compile, and test in the
-embedded emulator without leaving QL Studio.
+embedded emulator without leaving QL Studio. Includes CPU state debug panel.
 """
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import subprocess
 import os
 import sys
-import shutil
 
 # iQL system path (where ROMs and ql.ini live)
 IQL_SYSTEM_PATH = os.path.expanduser("~/Documents/iQLmac/")
 
 # Emulator tick interval in ms (matches iQL's 20ms timer)
 EMU_TICK_MS = 20
+
+# How often to update the debug panel (every Nth tick)
+DEBUG_UPDATE_INTERVAL = 5
 
 # Try importing the _iql extension and PIL
 try:
@@ -83,21 +85,33 @@ if HAS_IQL:
     }
 
 
+def _format_sr_flags(sr):
+    """Decode 68000 status register into flag string."""
+    flags = []
+    flags.append('T' if sr & 0x8000 else '-')
+    flags.append('S' if sr & 0x2000 else '-')
+    ipl = (sr >> 8) & 7
+    flags.append(str(ipl))
+    flags.append('X' if sr & 0x0010 else '-')
+    flags.append('N' if sr & 0x0008 else '-')
+    flags.append('Z' if sr & 0x0004 else '-')
+    flags.append('V' if sr & 0x0002 else '-')
+    flags.append('C' if sr & 0x0001 else '-')
+    return ''.join(flags)
+
+
 class EmulatorTab:
     """Emulator tab for the QL Studio notebook."""
 
     def __init__(self, parent, editor):
-        """
-        Args:
-            parent: ttk.Frame to build into (the notebook tab)
-            editor: SpriteEditor instance (for accessing sprites/project)
-        """
         self.parent = parent
         self.editor = editor
         self.root = parent.winfo_toplevel()
         self._after_id = None
         self._emu_active = False
+        self._emu_paused = False
         self._photo = None
+        self._tick_count = 0
         self._ql_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
         self._build_ui()
@@ -127,9 +141,9 @@ class EmulatorTab:
                                         command=self._build_and_run)
         self.btn_build_run.pack(side=tk.LEFT, padx=2)
 
-        self.btn_stop = ttk.Button(toolbar, text="Stop",
-                                   command=self._emu_stop, state=tk.DISABLED)
-        self.btn_stop.pack(side=tk.LEFT, padx=2)
+        self.btn_pause = ttk.Button(toolbar, text="Pause",
+                                    command=self._toggle_pause, state=tk.DISABLED)
+        self.btn_pause.pack(side=tk.LEFT, padx=2)
 
         self.btn_restart = ttk.Button(toolbar, text="Restart",
                                       command=self._emu_restart, state=tk.DISABLED)
@@ -151,9 +165,13 @@ class EmulatorTab:
         status_bar = ttk.Label(toolbar, textvariable=self.status_var)
         status_bar.pack(side=tk.RIGHT, padx=5)
 
+        # Main area: screen canvas + debug panel
+        main_frame = ttk.Frame(self.parent)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
         # Emulator screen canvas (512x256 native, displayed at 2x)
-        screen_frame = ttk.Frame(self.parent)
-        screen_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        screen_frame = ttk.Frame(main_frame)
+        screen_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.emu_canvas = tk.Canvas(screen_frame, bg="#000000",
                                     width=1024, height=512,
@@ -163,6 +181,21 @@ class EmulatorTab:
         # Make canvas focusable so it captures keys instead of buttons
         self.emu_canvas.config(takefocus=True)
         self.emu_canvas.bind("<Button-1>", lambda e: self.emu_canvas.focus_set())
+
+        # Debug panel (right side)
+        debug_frame = ttk.LabelFrame(main_frame, text="CPU State", width=240)
+        debug_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
+        debug_frame.pack_propagate(False)
+
+        self.debug_text = tk.Text(debug_frame, width=30, height=28,
+                                  font=("Courier", 11), state=tk.DISABLED,
+                                  bg="#1e1e1e", fg="#d4d4d4",
+                                  relief=tk.FLAT, padx=6, pady=6)
+        self.debug_text.pack(fill=tk.BOTH, expand=True)
+
+        # Tag for highlighting PC line
+        self.debug_text.tag_configure("highlight", foreground="#4ec9b0")
+        self.debug_text.tag_configure("dim", foreground="#808080")
 
     def _build_and_run(self):
         """Export sprites, compile the game, and start the emulator."""
@@ -183,7 +216,6 @@ class EmulatorTab:
 
         if result.returncode != 0:
             self.status_var.set("Build FAILED")
-            from tkinter import messagebox
             messagebox.showerror("Build Error",
                                  f"make failed:\n{result.stderr[-500:]}")
             return
@@ -198,8 +230,10 @@ class EmulatorTab:
         _iql.init(IQL_SYSTEM_PATH)
 
         self._emu_active = True
+        self._emu_paused = False
+        self._tick_count = 0
         self.btn_build_run.config(text="Rebuild & Run")
-        self.btn_stop.config(state=tk.NORMAL)
+        self.btn_pause.config(state=tk.NORMAL, text="Pause")
         self.btn_restart.config(state=tk.NORMAL)
         self.status_var.set("Running")
 
@@ -222,15 +256,46 @@ class EmulatorTab:
         if self._emu_active:
             _iql.stop()
             self._emu_active = False
-            self.btn_stop.config(state=tk.DISABLED)
+            self._emu_paused = False
+            self.btn_pause.config(state=tk.DISABLED, text="Pause")
             self.btn_restart.config(state=tk.DISABLED)
             self.status_var.set("Stopped")
 
+    def _toggle_pause(self):
+        """Toggle pause/resume."""
+        if not self._emu_active:
+            return
+
+        if self._emu_paused:
+            _iql.resume()
+            self._emu_paused = False
+            self.btn_pause.config(text="Pause")
+            self.status_var.set("Running")
+            self.emu_canvas.focus_set()
+        else:
+            _iql.pause()
+            self._emu_paused = True
+            self.btn_pause.config(text="Resume")
+            self.status_var.set("Paused")
+            self._update_debug_panel()
+
     def _emu_restart(self):
-        """Restart the emulator."""
-        if self._emu_active:
-            _iql.restart()
-            self.status_var.set("Restarting...")
+        """Restart the emulator with confirmation."""
+        if not self._emu_active:
+            return
+
+        if not messagebox.askyesno("Restart", "Restart the emulator?"):
+            self.emu_canvas.focus_set()
+            return
+
+        if self._emu_paused:
+            _iql.resume()
+            self._emu_paused = False
+            self.btn_pause.config(text="Pause")
+
+        _iql.restart()
+        self.status_var.set("Restarting...")
+        self.emu_canvas.focus_set()
 
     def _on_speed_change(self, event=None):
         """Handle speed combobox change."""
@@ -243,7 +308,7 @@ class EmulatorTab:
         if not self._emu_active:
             return
 
-        # Advance emulation
+        # Advance emulation (skipped internally if paused)
         _iql.tick()
 
         # Get framebuffer and display
@@ -257,15 +322,74 @@ class EmulatorTab:
             self.emu_canvas.delete("all")
             self.emu_canvas.create_image(0, 0, anchor=tk.NW, image=self._photo)
 
+        # Update debug panel periodically
+        self._tick_count += 1
+        if self._emu_paused or self._tick_count % DEBUG_UPDATE_INTERVAL == 0:
+            self._update_debug_panel()
+
         # Schedule next tick
         self._after_id = self.root.after(EMU_TICK_MS, self._emu_tick)
 
-    def _resolve_key(self, event):
-        """Resolve Tkinter event to (vk, shift) matching iQL's processEvent.
+    def _update_debug_panel(self):
+        """Fetch CPU state and update the debug text widget."""
+        if not self._emu_active:
+            return
 
-        Replicates rb_renderview.m: character_to_vk() + ql_shift_key_fixes().
-        Returns (vk_code, shift) or None.
-        """
+        state = _iql.get_cpu_state()
+        if state is None:
+            return
+
+        sr = state.get("SR", 0)
+        pc = state.get("PC", 0)
+        flags = _format_sr_flags(sr)
+
+        lines = []
+        lines.append(f"PC: ${pc:06X}   SR: ${sr:04X}")
+        lines.append(f"Flags: {flags}")
+        lines.append("")
+
+        # Data registers in two columns
+        for i in range(4):
+            d_lo = state.get(f"D{i}", 0)
+            d_hi = state.get(f"D{i+4}", 0)
+            lines.append(f"D{i}: {d_lo:08X}  D{i+4}: {d_hi:08X}")
+        lines.append("")
+
+        # Address registers in two columns
+        for i in range(4):
+            a_lo = state.get(f"A{i}", 0)
+            a_hi = state.get(f"A{i+4}", 0)
+            lines.append(f"A{i}: {a_lo:08X}  A{i+4}: {a_hi:08X}")
+        lines.append("")
+
+        usp = state.get("USP", 0)
+        ssp = state.get("SSP", 0)
+        lines.append(f"USP: {usp:08X}")
+        lines.append(f"SSP: {ssp:08X}")
+        lines.append("")
+
+        # Keyboard state
+        key = state.get("key_down", 0)
+        shift = state.get("shift", 0)
+        ctrl = state.get("control", 0)
+        alt = state.get("alt", 0)
+        lines.append("--- Keyboard ---")
+        lines.append(f"Key: {key}  Sh: {shift}  Ct: {ctrl}  Al: {alt}")
+
+        text = "\n".join(lines)
+
+        self.debug_text.config(state=tk.NORMAL)
+        self.debug_text.delete("1.0", tk.END)
+        self.debug_text.insert("1.0", text)
+
+        # Highlight PC and flags lines
+        self.debug_text.tag_add("highlight", "1.0", "1.end")
+        self.debug_text.tag_add("dim", "2.0", "2.end")
+
+        self.debug_text.config(state=tk.DISABLED)
+
+    def _resolve_key(self, event):
+        """Resolve Tkinter event to (vk, shift) matching iQL's processEvent."""
         shift = 1 if event.state & 0x0001 else 0
 
         # 1. Special keys (no printable char) — lookup by keysym
@@ -276,23 +400,23 @@ class EmulatorTab:
                 shift = force_shift
             return vk, shift
 
-        # 2. Printable chars — replicate iQL's character_to_vk + ql_shift_key_fixes
+        # 2. Printable chars
         ch = event.char
         if not ch:
             return None
 
-        # Check shift fixes first (like iQL's ql_shift_key_fixes)
+        # Check shift fixes first
         fix = _SHIFT_FIXES.get(ch)
         if fix is not None:
             return fix, 1
 
-        # Uppercase → base letter + shift (like iQL's charactersIgnoringModifiers)
+        # Uppercase → base letter + shift
         if ch.isupper():
             vk = _CHAR_TO_VK.get(ch)
             if vk is not None:
                 return vk, 1
 
-        # Regular character lookup (like iQL's character_to_vk on uppercase)
+        # Regular character lookup
         vk = _CHAR_TO_VK.get(ch.upper())
         if vk is not None:
             return vk, shift
