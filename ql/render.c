@@ -778,8 +778,14 @@ void render_frame(void) {
         sx = SCREEN_X(player_x) - 5;
         sy = SCREEN_Y(player_y) + HH_PX(PLAYER_HH) - 20;
         flip = (player_facing < 0) ? 1 : 0;
-        if (!player_on_ground || player_thrusting)
-            spr = &spr_player_fly_0;
+        if (!player_on_ground || player_thrusting) {
+            /* Fly animation: 0-1-2-1-0 cycle, 5 frames at ~4 ticks each */
+            static const Sprite *fly_frames[5] = {
+                &spr_player_fly_0, &spr_player_fly_1, &spr_player_fly_2,
+                &spr_player_fly_1, &spr_player_fly_0
+            };
+            spr = fly_frames[(anim_tick / 4) % 5];
+        }
         else if (player_vx != 0 && (anim_tick & 8))
             spr = &spr_player_walk_1;
         else

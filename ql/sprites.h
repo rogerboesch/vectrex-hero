@@ -28,6 +28,8 @@ extern const Sprite spr_wall_0;
 extern const Sprite spr_lava_0;
 extern const Sprite spr_cave_h_0;
 extern const Sprite spr_cave_v_0;
-extern const Sprite spr_fuel_0;
+extern const Sprite spr_hud_live;
+extern const Sprite spr_player_fly_1;
+extern const Sprite spr_player_fly_2;
 
 #endif
