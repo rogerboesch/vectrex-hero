@@ -8,7 +8,7 @@ void fire_laser(void) {
     if (laser_active) return;
     laser_active = 1;
     laser_x = player_x;
-    laser_y = player_y;
+    laser_y = player_y - (PLAYER_HH / 2);
     laser_dir = player_facing;
     laser_timer = LASER_LIFETIME;
 }
