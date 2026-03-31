@@ -647,8 +647,11 @@ void render_hud(void) {
 #define HUD_LIVES_Y    8   /* player_walk_0 is 20px tall: (36-20)/2 = 8 */
 #define HUD_DYN_Y     13   /* dynamite_0 is 10px tall: (36-10)/2 = 13 */
 #define FUEL_BAR_Y    234
-#define FUEL_BAR_W    200
-#define FUEL_BAR_X    28
+#define FUEL_BAR_H    4
+#define FUEL_BAR_W    198
+#define FUEL_BAR_X    30
+#define FUEL_LABEL_X  2
+#define FUEL_LABEL_Y  233
 
     if (!hud_drawn) {
         /* Clear top HUD area */
@@ -664,8 +667,10 @@ void render_hud(void) {
         /* Score label — right side */
         draw_string(SCREEN_BASE, 196, HUD_TEXT_Y, "SCORE", COL_CYAN);
 
-        /* Clear bottom fuel bar area */
-        filled_rect(SCREEN_BASE, 0, 220, SCREEN_W, 36, COL_BLACK);
+        /* Clear bottom fuel bar area and draw POWER label */
+        filled_rect(SCREEN_BASE, 0, 220, SCREEN_W, 36, COL_BLUE);
+        draw_string(SCREEN_BASE, FUEL_LABEL_X, FUEL_LABEL_Y,
+                    "POWER", COL_WHITE);
 
         /* Force all dynamic elements to redraw */
         hud_last_score = -1;
@@ -710,21 +715,23 @@ void render_hud(void) {
         hud_last_score = score;
     }
 
-    /* Fuel bar — below room, tiled fuel sprite */
+    /* Fuel bar — below room, yellow bar on blue background */
     if (player_fuel != hud_last_fuel) {
         int16_t new_filled = (int16_t)((uint16_t)player_fuel * FUEL_BAR_W / START_FUEL);
         int16_t old_filled = (int16_t)((uint16_t)hud_last_fuel * FUEL_BAR_W / START_FUEL);
         if (hud_last_fuel == 254) {
-            /* First draw: tile fuel sprite across filled area */
-            int16_t tx;
-            for (tx = FUEL_BAR_X; tx < FUEL_BAR_X + new_filled; tx += spr_fuel_0.w)
-                asm_blit_sprite(SCREEN_BASE, &spr_fuel_0, tx, FUEL_BAR_Y);
-        } else if (new_filled < old_filled) {
-            /* Fuel decreased: black out the difference from right */
+            /* First draw: yellow filled bar */
+            if (new_filled > 0)
+                filled_rect(SCREEN_BASE, FUEL_BAR_X, FUEL_BAR_Y,
+                            new_filled, FUEL_BAR_H, COL_YELLOW);
+        }
+        else if (new_filled < old_filled) {
+            /* Fuel decreased: blue out the difference from right */
             int16_t erase_x = FUEL_BAR_X + new_filled;
             int16_t erase_w = old_filled - new_filled;
             if (erase_w > 0)
-                filled_rect(SCREEN_BASE, erase_x, FUEL_BAR_Y, erase_w, 4, COL_BLACK);
+                filled_rect(SCREEN_BASE, erase_x, FUEL_BAR_Y,
+                            erase_w, FUEL_BAR_H, COL_BLUE);
         }
         hud_last_fuel = player_fuel;
     }
