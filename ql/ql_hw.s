@@ -91,7 +91,7 @@ _ql_read_keys:
         move.b  #1,1(a3)        ; row 1
         moveq   #$11,d0         ; MT.IPCOM
         trap    #1
-        not.b   d1              ; invert: 1 = pressed
+        ; iQL KeyRow returns 1=pressed (no inversion needed)
         btst    #2,d1           ; cursor UP
         beq.s   .no_cur_up
         move.b  #1,_key_up
@@ -114,7 +114,7 @@ _ql_read_keys:
         move.b  #6,1(a3)        ; row 6
         moveq   #$11,d0
         trap    #1
-        not.b   d1
+        ; d1: 1=pressed (iQL convention)
         btst    #3,d1           ; Q = up
         beq.s   .no_q
         move.b  #1,_key_up
@@ -125,7 +125,7 @@ _ql_read_keys:
         move.b  #4,1(a3)        ; row 4
         moveq   #$11,d0
         trap    #1
-        not.b   d1
+        ; d1: 1=pressed (iQL convention)
         btst    #4,d1           ; A = down
         beq.s   .no_a
         move.b  #1,_key_down
@@ -140,7 +140,7 @@ _ql_read_keys:
         move.b  #5,1(a3)        ; row 5
         moveq   #$11,d0
         trap    #1
-        not.b   d1
+        ; d1: 1=pressed (iQL convention)
         btst    #7,d1           ; O = left
         beq.s   .no_o
         move.b  #1,_key_left
