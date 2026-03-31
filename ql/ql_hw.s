@@ -61,17 +61,16 @@ _ql_cleanup:
         rts
 
 ; =====================================================================
-; ql_read_keys — Direct keyboard matrix scan via MT.IPCOM
+; ql_read_keys — Hybrid keyboard input
 ;
-; Scans KEYROW rows directly via IPC for simultaneous key detection.
-; Also drains the console keyboard buffer (for ESC handling).
-; Sets the key_* global variables (C-accessible).
+; Uses KEYROW (MT.IPCOM) for cursor keys (Row 1) to detect simultaneous
+; directional input. All letter keys (Q, A, O, P, D) handled via
+; IO.FBYTE console buffer since KEYROW rows 4-6 don't work reliably
+; in the iQL emulator's embedded mode.
 ;
-; KEYROW bit layout (active low — 0 = pressed):
-;   Row 1: b7=DOWN b6=SPACE b4=RIGHT b3=ESC b2=UP b1=LEFT b0=ENTER
-;   Row 4: b7=J b6=D b5=P b4=A b3=1 b2=H b1=3 b0=L
-;   Row 5: b7=O b6=Y b5=- b4=R b3=TAB b2=I b1=W b0=9
-;   Row 6: b7=U b6=T b5=0 b4=E b3=Q b2=6 b1=2 b0=8
+; KEYROW Row 1: b7=DOWN b4=RIGHT b2=UP b1=LEFT
+; IO.FBYTE: Q=up, A=down, O=left, P=right, D=dynamite,
+;           SPACE=fire+confirm, ENTER=confirm, ESC=quit
 ; =====================================================================
         xdef    _ql_read_keys
 _ql_read_keys:
@@ -84,14 +83,12 @@ _ql_read_keys:
         clr.b   _key_d_pressed
         clr.b   _key_enter_pressed
 
-        ; === KEYROW scans for held directional keys ===
-
-        ; --- Row 1: cursor keys only ---
+        ; === KEYROW Row 1: cursor keys (simultaneous detection) ===
         lea     ipc_cmd,a3
         move.b  #1,1(a3)        ; row 1
         moveq   #$11,d0         ; MT.IPCOM
         trap    #1
-        ; iQL KeyRow returns 1=pressed (no inversion needed)
+        ; iQL KeyRow returns 1=pressed
         btst    #2,d1           ; cursor UP
         beq.s   .no_cur_up
         move.b  #1,_key_up
@@ -109,39 +106,7 @@ _ql_read_keys:
         move.b  #1,_key_right
 .no_cur_rt:
 
-        ; --- Row 6: Q (up) ---
-        lea     ipc_cmd,a3
-        move.b  #6,1(a3)        ; row 6
-        moveq   #$11,d0
-        trap    #1
-        ; d1: 1=pressed (iQL convention)
-        btst    #3,d1           ; Q = up
-        beq.s   .no_q
-        move.b  #1,_key_up
-.no_q:
-
-        ; --- Row 4: P (right) only; A (down) handled via IO.FBYTE ---
-        lea     ipc_cmd,a3
-        move.b  #4,1(a3)        ; row 4
-        moveq   #$11,d0
-        trap    #1
-        btst    #5,d1           ; P = right
-        beq.s   .no_p
-        move.b  #1,_key_right
-.no_p:
-
-        ; --- Row 5: O (left) ---
-        lea     ipc_cmd,a3
-        move.b  #5,1(a3)        ; row 5
-        moveq   #$11,d0
-        trap    #1
-        ; d1: 1=pressed (iQL convention)
-        btst    #7,d1           ; O = left
-        beq.s   .no_o
-        move.b  #1,_key_left
-.no_o:
-
-        ; === Console buffer for event keys (SPACE, D, ENTER, ESC) ===
+        ; === IO.FBYTE: all letter keys + action keys ===
         move.l  _con_id,a0
         moveq   #0,d3           ; timeout = 0
 .drain:
@@ -149,36 +114,50 @@ _ql_read_keys:
         move.w  #0,d2
         trap    #3
         tst.l   d0
-        bne.s   .done           ; no more keys in buffer
-        cmpi.b  #'a',d1
-        beq.s   .key_down_a
-        cmpi.b  #'A',d1
-        beq.s   .key_down_a
+        bne     .done           ; no more keys in buffer
+        ; Check non-letter keys first (before lowercase conversion)
         cmpi.b  #' ',d1
         beq.s   .key_space
-        cmpi.b  #'d',d1
-        beq.s   .key_d
-        cmpi.b  #'D',d1
-        beq.s   .key_d
         cmpi.b  #$0A,d1         ; ENTER
         beq.s   .key_enter
         cmpi.b  #$1B,d1         ; ESC
         beq.s   .key_esc
+        ; Force lowercase for letter comparison
+        ori.b   #$20,d1
+        cmpi.b  #'q',d1
+        beq.s   .key_up
+        cmpi.b  #'a',d1
+        beq.s   .key_down_a
+        cmpi.b  #'o',d1
+        beq.s   .key_left
+        cmpi.b  #'p',d1
+        beq.s   .key_right
+        cmpi.b  #'d',d1
+        beq.s   .key_d
         bra.s   .drain
 
+.key_up:
+        move.b  #1,_key_up
+        bra.s   .drain
 .key_down_a:
         move.b  #1,_key_down
+        bra.s   .drain
+.key_left:
+        move.b  #1,_key_left
+        bra.s   .drain
+.key_right:
+        move.b  #1,_key_right
         bra.s   .drain
 .key_space:
         move.b  #1,_key_space_pressed
         move.b  #1,_key_enter_pressed   ; space also acts as confirm
-        bra.s   .drain
+        bra     .drain
 .key_d:
         move.b  #1,_key_d_pressed
-        bra.s   .drain
+        bra     .drain
 .key_enter:
         move.b  #1,_key_enter_pressed
-        bra.s   .drain
+        bra     .drain
 .key_esc:
         moveq   #-1,d1
         moveq   #0,d3
@@ -186,8 +165,6 @@ _ql_read_keys:
         trap    #1
 .done:
         rts
-
-; (ipc_cmd is in DATA section below)
 
 ; =====================================================================
 ; ql_get_ticks — Read QDOS 50Hz frame counter
