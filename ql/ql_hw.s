@@ -116,13 +116,7 @@ _ql_read_keys:
         beq.s   .no_enter
         move.b  #1,_key_enter_pressed
 .no_enter:
-        btst    #3,d1           ; ESC — terminate job
-        beq.s   .no_esc
-        moveq   #-1,d1
-        moveq   #0,d3
-        moveq   #5,d0           ; MT.FRJOB
-        trap    #1
-.no_esc:
+        ; (ESC handled via console drain below)
 
         ; --- Scan Row 6: Q (up) ---
         lea     ipc_cmd,a3
@@ -165,7 +159,7 @@ _ql_read_keys:
         move.b  #1,_key_left
 .no_o:
 
-        ; Drain console buffer (prevents key buildup)
+        ; Drain console buffer and check for ESC
         move.l  _con_id,a0
         moveq   #0,d3           ; timeout = 0
 .drain:
@@ -173,7 +167,15 @@ _ql_read_keys:
         move.w  #0,d2
         trap    #3
         tst.l   d0
-        beq.s   .drain          ; keep draining until empty
+        bne.s   .done           ; no more keys in buffer
+        cmpi.b  #$1B,d1         ; ESC?
+        beq.s   .key_esc
+        bra.s   .drain
+.key_esc:
+        moveq   #-1,d1
+        moveq   #0,d3
+        moveq   #5,d0           ; MT.FRJOB
+        trap    #1
 .done:
         rts
 
