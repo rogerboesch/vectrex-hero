@@ -142,7 +142,14 @@ class SpriteEditor:
         sprite_tab = ttk.Frame(self.notebook)
         self.notebook.add(sprite_tab, text="Sprites")
 
-        # Tab 1: Emulator
+        # Tab 1: Images
+        img_frame = ttk.Frame(self.notebook)
+        self.notebook.add(img_frame, text="Images")
+
+        from image_editor import ImageEditorTab
+        self.img_tab = ImageEditorTab(img_frame, self)
+
+        # Tab 2: Emulator
         emu_frame = ttk.Frame(self.notebook)
         self.notebook.add(emu_frame, text="Emulator")
 
@@ -262,12 +269,20 @@ class SpriteEditor:
 
     def _on_tab_changed(self, event=None):
         idx = self.notebook.index(self.notebook.select())
-        if idx == 1:
-            # Switching to Emulator tab
-            self.emu_tab.on_tab_selected()
-        else:
-            # Switching to Sprites tab
+        # Deselect emulator when leaving its tab
+        if hasattr(self, '_prev_tab') and self._prev_tab == 2:
             self.emu_tab.on_tab_deselected()
+        self._prev_tab = idx
+
+        if idx == 0:
+            # Sprites tab — color keys
+            self.root.bind("<Key>", self._on_key)
+        elif idx == 1:
+            # Images tab — color keys via image editor
+            self.root.bind("<Key>", self.img_tab.on_key)
+        elif idx == 2:
+            # Emulator tab
+            self.emu_tab.on_tab_selected()
 
     def _update_sprite_list(self):
         self.sprite_listbox.delete(0, tk.END)
@@ -456,6 +471,7 @@ class SpriteEditor:
 
     def _new_project(self):
         self.sprites = [Sprite("sprite_0", 10, 20)]
+        self.img_tab.set_images_data([])
         self.project_file = None
         self._update_sprite_list()
         self._select_sprite(0)
@@ -464,7 +480,10 @@ class SpriteEditor:
         if not self.project_file:
             self._save_project_as()
             return
-        data = {"sprites": [s.to_dict() for s in self.sprites]}
+        data = {
+            "sprites": [s.to_dict() for s in self.sprites],
+            "images": self.img_tab.get_images_data(),
+        }
         with open(self.project_file, "w") as f:
             json.dump(data, f, indent=2)
 
@@ -488,6 +507,7 @@ class SpriteEditor:
         with open(path) as f:
             data = json.load(f)
         self.sprites = [Sprite.from_dict(d) for d in data["sprites"]]
+        self.img_tab.set_images_data(data.get("images", []))
         self.project_file = path
         self._update_sprite_list()
         self._select_sprite(0)

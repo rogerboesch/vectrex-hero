@@ -328,10 +328,8 @@ class EmulatorTab:
 
     def on_tab_deselected(self):
         """Called when switching away from this tab."""
-        # Restore Sprites tab key bindings
         self.root.bind("<KeyPress>", None)
         self.root.bind("<KeyRelease>", None)
-        self.root.bind("<Key>", self.editor._on_key)
 
     def cleanup(self):
         """Clean up on application exit."""
