@@ -120,16 +120,11 @@ _ql_read_keys:
         move.b  #1,_key_up
 .no_q:
 
-        ; --- Row 4: A (down), P (right) ---
+        ; --- Row 4: P (right) only; A (down) handled via IO.FBYTE ---
         lea     ipc_cmd,a3
         move.b  #4,1(a3)        ; row 4
         moveq   #$11,d0
         trap    #1
-        ; d1: 1=pressed (iQL convention)
-        btst    #4,d1           ; A = down
-        beq.s   .no_a
-        move.b  #1,_key_down
-.no_a:
         btst    #5,d1           ; P = right
         beq.s   .no_p
         move.b  #1,_key_right
@@ -155,6 +150,10 @@ _ql_read_keys:
         trap    #3
         tst.l   d0
         bne.s   .done           ; no more keys in buffer
+        cmpi.b  #'a',d1
+        beq.s   .key_down_a
+        cmpi.b  #'A',d1
+        beq.s   .key_down_a
         cmpi.b  #' ',d1
         beq.s   .key_space
         cmpi.b  #'d',d1
@@ -167,6 +166,9 @@ _ql_read_keys:
         beq.s   .key_esc
         bra.s   .drain
 
+.key_down_a:
+        move.b  #1,_key_down
+        bra.s   .drain
 .key_space:
         move.b  #1,_key_space_pressed
         move.b  #1,_key_enter_pressed   ; space also acts as confirm
