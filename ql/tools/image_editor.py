@@ -135,6 +135,18 @@ class ImageEditorTab:
                    command=self._clear_image).pack(fill=tk.X, padx=2, pady=1)
         ttk.Button(op_frame, text="Flip H",
                    command=self._flip_h).pack(fill=tk.X, padx=2, pady=1)
+        ttk.Button(op_frame, text="Flip V",
+                   command=self._flip_v).pack(fill=tk.X, padx=2, pady=1)
+        move_frame = ttk.Frame(op_frame)
+        move_frame.pack(fill=tk.X, padx=2, pady=1)
+        ttk.Button(move_frame, text="U", width=2,
+                   command=self._move_up).pack(side=tk.LEFT, expand=True)
+        ttk.Button(move_frame, text="D", width=2,
+                   command=self._move_down).pack(side=tk.LEFT, expand=True)
+        ttk.Button(move_frame, text="L", width=2,
+                   command=self._move_left).pack(side=tk.LEFT, expand=True)
+        ttk.Button(move_frame, text="R", width=2,
+                   command=self._move_right).pack(side=tk.LEFT, expand=True)
 
     def _build_center(self, parent):
         """Build the canvas area with scrollbars."""
@@ -218,6 +230,8 @@ class ImageEditorTab:
 
     def on_key(self, event):
         """Handle keyboard shortcuts (called from editor's central handler)."""
+        if isinstance(event.widget, (tk.Entry, ttk.Entry)):
+            return
         if event.char in "01234567":
             self._set_color(int(event.char))
 
@@ -292,13 +306,34 @@ class ImageEditorTab:
             self._rebuild_pil_image()
             self._update_display()
 
-    def _flip_h(self):
+    def _transform(self, fn):
+        """Apply a pixel transform function, then refresh display."""
         img = self._cur()
         if img:
-            for y in range(IMAGE_SIZE):
-                img["pixels"][y] = img["pixels"][y][::-1]
+            fn(img["pixels"])
             self._rebuild_pil_image()
             self._update_display()
+
+    def _flip_h(self):
+        self._transform(lambda p: [p.__setitem__(y, p[y][::-1])
+                                    for y in range(IMAGE_SIZE)])
+
+    def _flip_v(self):
+        self._transform(lambda p: p.reverse())
+
+    def _move_up(self):
+        self._transform(lambda p: p.append(p.pop(0)))
+
+    def _move_down(self):
+        self._transform(lambda p: p.insert(0, p.pop()))
+
+    def _move_left(self):
+        self._transform(lambda p: [p.__setitem__(y, p[y][1:] + [p[y][0]])
+                                    for y in range(IMAGE_SIZE)])
+
+    def _move_right(self):
+        self._transform(lambda p: [p.__setitem__(y, [p[y][-1]] + p[y][:-1])
+                                    for y in range(IMAGE_SIZE)])
 
     # --- Rendering ---
 
