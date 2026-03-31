@@ -1,5 +1,35 @@
 # QL Port — Milestone Log
 
+## 2026-03-31: Image Editor Tab
+
+### Summary
+Added a third tab to QL Studio — an Image Editor for full 256x256 pixel images using the QL Mode 8 palette. Same drawing tools as the sprite editor (click, drag, right-click pick, keyboard 0-7) but for full-screen images.
+
+### What was done
+- Created `ql/tools/image_editor.py` — ImageEditorTab class (~480 lines)
+  - PIL-based rendering (putpixel + NEAREST resize) instead of 65K Tkinter rectangles
+  - 8-color QL palette, same swatch UI pattern as sprite editor
+  - 1x/2x/4x zoom via radio buttons, scrollbars appear at higher zoom
+  - Image list management (add/delete/duplicate/rename)
+  - JSON serialization (get_images_data/set_images_data)
+  - C export: images.c/images.h with raw Mode 8 byte encoding (32KB per image)
+  - Mode 8 encoding: 4 pixels per 2 bytes, green+flash/red+blue planes, col_remap swaps 5/6
+  - Coalesced redraws via after_idle for smooth painting
+- Modified `ql/tools/sprite_editor.py` — Added Images tab (Tab 1)
+  - Notebook now has 3 tabs: Sprites (0), Images (1), Emulator (2)
+  - Central key binding management in _on_tab_changed (tracks _prev_tab)
+  - Save/load/new project includes images data (backward-compatible)
+- Modified `ql/tools/emu_tab.py` — Removed hardcoded key binding restore
+  - on_tab_deselected() no longer binds editor._on_key (managed centrally)
+
+### JSON format
+```json
+{ "sprites": [...], "images": [{"name": "...", "width": 256, "height": 256, "pixels": [[...]]}] }
+```
+
+### Branch
+`feature/image-editor-tab`
+
 ## 2026-03-30: Emulator Integration
 
 ### Summary
