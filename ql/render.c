@@ -1,10 +1,66 @@
 /*
  * render.c — Sinclair QL Mode 8 rendering engine
  *
- * Background-restore approach:
- *   - Cave geometry rasterized once per room into bg_buffer
- *   - Each frame: restore sprite rects from bg_buffer, draw sprites
- *   - HUD updated incrementally
+ * Target: 68008 @ 7.5MHz, 256x256 8-color display, 32KB screen RAM.
+ * Screen base: 0x20000, 128 bytes/row (4 pixels per 2-byte pair).
+ *
+ * RENDERING ARCHITECTURE:
+ *
+ * The engine uses a background-restore (save-behind) approach to
+ * minimize per-frame work on the slow 68008:
+ *
+ *   1. On room entry: render cave geometry into bg_buffer (32KB RAM
+ *      allocated from QDOS heap via MT.ALCHP). This includes cave
+ *      walls (tiled sprites), destructible walls, and lava strips.
+ *      Then copy bg_buffer to screen RAM.
+ *
+ *   2. Each frame: for each moving sprite:
+ *      a. Restore the previous position from bg_buffer (not a saved
+ *         copy — bg_buffer IS the clean background)
+ *      b. Draw the sprite at its new position
+ *      c. Record the new position for next frame's restore
+ *
+ *   3. Skip optimization: if a sprite hasn't moved and its appearance
+ *      hasn't changed, skip both erase and redraw entirely.
+ *
+ * SPRITE SYSTEM:
+ *
+ *   Sprites are nibble-packed (2 pixels per byte, 4 bits per pixel).
+ *   Color 0 = transparent. The Sprite struct has: w (width in pixels,
+ *   always even), h (height in pixels), data (pointer to pixel data).
+ *
+ *   Two blitters:
+ *   - asm_blit_sprite() in ql_hw.s: fast 68K assembly, writes directly
+ *     to a buffer using lookup tables. Used for background rendering.
+ *   - blit_sprite() in C: handles flip_h, save-behind marking, and
+ *     per-pixel transparency. Used for screen sprite drawing.
+ *
+ * SAVE-BEHIND SLOTS:
+ *
+ *   8 slots, assigned by convention:
+ *     0 = player, 1-3 = enemies, 4 = miner (static),
+ *     5 = dynamite/explosion, 6 = laser, 7 = spare
+ *
+ * HUD:
+ *
+ *   Top 36 pixels: level, lives (hud_live sprites), dynamite icons,
+ *   score. Bottom strip: "POWER" label + yellow fuel bar (depletes
+ *   to blue). All HUD elements use dirty-tracking to avoid full redraws.
+ *
+ * MODE 8 MEMORY LAYOUT:
+ *
+ *   Each row = 128 bytes (64 byte-pairs). Each byte-pair encodes
+ *   4 pixels across two bit planes:
+ *     Even byte: green + stipple bits
+ *     Odd byte:  red + blue/flash bits
+ *   Pixel N (0-3) in pair: G = bit(7-2N) of even, R = bit(6-2N) of odd,
+ *   B = bit(7-2N) of odd.  Color = G*4 + R*2 + B.
+ *
+ * COLOR REMAP:
+ *
+ *   QL Studio palette indices 5 (cyan) and 6 (yellow) are swapped vs
+ *   Mode 8 hardware encoding. col_remap[] table handles this so sprite
+ *   data from QL Studio renders with correct colors.
  */
 
 #include "game.h"

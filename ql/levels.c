@@ -1,28 +1,63 @@
-//
-// levels.c — Level management (console port)
-// Reuses level data from the Vectrex version
-//
+/*
+ * levels.c — Level management and room data loading
+ *
+ * Reuses level data from the Vectrex version (../vectrex/src/levels.h).
+ * Each level consists of 2-16 interconnected rooms.
+ *
+ * Data flow:
+ *   levels.h defines static const arrays for each level (l1_*, l2_*, etc.)
+ *   set_level_data() → load_level() copies level arrays into room_* tables
+ *   set_room_data() → populates cur_* globals for the current room
+ *   load_enemies() → spawns enemies from cur_enemies_data
+ *   init_level() → resets player position, clears wall destruction
+ *   start_new_game() → resets score/lives, calls init_level()
+ *
+ * Room data format (from levels.h):
+ *   Cave lines: polyline format — [n_segments, start_y, start_x,
+ *               dy1, dx1, dy2, dx2, ..., 0_terminator]
+ *   Walls: packed [y, x, h, w] per wall (4 bytes each)
+ *   Enemies: packed [x, y, vx, type] per enemy (4 bytes each)
+ *   Exits: [left, right, up, down] room indices (255=NONE)
+ *   Starts: [x, y] player spawn position per room
+ *   Miners: [x, y] trapped miner position per room
+ *
+ * Cave collision segments:
+ *   set_room_data() extracts [x1,y1,x2,y2] segments from the polyline
+ *   data into cave_seg_buf[]. These are used for physics collision
+ *   (player, snake, bat) but NOT for rendering (which uses polylines
+ *   directly). Up to MAX_CAVE_SEGS (34) segments per room.
+ */
 
 #include "game.h"
 #include "../vectrex/src/levels.h"
 
-// Room table pointers
-const int8_t *room_cave_lines[MAX_ROOMS];
-uint8_t room_has_miner[MAX_ROOMS];
-uint8_t room_has_lava[MAX_ROOMS];
-const int8_t *room_walls[MAX_ROOMS];
-uint8_t room_wall_counts[MAX_ROOMS];
-const int8_t *room_enemies_data[MAX_ROOMS];
-uint8_t room_enemy_counts[MAX_ROOMS];
-int8_t room_starts[MAX_ROOMS * 2];
-int8_t room_miners[MAX_ROOMS * 2];
-uint8_t room_exits[MAX_ROOMS * 4];
-static uint8_t num_rooms;
+/* ===================================================================
+ * Room table arrays — indexed by room number within current level.
+ * Populated by load_level(), read by set_room_data().
+ * =================================================================== */
 
-// Collision segments
+const int8_t *room_cave_lines[MAX_ROOMS];     /* polyline cave geometry */
+uint8_t room_has_miner[MAX_ROOMS];             /* 1 if room has the miner */
+uint8_t room_has_lava[MAX_ROOMS];              /* 1 if room has lava floor */
+const int8_t *room_walls[MAX_ROOMS];           /* destructible wall data */
+uint8_t room_wall_counts[MAX_ROOMS];           /* number of walls per room */
+const int8_t *room_enemies_data[MAX_ROOMS];    /* enemy spawn data */
+uint8_t room_enemy_counts[MAX_ROOMS];          /* number of enemies per room */
+int8_t room_starts[MAX_ROOMS * 2];             /* player spawn [x,y] pairs */
+int8_t room_miners[MAX_ROOMS * 2];             /* miner position [x,y] pairs */
+uint8_t room_exits[MAX_ROOMS * 4];             /* exit room indices [L,R,U,D] */
+static uint8_t num_rooms;                      /* rooms in current level */
+
+/* Collision segment buffer — extracted from cave polylines.
+ * Each segment is [x1, y1, x2, y2] (4 bytes). */
 #define MAX_CAVE_SEGS 34
 static int8_t cave_seg_buf[MAX_CAVE_SEGS * 4];
 
+/*
+ * load_level — Copy level data arrays into room_* tables.
+ * Called by set_level_data() for the current level number.
+ * All parameters are pointers to const arrays from levels.h.
+ */
 static void load_level(uint8_t nr,
                        const int8_t * const *caves,
                        const uint8_t *has_miner,
@@ -55,6 +90,11 @@ static void load_level(uint8_t nr,
     }
 }
 
+/*
+ * set_level_data — Load room tables for the current level.
+ * Maps current_level (0-based) to the corresponding l*_ arrays
+ * from levels.h. Falls back to level 1 for unknown indices.
+ */
 void set_level_data(void) {
     switch (current_level) {
         case 0: load_level(2, l1_room_caves, l1_room_has_miner, l1_room_has_lava, l1_room_walls, l1_room_wall_counts, l1_room_enemies, l1_room_enemy_counts, l1_room_starts, l1_room_miners, l1_room_exits); break;
@@ -82,6 +122,15 @@ void set_level_data(void) {
     set_room_data();
 }
 
+/*
+ * set_room_data — Populate cur_* globals for the current room.
+ *
+ * Key operation: extract collision segments from cave polylines.
+ * Cave lines are stored as polylines (relative offsets), but physics
+ * needs absolute [x1,y1,x2,y2] segment pairs. This function walks
+ * the polyline data and converts each segment into absolute coords
+ * stored in cave_seg_buf[].
+ */
 void set_room_data(void) {
     const int8_t *p;
     uint8_t n, i, seg_idx;
@@ -89,20 +138,22 @@ void set_room_data(void) {
 
     cur_cave_lines = room_cave_lines[current_room];
 
-    // Compute collision segments from cave_lines draw data
+    /* Extract collision segments from polyline data.
+     * Polyline format: [n_segs, start_y, start_x, dy1, dx1, dy2, dx2, ...]
+     * Multiple polylines separated by n_segs, terminated by 0. */
     p = cur_cave_lines;
     seg_idx = 0;
     while ((n = (uint8_t)*p++) != 0 && seg_idx < MAX_CAVE_SEGS) {
-        cy = p[0];
-        cx = p[1];
+        cy = p[0];  /* absolute start Y */
+        cx = p[1];  /* absolute start X */
         p += 2;
         for (i = 0; i < n && seg_idx < MAX_CAVE_SEGS; i++) {
-            cave_seg_buf[seg_idx * 4]     = cx;
-            cave_seg_buf[seg_idx * 4 + 1] = cy;
-            cy += p[0];
+            cave_seg_buf[seg_idx * 4]     = cx;       /* segment start X */
+            cave_seg_buf[seg_idx * 4 + 1] = cy;       /* segment start Y */
+            cy += p[0];  /* apply relative delta */
             cx += p[1];
-            cave_seg_buf[seg_idx * 4 + 2] = cx;
-            cave_seg_buf[seg_idx * 4 + 3] = cy;
+            cave_seg_buf[seg_idx * 4 + 2] = cx;       /* segment end X */
+            cave_seg_buf[seg_idx * 4 + 3] = cy;       /* segment end Y */
             p += 2;
             seg_idx++;
         }
@@ -110,6 +161,7 @@ void set_room_data(void) {
     cur_cave_segs = cave_seg_buf;
     cur_seg_count = seg_idx;
 
+    /* Set room boundaries and properties */
     cur_cave_left = ROOM_BOUND_LEFT;
     cur_cave_right = ROOM_BOUND_RIGHT;
     cur_cave_top = ROOM_BOUND_TOP;
@@ -124,6 +176,11 @@ void set_room_data(void) {
     cur_miner_y = room_miners[current_room * 2 + 1];
 }
 
+/*
+ * load_enemies — Spawn enemies from cur_enemies_data into enemies[].
+ * Enemy data format: [x, y, vx, type] per enemy (4 bytes each).
+ * Also resets walls_destroyed for the current room.
+ */
 void load_enemies(void) {
     uint8_t i;
     enemy_count = cur_enemy_count;
@@ -133,16 +190,23 @@ void load_enemies(void) {
             enemies[i].y = cur_enemies_data[i * 4 + 1];
             enemies[i].vx = cur_enemies_data[i * 4 + 2];
             enemies[i].type = (uint8_t)cur_enemies_data[i * 4 + 3];
-            enemies[i].home_y = enemies[i].y;
+            enemies[i].home_y = enemies[i].y;  /* spider thread anchor */
             enemies[i].alive = 1;
             enemies[i].anim = 0;
-        } else {
+        }
+        else {
             enemies[i].alive = 0;
         }
     }
     walls_destroyed = 0;
 }
 
+/*
+ * init_level — Reset room to 0 and initialize all level state.
+ * Called when starting a new level or retrying after death.
+ * Clears wall destruction across all rooms, spawns player at
+ * room 0's start position.
+ */
 void init_level(void) {
     uint8_t j;
     current_room = 0;
@@ -162,6 +226,10 @@ void init_level(void) {
     load_enemies();
 }
 
+/*
+ * start_new_game — Full game reset: score, lives, fuel, dynamite.
+ * Starts at level 0, room 0.
+ */
 void start_new_game(void) {
     score = 0;
     player_lives = START_LIVES;
