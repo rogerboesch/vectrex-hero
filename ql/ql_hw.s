@@ -61,16 +61,12 @@ _ql_cleanup:
         rts
 
 ; =====================================================================
-; ql_read_keys — Hybrid keyboard input
+; ql_read_keys — IO.FBYTE keyboard input
 ;
-; Uses KEYROW (MT.IPCOM) for cursor keys (Row 1) to detect simultaneous
-; directional input. All letter keys (Q, A, O, P, D) handled via
-; IO.FBYTE console buffer since KEYROW rows 4-6 don't work reliably
-; in the iQL emulator's embedded mode.
-;
-; KEYROW Row 1: b7=DOWN b4=RIGHT b2=UP b1=LEFT
-; IO.FBYTE: Q=up, A=down, O=left, P=right, D=dynamite,
-;           SPACE=fire+confirm, ENTER=confirm, ESC=quit
+; Drains the console keyboard buffer each frame.
+; Letter keys: Q=up, A=down, O=left, P=right, D=dynamite
+; Cursor keys: LEFT=$C0, RIGHT=$C8, UP=$D0, DOWN=$D8
+; Action keys: SPACE=fire+confirm, ENTER=confirm, ESC=quit
 ; =====================================================================
         xdef    _ql_read_keys
 _ql_read_keys:
@@ -83,30 +79,6 @@ _ql_read_keys:
         clr.b   _key_d_pressed
         clr.b   _key_enter_pressed
 
-        ; === KEYROW Row 1: cursor keys (simultaneous detection) ===
-        lea     ipc_cmd,a3
-        move.b  #1,1(a3)        ; row 1
-        moveq   #$11,d0         ; MT.IPCOM
-        trap    #1
-        ; iQL KeyRow returns 1=pressed
-        btst    #2,d1           ; cursor UP
-        beq.s   .no_cur_up
-        move.b  #1,_key_up
-.no_cur_up:
-        btst    #7,d1           ; cursor DOWN
-        beq.s   .no_cur_dn
-        move.b  #1,_key_down
-.no_cur_dn:
-        btst    #1,d1           ; cursor LEFT
-        beq.s   .no_cur_lt
-        move.b  #1,_key_left
-.no_cur_lt:
-        btst    #4,d1           ; cursor RIGHT
-        beq.s   .no_cur_rt
-        move.b  #1,_key_right
-.no_cur_rt:
-
-        ; === IO.FBYTE: all letter keys + action keys ===
         move.l  _con_id,a0
         moveq   #0,d3           ; timeout = 0
 .drain:
@@ -115,13 +87,22 @@ _ql_read_keys:
         trap    #3
         tst.l   d0
         bne     .done           ; no more keys in buffer
-        ; Check non-letter keys first (before lowercase conversion)
+        ; Non-letter keys first (before lowercase)
         cmpi.b  #' ',d1
-        beq.s   .key_space
+        beq     .key_space
         cmpi.b  #$0A,d1         ; ENTER
-        beq.s   .key_enter
+        beq     .key_enter
         cmpi.b  #$1B,d1         ; ESC
-        beq.s   .key_esc
+        beq     .key_esc
+        ; Cursor keys (QL codes)
+        cmpi.b  #$D0,d1         ; cursor UP
+        beq.s   .key_up
+        cmpi.b  #$D8,d1         ; cursor DOWN
+        beq.s   .key_down_a
+        cmpi.b  #$C0,d1         ; cursor LEFT
+        beq.s   .key_left
+        cmpi.b  #$C8,d1         ; cursor RIGHT
+        beq.s   .key_right
         ; Force lowercase for letter comparison
         ori.b   #$20,d1
         cmpi.b  #'q',d1
@@ -134,20 +115,20 @@ _ql_read_keys:
         beq.s   .key_right
         cmpi.b  #'d',d1
         beq.s   .key_d
-        bra.s   .drain
+        bra     .drain
 
 .key_up:
         move.b  #1,_key_up
-        bra.s   .drain
+        bra     .drain
 .key_down_a:
         move.b  #1,_key_down
-        bra.s   .drain
+        bra     .drain
 .key_left:
         move.b  #1,_key_left
-        bra.s   .drain
+        bra     .drain
 .key_right:
         move.b  #1,_key_right
-        bra.s   .drain
+        bra     .drain
 .key_space:
         move.b  #1,_key_space_pressed
         move.b  #1,_key_enter_pressed   ; space also acts as confirm
@@ -418,10 +399,6 @@ _asm_blit_sprite:
         xdef    _con_id
 _con_id:
         dc.l    0               ; console channel ID
-
-; IPC command template for KEYROW scan (row number patched at +1)
-ipc_cmd:
-        dc.b    9,0,0,0,0,0,1,2
 
 ; Key state globals (referenced from C code)
         xdef    _key_left
