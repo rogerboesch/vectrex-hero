@@ -106,7 +106,7 @@ int main(void) {
                 start_new_game();
                 game_state = STATE_PLAYING;
                 render_room();
-                ql_read_keys();  /* flush stale input */
+                continue;  /* skip to next frame to flush stale input */
             }
         }
         else if (game_state == STATE_LEVEL_INTRO) {
