@@ -646,11 +646,14 @@ void render_hud(void) {
 #define HUD_TEXT_Y    15   /* text baseline — vertically centered in 36px */
 #define HUD_LIVES_Y    8   /* player_walk_0 is 20px tall: (36-20)/2 = 8 */
 #define HUD_DYN_Y     13   /* dynamite_0 is 10px tall: (36-10)/2 = 13 */
-#define FUEL_BAR_Y    234
 #define FUEL_BAR_H    4
-#define FUEL_BAR_W    198
-#define FUEL_BAR_X    30
-#define FUEL_LABEL_X  2
+#define FUEL_BAR_W    120
+#define FUEL_LABEL_W  25   /* "POWER" = 5 chars x 5px */
+#define FUEL_GAP      3
+#define FUEL_TOTAL_W  (FUEL_LABEL_W + FUEL_GAP + FUEL_BAR_W)
+#define FUEL_LABEL_X  ((SCREEN_W - FUEL_TOTAL_W) / 2)
+#define FUEL_BAR_X    (FUEL_LABEL_X + FUEL_LABEL_W + FUEL_GAP)
+#define FUEL_BAR_Y    234
 #define FUEL_LABEL_Y  233
 
     if (!hud_drawn) {
@@ -667,8 +670,8 @@ void render_hud(void) {
         /* Score label — right side */
         draw_string(SCREEN_BASE, 196, HUD_TEXT_Y, "SCORE", COL_CYAN);
 
-        /* Clear bottom fuel bar area and draw POWER label */
-        filled_rect(SCREEN_BASE, 0, 220, SCREEN_W, 36, COL_BLUE);
+        /* Clear bottom area and draw POWER label */
+        filled_rect(SCREEN_BASE, 0, 220, SCREEN_W, 36, COL_BLACK);
         draw_string(SCREEN_BASE, FUEL_LABEL_X, FUEL_LABEL_Y,
                     "POWER", COL_WHITE);
 
