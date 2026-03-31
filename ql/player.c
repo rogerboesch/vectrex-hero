@@ -30,6 +30,7 @@ void update_player_physics(void) {
     uint8_t i;
     int8_t wt, wb, wl, wr;
     int8_t x1, y1, x2, y2, seg_min, seg_max;
+    int8_t prev_x, prev_y;
     const int8_t *segs;
 
     /* Apply gravity — constant downward acceleration */
@@ -38,6 +39,7 @@ void update_player_physics(void) {
     if (player_vy > MAX_VEL_Y) player_vy = MAX_VEL_Y;
 
     /* === X-axis: move horizontally, then resolve collisions === */
+    prev_x = player_x;
     player_x += player_vx;
 
     /* Room boundary clamping (only if no exit in that direction) */
@@ -72,7 +74,9 @@ void update_player_physics(void) {
         }
     }
 
-    /* X-axis collision with vertical cave segments (before Y move) */
+    /* X-axis collision with vertical cave segments (before Y move).
+     * Uses swept check: did the player's box cross the wall between
+     * prev_x and player_x? Prevents tunneling at high speeds. */
     segs = cur_cave_segs;
     for (i = 0; i < cur_seg_count; i++) {
         x1 = segs[i * 4];
@@ -84,14 +88,18 @@ void update_player_physics(void) {
             seg_max = y1 > y2 ? y1 : y2;
             if (player_y + PLAYER_HH > seg_min &&
                 player_y - PLAYER_HH < seg_max) {
-                if (player_x + PLAYER_HW > x1 &&
-                    player_x - PLAYER_HW < x1) {
-                    if (player_x <= x1) {
-                        player_x = x1 - PLAYER_HW;
-                    }
-                    else {
-                        player_x = x1 + PLAYER_HW;
-                    }
+                /* Moving right: was right edge left of wall, now past? */
+                if (player_vx > 0 &&
+                    prev_x + PLAYER_HW <= x1 &&
+                    player_x + PLAYER_HW > x1) {
+                    player_x = x1 - PLAYER_HW;
+                    player_vx = 0;
+                }
+                /* Moving left: was left edge right of wall, now past? */
+                else if (player_vx < 0 &&
+                           prev_x - PLAYER_HW >= x1 &&
+                           player_x - PLAYER_HW < x1) {
+                    player_x = x1 + PLAYER_HW;
                     player_vx = 0;
                 }
             }
@@ -99,6 +107,7 @@ void update_player_physics(void) {
     }
 
     /* === Y-axis: move vertically, then resolve collisions === */
+    prev_y = player_y;
     player_y += player_vy;
     player_on_ground = 0;
 
@@ -141,7 +150,8 @@ void update_player_physics(void) {
         player_vy = 0;
     }
 
-    /* Y-axis collision with horizontal cave segments (after Y move) */
+    /* Y-axis collision with horizontal cave segments (after Y move).
+     * Swept check prevents tunneling through floors/ceilings. */
     for (i = 0; i < cur_seg_count; i++) {
         x1 = segs[i * 4];
         y1 = segs[i * 4 + 1];
@@ -152,13 +162,17 @@ void update_player_physics(void) {
             seg_max = x1 > x2 ? x1 : x2;
             if (player_x + PLAYER_HW > seg_min &&
                 player_x - PLAYER_HW < seg_max) {
-                if (player_y >= y1 &&
+                /* Falling: was bottom edge above segment, now past? */
+                if (player_vy <= 0 &&
+                    prev_y - PLAYER_HH >= y1 &&
                     player_y - PLAYER_HH < y1) {
                     player_y = y1 + PLAYER_HH;
                     player_vy = 0;
                     player_on_ground = 1;
                 }
-                else if (player_y < y1 &&
+                /* Rising: was top edge below segment, now past? */
+                else if (player_vy > 0 &&
+                           prev_y + PLAYER_HH <= y1 &&
                            player_y + PLAYER_HH > y1) {
                     player_y = y1 - PLAYER_HH;
                     player_vy = 0;
