@@ -61,10 +61,66 @@ _ql_cleanup:
         rts
 
 ; =====================================================================
+; KEYBOARD INPUT — Design Notes
+; =====================================================================
+;
+; Two methods are used in combination:
+;
+; 1) KEYROW via MT.IPCOM (trap #1, d0=$11)
+;    - Reads the IPC keyboard matrix directly — returns a bitmask of
+;      all keys currently held on a given row.
+;    - Allows detecting multiple simultaneous keys (e.g. UP+LEFT).
+;    - ONLY used for Row 1 (cursor keys): UP=bit2, DOWN=bit7,
+;      LEFT=bit1, RIGHT=bit4.
+;
+; 2) IO.FBYTE via console channel (trap #3, d0=1)
+;    - Reads one character at a time from the QDOS keyboard buffer.
+;    - Cannot detect simultaneous keys (buffer stores one event each).
+;    - Used for all letter keys (Q/A/O/P/D) and action keys
+;      (SPACE, ENTER, ESC).
+;
+; WHY THIS HYBRID APPROACH:
+;
+;   On the iQL emulator (embedded CPython mode), KEYROW only works
+;   reliably for Row 1 (cursor keys). Rows 4-6 (letter keys Q/A/O/P/D)
+;   return zero — the emulator's KeyRow() for those rows doesn't
+;   reflect the actual key state in embedded mode.
+;
+;   Additionally, KEYROW returns stale state after state transitions
+;   (e.g. title→gameplay) because the matrix bits persist even after
+;   the key is released. The keyrow_skip counter works around this by
+;   ignoring KEYROW for a few frames after ql_flush_keys() is called.
+;
+; REAL QL HARDWARE NOTES:
+;
+;   On a real QL, KEYROW returns active-low bitmasks (0=pressed,
+;   1=released), opposite to iQL which returns 1=pressed. If porting
+;   to real hardware:
+;     - Add "not.b d1" after the MT.IPCOM trap to invert the result
+;     - KEYROW Rows 4-6 should work, so Q/A/O/P could be moved from
+;       IO.FBYTE to KEYROW for proper simultaneous detection
+;     - The keyrow_skip mechanism may still be needed, or the stale
+;       state issue may not occur on real hardware
+;     - Test ghost keys: keys sharing a row (e.g. A+P on Row 4) may
+;       ghost on real hardware too — we saw this in iQL
+;
+; CURRENT KEY MAPPING:
+;   Cursor UP   / Q = thrust/up    (KEYROW Row1 bit2 / IO.FBYTE)
+;   Cursor DOWN / A = down          (KEYROW Row1 bit7 / IO.FBYTE)
+;   Cursor LEFT / O = move left     (KEYROW Row1 bit1 / IO.FBYTE)
+;   Cursor RIGHT/ P = move right    (KEYROW Row1 bit4 / IO.FBYTE)
+;   SPACE         = fire laser + confirm
+;   D             = place dynamite
+;   ENTER         = confirm (menus)
+;   ESC           = quit (MT.FRJOB)
+;
+; =====================================================================
+
+; =====================================================================
 ; ql_flush_keys — Reset KEYROW skip counter
 ;
-; Call after state transitions (title→play) to ignore stale KEYROW
-; data for a few frames.
+; Call after state transitions (title→play, game over→title) to
+; ignore stale KEYROW matrix data for a few frames.
 ; void ql_flush_keys(void)
 ; =====================================================================
         xdef    _ql_flush_keys
@@ -73,12 +129,7 @@ _ql_flush_keys:
         rts
 
 ; =====================================================================
-; ql_read_keys — Keyboard input
-;
-; KEYROW Row 1 for cursor keys (simultaneous detection).
-; IO.FBYTE for letter keys and action keys.
-; KEYROW is skipped for a few frames after ql_flush_keys() to
-; avoid stale matrix state on state transitions.
+; ql_read_keys — Poll keyboard, set key_* globals
 ; =====================================================================
 KEYROW_SKIP_FRAMES equ 3
 
@@ -434,13 +485,19 @@ _asm_blit_sprite:
 _con_id:
         dc.l    0               ; console channel ID
 
-; IPC command template for KEYROW scan (row number patched at +1)
+; IPC command template for KEYROW scan via MT.IPCOM
+; Format: 9=KEYROW cmd, byte1=row number (patched before each call),
+; remaining bytes are IPC protocol padding.
+; See keyboard input design notes above for KEYROW details.
 ipc_cmd:
         dc.b    9,0,0,0,0,0,1,2
 
-; KEYROW skip counter (decremented each frame, skip KEYROW while > 0)
+; KEYROW skip counter — when > 0, KEYROW scanning is disabled and the
+; counter decrements each frame. Set by ql_flush_keys() after state
+; transitions to avoid reading stale matrix state.
+; Initialized to 3 to also skip KEYROW on first frames after boot.
 keyrow_skip:
-        dc.b    3               ; skip first 3 frames on startup too
+        dc.b    3
         even
 
 ; Key state globals (referenced from C code)

@@ -1,23 +1,44 @@
 # QL Port — Milestone Log
 
-## 2026-03-31: Keyboard Input Fixes
+## 2026-03-31: Keyboard Input — Hybrid KEYROW + IO.FBYTE
 
 ### Summary
-Fixed simultaneous key detection and Q/O/P key support. Uses hybrid approach: KEYROW matrix scan (MT.IPCOM) for cursor keys (Row 1) enabling simultaneous directional input, and IO.FBYTE console buffer for all letter keys (Q/A/O/P/D) since KEYROW rows 4-6 don't work in iQL emulator's embedded mode.
+Implemented hybrid keyboard input: KEYROW matrix scan for cursor keys (simultaneous detection) plus IO.FBYTE buffer for letter/action keys. Cursor keys support pressing UP+LEFT etc. simultaneously. Letter keys (Q/A/O/P) work as single-key aliases but can't be combined.
 
-### What was done
-- **Simultaneous cursors**: KEYROW Row 1 scan allows pressing UP+LEFT, UP+RIGHT etc. at the same time (solves "can only fly up/down, left/right does nothing")
-- **Q/O/P via IO.FBYTE**: Letter keys Q (up), O (left), P (right) work as aliases via console buffer
-- **A via IO.FBYTE**: Moved A (down) out of KEYROW Row 4 to avoid ghost input when P pressed (they share the same row)
-- **ESC via IO.FBYTE**: Prevents false quit on startup from stale KEYROW state
-- **Case-insensitive**: Uses `ori.b #$20` to lowercase letters before comparison, reducing code size
-- **Laser position**: Fixed X (fires from sprite edge based on facing) and Y (half sprite height)
+### Architecture (`ql/ql_hw.s`)
 
-### Key findings
-- iQL emulator's `KeyRow()` returns 1=pressed (opposite of real QL active-low convention)
-- KEYROW Rows 4-6 don't return valid data in iQL embedded mode (CPython extension)
-- Keys sharing the same KEYROW row (A+P on Row 4) cause ghost input
-- Cursor keys on Row 1 work correctly via KEYROW in all modes
+**Two input methods combined:**
+
+| Method | Keys | Simultaneous? | Notes |
+|--------|------|---------------|-------|
+| KEYROW Row 1 (MT.IPCOM) | Cursor UP/DOWN/LEFT/RIGHT | Yes | Reads matrix bitmask directly |
+| IO.FBYTE (console buffer) | Q/A/O/P/D/SPACE/ENTER/ESC | No | One key per read, buffered |
+
+**Why hybrid:** On the iQL emulator (embedded CPython mode), KEYROW only works for Row 1 (cursor keys). Rows 4-6 (letter keys) return zero. IO.FBYTE works for all keys but can only return one at a time.
+
+**Stale state workaround:** KEYROW returns the current physical key state, which can persist across state transitions (e.g. ENTER held on title screen appears as stale bits on first gameplay frame). `ql_flush_keys()` sets a skip counter (3 frames) during which KEYROW is ignored. Called on title→play and game over→title transitions.
+
+### Key findings (iQL emulator)
+- `KeyRow()` returns **1=pressed** (opposite of real QL active-low: 0=pressed)
+- KEYROW **Rows 4-6 don't work** in iQL embedded mode (CPython extension)
+- Row 1 (cursor keys) works correctly
+- Keys sharing the same row (e.g. A+P on Row 4) cause ghost input
+
+### Porting to real QL hardware
+When testing on real QL hardware, the following changes will likely be needed in `ql_hw.s`:
+1. **Invert KEYROW result**: Add `not.b d1` after the MT.IPCOM trap (real QL uses active-low: 0=pressed)
+2. **Enable KEYROW for Rows 4-6**: Q (Row 6 bit 3), A (Row 4 bit 4), O (Row 5 bit 7), P (Row 4 bit 5) — move these from IO.FBYTE to KEYROW for proper simultaneous detection
+3. **Ghost key testing**: A and P share Row 4 — test if pressing both causes phantom bits on other Row 4 keys (D=bit6, J=bit7 etc.)
+4. **Stale state**: The keyrow_skip mechanism may still be needed, or the issue may not occur on real hardware — needs testing
+5. **Keyboard auto-repeat**: IO.FBYTE may generate repeated characters from QDOS auto-repeat — not an issue for KEYROW which reads instantaneous state
+
+### KEYROW Row Reference (for future Row 4-6 work)
+```
+Row 1: b7=DOWN b6=SPACE b4=RIGHT b3=ESC b2=UP b1=LEFT b0=ENTER
+Row 4: b7=J    b6=D     b5=P     b4=A   b3=1  b2=H   b1=3  b0=L
+Row 5: b7=O    b6=Y     b5=-     b4=R   b3=TAB b2=I  b1=W  b0=9
+Row 6: b7=U    b6=T     b5=0     b4=E   b3=Q   b2=6  b1=2  b0=8
+```
 
 ## 2026-03-31: Editor Improvements + Fly Animation
 
