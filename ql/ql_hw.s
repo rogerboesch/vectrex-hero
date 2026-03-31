@@ -61,13 +61,27 @@ _ql_cleanup:
         rts
 
 ; =====================================================================
-; ql_read_keys — IO.FBYTE keyboard input
+; ql_flush_keys — Reset KEYROW skip counter
 ;
-; Drains the console keyboard buffer each frame.
-; Letter keys: Q=up, A=down, O=left, P=right, D=dynamite
-; Cursor keys: LEFT=$C0, RIGHT=$C8, UP=$D0, DOWN=$D8
-; Action keys: SPACE=fire+confirm, ENTER=confirm, ESC=quit
+; Call after state transitions (title→play) to ignore stale KEYROW
+; data for a few frames.
+; void ql_flush_keys(void)
 ; =====================================================================
+        xdef    _ql_flush_keys
+_ql_flush_keys:
+        move.b  #KEYROW_SKIP_FRAMES,keyrow_skip
+        rts
+
+; =====================================================================
+; ql_read_keys — Keyboard input
+;
+; KEYROW Row 1 for cursor keys (simultaneous detection).
+; IO.FBYTE for letter keys and action keys.
+; KEYROW is skipped for a few frames after ql_flush_keys() to
+; avoid stale matrix state on state transitions.
+; =====================================================================
+KEYROW_SKIP_FRAMES equ 3
+
         xdef    _ql_read_keys
 _ql_read_keys:
         ; Clear all key states
@@ -79,6 +93,35 @@ _ql_read_keys:
         clr.b   _key_d_pressed
         clr.b   _key_enter_pressed
 
+        ; === KEYROW Row 1: cursor keys (if not skipping) ===
+        tst.b   keyrow_skip
+        beq.s   .do_keyrow
+        subq.b  #1,keyrow_skip
+        bra.s   .do_fbyte
+.do_keyrow:
+        lea     ipc_cmd,a3
+        move.b  #1,1(a3)        ; row 1
+        moveq   #$11,d0         ; MT.IPCOM
+        trap    #1
+        btst    #2,d1           ; cursor UP
+        beq.s   .no_cur_up
+        move.b  #1,_key_up
+.no_cur_up:
+        btst    #7,d1           ; cursor DOWN
+        beq.s   .no_cur_dn
+        move.b  #1,_key_down
+.no_cur_dn:
+        btst    #1,d1           ; cursor LEFT
+        beq.s   .no_cur_lt
+        move.b  #1,_key_left
+.no_cur_lt:
+        btst    #4,d1           ; cursor RIGHT
+        beq.s   .no_cur_rt
+        move.b  #1,_key_right
+.no_cur_rt:
+
+        ; === IO.FBYTE: letter keys + action keys ===
+.do_fbyte:
         move.l  _con_id,a0
         moveq   #0,d3           ; timeout = 0
 .drain:
@@ -94,15 +137,6 @@ _ql_read_keys:
         beq     .key_enter
         cmpi.b  #$1B,d1         ; ESC
         beq     .key_esc
-        ; Cursor keys (QL codes)
-        cmpi.b  #$D0,d1         ; cursor UP
-        beq.s   .key_up
-        cmpi.b  #$D8,d1         ; cursor DOWN
-        beq.s   .key_down_a
-        cmpi.b  #$C0,d1         ; cursor LEFT
-        beq.s   .key_left
-        cmpi.b  #$C8,d1         ; cursor RIGHT
-        beq.s   .key_right
         ; Force lowercase for letter comparison
         ori.b   #$20,d1
         cmpi.b  #'q',d1
@@ -399,6 +433,15 @@ _asm_blit_sprite:
         xdef    _con_id
 _con_id:
         dc.l    0               ; console channel ID
+
+; IPC command template for KEYROW scan (row number patched at +1)
+ipc_cmd:
+        dc.b    9,0,0,0,0,0,1,2
+
+; KEYROW skip counter (decremented each frame, skip KEYROW while > 0)
+keyrow_skip:
+        dc.b    3               ; skip first 3 frames on startup too
+        even
 
 ; Key state globals (referenced from C code)
         xdef    _key_left

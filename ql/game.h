@@ -241,6 +241,7 @@ void start_new_game(void);
 void ql_init(void);
 void ql_cleanup(void);
 void ql_read_keys(void);
+void ql_flush_keys(void);
 uint16_t ql_get_ticks(void);
 void ql_beep(uint8_t pitch, uint8_t duration);
 void ql_wait_frame(void);

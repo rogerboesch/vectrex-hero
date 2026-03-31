@@ -106,6 +106,7 @@ int main(void) {
                 start_new_game();
                 game_state = STATE_PLAYING;
                 render_room();
+                ql_flush_keys();
             }
         }
         else if (game_state == STATE_LEVEL_INTRO) {
@@ -206,6 +207,7 @@ int main(void) {
             if (key_enter_pressed || key_space_pressed) {
                 game_state = STATE_TITLE;
                 render_title_screen();
+                ql_flush_keys();
             }
         }
     }
