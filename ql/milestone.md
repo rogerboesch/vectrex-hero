@@ -1,5 +1,26 @@
 # QL Port — Milestone Log
 
+## 2026-03-31: Cave Wall Collision Fix + Emulator Debug Panel
+
+### Summary
+Fixed player tunneling through cave walls (3-iteration fix), then extended the emulator tab with pause/resume, restart confirmation, and a live CPU state debug panel.
+
+### Cave wall collision fix (`player.c`)
+- **Problem**: Player could walk and fly through cave segment walls (not destructible walls)
+- **Root cause 1**: Exact-position edge case where `player_x == wall_x` missed by strict `<`/`>` checks
+- **Root cause 2**: At high speeds (MAX_VEL_X=7 > PLAYER_HW=5), player completely clears wall in one frame
+- **Fix**: Swept collision — store `prev_x`/`prev_y` before movement, check if bounding box edge crossed wall between old and new position
+- **Also**: Increased MAX_CAVE_SEGS from 34 to 40 (one cave has 36 segments)
+- **Also**: Split cave segment collision into X and Y phases (vertical segments checked after X move, horizontal after Y move)
+
+### Emulator tab extensions (`_iqlmodule.c`, `emu_tab.py`)
+- **C extension**: Added `pause()`, `resume()`, `is_paused()`, `get_cpu_state()` to `_iql` module
+- **get_cpu_state()**: Returns dict with D0-D7, A0-A7, PC, USP, SSP, SR, keyboard state
+- **PC calculation**: `(char*)pc - (char*)theROM` gives QL memory address
+- **UI changes**: Pause/Resume toggle button, restart confirmation dialog, removed Stop button
+- **Debug panel**: Right-side panel showing live CPU registers, decoded SR flags (T S I X N Z V C), USP/SSP, keyboard state
+- **Update rate**: Every 5th tick normally, every tick when paused
+
 ## 2026-03-31: Keyboard Input — Hybrid KEYROW + IO.FBYTE
 
 ### Summary
