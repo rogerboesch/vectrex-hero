@@ -36,7 +36,7 @@ typedef unsigned long  uint32_t;
 #define WALK_SPEED      5
 #define FUEL_DRAIN      1
 #define START_FUEL      255
-#define START_DYNAMITE  3
+#define START_DYNAMITE  5
 #define START_LIVES     3
 /* Timing scaled for ~17 FPS (original 60 FPS, divide by ~3.5) */
 #define LASER_LENGTH    40
