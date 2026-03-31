@@ -1,5 +1,19 @@
 # QL Port — Milestone Log
 
+## 2026-03-31: Editor Improvements + Fly Animation
+
+### Summary
+Fixed rename bug in QL Studio, added move/flip operations to both sprite and image editors, redesigned the power bar HUD, and added 3-frame fly animation cycle.
+
+### What was done
+- **Rename fix**: Color shortcut keys (0-7) no longer intercept Entry widget input
+- **Sprite operations**: Added flip_v, move up/down/left/right to Sprite class and Edit menu
+- **Image operations**: Added flip_v, move up/down/left/right buttons to Image Editor
+- **Power bar redesign**: Yellow bar on black background, "POWER" label, blue for depleted, centered and smaller (120px)
+- **HUD lives**: Switched from player_walk_0 (10x20) to hud_live (4x10) sprite
+- **Fly animation**: 0-1-2-1-0 cycle using player_fly_0/1/2 sprites, ~4 ticks per frame
+- **Sprite re-export**: player_fly_1 and player_fly_2 now in sprites.c/h
+
 ## 2026-03-31: Image Editor Tab
 
 ### Summary
