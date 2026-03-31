@@ -44,6 +44,12 @@ extern void QLRBSendEvent(RBEvent evt);
 static pthread_t emu_thread;
 static int emu_running = 0;
 static int emu_paused = 0;
+static int emu_saved_speed = 0;
+
+/* Per-instruction sleep to effectively freeze the CPU when paused.
+ * ExecuteLoop() calls usleep(wait_time_ms) per instruction, so
+ * 100ms * 3000 instructions/chunk = 5 minutes per QLStep(). */
+#define PAUSE_SPEED_MS 100
 
 static void *emu_thread_func(void *arg) {
     (void)arg;
@@ -165,7 +171,10 @@ iql_set_speed(PyObject *self, PyObject *args)
     int ms;
     if (!PyArg_ParseTuple(args, "i", &ms))
         return NULL;
-    QLSetSpeed(ms);
+    emu_saved_speed = ms;
+    if (!emu_paused) {
+        QLSetSpeed(ms);
+    }
     Py_RETURN_NONE;
 }
 
@@ -180,7 +189,12 @@ static PyObject *
 iql_pause(PyObject *self, PyObject *args)
 {
     (void)args;
-    emu_paused = 1;
+    if (!emu_paused) {
+        extern int wait_time_ms;
+        emu_saved_speed = wait_time_ms;
+        QLSetSpeed(PAUSE_SPEED_MS);
+        emu_paused = 1;
+    }
     Py_RETURN_NONE;
 }
 
@@ -188,7 +202,10 @@ static PyObject *
 iql_resume(PyObject *self, PyObject *args)
 {
     (void)args;
-    emu_paused = 0;
+    if (emu_paused) {
+        QLSetSpeed(emu_saved_speed);
+        emu_paused = 0;
+    }
     Py_RETURN_NONE;
 }
 
