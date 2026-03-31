@@ -644,7 +644,7 @@ void render_hud(void) {
      *   Bottom bar (y=234): fuel bar
      */
 #define HUD_TEXT_Y    15   /* text baseline — vertically centered in 36px */
-#define HUD_LIVES_Y    8   /* player_walk_0 is 20px tall: (36-20)/2 = 8 */
+#define HUD_LIVES_Y   13   /* hud_live is 10px tall: (36-10)/2 = 13 */
 #define HUD_DYN_Y     13   /* dynamite_0 is 10px tall: (36-10)/2 = 13 */
 #define FUEL_BAR_H    4
 #define FUEL_BAR_W    120
@@ -683,13 +683,13 @@ void render_hud(void) {
         hud_drawn = 1;
     }
 
-    /* Lives — player_walk_0 sprites, centered */
+    /* Lives — hud_live sprites, centered */
     if (player_lives != hud_last_lives) {
         /* Clear lives area first */
-        filled_rect(SCREEN_BASE, 80, 0, START_LIVES * 12, HUD_HEIGHT, COL_BLACK);
+        filled_rect(SCREEN_BASE, 80, 0, START_LIVES * 6, HUD_HEIGHT, COL_BLACK);
         for (i = 0; i < player_lives; i++) {
-            asm_blit_sprite(SCREEN_BASE, &spr_player_walk_0,
-                            80 + i * 12, HUD_LIVES_Y);
+            asm_blit_sprite(SCREEN_BASE, &spr_hud_live,
+                            80 + i * 6, HUD_LIVES_Y);
         }
         hud_last_lives = player_lives;
     }
