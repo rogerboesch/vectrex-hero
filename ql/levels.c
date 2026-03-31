@@ -50,7 +50,7 @@ static uint8_t num_rooms;                      /* rooms in current level */
 
 /* Collision segment buffer — extracted from cave polylines.
  * Each segment is [x1, y1, x2, y2] (4 bytes). */
-#define MAX_CAVE_SEGS 34
+#define MAX_CAVE_SEGS 40
 static int8_t cave_seg_buf[MAX_CAVE_SEGS * 4];
 
 /*

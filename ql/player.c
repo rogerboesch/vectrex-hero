@@ -132,7 +132,7 @@ void update_player_physics(void) {
             seg_max = x1 > x2 ? x1 : x2;
             if (player_x + PLAYER_HW > seg_min &&
                 player_x - PLAYER_HW < seg_max) {
-                if (player_y > y1 &&
+                if (player_y >= y1 &&
                     player_y - PLAYER_HH < y1) {
                     /* Player's feet crossed the segment — land on it */
                     player_y = y1 + PLAYER_HH;
@@ -153,16 +153,15 @@ void update_player_physics(void) {
             seg_max = y1 > y2 ? y1 : y2;
             if (player_y + PLAYER_HH > seg_min &&
                 player_y - PLAYER_HH < seg_max) {
-                if (player_x < x1 &&
-                    player_x + PLAYER_HW > x1) {
-                    /* Player moving right into wall — push left */
-                    player_x = x1 - PLAYER_HW;
-                    player_vx = 0;
-                }
-                else if (player_x > x1 &&
-                           player_x - PLAYER_HW < x1) {
-                    /* Player moving left into wall — push right */
-                    player_x = x1 + PLAYER_HW;
+                if (player_x + PLAYER_HW > x1 &&
+                    player_x - PLAYER_HW < x1) {
+                    /* Player straddles wall — push to nearest side */
+                    if (player_x <= x1) {
+                        player_x = x1 - PLAYER_HW;
+                    }
+                    else {
+                        player_x = x1 + PLAYER_HW;
+                    }
                     player_vx = 0;
                 }
             }
