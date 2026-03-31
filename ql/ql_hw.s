@@ -61,10 +61,17 @@ _ql_cleanup:
         rts
 
 ; =====================================================================
-; ql_read_keys — Non-blocking keyboard poll
+; ql_read_keys — Direct keyboard matrix scan via MT.IPCOM
 ;
-; Uses IO.FBYTE on the console channel to read pending keystrokes.
+; Scans KEYROW rows directly via IPC for simultaneous key detection.
+; Also drains the console keyboard buffer (for ESC handling).
 ; Sets the key_* global variables (C-accessible).
+;
+; KEYROW bit layout (active low — 0 = pressed):
+;   Row 1: b7=DOWN b6=SPACE b4=RIGHT b3=ESC b2=UP b1=LEFT b0=ENTER
+;   Row 4: b7=J b6=D b5=P b4=A b3=1 b2=H b1=3 b0=L
+;   Row 5: b7=O b6=Y b5=- b4=R b3=TAB b2=I b1=W b0=9
+;   Row 6: b7=U b6=T b5=0 b4=E b3=Q b2=6 b1=2 b0=8
 ; =====================================================================
         xdef    _ql_read_keys
 _ql_read_keys:
@@ -77,86 +84,100 @@ _ql_read_keys:
         clr.b   _key_d_pressed
         clr.b   _key_enter_pressed
 
-        ; Read pending keys (non-blocking)
-        move.l  _con_id,a0
-        moveq   #0,d3           ; timeout = 0 (non-blocking)
-
-.readloop:
-        moveq   #1,d0           ; IO.FBYTE
-        move.w  #0,d2           ; fetch 1 byte
-        trap    #3
-        tst.l   d0              ; error? (e.g., no key pending)
-        bne     .done
-
-        ; d1.b = keycode
-        ; Check each key
-        cmpi.b  #'q',d1
-        beq     .key_up
-        cmpi.b  #'Q',d1
-        beq     .key_up
-        cmpi.b  #$D0,d1         ; cursor up
-        beq     .key_up
-
-        cmpi.b  #'a',d1
-        beq     .key_down
-        cmpi.b  #'A',d1
-        beq     .key_down
-        cmpi.b  #$D8,d1         ; cursor down
-        beq     .key_down
-
-        cmpi.b  #'o',d1
-        beq     .key_left
-        cmpi.b  #'O',d1
-        beq     .key_left
-        cmpi.b  #$C0,d1         ; cursor left
-        beq     .key_left
-
-        cmpi.b  #'p',d1
-        beq     .key_right
-        cmpi.b  #'P',d1
-        beq     .key_right
-        cmpi.b  #$C8,d1         ; cursor right
-        beq     .key_right
-
-        cmpi.b  #' ',d1
-        beq     .key_space
-
-        cmpi.b  #'d',d1
-        beq     .key_d
-        cmpi.b  #'D',d1
-        beq     .key_d
-
-        cmpi.b  #$0A,d1         ; enter
-        beq     .key_enter
-
-        cmpi.b  #$1B,d1         ; ESC = quit
-        beq     .key_esc
-
-        bra     .readloop       ; unknown key, read next
-
-.key_up:    move.b  #1,_key_up
-            bra     .readloop
-.key_down:  move.b  #1,_key_down
-            bra     .readloop
-.key_left:  move.b  #1,_key_left
-            bra     .readloop
-.key_right: move.b  #1,_key_right
-            bra     .readloop
-.key_space: move.b  #1,_key_space_pressed
-            move.b  #1,_key_enter_pressed   ; space also acts as confirm
-            bra     .readloop
-.key_d:     move.b  #1,_key_d_pressed
-            bra     .readloop
-.key_enter: move.b  #1,_key_enter_pressed
-            bra     .readloop
-.key_esc:
-        ; ESC pressed — terminate job
-        moveq   #-1,d1          ; current job (d1=-1)
-        moveq   #0,d3           ; return code 0
-        moveq   #5,d0           ; MT.FRJOB ($05)
+        ; --- Scan Row 1: cursor keys, SPACE, ENTER, ESC ---
+        lea     ipc_cmd,a3
+        move.b  #1,1(a3)        ; row 1
+        moveq   #$11,d0         ; MT.IPCOM
         trap    #1
+        ; d1.b = row data (0 = pressed)
+        not.b   d1              ; invert: 1 = pressed
+        btst    #2,d1           ; cursor UP
+        beq.s   .no_cur_up
+        move.b  #1,_key_up
+.no_cur_up:
+        btst    #7,d1           ; cursor DOWN
+        beq.s   .no_cur_dn
+        move.b  #1,_key_down
+.no_cur_dn:
+        btst    #1,d1           ; cursor LEFT
+        beq.s   .no_cur_lt
+        move.b  #1,_key_left
+.no_cur_lt:
+        btst    #4,d1           ; cursor RIGHT
+        beq.s   .no_cur_rt
+        move.b  #1,_key_right
+.no_cur_rt:
+        btst    #6,d1           ; SPACE
+        beq.s   .no_space
+        move.b  #1,_key_space_pressed
+        move.b  #1,_key_enter_pressed   ; space also acts as confirm
+.no_space:
+        btst    #0,d1           ; ENTER
+        beq.s   .no_enter
+        move.b  #1,_key_enter_pressed
+.no_enter:
+        btst    #3,d1           ; ESC — terminate job
+        beq.s   .no_esc
+        moveq   #-1,d1
+        moveq   #0,d3
+        moveq   #5,d0           ; MT.FRJOB
+        trap    #1
+.no_esc:
+
+        ; --- Scan Row 6: Q (up) ---
+        lea     ipc_cmd,a3
+        move.b  #6,1(a3)        ; row 6
+        moveq   #$11,d0
+        trap    #1
+        not.b   d1
+        btst    #3,d1           ; Q = up
+        beq.s   .no_q
+        move.b  #1,_key_up
+.no_q:
+
+        ; --- Scan Row 4: A (down), P (right), D (dynamite) ---
+        lea     ipc_cmd,a3
+        move.b  #4,1(a3)        ; row 4
+        moveq   #$11,d0
+        trap    #1
+        not.b   d1
+        btst    #4,d1           ; A = down
+        beq.s   .no_a
+        move.b  #1,_key_down
+.no_a:
+        btst    #5,d1           ; P = right
+        beq.s   .no_p
+        move.b  #1,_key_right
+.no_p:
+        btst    #6,d1           ; D = dynamite
+        beq.s   .no_d
+        move.b  #1,_key_d_pressed
+.no_d:
+
+        ; --- Scan Row 5: O (left) ---
+        lea     ipc_cmd,a3
+        move.b  #5,1(a3)        ; row 5
+        moveq   #$11,d0
+        trap    #1
+        not.b   d1
+        btst    #7,d1           ; O = left
+        beq.s   .no_o
+        move.b  #1,_key_left
+.no_o:
+
+        ; Drain console buffer (prevents key buildup)
+        move.l  _con_id,a0
+        moveq   #0,d3           ; timeout = 0
+.drain:
+        moveq   #1,d0           ; IO.FBYTE
+        move.w  #0,d2
+        trap    #3
+        tst.l   d0
+        beq.s   .drain          ; keep draining until empty
 .done:
         rts
+
+; (ipc_cmd is in DATA section below)
 
 ; =====================================================================
 ; ql_get_ticks — Read QDOS 50Hz frame counter
@@ -410,6 +431,10 @@ _asm_blit_sprite:
         xdef    _con_id
 _con_id:
         dc.l    0               ; console channel ID
+
+; IPC command template for KEYROW scan (row number patched at +1)
+ipc_cmd:
+        dc.b    9,0,0,0,0,0,1,2
 
 ; Key state globals (referenced from C code)
         xdef    _key_left
