@@ -11,11 +11,46 @@
 #include <stdarg.h>
 #include <time.h>
 #include <sys/time.h>
+#include <pthread.h>
 #include "rb_logger.h"
 
 /* Configurable system path — set from Python before calling QLInit */
 static char iql_system_path[512] = "";
 static char iql_resource_path[512] = "";
+
+/* --- Log ring buffer (read by Python via iql_drain_log) --- */
+
+#define LOG_BUF_SIZE (64 * 1024)
+static char log_buf[LOG_BUF_SIZE];
+static int log_write_pos = 0;
+static int log_read_pos = 0;
+static pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static void log_buf_append(const char *data, int len) {
+    int i;
+    pthread_mutex_lock(&log_mutex);
+    for (i = 0; i < len; i++) {
+        log_buf[log_write_pos] = data[i];
+        log_write_pos = (log_write_pos + 1) % LOG_BUF_SIZE;
+        /* If we catch up to read pos, advance read pos (drop oldest) */
+        if (log_write_pos == log_read_pos) {
+            log_read_pos = (log_read_pos + 1) % LOG_BUF_SIZE;
+        }
+    }
+    pthread_mutex_unlock(&log_mutex);
+}
+
+int iql_drain_log(char *out, int max_len) {
+    int count = 0;
+    pthread_mutex_lock(&log_mutex);
+    while (log_read_pos != log_write_pos && count < max_len - 1) {
+        out[count++] = log_buf[log_read_pos];
+        log_read_pos = (log_read_pos + 1) % LOG_BUF_SIZE;
+    }
+    pthread_mutex_unlock(&log_mutex);
+    out[count] = '\0';
+    return count;
+}
 
 void iql_set_system_path(const char *path) {
     strncpy(iql_system_path, path, sizeof(iql_system_path) - 1);
@@ -65,6 +100,8 @@ RBLogLevel rb_log_get_level(void) {
 
 static void log_msg(FILE *out, const char *prefix, const char *file,
                     int line, const char *format, va_list args) {
+    char line_buf[1024];
+    int pos;
     struct timeval tv;
     struct tm *tm_info;
     gettimeofday(&tv, NULL);
@@ -73,14 +110,21 @@ static void log_msg(FILE *out, const char *prefix, const char *file,
     const char *fname = strrchr(file, '/');
     fname = fname ? fname + 1 : file;
 
-    fprintf(out, "[%02d:%02d:%02d.%03d] %s (%s:%d) ",
-            tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec,
-            (int)(tv.tv_usec / 1000), prefix, fname, line);
-    vfprintf(out, format, args);
-    size_t len = strlen(format);
-    if (len == 0 || format[len - 1] != '\n') {
-        fprintf(out, "\n");
+    pos = snprintf(line_buf, sizeof(line_buf),
+                   "[%02d:%02d:%02d.%03d] %s (%s:%d) ",
+                   tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec,
+                   (int)(tv.tv_usec / 1000), prefix, fname, line);
+    pos += vsnprintf(line_buf + pos, sizeof(line_buf) - pos, format, args);
+    if (pos > 0 && line_buf[pos - 1] != '\n') {
+        if (pos < (int)sizeof(line_buf) - 1) {
+            line_buf[pos++] = '\n';
+        }
     }
+    line_buf[pos] = '\0';
+
+    /* Write to ring buffer for Python and also to stdout/stderr */
+    log_buf_append(line_buf, pos);
+    fputs(line_buf, out);
     fflush(out);
 }
 

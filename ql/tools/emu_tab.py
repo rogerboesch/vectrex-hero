@@ -23,6 +23,12 @@ DEBUG_UPDATE_INTERVAL = 5
 # Debug panel fixed width in pixels
 DEBUG_PANEL_WIDTH = 290
 
+# Console log height in lines
+CONSOLE_HEIGHT = 8
+
+# Max lines kept in console before trimming
+CONSOLE_MAX_LINES = 500
+
 # Try importing the _iql extension and PIL
 try:
     ext_dir = os.path.join(os.path.dirname(__file__), "iql_ext")
@@ -168,12 +174,16 @@ class EmulatorTab:
         status_bar = ttk.Label(toolbar, textvariable=self.status_var)
         status_bar.pack(side=tk.RIGHT, padx=5)
 
-        # Main area: screen canvas + debug panel
-        main_frame = ttk.Frame(self.parent)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # Vertical paned window: top = screen+debug, bottom = console
+        paned = ttk.PanedWindow(self.parent, orient=tk.VERTICAL)
+        paned.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Debug panel (right side, fixed width, packed first so it claims space)
-        debug_frame = ttk.LabelFrame(main_frame, text="CPU State",
+        # Top pane: screen canvas + debug panel
+        top_frame = ttk.Frame(paned)
+        paned.add(top_frame, weight=1)
+
+        # Debug panel (right side, fixed width, packed first)
+        debug_frame = ttk.LabelFrame(top_frame, text="CPU State",
                                      width=DEBUG_PANEL_WIDTH)
         debug_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
         debug_frame.pack_propagate(False)
@@ -186,17 +196,35 @@ class EmulatorTab:
         self.debug_text.pack(fill=tk.BOTH, expand=True)
 
         # Emulator screen canvas (fills remaining space)
-        screen_frame = ttk.Frame(main_frame)
+        screen_frame = ttk.Frame(top_frame)
         screen_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.emu_canvas = tk.Canvas(screen_frame, bg="#000000",
                                     highlightthickness=0)
         self.emu_canvas.pack(fill=tk.BOTH, expand=True)
 
-        # Make canvas focusable so it captures keys instead of buttons
         self.emu_canvas.config(takefocus=True)
         self.emu_canvas.bind("<Button-1>", lambda e: self.emu_canvas.focus_set())
         self.emu_canvas.bind("<Configure>", self._on_canvas_resize)
+
+        # Bottom pane: console log
+        console_frame = ttk.LabelFrame(paned, text="Console")
+        paned.add(console_frame, weight=0)
+
+        console_scroll = ttk.Scrollbar(console_frame)
+        console_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.console_text = tk.Text(console_frame, height=CONSOLE_HEIGHT,
+                                    font=("Courier", 10), state=tk.DISABLED,
+                                    bg="#1a1a1a", fg="#cccccc",
+                                    relief=tk.FLAT, padx=6, pady=4,
+                                    wrap=tk.NONE,
+                                    yscrollcommand=console_scroll.set)
+        self.console_text.pack(fill=tk.BOTH, expand=True)
+        console_scroll.config(command=self.console_text.yview)
+
+        self.console_text.tag_configure("err", foreground="#f44747")
+        self.console_text.tag_configure("dbg", foreground="#808080")
 
         # Tag for highlighting PC line
         self.debug_text.tag_configure("highlight", foreground="#4ec9b0")
@@ -256,9 +284,14 @@ class EmulatorTab:
 
         if result.returncode != 0:
             self.status_var.set("Build FAILED")
-            messagebox.showerror("Build Error",
-                                 f"make failed:\n{result.stderr[-500:]}")
+            self._console_append(f"--- Build FAILED ---\n", "err")
+            self._console_append(result.stderr[-1000:], "err")
             return
+
+        # Show build output in console
+        self._console_append(f"--- Build OK ---\n")
+        if result.stdout.strip():
+            self._console_append(result.stdout[-1000:])
 
         self.status_var.set("Starting emulator...")
         self.root.update_idletasks()
@@ -354,10 +387,11 @@ class EmulatorTab:
         # Update display
         self._update_display()
 
-        # Update debug panel periodically
+        # Update debug panel and console periodically
         self._tick_count += 1
         if self._emu_paused or self._tick_count % DEBUG_UPDATE_INTERVAL == 0:
             self._update_debug_panel()
+            self._drain_console()
 
         # Schedule next tick
         self._after_id = self.root.after(EMU_TICK_MS, self._emu_tick)
@@ -419,6 +453,37 @@ class EmulatorTab:
         self.debug_text.tag_add("dim", "2.0", "2.end")
 
         self.debug_text.config(state=tk.DISABLED)
+
+    def _console_append(self, text, tag=None):
+        """Append text to the console widget."""
+        self.console_text.config(state=tk.NORMAL)
+        self.console_text.insert(tk.END, text, tag)
+        self.console_text.see(tk.END)
+        self.console_text.config(state=tk.DISABLED)
+
+    def _drain_console(self):
+        """Drain log buffer from emulator and append to console."""
+        log = _iql.get_log()
+        if log is None:
+            return
+
+        self.console_text.config(state=tk.NORMAL)
+
+        for line in log.splitlines(keepends=True):
+            tag = None
+            if "] ERR " in line:
+                tag = "err"
+            elif "] DBG " in line:
+                tag = "dbg"
+            self.console_text.insert(tk.END, line, tag)
+
+        # Trim if too many lines
+        line_count = int(self.console_text.index("end-1c").split(".")[0])
+        if line_count > CONSOLE_MAX_LINES:
+            self.console_text.delete("1.0", f"{line_count - CONSOLE_MAX_LINES}.0")
+
+        self.console_text.see(tk.END)
+        self.console_text.config(state=tk.DISABLED)
 
     def _resolve_key(self, event):
         """Resolve Tkinter event to (vk, shift) matching iQL's processEvent."""

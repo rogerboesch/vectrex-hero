@@ -33,6 +33,7 @@ extern void QLResume(void);
 
 /* Our platform stub */
 extern void iql_set_system_path(const char *path);
+extern int iql_drain_log(char *out, int max_len);
 
 /* Screen buffer from rb_screen.c */
 extern void *pixel_buffer;
@@ -207,6 +208,20 @@ iql_is_paused(PyObject *self, PyObject *args)
     return PyBool_FromLong(emu_paused);
 }
 
+#define GET_LOG_BUF_SIZE 8192
+
+static PyObject *
+iql_get_log(PyObject *self, PyObject *args)
+{
+    (void)args;
+    char buf[GET_LOG_BUF_SIZE];
+    int len = iql_drain_log(buf, GET_LOG_BUF_SIZE);
+    if (len == 0) {
+        Py_RETURN_NONE;
+    }
+    return PyUnicode_FromStringAndSize(buf, len);
+}
+
 static PyObject *
 iql_get_cpu_state(PyObject *self, PyObject *args)
 {
@@ -270,6 +285,8 @@ static PyMethodDef iql_methods[] = {
      "is_paused() — Check if emulator is paused"},
     {"get_cpu_state",    iql_get_cpu_state,    METH_NOARGS,
      "get_cpu_state() — Return dict of CPU registers and keyboard state"},
+    {"get_log",          iql_get_log,          METH_NOARGS,
+     "get_log() — Drain log buffer, return str or None"},
     {NULL, NULL, 0, NULL}
 };
 
