@@ -84,12 +84,13 @@ _ql_read_keys:
         clr.b   _key_d_pressed
         clr.b   _key_enter_pressed
 
-        ; --- Scan Row 1: cursor keys, SPACE, ENTER, ESC ---
+        ; === KEYROW scans for held directional keys ===
+
+        ; --- Row 1: cursor keys only ---
         lea     ipc_cmd,a3
         move.b  #1,1(a3)        ; row 1
         moveq   #$11,d0         ; MT.IPCOM
         trap    #1
-        ; d1.b = row data (0 = pressed)
         not.b   d1              ; invert: 1 = pressed
         btst    #2,d1           ; cursor UP
         beq.s   .no_cur_up
@@ -107,18 +108,8 @@ _ql_read_keys:
         beq.s   .no_cur_rt
         move.b  #1,_key_right
 .no_cur_rt:
-        btst    #6,d1           ; SPACE
-        beq.s   .no_space
-        move.b  #1,_key_space_pressed
-        move.b  #1,_key_enter_pressed   ; space also acts as confirm
-.no_space:
-        btst    #0,d1           ; ENTER
-        beq.s   .no_enter
-        move.b  #1,_key_enter_pressed
-.no_enter:
-        ; (ESC handled via console drain below)
 
-        ; --- Scan Row 6: Q (up) ---
+        ; --- Row 6: Q (up) ---
         lea     ipc_cmd,a3
         move.b  #6,1(a3)        ; row 6
         moveq   #$11,d0
@@ -129,7 +120,7 @@ _ql_read_keys:
         move.b  #1,_key_up
 .no_q:
 
-        ; --- Scan Row 4: A (down), P (right), D (dynamite) ---
+        ; --- Row 4: A (down), P (right) ---
         lea     ipc_cmd,a3
         move.b  #4,1(a3)        ; row 4
         moveq   #$11,d0
@@ -143,12 +134,8 @@ _ql_read_keys:
         beq.s   .no_p
         move.b  #1,_key_right
 .no_p:
-        btst    #6,d1           ; D = dynamite
-        beq.s   .no_d
-        move.b  #1,_key_d_pressed
-.no_d:
 
-        ; --- Scan Row 5: O (left) ---
+        ; --- Row 5: O (left) ---
         lea     ipc_cmd,a3
         move.b  #5,1(a3)        ; row 5
         moveq   #$11,d0
@@ -159,7 +146,7 @@ _ql_read_keys:
         move.b  #1,_key_left
 .no_o:
 
-        ; Drain console buffer and check for ESC
+        ; === Console buffer for event keys (SPACE, D, ENTER, ESC) ===
         move.l  _con_id,a0
         moveq   #0,d3           ; timeout = 0
 .drain:
@@ -168,8 +155,27 @@ _ql_read_keys:
         trap    #3
         tst.l   d0
         bne.s   .done           ; no more keys in buffer
-        cmpi.b  #$1B,d1         ; ESC?
+        cmpi.b  #' ',d1
+        beq.s   .key_space
+        cmpi.b  #'d',d1
+        beq.s   .key_d
+        cmpi.b  #'D',d1
+        beq.s   .key_d
+        cmpi.b  #$0A,d1         ; ENTER
+        beq.s   .key_enter
+        cmpi.b  #$1B,d1         ; ESC
         beq.s   .key_esc
+        bra.s   .drain
+
+.key_space:
+        move.b  #1,_key_space_pressed
+        move.b  #1,_key_enter_pressed   ; space also acts as confirm
+        bra.s   .drain
+.key_d:
+        move.b  #1,_key_d_pressed
+        bra.s   .drain
+.key_enter:
+        move.b  #1,_key_enter_pressed
         bra.s   .drain
 .key_esc:
         moveq   #-1,d1
