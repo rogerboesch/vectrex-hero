@@ -2,7 +2,7 @@
  * _iqlmodule.c — CPython extension wrapping the iQL emulator core
  *
  * Exposes the Sinclair QL emulator as a Python module for embedding
- * in QL Studio (sprite_editor.py).
+ * in QL Studio (qlstudio.py).
  *
  * Architecture:
  *   - QLStart() runs in a background thread (blocks until QLdone=1)
