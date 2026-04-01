@@ -463,25 +463,44 @@ void App::draw_emulator() {
     }
 
     // Display emulator screen as texture
-    if (g_emu.is_ready()) {
-        g_emu.update_texture();
-        GLuint tex = g_emu.get_texture();
-        if (tex) {
-            ImVec2 avail = ImGui::GetContentRegionAvail();
+    if (g_emu.is_running()) {
+        ImVec2 avail = ImGui::GetContentRegionAvail();
+        float dw = 512, dh = 256;
+
+        if (g_emu.is_ready()) {
+            g_emu.update_texture();
             int sw = g_emu.get_screen_width();
             int sh = g_emu.get_screen_height();
-            if (sw > 0 && sh > 0) {
-                float scale = std::min(avail.x / sw, avail.y / sh);
-                float dw = sw * scale, dh = sh * scale;
-                ImVec2 pos = ImGui::GetCursorScreenPos();
-                float ox = (avail.x - dw) * 0.5f;
-                ImGui::SetCursorScreenPos(ImVec2(pos.x + ox, pos.y));
-                ImGui::Image((ImTextureID)(intptr_t)tex, ImVec2(dw, dh));
-
-                // Keyboard input when emulator image is hovered
-                emu_wants_keys = ImGui::IsItemHovered();
-            }
+            if (sw > 0 && sh > 0) { dw = (float)sw; dh = (float)sh; }
         }
+
+        float scale = std::min(avail.x / dw, avail.y / dh);
+        if (scale < 0.1f) scale = 1.0f;
+        float pw = dw * scale, ph = dh * scale;
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        float ox = (avail.x - pw) * 0.5f;
+        ImVec2 screen_pos(pos.x + ox, pos.y);
+
+        GLuint tex = g_emu.get_texture();
+        if (g_emu.is_ready() && tex) {
+            ImGui::SetCursorScreenPos(screen_pos);
+            ImGui::Image((ImTextureID)(intptr_t)tex, ImVec2(pw, ph));
+            emu_wants_keys = ImGui::IsItemHovered();
+        } else {
+            // Red placeholder while booting
+            ImDrawList *dl = ImGui::GetWindowDrawList();
+            dl->AddRectFilled(screen_pos, ImVec2(screen_pos.x + pw, screen_pos.y + ph),
+                              IM_COL32(80, 0, 0, 255));
+            dl->AddText(ImVec2(screen_pos.x + pw/2 - 40, screen_pos.y + ph/2 - 8),
+                       IM_COL32(255, 100, 100, 255), "Booting...");
+            ImGui::Dummy(ImVec2(pw, ph));
+        }
+
+        // Debug: show state
+        ImGui::Text("ready:%d tex:%u screen:%dx%d pbuf:%s",
+                    g_emu.is_ready(), tex,
+                    g_emu.get_screen_width(), g_emu.get_screen_height(),
+                    g_emu.is_ready() ? "valid" : "null");
 
         // Drain trap log to console
         if (trap_log_enabled) {
