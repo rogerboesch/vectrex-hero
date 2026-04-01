@@ -526,6 +526,7 @@ class EmulatorTab:
             self._update_debug_panel()
             self._update_watch()
             self._drain_console()
+            self._drain_trap_log()
 
         # Schedule next tick
         self._after_id = self.root.after(EMU_TICK_MS, self._emu_tick)
@@ -874,6 +875,14 @@ class EmulatorTab:
         _iql.set_trap_logging(1 if enabled else 0)
         state = "ON" if enabled else "OFF"
         self._console_append(f"--- Trap logging {state} ---\n")
+
+    def _drain_trap_log(self):
+        """Drain trap log buffer and append to console."""
+        if not self._emu_active or not self.trap_log_var.get():
+            return
+        log = _iql.get_trap_log()
+        if log:
+            self._console_append(log, "dbg")
 
     def cleanup(self):
         """Clean up on application exit."""

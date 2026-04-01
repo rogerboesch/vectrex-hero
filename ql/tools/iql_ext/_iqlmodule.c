@@ -58,11 +58,25 @@ static void *emu_thread_func(void *arg) {
 /* Forward declarations */
 static void check_breakpoints_after_tick(void);
 
-/* Trap logging — uses iQL's built-in tracetrap flag */
+/* Trap logging — our own hook called from patched base_instructions_pz.c */
 extern int tracetrap;
+extern void rb_log_debug(const char *fmt, ...);
 
-/* Frame step: pause on next TRAP #1 (QDOS manager trap) */
-static int frame_step_active = 0;
+/* Circular trap log buffer */
+#define TRAP_LOG_SIZE 4096
+static char trap_log_buf[TRAP_LOG_SIZE];
+static int trap_log_head = 0;
+static int trap_log_tail = 0;
+static int trap_logging_enabled = 0;
+
+static void trap_log_append(const char *str) {
+    while (*str) {
+        trap_log_buf[trap_log_head] = *str++;
+        trap_log_head = (trap_log_head + 1) % TRAP_LOG_SIZE;
+        if (trap_log_head == trap_log_tail)
+            trap_log_tail = (trap_log_tail + 1) % TRAP_LOG_SIZE;
+    }
+}
 
 /* Trap names for the log */
 static const char *trap1_names[] = {
@@ -79,6 +93,44 @@ static const char *trap3_names[] = {
     "IO.PEND","IO.FBYTE","IO.FLINE","IO.FSTRG",NULL,
     "IO.SBYTE","IO.SSTRG","IO.EDLIN"
 };
+
+/* Called from patched TRAP instruction handler */
+void iql_trap_hook(int trap_num) {
+    if (!trap_logging_enabled) return;
+
+    char buf[128];
+    int d0 = (int)reg[0];
+    int d1 = (int)reg[1];
+    int d3 = (int)reg[3];
+    const char *name = NULL;
+
+    if (trap_num == 1) {
+        /* Manager trap — d0 = function code */
+        int fn = d0 & 0xFF;
+        if (fn < (int)(sizeof(trap1_names)/sizeof(trap1_names[0])))
+            name = trap1_names[fn];
+        snprintf(buf, sizeof(buf), "TRAP #1  d0=$%02X %-12s d1=$%08X d3=$%04X\n",
+                 fn, name ? name : "?", (unsigned)d1, d3 & 0xFFFF);
+    } else if (trap_num == 2) {
+        int fn = d0 & 0xFF;
+        if (fn < (int)(sizeof(trap2_names)/sizeof(trap2_names[0])))
+            name = trap2_names[fn];
+        snprintf(buf, sizeof(buf), "TRAP #2  d0=$%02X %-12s d1=$%08X\n",
+                 fn, name ? name : "?", (unsigned)d1);
+    } else if (trap_num == 3) {
+        int fn = d0 & 0xFF;
+        if (fn < (int)(sizeof(trap3_names)/sizeof(trap3_names[0])))
+            name = trap3_names[fn];
+        snprintf(buf, sizeof(buf), "TRAP #3  d0=$%02X %-12s d3=$%04X\n",
+                 fn, name ? name : "?", d3 & 0xFFFF);
+    } else {
+        snprintf(buf, sizeof(buf), "TRAP #%d  d0=$%08X\n", trap_num, (unsigned)d0);
+    }
+    trap_log_append(buf);
+}
+
+/* Frame step: pause on next TRAP #1 (QDOS manager trap) */
+static int frame_step_active = 0;
 
 /* --- Python module functions --- */
 
@@ -511,7 +563,7 @@ iql_set_trap_logging(PyObject *self, PyObject *args)
     int enable;
     if (!PyArg_ParseTuple(args, "i", &enable))
         return NULL;
-    tracetrap = enable ? 1 : 0;
+    trap_logging_enabled = enable ? 1 : 0;
     Py_RETURN_NONE;
 }
 
@@ -519,7 +571,24 @@ static PyObject *
 iql_get_trap_logging(PyObject *self, PyObject *args)
 {
     (void)args;
-    return PyBool_FromLong(tracetrap);
+    return PyBool_FromLong(trap_logging_enabled);
+}
+
+/* Drain trap log buffer */
+static PyObject *
+iql_get_trap_log(PyObject *self, PyObject *args)
+{
+    (void)args;
+    if (trap_log_head == trap_log_tail)
+        Py_RETURN_NONE;
+
+    char out[TRAP_LOG_SIZE];
+    int len = 0;
+    while (trap_log_tail != trap_log_head && len < TRAP_LOG_SIZE - 1) {
+        out[len++] = trap_log_buf[trap_log_tail];
+        trap_log_tail = (trap_log_tail + 1) % TRAP_LOG_SIZE;
+    }
+    return PyUnicode_FromStringAndSize(out, len);
 }
 
 /* --- Frame step --- */
@@ -635,6 +704,8 @@ static PyMethodDef iql_methods[] = {
      "set_trap_logging(enable) — Enable/disable QDOS trap logging to console"},
     {"get_trap_logging", iql_get_trap_logging, METH_NOARGS,
      "get_trap_logging() — Check if trap logging is enabled"},
+    {"get_trap_log",     iql_get_trap_log,     METH_NOARGS,
+     "get_trap_log() — Drain trap log buffer, return str or None"},
 
     /* Frame step */
     {"step_frame",       iql_step_frame,       METH_NOARGS,

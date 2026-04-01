@@ -659,8 +659,12 @@ IDECL(tas)
 NEXT;
 }
 
+/* Hook for trap logging from _iqlmodule.c */
+extern void iql_trap_hook(int trap_num);
+
 IDECL(trap)
-{ 
+{
+  iql_trap_hook(code & 15);
 #ifdef IE_XL
   qlux_table[code]();
 #else
