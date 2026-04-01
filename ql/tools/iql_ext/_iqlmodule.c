@@ -62,6 +62,11 @@ static void check_breakpoints_after_tick(void);
 static int soft_bp_enabled = 0;
 static int soft_bp_hit_id = 0;
 
+/* Performance counter */
+extern int nInst;
+static unsigned long perf_inst_total = 0;
+static int perf_tick_count = 0;
+
 /* Trap logging — our own hook called from patched base_instructions_pz.c */
 extern int tracetrap;
 extern void rb_log_debug(const char *fmt, ...);
@@ -168,7 +173,11 @@ iql_tick(PyObject *self, PyObject *args)
 {
     (void)args;
     if (emu_running && !emu_paused) {
+        int before = nInst;
         QLTimer();
+        /* nInst counts down from 3001 to 0; instructions executed = before - nInst */
+        perf_inst_total += (unsigned long)(before > nInst ? before - nInst : 0);
+        perf_tick_count++;
         check_breakpoints_after_tick();
     }
     Py_RETURN_NONE;
@@ -595,6 +604,17 @@ iql_screenshot(PyObject *self, PyObject *args)
 /* --- Software breakpoint control --- */
 
 static PyObject *
+iql_get_perf(PyObject *self, PyObject *args)
+{
+    (void)args;
+    unsigned long inst = perf_inst_total;
+    int ticks = perf_tick_count;
+    perf_inst_total = 0;
+    perf_tick_count = 0;
+    return Py_BuildValue("{s:k,s:i}", "instructions", inst, "ticks", ticks);
+}
+
+static PyObject *
 iql_set_soft_bp(PyObject *self, PyObject *args)
 {
     int enable;
@@ -747,6 +767,10 @@ static PyMethodDef iql_methods[] = {
      "screenshot(filename) — Return RGBA data dict for saving as PNG"},
 
     /* Trap logging */
+    /* Performance */
+    {"get_perf",         iql_get_perf,         METH_NOARGS,
+     "get_perf() — Return {instructions, ticks} since last call and reset counters"},
+
     /* Software breakpoints */
     {"set_soft_bp",      iql_set_soft_bp,      METH_VARARGS,
      "set_soft_bp(enable) — Enable/disable software breakpoint checking"},

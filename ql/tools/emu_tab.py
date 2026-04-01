@@ -188,6 +188,12 @@ class EmulatorTab:
         status_bar = ttk.Label(toolbar, textvariable=self.status_var)
         status_bar.pack(side=tk.RIGHT, padx=5)
 
+        self.perf_var = tk.StringVar(value="")
+        perf_label = ttk.Label(toolbar, textvariable=self.perf_var,
+                               font=("Courier", 10))
+        perf_label.pack(side=tk.RIGHT, padx=10)
+        self._perf_after_id = None
+
         # Vertical paned window: top = screen+debug, bottom = console
         paned = ttk.PanedWindow(self.parent, orient=tk.VERTICAL)
         paned.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
@@ -462,14 +468,17 @@ class EmulatorTab:
         # Focus the canvas so Space/keys go to emulator, not buttons
         self.emu_canvas.focus_set()
 
-        # Start tick loop
+        # Start tick loop + perf counter
         self._emu_tick()
+        self._update_perf()
 
     def _emu_stop(self):
         """Stop the emulator."""
         if self._after_id is not None:
             self.root.after_cancel(self._after_id)
             self._after_id = None
+
+        self._stop_perf()
 
         if self._emu_active:
             _iql.stop()
@@ -945,6 +954,31 @@ class EmulatorTab:
 
     def _on_canvas_leave(self, event):
         self.pixel_info_var.set("")
+
+    # --- Performance counter ---
+
+    def _update_perf(self):
+        """Read perf counters and display FPS / instructions."""
+        if not self._emu_active:
+            self.perf_var.set("")
+            return
+        perf = _iql.get_perf()
+        inst = perf.get("instructions", 0)
+        ticks = perf.get("ticks", 0)
+        # Ticks happen at EMU_TICK_MS intervals, we sample every 1000ms
+        # FPS = ticks per second (each tick = 1 QLTimer = ~3000 instructions)
+        fps = ticks  # sampled every 1s
+        ips = inst  # instructions per second
+        # Real QL: 7.5MHz ≈ 1.5M instructions/s (avg ~5 cycles/instr)
+        load = ips * 100 / 1500000 if ips > 0 else 0
+        self.perf_var.set(f"FPS:{fps}  IPS:{ips//1000}K  Load:{load:.0f}%")
+        self._perf_after_id = self.root.after(1000, self._update_perf)
+
+    def _stop_perf(self):
+        if self._perf_after_id:
+            self.root.after_cancel(self._perf_after_id)
+            self._perf_after_id = None
+        self.perf_var.set("")
 
     def _enable_soft_bp(self):
         """Enable software breakpoints after QDOS boot delay."""
