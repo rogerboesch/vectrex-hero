@@ -12,6 +12,27 @@
 #include "../thirdparty/imgui/imgui_impl_opengl3.h"
 
 #include "app.h"
+#include "emulator.h"
+
+// SDL keycode → iQL virtual key
+static int sdl_to_vk(SDL_Keycode k) {
+    if (k >= SDLK_a && k <= SDLK_z) return k - SDLK_a; // VK_A=0..VK_Z=25
+    if (k >= SDLK_0 && k <= SDLK_9) return 26 + (k - SDLK_0); // VK_0=26..VK_9=35
+    switch (k) {
+        case SDLK_RETURN: return 52;
+        case SDLK_SPACE: return 53;
+        case SDLK_ESCAPE: return 54;
+        case SDLK_TAB: return 55;
+        case SDLK_BACKSPACE: return 56;
+        case SDLK_UP: return 57;
+        case SDLK_DOWN: return 58;
+        case SDLK_LEFT: return 59;
+        case SDLK_RIGHT: return 60;
+        default: return -1;
+    }
+}
+
+static bool emu_wants_keys = false;  // set by app when emulator image is hovered
 
 int main(int argc, char *argv[]) {
     // Init SDL
@@ -73,6 +94,20 @@ int main(int argc, char *argv[]) {
             if (event.type == SDL_WINDOWEVENT &&
                 event.window.event == SDL_WINDOWEVENT_CLOSE)
                 running = false;
+
+            // Forward keyboard to emulator when hovering emulator display
+            if (g_emu.is_running() && !g_emu.is_paused() && emu_wants_keys) {
+                if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+                    int vk = sdl_to_vk(event.key.keysym.sym);
+                    if (vk >= 0) {
+                        bool pressed = (event.type == SDL_KEYDOWN);
+                        bool shift = (event.key.keysym.mod & KMOD_SHIFT) != 0;
+                        bool ctrl = (event.key.keysym.mod & KMOD_CTRL) != 0;
+                        bool alt = (event.key.keysym.mod & KMOD_ALT) != 0;
+                        g_emu.send_key(vk, pressed, shift, ctrl, alt);
+                    }
+                }
+            }
         }
 
         ImGui_ImplOpenGL3_NewFrame();

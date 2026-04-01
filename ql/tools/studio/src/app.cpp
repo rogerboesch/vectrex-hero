@@ -367,23 +367,211 @@ void App::draw_sprite_properties() {
 }
 
 // ============================================================
-// Emulator + Debug (stubs — to be filled when iQL is integrated)
+// Emulator
 // ============================================================
+
+#include "emulator.h"
+
+// Virtual key codes from iQL (matching rb_virtual_keys.h enum)
+enum {
+    VK_A=0,VK_B,VK_C,VK_D,VK_E,VK_F,VK_G,VK_H,VK_I,VK_J,VK_K,VK_L,VK_M,
+    VK_N,VK_O,VK_P,VK_Q,VK_R,VK_S,VK_T,VK_U,VK_V,VK_W,VK_X,VK_Y,VK_Z,
+    VK_0,VK_1,VK_2,VK_3,VK_4,VK_5,VK_6,VK_7,VK_8,VK_9,
+    VK_RETURN=52, VK_SPACE=53, VK_ESCAPE=54, VK_TAB=55, VK_BACKSPACE=56,
+    VK_UP=57, VK_DOWN=58, VK_LEFT=59, VK_RIGHT=60,
+    VK_LSHIFT=61, VK_RSHIFT=62, VK_LCONTROL=63, VK_RCONTROL=64,
+    VK_LALT=65, VK_RALT=66,
+};
+
+static int sdl_key_to_vk(SDL_Keycode k) {
+    if (k >= SDLK_a && k <= SDLK_z) return VK_A + (k - SDLK_a);
+    if (k >= SDLK_0 && k <= SDLK_9) return VK_0 + (k - SDLK_0);
+    switch (k) {
+        case SDLK_RETURN: return VK_RETURN;
+        case SDLK_SPACE: return VK_SPACE;
+        case SDLK_ESCAPE: return VK_ESCAPE;
+        case SDLK_TAB: return VK_TAB;
+        case SDLK_BACKSPACE: return VK_BACKSPACE;
+        case SDLK_UP: return VK_UP;
+        case SDLK_DOWN: return VK_DOWN;
+        case SDLK_LEFT: return VK_LEFT;
+        case SDLK_RIGHT: return VK_RIGHT;
+        case SDLK_LSHIFT: return VK_LSHIFT;
+        case SDLK_RSHIFT: return VK_RSHIFT;
+        case SDLK_LCTRL: return VK_LCONTROL;
+        case SDLK_RCTRL: return VK_RCONTROL;
+        case SDLK_LALT: return VK_LALT;
+        case SDLK_RALT: return VK_RALT;
+        default: return -1;
+    }
+}
+
+bool emu_wants_keys = false;  // read by main.cpp for keyboard forwarding
+static int speed_idx = 1;
+static const char *speed_names[] = {"Fast", "Normal", "Slow", "Very Slow"};
+static int speed_values[] = {0, 1, 4, 10};
+static bool bp_enabled = true;
+static bool trap_log_enabled = false;
 
 void App::draw_emulator() {
     ImGui::Begin("Emulator");
-    ImGui::Text("iQL emulator integration coming soon.");
-    ImGui::Text("Build & Run, keyboard input, screen display.");
+
+    // Toolbar
+    if (!g_emu.is_running()) {
+        if (ImGui::Button("Build & Run")) {
+            // Export sprites
+            write_c_files(last_export_dir.empty() ?
+                std::string(SDL_GetBasePath()) + "../../../" : last_export_dir);
+            log("Sprites exported");
+
+            // Build
+            std::string ql_dir = std::string(SDL_GetBasePath()) + "../../../";
+            std::string output;
+            log("Building...");
+            if (g_emu.build(ql_dir, output)) {
+                log("Build OK");
+                // Start emulator
+                std::string sys_path = std::string(getenv("HOME")) + "/Documents/iQLmac/";
+                if (g_emu.start(sys_path.c_str())) {
+                    log("Emulator started");
+                    g_emu.set_log_callback([this](const char *msg) { log("%s", msg); });
+                    // Enable soft BP after delay (QDOS boot)
+                    // For now, enable immediately — user can toggle
+                }
+            } else {
+                log("ERR Build FAILED:\n%s", output.c_str());
+            }
+            if (!output.empty()) log("%s", output.c_str());
+        }
+    } else {
+        if (ImGui::Button(g_emu.is_paused() ? "Resume" : "Pause")) {
+            if (g_emu.is_paused()) g_emu.resume();
+            else g_emu.pause();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Stop")) g_emu.stop();
+        ImGui::SameLine();
+        if (ImGui::Button(speed_names[speed_idx])) {
+            speed_idx = (speed_idx + 1) % 4;
+            g_emu.set_speed(speed_values[speed_idx]);
+        }
+        ImGui::SameLine();
+        if (ImGui::Checkbox("BPs", &bp_enabled))
+            g_emu.set_soft_bp_enabled(bp_enabled);
+        ImGui::SameLine();
+        if (ImGui::Checkbox("Traps", &trap_log_enabled))
+            g_emu.set_trap_logging(trap_log_enabled);
+    }
+
+    // Display emulator screen as texture
+    if (g_emu.is_running()) {
+        g_emu.update_texture();
+        GLuint tex = g_emu.get_texture();
+        if (tex) {
+            ImVec2 avail = ImGui::GetContentRegionAvail();
+            int sw = g_emu.get_screen_width();
+            int sh = g_emu.get_screen_height();
+            if (sw > 0 && sh > 0) {
+                float scale = std::min(avail.x / sw, avail.y / sh);
+                float dw = sw * scale, dh = sh * scale;
+                ImVec2 pos = ImGui::GetCursorScreenPos();
+                float ox = (avail.x - dw) * 0.5f;
+                ImGui::SetCursorScreenPos(ImVec2(pos.x + ox, pos.y));
+                ImGui::Image((ImTextureID)(intptr_t)tex, ImVec2(dw, dh));
+
+                // Keyboard input when emulator image is hovered
+                emu_wants_keys = ImGui::IsItemHovered();
+            }
+        }
+
+        // Drain trap log to console
+        if (trap_log_enabled) {
+            std::string tl = g_emu.drain_trap_log();
+            if (!tl.empty()) log("%s", tl.c_str());
+        }
+    }
+
     ImGui::End();
+
+    // Keyboard forwarding handled in main.cpp via SDL events
+}
+
+// ============================================================
+// Debug Panels
+// ============================================================
+
+static const char *sr_flags(uint16_t sr) {
+    static char buf[16];
+    snprintf(buf, sizeof(buf), "%c%c%d%c%c%c%c%c",
+        sr & 0x8000 ? 'T' : '-', sr & 0x2000 ? 'S' : '-',
+        (sr >> 8) & 7,
+        sr & 0x10 ? 'X' : '-', sr & 0x08 ? 'N' : '-',
+        sr & 0x04 ? 'Z' : '-', sr & 0x02 ? 'V' : '-',
+        sr & 0x01 ? 'C' : '-');
+    return buf;
 }
 
 void App::draw_debug_panels() {
+    // CPU State
     ImGui::Begin("CPU State");
-    ImGui::Text("Register display coming soon.");
+    if (g_emu.is_running()) {
+        auto cpu = g_emu.get_cpu_state();
+        ImGui::TextColored(ImVec4(0.3f,0.8f,0.7f,1), "PC: $%06X  SR: $%04X", cpu.pc, cpu.sr);
+        ImGui::Text("Flags: %s", sr_flags(cpu.sr));
+        ImGui::Separator();
+        for (int i = 0; i < 4; i++)
+            ImGui::Text("D%d: %08X  D%d: %08X", i, cpu.d[i], i+4, cpu.d[i+4]);
+        ImGui::Separator();
+        for (int i = 0; i < 4; i++)
+            ImGui::Text("A%d: %08X  A%d: %08X", i, cpu.a[i], i+4, cpu.a[i+4]);
+        ImGui::Separator();
+        ImGui::Text("USP: %08X  SSP: %08X", cpu.usp, cpu.ssp);
+
+        // Step buttons
+        ImGui::Separator();
+        if (ImGui::Button("Step 1")) { g_emu.pause(); g_emu.step(1); }
+        ImGui::SameLine();
+        if (ImGui::Button("Step 10")) { g_emu.pause(); g_emu.step(10); }
+        ImGui::SameLine();
+        if (ImGui::Button("Step 100")) { g_emu.pause(); g_emu.step(100); }
+    } else {
+        ImGui::TextColored(ImVec4(0.5f,0.5f,0.5f,1), "Emulator not running.");
+    }
     ImGui::End();
 
+    // Memory viewer
     ImGui::Begin("Memory");
-    ImGui::Text("Hex viewer coming soon.");
+    if (g_emu.is_running()) {
+        static char addr_buf[16] = "20000";
+        static int rows = 16;
+        ImGui::SetNextItemWidth(80);
+        ImGui::InputText("Addr", addr_buf, sizeof(addr_buf));
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(50);
+        ImGui::InputInt("Rows", &rows, 4);
+        if (rows < 1) rows = 1;
+        if (rows > 64) rows = 64;
+
+        uint32_t addr = (uint32_t)strtoul(addr_buf, NULL, 16);
+        ImGui::Separator();
+        for (int r = 0; r < rows; r++) {
+            uint32_t ra = addr + r * 16;
+            ImGui::TextColored(ImVec4(0.4f,0.6f,0.9f,1), "%06X:", ra);
+            ImGui::SameLine();
+            uint8_t data[16];
+            g_emu.read_mem(ra, data, 16);
+            char hex[64] = {}, ascii[20] = {};
+            int hp = 0;
+            for (int i = 0; i < 16; i++) {
+                hp += snprintf(hex + hp, sizeof(hex) - hp, "%02X ", data[i]);
+                ascii[i] = (data[i] >= 32 && data[i] < 127) ? data[i] : '.';
+            }
+            ascii[16] = 0;
+            ImGui::Text("%s %s", hex, ascii);
+        }
+    } else {
+        ImGui::TextColored(ImVec4(0.5f,0.5f,0.5f,1), "Emulator not running.");
+    }
     ImGui::End();
 
     // Console log panel
