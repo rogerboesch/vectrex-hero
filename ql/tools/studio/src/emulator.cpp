@@ -197,8 +197,19 @@ int Emulator::get_screen_height() const {
 }
 
 void Emulator::update_texture() {
-    if (!running || !pixel_buffer || !theROM) return;
-    rom_ready = true;  // ROM is loaded once pixel_buffer and theROM are valid
+    if (!running || !theROM) return;
+
+    // Allocate pixel buffer if iQL hasn't done it yet
+    if (!pixel_buffer) {
+        int w = qlscreen.xres;
+        int h = qlscreen.yres;
+        if (w > 0 && h > 0) {
+            pixel_buffer = malloc(w * h * 4);
+            if (pixel_buffer) memset(pixel_buffer, 0, w * h * 4);
+        }
+        if (!pixel_buffer) return;
+    }
+    rom_ready = true;
 
     int w = qlscreen.xres;
     int h = qlscreen.yres;
