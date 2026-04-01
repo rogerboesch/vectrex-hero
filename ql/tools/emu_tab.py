@@ -853,16 +853,17 @@ class EmulatorTab:
     # --- Frame step ---
 
     def _step_frame(self):
-        """Step one full frame (~125K instructions at 50Hz)."""
+        """Step one game frame (~42 QLTimer ticks = ~125K instructions)."""
         if not self._emu_active:
             return
         if not self._emu_paused:
             self._toggle_pause()
-        _iql.step_frame()
+        _iql.step_frame(42)  # 42 * 3000 ≈ 126K instructions = 1 frame at 50Hz
         self._update_display()
         self._update_debug_panel()
         self._update_mem_view()
         self._update_watch()
+        self._drain_trap_log()
         self.status_var.set("Paused (frame step)")
 
     # --- Trap logging ---

@@ -594,38 +594,26 @@ iql_get_trap_log(PyObject *self, PyObject *args)
 /* --- Frame step --- */
 
 /*
- * iql_step_frame: run emulation until the next TRAP #1 with d0=$08
- * (MT.SUSJB — our game's frame boundary). Uses ExecuteChunk in small
- * batches, checking d0 and exception state after each batch.
+ * iql_step_frame: call QLTimer() directly to advance one emulator step
+ * (CPU execution + screen refresh). Each call ≈ 3000 instructions + display update.
+ * Call multiple times for a full game frame.
  */
 static PyObject *
 iql_step_frame(PyObject *self, PyObject *args)
 {
-    int max_instructions = 500000;  /* safety limit */
-    int batch = 100;
-    int total = 0;
+    int count = 1;
+    if (!PyArg_ParseTuple(args, "|i", &count))
+        return NULL;
+    if (count < 1) count = 1;
+    if (count > 100) count = 100;
 
-    (void)args;
     if (!emu_running) Py_RETURN_NONE;
 
-    /* Ensure we're paused first */
-    if (!emu_paused) {
-        QLPause();
-        emu_paused = 1;
-    }
-
-    /* Run batches until we hit a TRAP #1 or safety limit */
-    while (total < max_instructions) {
-        ExecuteChunk(batch);
-        total += batch;
-
-        /* Check if PC is at a TRAP instruction
-         * We detect frame boundary by checking if the emulator
-         * processed a TRAP #1 (vector 33 = offset 0x84)
-         * For simplicity, just run a fixed large chunk (~1 frame worth)
-         * and stop. A real QL frame at 7.5MHz ≈ 125000 instructions at 50Hz.
-         */
-        if (total >= 125000) break;  /* ~1 frame at 50Hz */
+    /* Call QLTimer directly — includes CPU execution + screen update */
+    {
+        int i;
+        for (i = 0; i < count; i++)
+            QLTimer();
     }
 
     Py_RETURN_NONE;
@@ -708,8 +696,8 @@ static PyMethodDef iql_methods[] = {
      "get_trap_log() — Drain trap log buffer, return str or None"},
 
     /* Frame step */
-    {"step_frame",       iql_step_frame,       METH_NOARGS,
-     "step_frame() — Run ~1 frame worth of instructions (125K @ 50Hz)"},
+    {"step_frame",       iql_step_frame,       METH_VARARGS,
+     "step_frame(count=1) — Run count QLTimer steps (each ≈ 3K instr + screen update)"},
 
     {NULL, NULL, 0, NULL}
 };
