@@ -414,6 +414,7 @@ static bool bp_enabled = true;
 static bool trap_log_enabled = false;
 
 void App::draw_emulator() {
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.12f, 0.12f, 0.12f, 1.0f));
     ImGui::Begin("Emulator");
 
     // Toolbar
@@ -511,6 +512,7 @@ void App::draw_emulator() {
     }
 
     ImGui::End();
+    ImGui::PopStyleColor();
 
     // Keyboard forwarding handled in main.cpp via SDL events
 }

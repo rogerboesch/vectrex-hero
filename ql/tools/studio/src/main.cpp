@@ -88,16 +88,8 @@ int main(int argc, char *argv[]) {
     while (running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT)
-                running = false;
-            if (event.type == SDL_WINDOWEVENT &&
-                event.window.event == SDL_WINDOWEVENT_CLOSE)
-                running = false;
-
-            // Forward keyboard to emulator when emulator display is hovered/focused
-            // Must happen AFTER ImGui processes (so emu_wants_keys is current)
-            // but we still forward even if ImGui "wants" the keyboard
+            // Forward keyboard to emulator BEFORE ImGui processes the event
+            bool key_forwarded = false;
             if (g_emu.is_running() && !g_emu.is_paused() && emu_wants_keys) {
                 if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
                     int vk = sdl_to_vk(event.key.keysym.sym);
@@ -107,9 +99,20 @@ int main(int argc, char *argv[]) {
                         bool ctrl = (event.key.keysym.mod & KMOD_CTRL) != 0;
                         bool alt = (event.key.keysym.mod & KMOD_ALT) != 0;
                         g_emu.send_key(vk, pressed, shift, ctrl, alt);
+                        key_forwarded = true;
                     }
                 }
             }
+
+            // Let ImGui process the event (skip if we forwarded to emulator)
+            if (!key_forwarded)
+                ImGui_ImplSDL2_ProcessEvent(&event);
+
+            if (event.type == SDL_QUIT)
+                running = false;
+            if (event.type == SDL_WINDOWEVENT &&
+                event.window.event == SDL_WINDOWEVENT_CLOSE)
+                running = false;
         }
 
         ImGui_ImplOpenGL3_NewFrame();
