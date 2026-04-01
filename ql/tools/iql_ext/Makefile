@@ -24,7 +24,6 @@ CFLAGS = -O2 -fPIC -std=gnu89 -w -Wno-error \
          -I$(IQL_DIR)/QL \
          -I$(IQL_DIR)/base \
          -I$(IQL_DIR)/platform \
-         -I$(IQL_DIR)/apple \
          -DUSE_BUILTIN_EXPECT
 
 LDFLAGS = -shared -undefined dynamic_lookup -lpthread
