@@ -14,32 +14,35 @@
 #include "app.h"
 #include "emulator.h"
 
-// SDL keycode → iQL virtual key (from rb_virtual_keys.h, verified values)
+// Use actual iQL enum directly — no hardcoded values
+extern "C" {
+#include "rb_virtual_keys.h"
+}
+
 static int sdl_to_vk(SDL_Keycode k) {
-    if (k >= SDLK_a && k <= SDLK_z) return k - SDLK_a;        // RBVK_A=0..RBVK_Z=25
-    if (k >= SDLK_0 && k <= SDLK_9) return 26 + (k - SDLK_0); // RBVK_Num0=26..RBVK_Num9=35
+    if (k >= SDLK_a && k <= SDLK_z) return RBVK_A + (k - SDLK_a);
+    if (k >= SDLK_0 && k <= SDLK_9) return RBVK_Num0 + (k - SDLK_0);
     switch (k) {
-        case SDLK_LEFTBRACKET:  return 36;  // RBVK_LBracket
-        case SDLK_RIGHTBRACKET: return 37;  // RBVK_RBracket
-        case SDLK_SEMICOLON:    return 41;  // RBVK_SemiColon
-        case SDLK_COMMA:        return 42;  // RBVK_Comma
-        case SDLK_PERIOD:       return 43;  // RBVK_Period
-        case SDLK_QUOTE:        return 44;  // RBVK_Quote
-        case SDLK_SLASH:        return 46;  // RBVK_Slash
-        case SDLK_BACKSLASH:    return 47;  // RBVK_BackSlash
-        case SDLK_EQUALS:       return 49;  // RBVK_Equal
-        case SDLK_MINUS:        return 50;  // RBVK_Dash
-        case SDLK_PLUS:         return 51;  // RBVK_Add
-        case SDLK_BACKQUOTE:    return 66;  // RBVK_Grave
-        case SDLK_SPACE:        return 67;  // RBVK_Space
-        case SDLK_TAB:          return 68;  // RBVK_Tab
-        case SDLK_RETURN:       return 69;  // RBVK_Return
-        case SDLK_BACKSPACE:    return 70;  // RBVK_BackSpace
-        case SDLK_ESCAPE:       return 71;  // RBVK_Escape
-        case SDLK_LEFT:         return 72;  // RBVK_Left
-        case SDLK_RIGHT:        return 73;  // RBVK_Right
-        case SDLK_UP:           return 74;  // RBVK_Up
-        case SDLK_DOWN:         return 75;  // RBVK_Down
+        case SDLK_SPACE:        return RBVK_Space;
+        case SDLK_TAB:          return RBVK_Tab;
+        case SDLK_RETURN:       return RBVK_Return;
+        case SDLK_BACKSPACE:    return RBVK_BackSpace;
+        case SDLK_ESCAPE:       return RBVK_Escape;
+        case SDLK_LEFT:         return RBVK_Left;
+        case SDLK_RIGHT:        return RBVK_Right;
+        case SDLK_UP:           return RBVK_Up;
+        case SDLK_DOWN:         return RBVK_Down;
+        case SDLK_COMMA:        return RBVK_Comma;
+        case SDLK_PERIOD:       return RBVK_Period;
+        case SDLK_SLASH:        return RBVK_Slash;
+        case SDLK_BACKSLASH:    return RBVK_BackSlash;
+        case SDLK_SEMICOLON:    return RBVK_SemiColon;
+        case SDLK_QUOTE:        return RBVK_Quote;
+        case SDLK_MINUS:        return RBVK_Dash;
+        case SDLK_EQUALS:       return RBVK_Equal;
+        case SDLK_LEFTBRACKET:  return RBVK_LSquareBracket;
+        case SDLK_RIGHTBRACKET: return RBVK_RSquareBracket;
+        case SDLK_BACKQUOTE:    return RBVK_Grave;
         default: return -1;
     }
 }
