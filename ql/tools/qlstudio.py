@@ -112,6 +112,7 @@ class SpriteEditor:
         self.current_color = 7  # white
         self.drawing = False
         self.project_file = project_file
+        self._ql_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
         self._build_ui()
 
@@ -286,9 +287,6 @@ class SpriteEditor:
         # Byte size info
         self.size_label = ttk.Label(right, text="Bytes: 0")
         self.size_label.pack(pady=5)
-
-        # Export button
-        ttk.Button(right, text="Export C Files", command=self._export_c).pack(pady=5)
 
         # Keyboard shortcuts
         self.root.bind("<Key>", self._on_key)
@@ -571,9 +569,12 @@ class SpriteEditor:
             self.emu_tab._screenshot()
 
     def _export_c(self):
-        path = filedialog.askdirectory(title="Export to directory")
+        initial = getattr(self, '_last_export_dir', self._ql_dir)
+        path = filedialog.askdirectory(title="Export to directory",
+                                       initialdir=initial)
         if not path:
             return
+        self._last_export_dir = path
         self._write_c_files(path)
         messagebox.showinfo("Export", f"Exported {len(self.sprites)} sprites to:\n"
                            f"{path}/sprites.c\n{path}/sprites.h")
