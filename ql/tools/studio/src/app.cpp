@@ -419,13 +419,12 @@ void App::draw_emulator() {
     // Toolbar
     if (!g_emu.is_running()) {
         if (ImGui::Button("Build & Run")) {
-            // Export sprites
-            write_c_files(last_export_dir.empty() ?
-                std::string(SDL_GetBasePath()) + "../../../" : last_export_dir);
-            log("Sprites exported");
+            // ql/ directory is two levels up from studio/
+            std::string ql_dir = std::string(SDL_GetBasePath()) + "../../";
 
-            // Build
-            std::string ql_dir = std::string(SDL_GetBasePath()) + "../../../";
+            // Export sprites to ql/ directory
+            write_c_files(last_export_dir.empty() ? ql_dir : last_export_dir);
+            log("Sprites exported to %s", ql_dir.c_str());
             std::string output;
             log("Building...");
             if (g_emu.build(ql_dir, output)) {
