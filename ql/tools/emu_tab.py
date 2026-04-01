@@ -21,7 +21,7 @@ EMU_TICK_MS = 20
 DEBUG_UPDATE_INTERVAL = 5
 
 # Debug panel fixed width in pixels
-DEBUG_PANEL_WIDTH = 290
+DEBUG_PANEL_WIDTH = 420
 
 # Console log height in lines
 CONSOLE_HEIGHT = 8
@@ -195,7 +195,7 @@ class EmulatorTab:
         cpu_frame = ttk.Frame(self.debug_nb)
         self.debug_nb.add(cpu_frame, text="CPU")
 
-        self.debug_text = tk.Text(cpu_frame, width=34, height=20,
+        self.debug_text = tk.Text(cpu_frame, width=48, height=20,
                                   font=("Courier", 11), state=tk.DISABLED,
                                   bg="#1e1e1e", fg="#d4d4d4",
                                   relief=tk.FLAT, padx=6, pady=6,
@@ -235,7 +235,7 @@ class EmulatorTab:
         ttk.Spinbox(mem_top, from_=4, to=64, textvariable=self.mem_rows_var,
                      width=4).pack(side=tk.LEFT, padx=2)
 
-        self.mem_text = tk.Text(mem_frame, width=34, height=20,
+        self.mem_text = tk.Text(mem_frame, width=48, height=20,
                                 font=("Courier", 10), state=tk.DISABLED,
                                 bg="#1e1e1e", fg="#d4d4d4",
                                 relief=tk.FLAT, padx=6, pady=4,
@@ -299,7 +299,7 @@ class EmulatorTab:
             side=tk.LEFT, padx=2)
 
         self.watch_list = []  # list of (addr, name, type)
-        self.watch_text = tk.Text(watch_frame, width=34, height=16,
+        self.watch_text = tk.Text(watch_frame, width=48, height=16,
                                    font=("Courier", 11), state=tk.DISABLED,
                                    bg="#1e1e1e", fg="#d4d4d4",
                                    relief=tk.FLAT, padx=6, pady=4,
