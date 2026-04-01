@@ -966,14 +966,11 @@ class EmulatorTab:
             return
         perf = _iql.get_perf()
         inst = perf.get("instructions", 0)
-        ticks = perf.get("ticks", 0)
-        # Ticks happen at EMU_TICK_MS intervals, we sample every 1000ms
-        # FPS = ticks per second (each tick = 1 QLTimer = ~3000 instructions)
-        fps = ticks  # sampled every 1s
-        ips = inst  # instructions per second
-        # Real QL: 7.5MHz ≈ 1.5M instructions/s (avg ~5 cycles/instr)
-        load = ips * 100 / 1500000 if ips > 0 else 0
-        self.perf_var.set(f"FPS:{fps}  IPS:{ips//1000}K  Load:{load:.0f}%")
+        ips = inst  # instructions per second (sampled every 1s)
+        # Real QL: 7.5MHz / ~5 cycles per instr ≈ 1.5M instr/sec, 50Hz = 30K instr/frame
+        fps = ips // 30000 if ips > 0 else 0
+        load = ips * 100 // 1500000 if ips > 0 else 0
+        self.perf_var.set(f"FPS:{fps}  IPS:{ips//1000}K  Load:{load}%")
         self._perf_after_id = self.root.after(1000, self._update_perf)
 
     def _stop_perf(self):
