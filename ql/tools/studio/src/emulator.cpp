@@ -41,9 +41,13 @@ extern "C" {
     extern w32 usp, ssp;
     extern unsigned short GetSR(void);
 
-    // Screen
+    // Screen — must match QL_screen.h layout exactly
     extern void *pixel_buffer;
-    typedef struct { int xres, yres; long qm_lo, qm_len; } screen_specs;
+    typedef unsigned int uw32;
+    typedef struct {
+        uw32 qm_lo, qm_hi, qm_len, linel;
+        int yres, xres;
+    } screen_specs;
     extern screen_specs qlscreen;
     extern void QLRBUpdatePixelBuffer(void);
 
