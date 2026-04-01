@@ -51,9 +51,8 @@ extern "C" {
     extern screen_specs qlscreen;
     extern void QLRBUpdatePixelBuffer(void);
 
-    // Keyboard
-    typedef struct { int type; int code; int shift; int control; int alt; } RBEvent;
-    enum { RBEVT_KeyPressed = 1, RBEVT_KeyReleased = 2 };
+    // Keyboard — must match rb_virtual_keys.h exactly
+    #include "rb_virtual_keys.h"
     extern void QLRBSendEvent(RBEvent evt);
 
     // Platform stub
@@ -254,10 +253,11 @@ void Emulator::send_key(int vk_code, bool pressed, bool shift, bool ctrl, bool a
     RBEvent evt;
     memset(&evt, 0, sizeof(evt));
     evt.type = pressed ? RBEVT_KeyPressed : RBEVT_KeyReleased;
-    evt.code = vk_code;
-    evt.shift = shift ? 1 : 0;
-    evt.control = ctrl ? 1 : 0;
+    evt.code = (RBVirtualKey)vk_code;
+    evt.ch = 0;
     evt.alt = alt ? 1 : 0;
+    evt.control = ctrl ? 1 : 0;
+    evt.shift = shift ? 1 : 0;
     QLRBSendEvent(evt);
 }
 
