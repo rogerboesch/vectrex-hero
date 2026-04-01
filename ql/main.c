@@ -18,6 +18,7 @@
 
 #include "game.h"
 #include "sprites.h"
+#include "debug.h"
 
 /* ===================================================================
  * Global variables — all game state
@@ -144,6 +145,7 @@ int main(void) {
     render_title_screen();
 
     for (;;) {
+        BREAK(1);
         ql_wait_frame();  /* ~17 FPS frame pacing */
         ql_read_keys();   /* poll KEYROW + drain IO.FBYTE buffer */
 

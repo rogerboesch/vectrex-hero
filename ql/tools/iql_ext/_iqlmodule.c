@@ -58,8 +58,8 @@ static void *emu_thread_func(void *arg) {
 /* Forward declarations */
 static void check_breakpoints_after_tick(void);
 
-/* Software breakpoint state */
-static int soft_bp_enabled = 1;
+/* Software breakpoint state — disabled by default, enabled from Python */
+static int soft_bp_enabled = 0;
 static int soft_bp_hit_id = 0;
 
 /* Trap logging — our own hook called from patched base_instructions_pz.c */
@@ -592,6 +592,21 @@ iql_screenshot(PyObject *self, PyObject *args)
     return result;
 }
 
+/* --- Software breakpoint control --- */
+
+static PyObject *
+iql_set_soft_bp(PyObject *self, PyObject *args)
+{
+    int enable;
+    if (!PyArg_ParseTuple(args, "i", &enable))
+        return NULL;
+    soft_bp_enabled = enable ? 1 : 0;
+    /* Clear any stale marker when enabling */
+    if (enable && emu_running)
+        WriteByte(SOFT_BP_ADDR, 0);
+    Py_RETURN_NONE;
+}
+
 /* --- Trap logging --- */
 
 static PyObject *
@@ -732,6 +747,10 @@ static PyMethodDef iql_methods[] = {
      "screenshot(filename) — Return RGBA data dict for saving as PNG"},
 
     /* Trap logging */
+    /* Software breakpoints */
+    {"set_soft_bp",      iql_set_soft_bp,      METH_VARARGS,
+     "set_soft_bp(enable) — Enable/disable software breakpoint checking"},
+
     {"set_trap_logging", iql_set_trap_logging, METH_VARARGS,
      "set_trap_logging(enable) — Enable/disable QDOS trap logging to console"},
     {"get_trap_logging", iql_get_trap_logging, METH_NOARGS,

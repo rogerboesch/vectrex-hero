@@ -430,6 +430,10 @@ class EmulatorTab:
         # Start emulator
         _iql.init(IQL_SYSTEM_PATH)
 
+        # Enable software breakpoints after QDOS finishes booting
+        # (delayed to avoid false triggers from uninitialized RAM)
+        self.root.after(3000, self._enable_soft_bp)
+
         self._emu_active = True
         self._emu_paused = False
         self._tick_count = 0
@@ -891,6 +895,12 @@ class EmulatorTab:
         log = _iql.get_trap_log()
         if log:
             self._console_append(log, "dbg")
+
+    def _enable_soft_bp(self):
+        """Enable software breakpoints after QDOS boot delay."""
+        if self._emu_active:
+            _iql.set_soft_bp(1)
+            self._console_append("Software breakpoints enabled\n")
 
     def cleanup(self):
         """Clean up on application exit."""
