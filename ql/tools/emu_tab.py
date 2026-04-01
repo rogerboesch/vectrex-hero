@@ -331,6 +331,19 @@ class EmulatorTab:
         self.emu_canvas.config(takefocus=True)
         self.emu_canvas.bind("<Button-1>", lambda e: self.emu_canvas.focus_set())
         self.emu_canvas.bind("<Configure>", self._on_canvas_resize)
+        self.emu_canvas.bind("<Motion>", self._on_canvas_motion)
+        self.emu_canvas.bind("<Leave>", self._on_canvas_leave)
+
+        # Pixel inspector bar under screen
+        self.pixel_info_var = tk.StringVar(value="")
+        pixel_bar = ttk.Label(screen_frame, textvariable=self.pixel_info_var,
+                              font=("Courier", 10), anchor=tk.W)
+        pixel_bar.pack(fill=tk.X, padx=2)
+
+        # Track display offset/scale for pixel mapping
+        self._disp_ox = 0
+        self._disp_oy = 0
+        self._disp_scale = 1.0
 
         # Bottom pane: console log
         console_frame = ttk.LabelFrame(paned, text="Console")
@@ -387,6 +400,9 @@ class EmulatorTab:
         # Center the image in the canvas
         x_off = (cw - disp_w) // 2
         y_off = (ch - disp_h) // 2
+        self._disp_ox = x_off
+        self._disp_oy = y_off
+        self._disp_scale = scale
         self.emu_canvas.create_image(x_off, y_off, anchor=tk.NW,
                                      image=self._photo)
 
@@ -886,6 +902,49 @@ class EmulatorTab:
         log = _iql.get_trap_log()
         if log:
             self._console_append(log, "dbg")
+
+    # --- Pixel inspector ---
+
+    _COLOR_NAMES = ["black", "red", "blue", "magenta", "green", "cyan", "yellow", "white"]
+
+    def _on_canvas_motion(self, event):
+        """Show pixel info on hover over emulator display."""
+        if not self._emu_active:
+            return
+        # Map canvas coords to QL screen coords
+        qx = int((event.x - self._disp_ox) / self._disp_scale)
+        qy = int((event.y - self._disp_oy) / self._disp_scale)
+
+        # iQL screen is 512x256 (Mode 4 width), QL Mode 8 is 256x256
+        # The pixel buffer is 512 wide but Mode 8 pixels are 2px wide
+        ql_x = qx // 2  # Mode 8 pixel x (0-255)
+        ql_y = qy        # pixel y (0-255)
+
+        if ql_x < 0 or ql_x >= 256 or ql_y < 0 or ql_y >= 256:
+            self.pixel_info_var.set("")
+            return
+
+        # Read the Mode 8 byte pair
+        pair_addr = 0x20000 + ql_y * 128 + (ql_x // 4) * 2
+        pos = ql_x & 3
+        even = _iql.read_byte(pair_addr)
+        odd = _iql.read_byte(pair_addr + 1)
+
+        # Extract color for this pixel position
+        shift = (3 - pos) * 2
+        g = (even >> (shift + 1)) & 1
+        r = (odd >> shift) & 1
+        b = (odd >> (shift + 1)) & 1
+        color = (g << 2) | (r << 1) | b
+        cname = self._COLOR_NAMES[color] if color < 8 else "?"
+
+        self.pixel_info_var.set(
+            f"X:{ql_x} Y:{ql_y}  Color:{color} ({cname})  "
+            f"Addr:${pair_addr:05X}  Even:${even:02X} Odd:${odd:02X}"
+        )
+
+    def _on_canvas_leave(self, event):
+        self.pixel_info_var.set("")
 
     def _enable_soft_bp(self):
         """Enable software breakpoints after QDOS boot delay."""
