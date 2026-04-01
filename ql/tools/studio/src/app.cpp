@@ -11,6 +11,7 @@ static const char *simple_file_dialog(const char *title, const char *default_pat
     return NULL;
 }
 #include <cstdio>
+#include <cstdarg>
 #include <cstring>
 #include <cmath>
 #include <algorithm>
@@ -24,6 +25,18 @@ App::App() {
     sprites.push_back(Sprite("sprite_0", 10, 20));
     glGenTextures(1, &sprite_texture);
     glGenTextures(1, &preview_texture);
+}
+
+void App::log(const char *fmt, ...) {
+    char buf[512];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, args);
+    va_end(args);
+    console_log.push_back(buf);
+    if ((int)console_log.size() > 500)
+        console_log.erase(console_log.begin());
+    console_scroll_to_bottom = true;
 }
 
 App::~App() {
@@ -372,6 +385,26 @@ void App::draw_debug_panels() {
     ImGui::Begin("Memory");
     ImGui::Text("Hex viewer coming soon.");
     ImGui::End();
+
+    // Console log panel
+    ImGui::Begin("Console");
+    if (console_log.empty()) {
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "Console output appears here.");
+    } else {
+        for (auto &line : console_log) {
+            if (line.find("ERR") != std::string::npos)
+                ImGui::TextColored(ImVec4(0.95f, 0.3f, 0.3f, 1.0f), "%s", line.c_str());
+            else if (line.find("***") != std::string::npos)
+                ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f), "%s", line.c_str());
+            else
+                ImGui::TextUnformatted(line.c_str());
+        }
+        if (console_scroll_to_bottom) {
+            ImGui::SetScrollHereY(1.0f);
+            console_scroll_to_bottom = false;
+        }
+    }
+    ImGui::End();
 }
 
 // ============================================================
@@ -401,6 +434,7 @@ void App::save_project(const char *path) {
 
     json_save_project(project_path.c_str(), sprites);
     modified = false;
+    log("Project saved: %s (%d sprites)", project_path.c_str(), (int)sprites.size());
 }
 
 void App::save_project_as() {
@@ -414,6 +448,7 @@ void App::load_project(const char *path) {
     project_path = path;
     current_sprite = 0;
     modified = false;
+    log("Loaded: %s (%d sprites)", path, (int)sprites.size());
 }
 
 void App::export_c(const char *directory) {
@@ -427,6 +462,7 @@ void App::export_c(const char *directory) {
     }
     last_export_dir = dir;
     write_c_files(dir);
+    log("Exported %d sprites to %s", (int)sprites.size(), dir.c_str());
 }
 
 void App::write_c_files(const std::string &dir) {

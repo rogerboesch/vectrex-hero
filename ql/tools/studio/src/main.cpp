@@ -105,12 +105,16 @@ int main(int argc, char *argv[]) {
                 ImGuiID center_top, center_bottom;
                 ImGui::DockBuilderSplitNode(center, ImGuiDir_Down, 0.45f, &center_bottom, &center_top);
 
+                ImGuiID right_top, right_bottom;
+                ImGui::DockBuilderSplitNode(right, ImGuiDir_Down, 0.4f, &right_bottom, &right_top);
+
                 ImGui::DockBuilderDockWindow("Sprites", left);
                 ImGui::DockBuilderDockWindow("Canvas", center_top);
                 ImGui::DockBuilderDockWindow("Emulator", center_bottom);
-                ImGui::DockBuilderDockWindow("Tools", right);
-                ImGui::DockBuilderDockWindow("CPU State", right);
-                ImGui::DockBuilderDockWindow("Memory", right);
+                ImGui::DockBuilderDockWindow("Console", center_bottom);
+                ImGui::DockBuilderDockWindow("Tools", right_top);
+                ImGui::DockBuilderDockWindow("CPU State", right_bottom);
+                ImGui::DockBuilderDockWindow("Memory", right_bottom);
                 ImGui::DockBuilderFinish(dockspace_id);
             }
         }

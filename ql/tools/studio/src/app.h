@@ -38,6 +38,11 @@ private:
     Sprite clipboard;
     bool has_clipboard = false;
 
+    // Console
+    std::vector<std::string> console_log;
+    bool console_scroll_to_bottom = false;
+    void log(const char *fmt, ...);
+
     // Sprite editor state
     GLuint sprite_texture = 0;
     GLuint preview_texture = 0;
