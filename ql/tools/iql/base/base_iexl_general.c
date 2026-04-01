@@ -466,8 +466,14 @@ void ExecuteLoop(void)  /* fetch and dispatch loop */
     }
 }
 
+/* Global perf counter — incremented from background thread */
+extern volatile unsigned long iql_perf_instructions;
+extern volatile int iql_perf_chunks;
+
 void ExecuteChunk(long n)       /* execute n emulated 68K istructions */
 {
+  iql_perf_instructions += n;
+  iql_perf_chunks++;
   if((long)pc&1) return;
 
   extraFlag=false;

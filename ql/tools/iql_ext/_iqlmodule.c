@@ -62,10 +62,9 @@ static void check_breakpoints_after_tick(void);
 static int soft_bp_enabled = 0;
 static int soft_bp_hit_id = 0;
 
-/* Performance counter */
-extern int nInst;
-static unsigned long perf_inst_total = 0;
-static int perf_tick_count = 0;
+/* Performance counter — incremented by background thread in ExecuteChunk */
+volatile unsigned long iql_perf_instructions = 0;
+volatile int iql_perf_chunks = 0;
 
 /* Trap logging — our own hook called from patched base_instructions_pz.c */
 extern int tracetrap;
@@ -103,7 +102,7 @@ static const char *trap3_names[] = {
     "IO.SBYTE","IO.SSTRG","IO.EDLIN"
 };
 
-/* Called from patched TRAP instruction handler */
+/* Called from patched TRAP instruction handler (runs in background thread). */
 void iql_trap_hook(int trap_num) {
     if (!trap_logging_enabled) return;
 
@@ -173,10 +172,9 @@ iql_tick(PyObject *self, PyObject *args)
 {
     (void)args;
     if (emu_running && !emu_paused) {
-        QLTimer();
-        /* Each QLTimer call executes ExecuteChunk(3000) ≈ 3000 instructions */
-        perf_inst_total += 3000;
-        perf_tick_count++;
+        /* Display refresh + breakpoint check only.
+         * Actual execution happens in the background emulator thread.
+         * QLSetSpeed() controls that thread's pace. */
         check_breakpoints_after_tick();
     }
     Py_RETURN_NONE;
@@ -606,11 +604,11 @@ static PyObject *
 iql_get_perf(PyObject *self, PyObject *args)
 {
     (void)args;
-    unsigned long inst = perf_inst_total;
-    int ticks = perf_tick_count;
-    perf_inst_total = 0;
-    perf_tick_count = 0;
-    return Py_BuildValue("{s:k,s:i}", "instructions", inst, "ticks", ticks);
+    unsigned long inst = iql_perf_instructions;
+    int chunks = iql_perf_chunks;
+    iql_perf_instructions = 0;
+    iql_perf_chunks = 0;
+    return Py_BuildValue("{s:k,s:i}", "instructions", inst, "ticks", chunks);
 }
 
 static PyObject *
