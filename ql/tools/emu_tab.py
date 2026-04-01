@@ -960,17 +960,24 @@ class EmulatorTab:
     # --- Performance counter ---
 
     def _update_perf(self):
-        """Read perf counters and display FPS / instructions."""
+        """Read perf counters and display using wall clock for accuracy."""
+        import time
         if not self._emu_active:
             self.perf_var.set("")
             return
+        now = time.monotonic()
         perf = _iql.get_perf()
         inst = perf.get("instructions", 0)
-        ips = inst  # instructions per second (sampled every 1s)
-        # Real QL: 7.5MHz / ~5 cycles per instr ≈ 1.5M instr/sec, 50Hz = 30K instr/frame
-        fps = ips // 30000 if ips > 0 else 0
-        load = ips * 100 // 1500000 if ips > 0 else 0
-        self.perf_var.set(f"FPS:{fps}  IPS:{ips//1000}K  Load:{load}%")
+        ticks = perf.get("ticks", 0)
+        elapsed = now - getattr(self, '_perf_last_time', now)
+        self._perf_last_time = now
+
+        if elapsed > 0.1:
+            ips = int(inst / elapsed)
+            tps = int(ticks / elapsed)  # QLTimer ticks per second
+            # Real QL: ~1.5M instr/sec at 50Hz
+            load = ips * 100 // 1500000 if ips > 0 else 0
+            self.perf_var.set(f"Ticks:{tps}  IPS:{ips//1000}K  Load:{load}%")
         self._perf_after_id = self.root.after(1000, self._update_perf)
 
     def _stop_perf(self):
