@@ -168,11 +168,6 @@ class EmulatorTab:
                                 width=10, state="readonly")
         speed_cb.pack(side=tk.LEFT)
         speed_cb.bind("<<ComboboxSelected>>", self._on_speed_change)
-        # Refocus canvas after combobox selection
-        speed_cb.bind("<FocusIn>", lambda e: None)
-        speed_cb.bind("<<ComboboxSelected>>",
-                      lambda e: (self._on_speed_change(e),
-                                 self.emu_canvas.focus_set()), add="+")
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
             side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
@@ -467,8 +462,8 @@ class EmulatorTab:
         self.status_var.set("Running")
 
         # Bind keyboard events for this tab
-        self.root.bind("<KeyPress>", self._on_emu_key_press)
-        self.root.bind("<KeyRelease>", self._on_emu_key_release)
+        self.emu_canvas.bind("<KeyPress>", self._on_emu_key_press)
+        self.emu_canvas.bind("<KeyRelease>", self._on_emu_key_release)
 
         # Focus the canvas so Space/keys go to emulator, not buttons
         self.emu_canvas.focus_set()
@@ -692,10 +687,8 @@ class EmulatorTab:
         return None
 
     def _on_emu_key_press(self, event):
-        """Forward key press to emulator (only when canvas has focus)."""
+        """Forward key press to emulator."""
         if not self._emu_active:
-            return
-        if self.root.focus_get() != self.emu_canvas:
             return
         result = self._resolve_key(event)
         if result is not None:
@@ -705,10 +698,8 @@ class EmulatorTab:
             _iql.send_key(vk, 1, shift, ctrl, alt)
 
     def _on_emu_key_release(self, event):
-        """Forward key release to emulator (only when canvas has focus)."""
+        """Forward key release to emulator."""
         if not self._emu_active:
-            return
-        if self.root.focus_get() != self.emu_canvas:
             return
         result = self._resolve_key(event)
         if result is not None:
@@ -718,14 +709,14 @@ class EmulatorTab:
     def on_tab_selected(self):
         """Called when this tab becomes active."""
         if self._emu_active:
-            self.root.bind("<KeyPress>", self._on_emu_key_press)
-            self.root.bind("<KeyRelease>", self._on_emu_key_release)
+            self.emu_canvas.bind("<KeyPress>", self._on_emu_key_press)
+            self.emu_canvas.bind("<KeyRelease>", self._on_emu_key_release)
             self.emu_canvas.focus_set()
 
     def on_tab_deselected(self):
         """Called when switching away from this tab."""
-        self.root.bind("<KeyPress>", None)
-        self.root.bind("<KeyRelease>", None)
+        self.emu_canvas.unbind("<KeyPress>")
+        self.emu_canvas.unbind("<KeyRelease>")
 
     # --- Step controls ---
 
