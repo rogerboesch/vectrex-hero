@@ -39,7 +39,7 @@ static int sdl_to_vk(SDL_Keycode k) {
     }
 }
 
-static bool emu_wants_keys = false;  // set by app when emulator image is hovered
+extern bool emu_wants_keys;  // defined in app.cpp, toggled by Keys button
 
 int main(int argc, char *argv[]) {
     // Init SDL

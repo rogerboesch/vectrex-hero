@@ -423,10 +423,10 @@ void App::draw_emulator() {
         // Toggle keyboard capture — when active, all keys go to emulator
         if (emu_wants_keys) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
-            if (ImGui::Button("Keys: ON")) emu_wants_keys = false;
+            if (ImGui::Button("Keys: ON")) { emu_wants_keys = false; printf("[KEYS] toggled OFF\n"); }
             ImGui::PopStyleColor();
         } else {
-            if (ImGui::Button("Keys: OFF")) emu_wants_keys = true;
+            if (ImGui::Button("Keys: OFF")) { emu_wants_keys = true; printf("[KEYS] toggled ON\n"); }
         }
         ImGui::SameLine();
 
