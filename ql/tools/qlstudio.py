@@ -343,6 +343,12 @@ class SpriteEditor:
     def _select_sprite(self, idx):
         if idx < 0 or idx >= len(self.sprites):
             return
+        # Stop animation when switching sprites
+        if self.anim_var.get():
+            self.anim_var.set(False)
+            if self._anim_after_id:
+                self.root.after_cancel(self._anim_after_id)
+                self._anim_after_id = None
         self.current_idx = idx
         self.sprite_listbox.selection_clear(0, tk.END)
         self.sprite_listbox.selection_set(idx)
@@ -586,10 +592,20 @@ class SpriteEditor:
         if not self.project_file:
             self._save_project_as()
             return
+        sorted_sprites = sorted(self.sprites, key=lambda s: s.name)
         data = {
-            "sprites": [s.to_dict() for s in self.sprites],
+            "sprites": [s.to_dict() for s in sorted_sprites],
             "images": self.img_tab.get_images_data(),
         }
+        # Update list order to match saved order
+        current_name = self._cur().name if self._cur() else None
+        self.sprites = sorted_sprites
+        self._update_sprite_list()
+        if current_name:
+            for i, s in enumerate(self.sprites):
+                if s.name == current_name:
+                    self._select_sprite(i)
+                    break
         with open(self.project_file, "w") as f:
             json.dump(data, f, indent=2)
 
