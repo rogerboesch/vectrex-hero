@@ -284,6 +284,14 @@ class SpriteEditor:
         self.preview = tk.Canvas(preview_frame, width=80, height=80, bg="#000000")
         self.preview.pack(padx=5, pady=5)
 
+        preview_ctrl = ttk.Frame(preview_frame)
+        preview_ctrl.pack(fill=tk.X, padx=5, pady=(0, 5))
+        self.anim_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(preview_ctrl, text="Animate", variable=self.anim_var,
+                        command=self._toggle_anim).pack(side=tk.LEFT)
+        self._anim_frame = 0
+        self._anim_after_id = None
+
         # Byte size info
         self.size_label = ttk.Label(right, text="Bytes: 0")
         self.size_label.pack(pady=5)
@@ -502,9 +510,12 @@ class SpriteEditor:
         scale = 2
         pw = s.width * scale
         ph = s.height * scale
-        self.preview.config(width=max(pw + 10, 80), height=max(ph + 10, 80))
-        ox = 5
-        oy = 5
+        canvas_w = max(pw + 10, 80)
+        canvas_h = max(ph + 10, 80)
+        self.preview.config(width=canvas_w, height=canvas_h)
+        # Center sprite in preview
+        ox = (canvas_w - pw) // 2
+        oy = (canvas_h - ph) // 2
         for y in range(s.height):
             for x in range(s.width):
                 c = s.pixels[y][x]
@@ -516,6 +527,51 @@ class SpriteEditor:
                     ox + (x + 1) * scale, oy + (y + 1) * scale,
                     fill=color, outline=""
                 )
+
+    def _find_anim_group(self):
+        """Find sprites that share the same base name (e.g., player_walk_0, player_walk_1)."""
+        s = self._cur()
+        if not s:
+            return []
+        # Strip trailing _N to get base name
+        name = s.name
+        parts = name.rsplit('_', 1)
+        if len(parts) == 2 and parts[1].isdigit():
+            base = parts[0] + '_'
+        else:
+            return [self.current_idx]
+        # Find all sprites with same base
+        indices = []
+        for i, sp in enumerate(self.sprites):
+            if sp.name.startswith(base):
+                suffix = sp.name[len(base):]
+                if suffix.isdigit():
+                    indices.append(i)
+        return sorted(indices) if len(indices) > 1 else [self.current_idx]
+
+    def _toggle_anim(self):
+        """Toggle animation preview."""
+        if self.anim_var.get():
+            self._anim_group = self._find_anim_group()
+            self._anim_frame = 0
+            self._anim_tick()
+        else:
+            if self._anim_after_id:
+                self.root.after_cancel(self._anim_after_id)
+                self._anim_after_id = None
+
+    def _anim_tick(self):
+        """Advance animation frame and update preview."""
+        if not self.anim_var.get():
+            return
+        group = self._anim_group
+        if not group:
+            return
+        idx = group[self._anim_frame % len(group)]
+        s = self.sprites[idx]
+        self._update_preview(s)
+        self._anim_frame += 1
+        self._anim_after_id = self.root.after(200, self._anim_tick)
 
     # --- File I/O ---
 
