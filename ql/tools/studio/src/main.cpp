@@ -97,17 +97,25 @@ int main(int argc, char *argv[]) {
         while (SDL_PollEvent(&event)) {
             // Forward keyboard to emulator BEFORE ImGui processes the event
             bool key_forwarded = false;
-            if (g_emu.is_running() && !g_emu.is_paused() && emu_wants_keys) {
-                if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-                    int vk = sdl_to_vk(event.key.keysym.sym);
-                    if (vk >= 0) {
-                        bool pressed = (event.type == SDL_KEYDOWN);
-                        bool shift = (event.key.keysym.mod & KMOD_SHIFT) != 0;
-                        bool ctrl = (event.key.keysym.mod & KMOD_CTRL) != 0;
-                        bool alt = (event.key.keysym.mod & KMOD_ALT) != 0;
-                        g_emu.send_key(vk, pressed, shift, ctrl, alt);
-                        key_forwarded = true;
-                    }
+            if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+                int vk = sdl_to_vk(event.key.keysym.sym);
+                bool pressed = (event.type == SDL_KEYDOWN);
+
+                // Debug: always log key events
+                if (pressed) {
+                    printf("[KEY] sym=%d vk=%d emu_wants=%d running=%d paused=%d\n",
+                           event.key.keysym.sym, vk, emu_wants_keys,
+                           g_emu.is_running(), g_emu.is_paused());
+                }
+
+                if (g_emu.is_running() && !g_emu.is_paused() && emu_wants_keys && vk >= 0) {
+                    bool shift = (event.key.keysym.mod & KMOD_SHIFT) != 0;
+                    bool ctrl = (event.key.keysym.mod & KMOD_CTRL) != 0;
+                    bool alt = (event.key.keysym.mod & KMOD_ALT) != 0;
+                    g_emu.send_key(vk, pressed, shift, ctrl, alt);
+                    key_forwarded = true;
+                    if (pressed)
+                        printf("[KEY] -> sent to emulator vk=%d\n", vk);
                 }
             }
 
