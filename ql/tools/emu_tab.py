@@ -183,17 +183,130 @@ class EmulatorTab:
         paned.add(top_frame, weight=1)
 
         # Debug panel (right side, fixed width, packed first)
-        debug_frame = ttk.LabelFrame(top_frame, text="CPU State",
-                                     width=DEBUG_PANEL_WIDTH)
+        debug_frame = ttk.Frame(top_frame, width=DEBUG_PANEL_WIDTH)
         debug_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 0))
         debug_frame.pack_propagate(False)
 
-        self.debug_text = tk.Text(debug_frame, width=34, height=28,
+        # Debug notebook: CPU | Memory | Breakpoints
+        self.debug_nb = ttk.Notebook(debug_frame)
+        self.debug_nb.pack(fill=tk.BOTH, expand=True)
+
+        # --- Tab: CPU State ---
+        cpu_frame = ttk.Frame(self.debug_nb)
+        self.debug_nb.add(cpu_frame, text="CPU")
+
+        self.debug_text = tk.Text(cpu_frame, width=34, height=20,
                                   font=("Courier", 11), state=tk.DISABLED,
                                   bg="#1e1e1e", fg="#d4d4d4",
                                   relief=tk.FLAT, padx=6, pady=6,
                                   wrap=tk.NONE)
         self.debug_text.pack(fill=tk.BOTH, expand=True)
+
+        # Step controls under CPU tab
+        step_frame = ttk.Frame(cpu_frame)
+        step_frame.pack(fill=tk.X, padx=4, pady=4)
+        self.btn_step1 = ttk.Button(step_frame, text="Step 1", width=7,
+                                     command=lambda: self._step(1))
+        self.btn_step1.pack(side=tk.LEFT, padx=1)
+        self.btn_step10 = ttk.Button(step_frame, text="Step 10", width=7,
+                                      command=lambda: self._step(10))
+        self.btn_step10.pack(side=tk.LEFT, padx=1)
+        self.btn_step100 = ttk.Button(step_frame, text="Step 100", width=7,
+                                       command=lambda: self._step(100))
+        self.btn_step100.pack(side=tk.LEFT, padx=1)
+        ttk.Button(step_frame, text="Screenshot", width=10,
+                   command=self._screenshot).pack(side=tk.RIGHT, padx=1)
+
+        # --- Tab: Memory Viewer ---
+        mem_frame = ttk.Frame(self.debug_nb)
+        self.debug_nb.add(mem_frame, text="Memory")
+
+        mem_top = ttk.Frame(mem_frame)
+        mem_top.pack(fill=tk.X, padx=4, pady=4)
+        ttk.Label(mem_top, text="Addr:").pack(side=tk.LEFT)
+        self.mem_addr_var = tk.StringVar(value="20000")
+        mem_entry = ttk.Entry(mem_top, textvariable=self.mem_addr_var, width=8)
+        mem_entry.pack(side=tk.LEFT, padx=2)
+        mem_entry.bind("<Return>", lambda e: self._update_mem_view())
+        ttk.Button(mem_top, text="Go", command=self._update_mem_view).pack(
+            side=tk.LEFT, padx=2)
+        ttk.Label(mem_top, text="Rows:").pack(side=tk.LEFT, padx=(8, 0))
+        self.mem_rows_var = tk.IntVar(value=16)
+        ttk.Spinbox(mem_top, from_=4, to=64, textvariable=self.mem_rows_var,
+                     width=4).pack(side=tk.LEFT, padx=2)
+
+        self.mem_text = tk.Text(mem_frame, width=34, height=20,
+                                font=("Courier", 10), state=tk.DISABLED,
+                                bg="#1e1e1e", fg="#d4d4d4",
+                                relief=tk.FLAT, padx=6, pady=4,
+                                wrap=tk.NONE)
+        self.mem_text.pack(fill=tk.BOTH, expand=True)
+        self.mem_text.tag_configure("addr", foreground="#569cd6")
+        self.mem_text.tag_configure("nonzero", foreground="#ce9178")
+
+        # --- Tab: Breakpoints ---
+        bp_frame = ttk.Frame(self.debug_nb)
+        self.debug_nb.add(bp_frame, text="Break")
+
+        bp_top = ttk.Frame(bp_frame)
+        bp_top.pack(fill=tk.X, padx=4, pady=4)
+        ttk.Label(bp_top, text="Addr:").pack(side=tk.LEFT)
+        self.bp_addr_var = tk.StringVar()
+        bp_entry = ttk.Entry(bp_top, textvariable=self.bp_addr_var, width=8)
+        bp_entry.pack(side=tk.LEFT, padx=2)
+        bp_entry.bind("<Return>", lambda e: self._add_breakpoint())
+        ttk.Button(bp_top, text="Add", command=self._add_breakpoint).pack(
+            side=tk.LEFT, padx=2)
+        ttk.Button(bp_top, text="Clear All", command=self._clear_breakpoints).pack(
+            side=tk.RIGHT, padx=2)
+        ttk.Button(bp_top, text="Remove", command=self._remove_breakpoint).pack(
+            side=tk.RIGHT, padx=2)
+
+        self.bp_listbox = tk.Listbox(bp_frame, height=8, font=("Courier", 11),
+                                      bg="#1e1e1e", fg="#d4d4d4",
+                                      selectbackground="#264f78")
+        self.bp_listbox.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+
+        # Breakpoint hit status
+        self.bp_status_var = tk.StringVar(value="")
+        ttk.Label(bp_frame, textvariable=self.bp_status_var,
+                  foreground="red").pack(padx=4, pady=2)
+
+        # --- Tab: Watch ---
+        watch_frame = ttk.Frame(self.debug_nb)
+        self.debug_nb.add(watch_frame, text="Watch")
+
+        watch_top = ttk.Frame(watch_frame)
+        watch_top.pack(fill=tk.X, padx=4, pady=4)
+        ttk.Label(watch_top, text="Addr:").pack(side=tk.LEFT)
+        self.watch_addr_var = tk.StringVar()
+        w_entry = ttk.Entry(watch_top, textvariable=self.watch_addr_var, width=8)
+        w_entry.pack(side=tk.LEFT, padx=2)
+        ttk.Label(watch_top, text="Name:").pack(side=tk.LEFT, padx=(4, 0))
+        self.watch_name_var = tk.StringVar()
+        ttk.Entry(watch_top, textvariable=self.watch_name_var, width=10).pack(
+            side=tk.LEFT, padx=2)
+
+        watch_type_frame = ttk.Frame(watch_frame)
+        watch_type_frame.pack(fill=tk.X, padx=4)
+        self.watch_type_var = tk.StringVar(value="byte")
+        for t in ("byte", "word", "long"):
+            ttk.Radiobutton(watch_type_frame, text=t, value=t,
+                           variable=self.watch_type_var).pack(side=tk.LEFT)
+        ttk.Button(watch_type_frame, text="Add", command=self._add_watch).pack(
+            side=tk.LEFT, padx=8)
+        ttk.Button(watch_type_frame, text="Remove", command=self._remove_watch).pack(
+            side=tk.LEFT, padx=2)
+
+        self.watch_list = []  # list of (addr, name, type)
+        self.watch_text = tk.Text(watch_frame, width=34, height=16,
+                                   font=("Courier", 11), state=tk.DISABLED,
+                                   bg="#1e1e1e", fg="#d4d4d4",
+                                   relief=tk.FLAT, padx=6, pady=4,
+                                   wrap=tk.NONE)
+        self.watch_text.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+        self.watch_text.tag_configure("name", foreground="#4ec9b0")
+        self.watch_text.tag_configure("val", foreground="#ce9178")
 
         # Emulator screen canvas (fills remaining space)
         screen_frame = ttk.Frame(top_frame)
@@ -387,10 +500,14 @@ class EmulatorTab:
         # Update display
         self._update_display()
 
+        # Check for breakpoint hits
+        self._check_breakpoint_hit()
+
         # Update debug panel and console periodically
         self._tick_count += 1
         if self._emu_paused or self._tick_count % DEBUG_UPDATE_INTERVAL == 0:
             self._update_debug_panel()
+            self._update_watch()
             self._drain_console()
 
         # Schedule next tick
@@ -551,6 +668,169 @@ class EmulatorTab:
         """Called when switching away from this tab."""
         self.root.bind("<KeyPress>", None)
         self.root.bind("<KeyRelease>", None)
+
+    # --- Step controls ---
+
+    def _step(self, count):
+        """Single-step N instructions (pause first if running)."""
+        if not self._emu_active:
+            return
+        if not self._emu_paused:
+            self._toggle_pause()
+        _iql.step(count)
+        self._update_display()
+        self._update_debug_panel()
+        self._update_mem_view()
+        self._update_watch()
+
+    # --- Screenshot ---
+
+    def _screenshot(self):
+        """Save screenshot as PNG."""
+        if not self._emu_active:
+            return
+        from tkinter import filedialog
+        path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG", "*.png")],
+            initialfile="screenshot.png"
+        )
+        if not path:
+            return
+        fb = _iql.get_framebuffer()
+        if not fb:
+            return
+        w, h = _iql.get_screen_size()
+        img = Image.frombytes('RGBA', (w, h), fb)
+        img.save(path)
+        self._console_append(f"Screenshot saved: {path}\n")
+
+    # --- Memory Viewer ---
+
+    def _update_mem_view(self):
+        """Refresh the memory hex dump."""
+        if not self._emu_active:
+            return
+        try:
+            addr = int(self.mem_addr_var.get(), 16)
+        except ValueError:
+            return
+        rows = self.mem_rows_var.get()
+
+        self.mem_text.config(state=tk.NORMAL)
+        self.mem_text.delete("1.0", tk.END)
+
+        for r in range(rows):
+            row_addr = addr + r * 16
+            self.mem_text.insert(tk.END, f"{row_addr:06X}: ", "addr")
+            data = _iql.read_mem(row_addr, 16)
+            hex_parts = []
+            ascii_parts = []
+            for b in data:
+                tag = "nonzero" if b != 0 else None
+                hex_str = f"{b:02X} "
+                self.mem_text.insert(tk.END, hex_str, tag)
+                ascii_parts.append(chr(b) if 32 <= b < 127 else '.')
+            self.mem_text.insert(tk.END, " " + "".join(ascii_parts) + "\n")
+
+        self.mem_text.config(state=tk.DISABLED)
+
+    # --- Breakpoints ---
+
+    def _add_breakpoint(self):
+        """Add a breakpoint at the entered address."""
+        if not self._emu_active:
+            return
+        try:
+            addr = int(self.bp_addr_var.get(), 16)
+        except ValueError:
+            return
+        _iql.add_breakpoint(addr)
+        self.bp_addr_var.set("")
+        self._refresh_bp_list()
+
+    def _remove_breakpoint(self):
+        """Remove the selected breakpoint."""
+        sel = self.bp_listbox.curselection()
+        if not sel:
+            return
+        text = self.bp_listbox.get(sel[0])
+        try:
+            addr = int(text.strip().split(":")[0].strip("$"), 16)
+            _iql.remove_breakpoint(addr)
+        except (ValueError, IndexError):
+            pass
+        self._refresh_bp_list()
+
+    def _clear_breakpoints(self):
+        """Clear all breakpoints."""
+        _iql.clear_breakpoints()
+        self.bp_status_var.set("")
+        self._refresh_bp_list()
+
+    def _refresh_bp_list(self):
+        """Refresh the breakpoint listbox."""
+        self.bp_listbox.delete(0, tk.END)
+        if not self._emu_active:
+            return
+        for addr in _iql.list_breakpoints():
+            self.bp_listbox.insert(tk.END, f"  ${addr:06X}")
+
+    def _check_breakpoint_hit(self):
+        """Check if a breakpoint was hit during the last tick."""
+        if not self._emu_active:
+            return
+        hit = _iql.check_breakpoint()
+        if hit is not None:
+            self._emu_paused = True
+            self.btn_pause.config(text="Resume")
+            self.status_var.set(f"BREAKPOINT at ${hit:06X}")
+            self.bp_status_var.set(f"Hit: ${hit:06X}")
+            self._update_debug_panel()
+            self._update_mem_view()
+            self._update_watch()
+
+    # --- Watch ---
+
+    def _add_watch(self):
+        """Add a memory watch entry."""
+        try:
+            addr = int(self.watch_addr_var.get(), 16)
+        except ValueError:
+            return
+        name = self.watch_name_var.get().strip() or f"${addr:06X}"
+        wtype = self.watch_type_var.get()
+        self.watch_list.append((addr, name, wtype))
+        self.watch_addr_var.set("")
+        self.watch_name_var.set("")
+        self._update_watch()
+
+    def _remove_watch(self):
+        """Remove last watch entry."""
+        if self.watch_list:
+            self.watch_list.pop()
+            self._update_watch()
+
+    def _update_watch(self):
+        """Refresh watch values from emulator memory."""
+        self.watch_text.config(state=tk.NORMAL)
+        self.watch_text.delete("1.0", tk.END)
+        if not self._emu_active:
+            self.watch_text.config(state=tk.DISABLED)
+            return
+        for addr, name, wtype in self.watch_list:
+            if wtype == "byte":
+                val = _iql.read_byte(addr)
+                val_str = f"${val:02X} ({val})"
+            elif wtype == "word":
+                val = _iql.read_word(addr)
+                val_str = f"${val:04X} ({val})"
+            else:
+                val = _iql.read_long(addr)
+                val_str = f"${val:08X}"
+            self.watch_text.insert(tk.END, f"{name}: ", "name")
+            self.watch_text.insert(tk.END, f"{val_str}\n", "val")
+        self.watch_text.config(state=tk.DISABLED)
 
     def cleanup(self):
         """Clean up on application exit."""
