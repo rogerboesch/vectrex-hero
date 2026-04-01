@@ -164,10 +164,15 @@ class EmulatorTab:
         self.speed_var = tk.StringVar(value="Normal")
         ttk.Label(toolbar, text="Speed:").pack(side=tk.LEFT, padx=(0, 2))
         speed_cb = ttk.Combobox(toolbar, textvariable=self.speed_var,
-                                values=["Normal", "Slow"], width=8,
-                                state="readonly")
+                                values=["Fast", "Normal", "Slow", "Very Slow"],
+                                width=10, state="readonly")
         speed_cb.pack(side=tk.LEFT)
         speed_cb.bind("<<ComboboxSelected>>", self._on_speed_change)
+        # Refocus canvas after combobox selection
+        speed_cb.bind("<FocusIn>", lambda e: None)
+        speed_cb.bind("<<ComboboxSelected>>",
+                      lambda e: (self._on_speed_change(e),
+                                 self.emu_canvas.focus_set()), add="+")
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
             side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
@@ -525,8 +530,15 @@ class EmulatorTab:
         self.emu_canvas.focus_set()
 
     def _on_speed_change(self, event=None):
-        """Handle speed combobox change."""
-        speed = 0 if self.speed_var.get() == "Normal" else 4
+        """Handle speed combobox change.
+        QLSetSpeed(ms) sets a delay per emulator step:
+          0 = no throttle (fast as possible)
+          1 = ~real QL speed (7.5MHz 68008)
+          4 = slow motion
+          10 = very slow
+        """
+        speed_map = {"Fast": 0, "Normal": 1, "Slow": 4, "Very Slow": 10}
+        speed = speed_map.get(self.speed_var.get(), 1)
         if self._emu_active:
             _iql.set_speed(speed)
 
@@ -680,8 +692,10 @@ class EmulatorTab:
         return None
 
     def _on_emu_key_press(self, event):
-        """Forward key press to emulator."""
+        """Forward key press to emulator (only when canvas has focus)."""
         if not self._emu_active:
+            return
+        if self.root.focus_get() != self.emu_canvas:
             return
         result = self._resolve_key(event)
         if result is not None:
@@ -691,8 +705,10 @@ class EmulatorTab:
             _iql.send_key(vk, 1, shift, ctrl, alt)
 
     def _on_emu_key_release(self, event):
-        """Forward key release to emulator."""
+        """Forward key release to emulator (only when canvas has focus)."""
         if not self._emu_active:
+            return
+        if self.root.focus_get() != self.emu_canvas:
             return
         result = self._resolve_key(event)
         if result is not None:
