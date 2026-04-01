@@ -175,9 +175,6 @@ class EmulatorTab:
         ttk.Button(toolbar, text="Screenshot",
                    command=self._screenshot).pack(side=tk.LEFT, padx=2)
 
-        self.btn_step_frame = ttk.Button(toolbar, text="Step Frame",
-                                          command=self._step_frame, state=tk.DISABLED)
-        self.btn_step_frame.pack(side=tk.LEFT, padx=2)
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
             side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
@@ -440,7 +437,6 @@ class EmulatorTab:
         self.btn_build_run.config(text="Rebuild & Run")
         self.btn_pause.config(state=tk.NORMAL, text="Pause")
         self.btn_restart.config(state=tk.NORMAL)
-        self.btn_step_frame.config(state=tk.NORMAL)
         self.status_var.set("Running")
 
         # Bind keyboard events for this tab
@@ -465,7 +461,6 @@ class EmulatorTab:
             self._emu_paused = False
             self.btn_pause.config(state=tk.DISABLED, text="Pause")
             self.btn_restart.config(state=tk.DISABLED)
-            self.btn_step_frame.config(state=tk.DISABLED)
             self.status_var.set("Stopped")
 
     def _toggle_pause(self):
@@ -863,19 +858,6 @@ class EmulatorTab:
 
     # --- Frame step ---
 
-    def _step_frame(self):
-        """Step one game frame (~42 QLTimer ticks = ~125K instructions)."""
-        if not self._emu_active:
-            return
-        if not self._emu_paused:
-            self._toggle_pause()
-        _iql.step_frame(42)  # 42 * 3000 ≈ 126K instructions = 1 frame at 50Hz
-        self._update_display()
-        self._update_debug_panel()
-        self._update_mem_view()
-        self._update_watch()
-        self._drain_trap_log()
-        self.status_var.set("Paused (frame step)")
 
     # --- Trap logging ---
 
