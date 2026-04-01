@@ -161,13 +161,12 @@ class EmulatorTab:
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
             side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
 
-        self.speed_var = tk.StringVar(value="Normal")
-        ttk.Label(toolbar, text="Speed:").pack(side=tk.LEFT, padx=(0, 2))
-        speed_cb = ttk.Combobox(toolbar, textvariable=self.speed_var,
-                                values=["Fast", "Normal", "Slow", "Very Slow"],
-                                width=10, state="readonly")
-        speed_cb.pack(side=tk.LEFT)
-        speed_cb.bind("<<ComboboxSelected>>", self._on_speed_change)
+        self._speed_names = ["Fast", "Normal", "Slow", "Very Slow"]
+        self._speed_values = [0, 1, 4, 10]
+        self._speed_idx = 1  # Normal
+        self.speed_btn = ttk.Button(toolbar, text="Speed: Normal",
+                                     command=self._cycle_speed, width=16)
+        self.speed_btn.pack(side=tk.LEFT, padx=2)
 
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
             side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
@@ -524,18 +523,14 @@ class EmulatorTab:
         self.status_var.set("Restarting...")
         self.emu_canvas.focus_set()
 
-    def _on_speed_change(self, event=None):
-        """Handle speed combobox change.
-        QLSetSpeed(ms) sets a delay per emulator step:
-          0 = no throttle (fast as possible)
-          1 = ~real QL speed (7.5MHz 68008)
-          4 = slow motion
-          10 = very slow
-        """
-        speed_map = {"Fast": 0, "Normal": 1, "Slow": 4, "Very Slow": 10}
-        speed = speed_map.get(self.speed_var.get(), 1)
+    def _cycle_speed(self):
+        """Cycle through speed options on button click."""
+        self._speed_idx = (self._speed_idx + 1) % len(self._speed_names)
+        name = self._speed_names[self._speed_idx]
+        self.speed_btn.config(text=f"Speed: {name}")
         if self._emu_active:
-            _iql.set_speed(speed)
+            _iql.set_speed(self._speed_values[self._speed_idx])
+        self.emu_canvas.focus_set()
 
     def _emu_tick(self):
         """Advance emulation and update display."""
