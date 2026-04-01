@@ -25,6 +25,7 @@ public:
     void restart();
     bool is_running() const { return running; }
     bool is_ready() const { return running && rom_ready; }
+    const char *get_debug_info() const;
 
     // Pause/resume
     void pause();

@@ -196,8 +196,16 @@ int Emulator::get_screen_height() const {
     return qlscreen.yres;
 }
 
+const char *Emulator::get_debug_info() const {
+    static char buf[128];
+    snprintf(buf, sizeof(buf), "run:%d rom:%p pbuf:%p scr:%dx%d ready:%d",
+             running, (void*)theROM, pixel_buffer,
+             qlscreen.xres, qlscreen.yres, rom_ready);
+    return buf;
+}
+
 void Emulator::update_texture() {
-    if (!running || !theROM) return;
+    if (!running) return;
 
     // Allocate pixel buffer if iQL hasn't done it yet
     if (!pixel_buffer) {
@@ -209,6 +217,9 @@ void Emulator::update_texture() {
         }
         if (!pixel_buffer) return;
     }
+
+    // Need theROM for screen conversion
+    if (!theROM) return;
     rom_ready = true;
 
     int w = qlscreen.xres;

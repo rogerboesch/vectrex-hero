@@ -462,19 +462,21 @@ void App::draw_emulator() {
             g_emu.set_trap_logging(trap_log_enabled);
     }
 
-    // Display emulator screen as texture
-    if (g_emu.is_running()) {
+    // Display area — always show screen rectangle
+    {
         ImVec2 avail = ImGui::GetContentRegionAvail();
         float dw = 512, dh = 256;
 
-        if (g_emu.is_ready()) {
+        if (g_emu.is_running())
             g_emu.update_texture();
+
+        if (g_emu.is_ready()) {
             int sw = g_emu.get_screen_width();
             int sh = g_emu.get_screen_height();
             if (sw > 0 && sh > 0) { dw = (float)sw; dh = (float)sh; }
         }
 
-        float scale = std::min(avail.x / dw, avail.y / dh);
+        float scale = std::min(avail.x / dw, (avail.y - 20) / dh);
         if (scale < 0.1f) scale = 1.0f;
         float pw = dw * scale, ph = dh * scale;
         ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -487,20 +489,18 @@ void App::draw_emulator() {
             ImGui::Image((ImTextureID)(intptr_t)tex, ImVec2(pw, ph));
             emu_wants_keys = ImGui::IsItemHovered();
         } else {
-            // Red placeholder while booting
+            // Dark red placeholder
             ImDrawList *dl = ImGui::GetWindowDrawList();
             dl->AddRectFilled(screen_pos, ImVec2(screen_pos.x + pw, screen_pos.y + ph),
-                              IM_COL32(80, 0, 0, 255));
-            dl->AddText(ImVec2(screen_pos.x + pw/2 - 40, screen_pos.y + ph/2 - 8),
-                       IM_COL32(255, 100, 100, 255), "Booting...");
+                              IM_COL32(40, 0, 0, 255));
+            const char *msg = g_emu.is_running() ? "Booting..." : "Press Build & Run";
+            dl->AddText(ImVec2(screen_pos.x + pw/2 - 50, screen_pos.y + ph/2 - 8),
+                       IM_COL32(200, 80, 80, 255), msg);
             ImGui::Dummy(ImVec2(pw, ph));
         }
 
-        // Debug: show state
-        ImGui::Text("ready:%d tex:%u screen:%dx%d pbuf:%s",
-                    g_emu.is_ready(), tex,
-                    g_emu.get_screen_width(), g_emu.get_screen_height(),
-                    g_emu.is_ready() ? "valid" : "null");
+        // Debug
+        ImGui::Text("%s", g_emu.get_debug_info());
 
         // Drain trap log to console
         if (trap_log_enabled) {
