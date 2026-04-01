@@ -58,6 +58,9 @@ extern "C" {
     // Platform stub
     extern void iql_set_system_path(const char *path);
 
+    // Signal handler — processes keyboard events + interrupts
+    extern void dosignal(void);
+
     // Trap hook (defined in patched base_instructions_pz.c)
     // We provide the implementation here
     volatile unsigned long iql_perf_instructions = 0;
@@ -225,6 +228,9 @@ void Emulator::update_texture() {
     int h = qlscreen.yres;
     if (w <= 0 || h <= 0) return;
 
+    // Process pending keyboard events + interrupts
+    dosignal();
+
     // Convert QL screen memory → RGBA pixel buffer
     QLRBUpdatePixelBuffer();
 
@@ -258,6 +264,8 @@ void Emulator::send_key(int vk_code, bool pressed, bool shift, bool ctrl, bool a
     evt.alt = alt ? 1 : 0;
     evt.control = ctrl ? 1 : 0;
     evt.shift = shift ? 1 : 0;
+    printf("[EMU] send_key: type=%d code=%d shift=%d sizeof(RBEvent)=%lu\n",
+           evt.type, evt.code, evt.shift, sizeof(RBEvent));
     QLRBSendEvent(evt);
 }
 
