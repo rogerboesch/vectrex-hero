@@ -598,6 +598,9 @@ iql_get_trap_log(PyObject *self, PyObject *args)
  * (CPU execution + screen refresh). Each call ≈ 3000 instructions + display update.
  * Call multiple times for a full game frame.
  */
+/* Screen render function from iQL — converts QL screen memory to RGBA pixel buffer */
+extern void ql_render_screen(void *buffer);
+
 static PyObject *
 iql_step_frame(PyObject *self, PyObject *args)
 {
@@ -605,16 +608,20 @@ iql_step_frame(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "|i", &count))
         return NULL;
     if (count < 1) count = 1;
-    if (count > 100) count = 100;
+    if (count > 200) count = 200;
 
     if (!emu_running) Py_RETURN_NONE;
 
-    /* Call QLTimer directly — includes CPU execution + screen update */
+    /* Execute instructions directly (works even when paused) */
     {
         int i;
         for (i = 0; i < count; i++)
-            QLTimer();
+            ExecuteChunk(3000);
     }
+
+    /* Force screen buffer refresh so display updates */
+    if (pixel_buffer)
+        ql_render_screen(pixel_buffer);
 
     Py_RETURN_NONE;
 }
