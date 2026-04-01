@@ -179,6 +179,10 @@ class EmulatorTab:
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
             side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
 
+        self.soft_bp_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(toolbar, text="Breakpoints", variable=self.soft_bp_var,
+                        command=self._toggle_soft_bp).pack(side=tk.LEFT, padx=2)
+
         self.trap_log_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(toolbar, text="Trap Log", variable=self.trap_log_var,
                         command=self._toggle_trap_log).pack(side=tk.LEFT, padx=2)
@@ -859,6 +863,15 @@ class EmulatorTab:
     # --- Frame step ---
 
 
+    def _toggle_soft_bp(self):
+        """Toggle software breakpoint checking."""
+        if not self._emu_active:
+            return
+        enabled = self.soft_bp_var.get()
+        _iql.set_soft_bp(1 if enabled else 0)
+        state = "ON" if enabled else "OFF"
+        self._console_append(f"--- Software breakpoints {state} ---\n")
+
     # --- Trap logging ---
 
     def _toggle_trap_log(self):
@@ -880,7 +893,7 @@ class EmulatorTab:
 
     def _enable_soft_bp(self):
         """Enable software breakpoints after QDOS boot delay."""
-        if self._emu_active:
+        if self._emu_active and self.soft_bp_var.get():
             _iql.set_soft_bp(1)
             self._console_append("Software breakpoints enabled\n")
 
