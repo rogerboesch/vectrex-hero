@@ -175,6 +175,17 @@ class EmulatorTab:
         ttk.Button(toolbar, text="Screenshot",
                    command=self._screenshot).pack(side=tk.LEFT, padx=2)
 
+        self.btn_step_frame = ttk.Button(toolbar, text="Step Frame",
+                                          command=self._step_frame, state=tk.DISABLED)
+        self.btn_step_frame.pack(side=tk.LEFT, padx=2)
+
+        ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
+            side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
+
+        self.trap_log_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(toolbar, text="Trap Log", variable=self.trap_log_var,
+                        command=self._toggle_trap_log).pack(side=tk.LEFT, padx=2)
+
         # Status bar
         self.status_var = tk.StringVar(value="Ready")
         status_bar = ttk.Label(toolbar, textvariable=self.status_var)
@@ -425,6 +436,7 @@ class EmulatorTab:
         self.btn_build_run.config(text="Rebuild & Run")
         self.btn_pause.config(state=tk.NORMAL, text="Pause")
         self.btn_restart.config(state=tk.NORMAL)
+        self.btn_step_frame.config(state=tk.NORMAL)
         self.status_var.set("Running")
 
         # Bind keyboard events for this tab
@@ -449,6 +461,7 @@ class EmulatorTab:
             self._emu_paused = False
             self.btn_pause.config(state=tk.DISABLED, text="Pause")
             self.btn_restart.config(state=tk.DISABLED)
+            self.btn_step_frame.config(state=tk.DISABLED)
             self.status_var.set("Stopped")
 
     def _toggle_pause(self):
@@ -835,6 +848,32 @@ class EmulatorTab:
             self.watch_text.insert(tk.END, f"{name}: ", "name")
             self.watch_text.insert(tk.END, f"{val_str}\n", "val")
         self.watch_text.config(state=tk.DISABLED)
+
+    # --- Frame step ---
+
+    def _step_frame(self):
+        """Step one full frame (~125K instructions at 50Hz)."""
+        if not self._emu_active:
+            return
+        if not self._emu_paused:
+            self._toggle_pause()
+        _iql.step_frame()
+        self._update_display()
+        self._update_debug_panel()
+        self._update_mem_view()
+        self._update_watch()
+        self.status_var.set("Paused (frame step)")
+
+    # --- Trap logging ---
+
+    def _toggle_trap_log(self):
+        """Toggle QDOS trap logging to console."""
+        if not self._emu_active:
+            return
+        enabled = self.trap_log_var.get()
+        _iql.set_trap_logging(1 if enabled else 0)
+        state = "ON" if enabled else "OFF"
+        self._console_append(f"--- Trap logging {state} ---\n")
 
     def cleanup(self):
         """Clean up on application exit."""
