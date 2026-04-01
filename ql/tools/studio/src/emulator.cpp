@@ -200,6 +200,10 @@ void Emulator::update_texture() {
     int h = qlscreen.yres;
     if (w <= 0 || h <= 0) return;
 
+    // Convert QL screen memory → RGBA pixel buffer
+    // (background thread runs CPU, but screen refresh must be triggered explicitly)
+    ql_render_screen(pixel_buffer);
+
     glBindTexture(GL_TEXTURE_2D, fb_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
