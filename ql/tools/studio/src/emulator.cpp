@@ -61,6 +61,9 @@ extern "C" {
     // Signal handler — processes keyboard events + interrupts
     extern void dosignal(void);
 
+    // iQL log ring buffer
+    extern int iql_drain_log(char *out, int max_len);
+
     // Trap hook (defined in patched base_instructions_pz.c)
     // We provide the implementation here
     volatile unsigned long iql_perf_instructions = 0;
@@ -264,8 +267,6 @@ void Emulator::send_key(int vk_code, bool pressed, bool shift, bool ctrl, bool a
     evt.alt = alt ? 1 : 0;
     evt.control = ctrl ? 1 : 0;
     evt.shift = shift ? 1 : 0;
-    printf("[EMU] send_key: type=%d code=%d shift=%d sizeof(RBEvent)=%lu\n",
-           evt.type, evt.code, evt.shift, sizeof(RBEvent));
     QLRBSendEvent(evt);
 }
 
@@ -349,6 +350,27 @@ std::string Emulator::drain_trap_log() {
         trap_log_tail = (trap_log_tail + 1) % TRAP_LOG_SIZE;
     }
     return out;
+}
+
+std::string Emulator::drain_iql_log() {
+    char buf[8192];
+    int n = iql_drain_log(buf, sizeof(buf));
+    if (n > 0) return std::string(buf, n);
+    return {};
+}
+
+bool Emulator::save_screenshot(const char *path) {
+    if (!rom_ready || !pixel_buffer) return false;
+    int w = qlscreen.xres, h = qlscreen.yres;
+    if (w <= 0 || h <= 0) return false;
+    FILE *f = fopen(path, "wb");
+    if (!f) return false;
+    fprintf(f, "P6\n%d %d\n255\n", w, h);
+    uint8_t *rgba = (uint8_t *)pixel_buffer;
+    for (int i = 0; i < w * h; i++)
+        fwrite(&rgba[i * 4], 1, 3, f);
+    fclose(f);
+    return true;
 }
 
 bool Emulator::build(const std::string &ql_dir, std::string &output) {

@@ -43,11 +43,22 @@ static int sdl_to_vk(SDL_Keycode k) {
         case SDLK_LEFTBRACKET:  return RBVK_LSquareBracket;
         case SDLK_RIGHTBRACKET: return RBVK_RSquareBracket;
         case SDLK_BACKQUOTE:    return RBVK_Grave;
+        case SDLK_F1:           return RBVK_F1;
+        case SDLK_F2:           return RBVK_F2;
+        case SDLK_F3:           return RBVK_F3;
+        case SDLK_F4:           return RBVK_F4;
+        case SDLK_F5:           return RBVK_F5;
+        case SDLK_LSHIFT:       return RBVK_LShift;
+        case SDLK_RSHIFT:       return RBVK_RShift;
+        case SDLK_LCTRL:        return RBVK_LControl;
+        case SDLK_RCTRL:        return RBVK_RControl;
+        case SDLK_LALT:         return RBVK_LAlt;
+        case SDLK_RALT:         return RBVK_RAlt;
         default: return -1;
     }
 }
 
-extern bool emu_wants_keys;  // defined in app.cpp, toggled by Keys button
+extern bool emu_wants_keys;  // defined in app.cpp
 
 int main(int argc, char *argv[]) {
     // Init SDL
@@ -109,21 +120,12 @@ int main(int argc, char *argv[]) {
                 int vk = sdl_to_vk(event.key.keysym.sym);
                 bool pressed = (event.type == SDL_KEYDOWN);
 
-                // Debug: always log key events
-                if (pressed) {
-                    printf("[KEY] sym=%d vk=%d emu_wants=%d running=%d paused=%d\n",
-                           event.key.keysym.sym, vk, emu_wants_keys,
-                           g_emu.is_running(), g_emu.is_paused());
-                }
-
                 if (g_emu.is_running() && !g_emu.is_paused() && emu_wants_keys && vk >= 0) {
                     bool shift = (event.key.keysym.mod & KMOD_SHIFT) != 0;
                     bool ctrl = (event.key.keysym.mod & KMOD_CTRL) != 0;
                     bool alt = (event.key.keysym.mod & KMOD_ALT) != 0;
                     g_emu.send_key(vk, pressed, shift, ctrl, alt);
                     key_forwarded = true;
-                    if (pressed)
-                        printf("[KEY] -> sent to emulator vk=%d\n", vk);
                 }
             }
 
@@ -152,11 +154,10 @@ int main(int argc, char *argv[]) {
             // Check if layout already exists (ini file loaded)
             if (ImGui::DockBuilderGetNode(dockspace_id) == NULL ||
                 ImGui::DockBuilderGetNode(dockspace_id)->IsLeafNode()) {
-                // Set up default layout:
-                //  [Sprites | Canvas            | Tools    ]
-                //  [        |                    |          ]
-                //  [        | Emulator           | CPU State]
-                //  [        | Memory             |          ]
+                // Default layout:
+                //  [Sprites/Images | Canvas/ImageCanvas | Tools         ]
+                //  [               |                    |               ]
+                //  [               | Emulator/Console   | CPU/Mem/BP/W  ]
                 ImGui::DockBuilderRemoveNode(dockspace_id);
                 ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
                 ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
@@ -172,12 +173,16 @@ int main(int argc, char *argv[]) {
                 ImGui::DockBuilderSplitNode(right, ImGuiDir_Down, 0.4f, &right_bottom, &right_top);
 
                 ImGui::DockBuilderDockWindow("Sprites", left);
+                ImGui::DockBuilderDockWindow("Images", left);
                 ImGui::DockBuilderDockWindow("Canvas", center_top);
+                ImGui::DockBuilderDockWindow("Image Canvas", center_top);
                 ImGui::DockBuilderDockWindow("Emulator", center_bottom);
                 ImGui::DockBuilderDockWindow("Console", center_bottom);
                 ImGui::DockBuilderDockWindow("Tools", right_top);
                 ImGui::DockBuilderDockWindow("CPU State", right_bottom);
                 ImGui::DockBuilderDockWindow("Memory", right_bottom);
+                ImGui::DockBuilderDockWindow("Breakpoints", right_bottom);
+                ImGui::DockBuilderDockWindow("Watch", right_bottom);
                 ImGui::DockBuilderFinish(dockspace_id);
             }
         }
@@ -185,6 +190,7 @@ int main(int argc, char *argv[]) {
         // App UI
         app.draw_menu_bar();
         app.draw_sprite_editor();
+        app.draw_image_editor();
         app.draw_emulator();
         app.draw_debug_panels();
 

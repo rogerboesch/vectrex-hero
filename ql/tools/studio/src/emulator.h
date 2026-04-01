@@ -85,6 +85,12 @@ public:
     bool get_trap_logging() const { return trap_logging; }
     std::string drain_trap_log();
 
+    // iQL log buffer (INF/ERR/DBG messages)
+    std::string drain_iql_log();
+
+    // Screenshot
+    bool save_screenshot(const char *path);
+
     // Build
     bool build(const std::string &ql_dir, std::string &output);
 
