@@ -12,22 +12,22 @@ typedef struct {
     const uint8_t *data;
 } Sprite;
 
-extern const Sprite spr_player_fly_0;
-extern const Sprite spr_player_walk_0;
-extern const Sprite spr_player_walk_1;
 extern const Sprite spr_bat_0;
 extern const Sprite spr_bat_1;
-extern const Sprite spr_spider_0;
-extern const Sprite spr_snake_0;
-extern const Sprite spr_miner_0;
-extern const Sprite spr_dynamite_0;
-extern const Sprite spr_explode_0;
-extern const Sprite spr_wall_0;
-extern const Sprite spr_lava_0;
 extern const Sprite spr_cave_h_0;
 extern const Sprite spr_cave_v_0;
+extern const Sprite spr_dynamite_0;
+extern const Sprite spr_explode_0;
 extern const Sprite spr_hud_live;
+extern const Sprite spr_lava_0;
+extern const Sprite spr_miner_0;
+extern const Sprite spr_player_fly_0;
 extern const Sprite spr_player_fly_1;
 extern const Sprite spr_player_fly_2;
+extern const Sprite spr_player_walk_0;
+extern const Sprite spr_player_walk_1;
+extern const Sprite spr_snake_0;
+extern const Sprite spr_spider_0;
+extern const Sprite spr_wall_0;
 
 #endif

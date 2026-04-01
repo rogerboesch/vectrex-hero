@@ -935,7 +935,7 @@ class EmulatorTab:
         g = (even >> (shift + 1)) & 1
         r = (odd >> shift) & 1
         b = (odd >> (shift + 1)) & 1
-        color = (g << 2) | (r << 1) | b
+        color = (g << 2) | (b << 1) | r
         cname = self._COLOR_NAMES[color] if color < 8 else "?"
 
         self.pixel_info_var.set(
