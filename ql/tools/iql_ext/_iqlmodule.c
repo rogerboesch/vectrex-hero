@@ -173,10 +173,9 @@ iql_tick(PyObject *self, PyObject *args)
 {
     (void)args;
     if (emu_running && !emu_paused) {
-        int before = nInst;
         QLTimer();
-        /* nInst counts down from 3001 to 0; instructions executed = before - nInst */
-        perf_inst_total += (unsigned long)(before > nInst ? before - nInst : 0);
+        /* Each QLTimer call executes ExecuteChunk(3000) ≈ 3000 instructions */
+        perf_inst_total += 3000;
         perf_tick_count++;
         check_breakpoints_after_tick();
     }
