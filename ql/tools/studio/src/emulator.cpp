@@ -45,7 +45,7 @@ extern "C" {
     extern void *pixel_buffer;
     typedef struct { int xres, yres; long qm_lo, qm_len; } screen_specs;
     extern screen_specs qlscreen;
-    extern void ql_render_screen(void *buffer);
+    extern void QLRBUpdatePixelBuffer(void);
 
     // Keyboard
     typedef struct { int type; int code; int shift; int control; int alt; } RBEvent;
@@ -201,8 +201,7 @@ void Emulator::update_texture() {
     if (w <= 0 || h <= 0) return;
 
     // Convert QL screen memory → RGBA pixel buffer
-    // (background thread runs CPU, but screen refresh must be triggered explicitly)
-    ql_render_screen(pixel_buffer);
+    QLRBUpdatePixelBuffer();
 
     glBindTexture(GL_TEXTURE_2D, fb_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
