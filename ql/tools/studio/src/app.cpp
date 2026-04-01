@@ -449,8 +449,19 @@ void App::draw_emulator() {
             else g_emu.pause();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Stop")) g_emu.stop();
+        if (ImGui::Button("Stop")) { g_emu.stop(); emu_wants_keys = false; }
         ImGui::SameLine();
+
+        // Toggle keyboard capture — when active, all keys go to emulator
+        if (emu_wants_keys) {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+            if (ImGui::Button("Keys: ON")) emu_wants_keys = false;
+            ImGui::PopStyleColor();
+        } else {
+            if (ImGui::Button("Keys: OFF")) emu_wants_keys = true;
+        }
+        ImGui::SameLine();
+
         if (ImGui::Button(speed_names[speed_idx])) {
             speed_idx = (speed_idx + 1) % 4;
             g_emu.set_speed(speed_values[speed_idx]);
@@ -488,8 +499,6 @@ void App::draw_emulator() {
         if (g_emu.is_ready() && tex) {
             ImGui::SetCursorScreenPos(screen_pos);
             ImGui::Image((ImTextureID)(intptr_t)tex, ImVec2(pw, ph));
-            // Accept keys when emulator window is hovered (not just image)
-            emu_wants_keys = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
         } else {
             // Dark red placeholder
             ImDrawList *dl = ImGui::GetWindowDrawList();
