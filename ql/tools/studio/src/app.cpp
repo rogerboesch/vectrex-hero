@@ -54,19 +54,32 @@ void App::draw_menu_bar() {
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Edit")) {
-            if (ImGui::MenuItem("Flip Horizontal", "Cmd+H")) {
-                if (current_sprite < (int)sprites.size())
-                    sprites[current_sprite].flip_h();
+            bool has_spr = current_sprite < (int)sprites.size();
+            if (ImGui::MenuItem("Copy Sprite", "Cmd+C", false, has_spr)) {
+                clipboard = sprites[current_sprite];
+                has_clipboard = true;
             }
-            if (ImGui::MenuItem("Flip Vertical", "Cmd+J")) {
-                if (current_sprite < (int)sprites.size())
-                    sprites[current_sprite].flip_v();
+            if (ImGui::MenuItem("Paste Sprite", "Cmd+V", false, has_spr && has_clipboard)) {
+                sprites[current_sprite].pixels = clipboard.pixels;
+                sprites[current_sprite].resize(clipboard.width, clipboard.height);
             }
             ImGui::Separator();
-            if (ImGui::MenuItem("Clear Sprite")) {
-                if (current_sprite < (int)sprites.size())
-                    sprites[current_sprite].clear();
-            }
+            if (ImGui::MenuItem("Flip Horizontal", "Cmd+H", false, has_spr))
+                sprites[current_sprite].flip_h();
+            if (ImGui::MenuItem("Flip Vertical", "Cmd+J", false, has_spr))
+                sprites[current_sprite].flip_v();
+            ImGui::Separator();
+            if (ImGui::MenuItem("Move Up", "Cmd+Up", false, has_spr))
+                sprites[current_sprite].move_up();
+            if (ImGui::MenuItem("Move Down", "Cmd+Down", false, has_spr))
+                sprites[current_sprite].move_down();
+            if (ImGui::MenuItem("Move Left", "Cmd+Left", false, has_spr))
+                sprites[current_sprite].move_left();
+            if (ImGui::MenuItem("Move Right", "Cmd+Right", false, has_spr))
+                sprites[current_sprite].move_right();
+            ImGui::Separator();
+            if (ImGui::MenuItem("Clear Sprite", "Cmd+Delete", false, has_spr))
+                sprites[current_sprite].clear();
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -74,6 +87,7 @@ void App::draw_menu_bar() {
 
     // Keyboard shortcuts
     ImGuiIO &io = ImGui::GetIO();
+    bool has_spr = current_sprite < (int)sprites.size();
     if (io.KeySuper) {
         if (ImGui::IsKeyPressed(ImGuiKey_N)) new_project();
         if (ImGui::IsKeyPressed(ImGuiKey_O)) open_project();
@@ -82,6 +96,20 @@ void App::draw_menu_bar() {
             else save_project();
         }
         if (ImGui::IsKeyPressed(ImGuiKey_E)) export_c();
+        if (has_spr) {
+            if (ImGui::IsKeyPressed(ImGuiKey_C)) { clipboard = sprites[current_sprite]; has_clipboard = true; }
+            if (ImGui::IsKeyPressed(ImGuiKey_V) && has_clipboard) {
+                sprites[current_sprite].pixels = clipboard.pixels;
+                sprites[current_sprite].resize(clipboard.width, clipboard.height);
+            }
+            if (ImGui::IsKeyPressed(ImGuiKey_H)) sprites[current_sprite].flip_h();
+            if (ImGui::IsKeyPressed(ImGuiKey_J)) sprites[current_sprite].flip_v();
+            if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) sprites[current_sprite].move_up();
+            if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) sprites[current_sprite].move_down();
+            if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) sprites[current_sprite].move_left();
+            if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) sprites[current_sprite].move_right();
+            if (ImGui::IsKeyPressed(ImGuiKey_Delete)) sprites[current_sprite].clear();
+        }
     }
 }
 

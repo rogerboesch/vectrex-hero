@@ -55,6 +55,38 @@ struct Sprite {
         std::reverse(pixels.begin(), pixels.end());
     }
 
+    void move_up() {
+        if (pixels.size() < 2) return;
+        auto first = pixels[0];
+        pixels.erase(pixels.begin());
+        pixels.push_back(first);
+    }
+
+    void move_down() {
+        if (pixels.size() < 2) return;
+        auto last = pixels.back();
+        pixels.pop_back();
+        pixels.insert(pixels.begin(), last);
+    }
+
+    void move_left() {
+        for (auto &row : pixels) {
+            if (row.size() < 2) continue;
+            auto first = row[0];
+            row.erase(row.begin());
+            row.push_back(first);
+        }
+    }
+
+    void move_right() {
+        for (auto &row : pixels) {
+            if (row.size() < 2) continue;
+            auto last = row.back();
+            row.pop_back();
+            row.insert(row.begin(), last);
+        }
+    }
+
     void clear() {
         for (auto &row : pixels)
             std::fill(row.begin(), row.end(), (uint8_t)0);

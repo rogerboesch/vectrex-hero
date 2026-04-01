@@ -34,6 +34,10 @@ private:
     int current_color = 7;
     bool modified = false;
 
+    // Clipboard
+    Sprite clipboard;
+    bool has_clipboard = false;
+
     // Sprite editor state
     GLuint sprite_texture = 0;
     GLuint preview_texture = 0;

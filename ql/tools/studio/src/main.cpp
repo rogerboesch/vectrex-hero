@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include "../imgui/imgui.h"
+#include "../imgui/imgui_internal.h"
 #include "../imgui/imgui_impl_sdl2.h"
 #include "../imgui/imgui_impl_opengl3.h"
 
@@ -78,8 +79,41 @@ int main(int argc, char *argv[]) {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        // Full-window dockspace
-        ImGui::DockSpaceOverViewport();
+        // Full-window dockspace with default layout on first run
+        ImGuiID dockspace_id = ImGui::DockSpaceOverViewport();
+
+        static bool first_frame = true;
+        if (first_frame) {
+            first_frame = false;
+
+            // Check if layout already exists (ini file loaded)
+            if (ImGui::DockBuilderGetNode(dockspace_id) == NULL ||
+                ImGui::DockBuilderGetNode(dockspace_id)->IsLeafNode()) {
+                // Set up default layout:
+                //  [Sprites | Canvas            | Tools    ]
+                //  [        |                    |          ]
+                //  [        | Emulator           | CPU State]
+                //  [        | Memory             |          ]
+                ImGui::DockBuilderRemoveNode(dockspace_id);
+                ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+                ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
+
+                ImGuiID left, center, right;
+                ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.15f, &left, &center);
+                ImGui::DockBuilderSplitNode(center, ImGuiDir_Right, 0.22f, &right, &center);
+
+                ImGuiID center_top, center_bottom;
+                ImGui::DockBuilderSplitNode(center, ImGuiDir_Down, 0.45f, &center_bottom, &center_top);
+
+                ImGui::DockBuilderDockWindow("Sprites", left);
+                ImGui::DockBuilderDockWindow("Canvas", center_top);
+                ImGui::DockBuilderDockWindow("Emulator", center_bottom);
+                ImGui::DockBuilderDockWindow("Tools", right);
+                ImGui::DockBuilderDockWindow("CPU State", right);
+                ImGui::DockBuilderDockWindow("Memory", right);
+                ImGui::DockBuilderFinish(dockspace_id);
+            }
+        }
 
         // App UI
         app.draw_menu_bar();
