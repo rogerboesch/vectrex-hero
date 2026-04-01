@@ -169,6 +169,12 @@ class EmulatorTab:
         speed_cb.pack(side=tk.LEFT)
         speed_cb.bind("<<ComboboxSelected>>", self._on_speed_change)
 
+        ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
+            side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
+
+        ttk.Button(toolbar, text="Screenshot",
+                   command=self._screenshot).pack(side=tk.LEFT, padx=2)
+
         # Status bar
         self.status_var = tk.StringVar(value="Ready")
         status_bar = ttk.Label(toolbar, textvariable=self.status_var)
@@ -214,8 +220,6 @@ class EmulatorTab:
         self.btn_step100 = ttk.Button(step_frame, text="Step 100", width=7,
                                        command=lambda: self._step(100))
         self.btn_step100.pack(side=tk.LEFT, padx=1)
-        ttk.Button(step_frame, text="Screenshot", width=10,
-                   command=self._screenshot).pack(side=tk.RIGHT, padx=1)
 
         # --- Tab: Memory Viewer ---
         mem_frame = ttk.Frame(self.debug_nb)
