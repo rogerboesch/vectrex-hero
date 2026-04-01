@@ -5,7 +5,7 @@
 
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include "../imgui/imgui.h"
+#include "../thirdparty/imgui/imgui.h"
 #include "sprite.h"
 #include <vector>
 #include <string>

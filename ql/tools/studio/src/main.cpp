@@ -6,10 +6,10 @@
 
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_internal.h"
-#include "../imgui/imgui_impl_sdl2.h"
-#include "../imgui/imgui_impl_opengl3.h"
+#include "../thirdparty/imgui/imgui.h"
+#include "../thirdparty/imgui/imgui_internal.h"
+#include "../thirdparty/imgui/imgui_impl_sdl2.h"
+#include "../thirdparty/imgui/imgui_impl_opengl3.h"
 
 #include "app.h"
 

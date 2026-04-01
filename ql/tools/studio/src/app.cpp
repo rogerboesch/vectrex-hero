@@ -3,7 +3,7 @@
  */
 
 #include "app.h"
-#include "../imgui/imgui.h"
+#include "../thirdparty/imgui/imgui.h"
 // Minimal file dialog stubs (replace with native dialogs later)
 static const char *simple_file_dialog(const char *title, const char *default_path) {
     // For now, return NULL — use command line args or menu shortcuts

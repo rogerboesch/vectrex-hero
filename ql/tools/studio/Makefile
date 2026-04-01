@@ -9,7 +9,7 @@ CXX = c++
 SDL_CFLAGS = $(shell sdl2-config --cflags)
 SDL_LIBS = $(shell sdl2-config --libs)
 
-CXXFLAGS = -std=c++17 -O2 -Wall -I imgui $(SDL_CFLAGS)
+CXXFLAGS = -std=c++17 -O2 -Wall -I thirdparty/imgui $(SDL_CFLAGS)
 CFLAGS = -O2 -Wall $(SDL_CFLAGS)
 
 LDFLAGS = $(SDL_LIBS) -framework OpenGL
@@ -19,13 +19,13 @@ BUILD = build
 
 # ImGui sources
 IMGUI_SRCS = \
-	imgui/imgui.cpp \
-	imgui/imgui_draw.cpp \
-	imgui/imgui_tables.cpp \
-	imgui/imgui_widgets.cpp \
-	imgui/imgui_demo.cpp \
-	imgui/imgui_impl_sdl2.cpp \
-	imgui/imgui_impl_opengl3.cpp
+	thirdparty/imgui/imgui.cpp \
+	thirdparty/imgui/imgui_draw.cpp \
+	thirdparty/imgui/imgui_tables.cpp \
+	thirdparty/imgui/imgui_widgets.cpp \
+	thirdparty/imgui/imgui_demo.cpp \
+	thirdparty/imgui/imgui_impl_sdl2.cpp \
+	thirdparty/imgui/imgui_impl_opengl3.cpp
 
 # App sources
 APP_SRCS = \
