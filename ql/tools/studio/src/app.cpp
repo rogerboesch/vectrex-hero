@@ -487,7 +487,8 @@ void App::draw_emulator() {
         if (g_emu.is_ready() && tex) {
             ImGui::SetCursorScreenPos(screen_pos);
             ImGui::Image((ImTextureID)(intptr_t)tex, ImVec2(pw, ph));
-            emu_wants_keys = ImGui::IsItemHovered();
+            // Accept keys when emulator window is hovered (not just image)
+            emu_wants_keys = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
         } else {
             // Dark red placeholder
             ImDrawList *dl = ImGui::GetWindowDrawList();

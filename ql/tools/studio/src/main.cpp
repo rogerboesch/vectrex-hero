@@ -95,7 +95,9 @@ int main(int argc, char *argv[]) {
                 event.window.event == SDL_WINDOWEVENT_CLOSE)
                 running = false;
 
-            // Forward keyboard to emulator when hovering emulator display
+            // Forward keyboard to emulator when emulator display is hovered/focused
+            // Must happen AFTER ImGui processes (so emu_wants_keys is current)
+            // but we still forward even if ImGui "wants" the keyboard
             if (g_emu.is_running() && !g_emu.is_paused() && emu_wants_keys) {
                 if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
                     int vk = sdl_to_vk(event.key.keysym.sym);
