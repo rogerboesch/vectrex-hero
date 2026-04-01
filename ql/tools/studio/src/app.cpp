@@ -463,7 +463,7 @@ void App::draw_emulator() {
     }
 
     // Display emulator screen as texture
-    if (g_emu.is_running()) {
+    if (g_emu.is_ready()) {
         g_emu.update_texture();
         GLuint tex = g_emu.get_texture();
         if (tex) {
@@ -513,7 +513,7 @@ static const char *sr_flags(uint16_t sr) {
 void App::draw_debug_panels() {
     // CPU State
     ImGui::Begin("CPU State");
-    if (g_emu.is_running()) {
+    if (g_emu.is_ready()) {
         auto cpu = g_emu.get_cpu_state();
         ImGui::TextColored(ImVec4(0.3f,0.8f,0.7f,1), "PC: $%06X  SR: $%04X", cpu.pc, cpu.sr);
         ImGui::Text("Flags: %s", sr_flags(cpu.sr));
@@ -540,7 +540,7 @@ void App::draw_debug_panels() {
 
     // Memory viewer
     ImGui::Begin("Memory");
-    if (g_emu.is_running()) {
+    if (g_emu.is_ready()) {
         static char addr_buf[16] = "20000";
         static int rows = 16;
         ImGui::SetNextItemWidth(80);

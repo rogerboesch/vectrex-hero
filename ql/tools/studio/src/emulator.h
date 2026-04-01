@@ -24,6 +24,7 @@ public:
     void stop();
     void restart();
     bool is_running() const { return running; }
+    bool is_ready() const { return running && rom_ready; }
 
     // Pause/resume
     void pause();
@@ -89,6 +90,7 @@ public:
 private:
     bool running = false;
     bool paused = false;
+    bool rom_ready = false;
     bool soft_bp_enabled = false;
     bool trap_logging = false;
     GLuint fb_texture = 0;

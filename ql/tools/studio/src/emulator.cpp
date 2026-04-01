@@ -193,7 +193,8 @@ int Emulator::get_screen_height() const {
 }
 
 void Emulator::update_texture() {
-    if (!running || !pixel_buffer) return;
+    if (!running || !pixel_buffer || !theROM) return;
+    rom_ready = true;  // ROM is loaded once pixel_buffer and theROM are valid
 
     int w = qlscreen.xres;
     int h = qlscreen.yres;
@@ -233,7 +234,7 @@ void Emulator::send_key(int vk_code, bool pressed, bool shift, bool ctrl, bool a
 
 Emulator::CpuState Emulator::get_cpu_state() const {
     CpuState s = {};
-    if (!running) return s;
+    if (!rom_ready) return s;
     for (int i = 0; i < 8; i++) {
         s.d[i] = (uint32_t)reg[i];
         s.a[i] = (uint32_t)reg[8 + i];
@@ -245,15 +246,16 @@ Emulator::CpuState Emulator::get_cpu_state() const {
     return s;
 }
 
-uint8_t  Emulator::read_byte(uint32_t addr) { return (uint8_t)ReadByte(addr); }
-uint16_t Emulator::read_word(uint32_t addr) { return (uint16_t)ReadWord(addr); }
-uint32_t Emulator::read_long(uint32_t addr) { return (uint32_t)ReadLong(addr); }
+uint8_t  Emulator::read_byte(uint32_t addr) { if (!rom_ready) return 0; return (uint8_t)ReadByte(addr); }
+uint16_t Emulator::read_word(uint32_t addr) { if (!rom_ready) return 0; return (uint16_t)ReadWord(addr); }
+uint32_t Emulator::read_long(uint32_t addr) { if (!rom_ready) return 0; return (uint32_t)ReadLong(addr); }
 void Emulator::read_mem(uint32_t addr, uint8_t *buf, int len) {
+    if (!rom_ready) { memset(buf, 0, len); return; }
     for (int i = 0; i < len; i++) buf[i] = (uint8_t)ReadByte(addr + i);
 }
-void Emulator::write_byte(uint32_t addr, uint8_t val) { WriteByte(addr, val); }
-void Emulator::write_word(uint32_t addr, uint16_t val) { WriteWord(addr, val); }
-void Emulator::write_long(uint32_t addr, uint32_t val) { WriteLong(addr, val); }
+void Emulator::write_byte(uint32_t addr, uint8_t val) { if (rom_ready) WriteByte(addr, val); }
+void Emulator::write_word(uint32_t addr, uint16_t val) { if (rom_ready) WriteWord(addr, val); }
+void Emulator::write_long(uint32_t addr, uint32_t val) { if (rom_ready) WriteLong(addr, val); }
 
 void Emulator::step(int count) {
     if (!running) return;
