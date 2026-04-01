@@ -55,6 +55,9 @@ static void *emu_thread_func(void *arg) {
     return NULL;
 }
 
+/* Forward declarations */
+static void check_breakpoints_after_tick(void);
+
 /* --- Python module functions --- */
 
 static PyObject *
@@ -88,6 +91,7 @@ iql_tick(PyObject *self, PyObject *args)
     (void)args;
     if (emu_running && !emu_paused) {
         QLTimer();
+        check_breakpoints_after_tick();
     }
     Py_RETURN_NONE;
 }
@@ -256,6 +260,227 @@ iql_get_cpu_state(PyObject *self, PyObject *args)
     );
 }
 
+/* --- Memory access --- */
+
+extern rw8 ReadByte(aw32 addr);
+extern rw16 ReadWord(aw32 addr);
+extern rw32 ReadLong(aw32 addr);
+extern void WriteByte(aw32 addr, aw8 d);
+extern void WriteWord(aw32 addr, aw16 d);
+extern void WriteLong(aw32 addr, aw32 d);
+extern void ExecuteChunk(long n);
+
+static PyObject *
+iql_read_byte(PyObject *self, PyObject *args)
+{
+    unsigned int addr;
+    if (!PyArg_ParseTuple(args, "I", &addr))
+        return NULL;
+    return PyLong_FromLong((unsigned char)ReadByte(addr));
+}
+
+static PyObject *
+iql_read_word(PyObject *self, PyObject *args)
+{
+    unsigned int addr;
+    if (!PyArg_ParseTuple(args, "I", &addr))
+        return NULL;
+    return PyLong_FromLong((unsigned short)ReadWord(addr));
+}
+
+static PyObject *
+iql_read_long(PyObject *self, PyObject *args)
+{
+    unsigned int addr;
+    if (!PyArg_ParseTuple(args, "I", &addr))
+        return NULL;
+    return PyLong_FromUnsignedLong((unsigned int)ReadLong(addr));
+}
+
+static PyObject *
+iql_read_mem(PyObject *self, PyObject *args)
+{
+    unsigned int addr, length;
+    if (!PyArg_ParseTuple(args, "II", &addr, &length))
+        return NULL;
+    if (length > 65536) {
+        PyErr_SetString(PyExc_ValueError, "length too large (max 65536)");
+        return NULL;
+    }
+    PyObject *bytes = PyBytes_FromStringAndSize(NULL, length);
+    if (!bytes) return NULL;
+    char *buf = PyBytes_AS_STRING(bytes);
+    unsigned int i;
+    for (i = 0; i < length; i++)
+        buf[i] = (char)ReadByte(addr + i);
+    return bytes;
+}
+
+static PyObject *
+iql_write_byte(PyObject *self, PyObject *args)
+{
+    unsigned int addr;
+    int value;
+    if (!PyArg_ParseTuple(args, "Ii", &addr, &value))
+        return NULL;
+    WriteByte(addr, value & 0xFF);
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+iql_write_word(PyObject *self, PyObject *args)
+{
+    unsigned int addr;
+    int value;
+    if (!PyArg_ParseTuple(args, "Ii", &addr, &value))
+        return NULL;
+    WriteWord(addr, value & 0xFFFF);
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+iql_write_long(PyObject *self, PyObject *args)
+{
+    unsigned int addr;
+    unsigned int value;
+    if (!PyArg_ParseTuple(args, "II", &addr, &value))
+        return NULL;
+    WriteLong(addr, value);
+    Py_RETURN_NONE;
+}
+
+/* --- Single step --- */
+
+static PyObject *
+iql_step(PyObject *self, PyObject *args)
+{
+    int count = 1;
+    if (!PyArg_ParseTuple(args, "|i", &count))
+        return NULL;
+    if (count < 1) count = 1;
+    if (count > 100000) count = 100000;
+    if (emu_running) {
+        ExecuteChunk(count);
+    }
+    Py_RETURN_NONE;
+}
+
+/* --- Breakpoints --- */
+
+#define MAX_BREAKPOINTS 16
+static unsigned int breakpoints[MAX_BREAKPOINTS];
+static int num_breakpoints = 0;
+static int breakpoint_hit = 0;   /* set to 1 when BP triggers */
+static unsigned int bp_hit_addr = 0;
+
+static PyObject *
+iql_add_breakpoint(PyObject *self, PyObject *args)
+{
+    unsigned int addr;
+    if (!PyArg_ParseTuple(args, "I", &addr))
+        return NULL;
+    if (num_breakpoints >= MAX_BREAKPOINTS) {
+        PyErr_SetString(PyExc_RuntimeError, "max breakpoints reached");
+        return NULL;
+    }
+    breakpoints[num_breakpoints++] = addr;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+iql_remove_breakpoint(PyObject *self, PyObject *args)
+{
+    unsigned int addr;
+    int i, j;
+    if (!PyArg_ParseTuple(args, "I", &addr))
+        return NULL;
+    for (i = 0; i < num_breakpoints; i++) {
+        if (breakpoints[i] == addr) {
+            for (j = i; j < num_breakpoints - 1; j++)
+                breakpoints[j] = breakpoints[j + 1];
+            num_breakpoints--;
+            Py_RETURN_TRUE;
+        }
+    }
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+iql_clear_breakpoints(PyObject *self, PyObject *args)
+{
+    (void)args;
+    num_breakpoints = 0;
+    breakpoint_hit = 0;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+iql_list_breakpoints(PyObject *self, PyObject *args)
+{
+    (void)args;
+    PyObject *list = PyList_New(num_breakpoints);
+    int i;
+    for (i = 0; i < num_breakpoints; i++)
+        PyList_SET_ITEM(list, i, PyLong_FromUnsignedLong(breakpoints[i]));
+    return list;
+}
+
+static PyObject *
+iql_check_breakpoint(PyObject *self, PyObject *args)
+{
+    (void)args;
+    if (breakpoint_hit) {
+        breakpoint_hit = 0;
+        return PyLong_FromUnsignedLong(bp_hit_addr);
+    }
+    Py_RETURN_NONE;
+}
+
+/* Call this from the tick function to check breakpoints */
+static void check_breakpoints_after_tick(void)
+{
+    if (num_breakpoints > 0 && emu_running && !emu_paused) {
+        unsigned int pc_addr = (unsigned int)((char *)pc - (char *)theROM);
+        int i;
+        for (i = 0; i < num_breakpoints; i++) {
+            if (breakpoints[i] == pc_addr) {
+                QLPause();
+                emu_paused = 1;
+                breakpoint_hit = 1;
+                bp_hit_addr = pc_addr;
+                break;
+            }
+        }
+    }
+}
+
+/* --- Screenshot --- */
+
+static PyObject *
+iql_screenshot(PyObject *self, PyObject *args)
+{
+    const char *filename;
+    if (!PyArg_ParseTuple(args, "s", &filename))
+        return NULL;
+
+    if (!pixel_buffer || !emu_running) {
+        PyErr_SetString(PyExc_RuntimeError, "emulator not running");
+        return NULL;
+    }
+
+    /* Return raw RGBA data + dimensions — Python side saves as PNG */
+    int w = qlscreen.xres;
+    int h = qlscreen.yres;
+    Py_ssize_t size = w * h * 4;
+
+    PyObject *result = Py_BuildValue("{s:y#,s:i,s:i,s:s}",
+        "data", (const char *)pixel_buffer, size,
+        "width", w,
+        "height", h,
+        "filename", filename);
+    return result;
+}
+
 /* --- Module definition --- */
 
 static PyMethodDef iql_methods[] = {
@@ -287,6 +512,43 @@ static PyMethodDef iql_methods[] = {
      "get_cpu_state() — Return dict of CPU registers and keyboard state"},
     {"get_log",          iql_get_log,          METH_NOARGS,
      "get_log() — Drain log buffer, return str or None"},
+
+    /* Memory access */
+    {"read_byte",        iql_read_byte,        METH_VARARGS,
+     "read_byte(addr) — Read byte from QL memory"},
+    {"read_word",        iql_read_word,        METH_VARARGS,
+     "read_word(addr) — Read 16-bit word from QL memory"},
+    {"read_long",        iql_read_long,        METH_VARARGS,
+     "read_long(addr) — Read 32-bit long from QL memory"},
+    {"read_mem",         iql_read_mem,         METH_VARARGS,
+     "read_mem(addr, length) — Read block of QL memory as bytes"},
+    {"write_byte",       iql_write_byte,       METH_VARARGS,
+     "write_byte(addr, value) — Write byte to QL memory"},
+    {"write_word",       iql_write_word,       METH_VARARGS,
+     "write_word(addr, value) — Write 16-bit word to QL memory"},
+    {"write_long",       iql_write_long,       METH_VARARGS,
+     "write_long(addr, value) — Write 32-bit long to QL memory"},
+
+    /* Single step */
+    {"step",             iql_step,             METH_VARARGS,
+     "step(count=1) — Execute count 68K instructions (paused mode)"},
+
+    /* Breakpoints */
+    {"add_breakpoint",    iql_add_breakpoint,    METH_VARARGS,
+     "add_breakpoint(addr) — Set breakpoint at address"},
+    {"remove_breakpoint", iql_remove_breakpoint, METH_VARARGS,
+     "remove_breakpoint(addr) — Remove breakpoint, returns True if found"},
+    {"clear_breakpoints", iql_clear_breakpoints, METH_NOARGS,
+     "clear_breakpoints() — Remove all breakpoints"},
+    {"list_breakpoints",  iql_list_breakpoints,  METH_NOARGS,
+     "list_breakpoints() — Return list of breakpoint addresses"},
+    {"check_breakpoint",  iql_check_breakpoint,  METH_NOARGS,
+     "check_breakpoint() — Return addr if BP hit since last check, else None"},
+
+    /* Screenshot */
+    {"screenshot",       iql_screenshot,       METH_VARARGS,
+     "screenshot(filename) — Return RGBA data dict for saving as PNG"},
+
     {NULL, NULL, 0, NULL}
 };
 
