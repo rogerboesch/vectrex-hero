@@ -134,6 +134,8 @@ class SpriteEditor:
         filemenu.add_separator()
         filemenu.add_command(label="Export C files...", command=self._export_c)
         filemenu.add_separator()
+        filemenu.add_command(label="Screenshot...", command=self._take_screenshot)
+        filemenu.add_separator()
         filemenu.add_command(label="Quit", command=self.root.quit)
         menubar.add_cascade(label="File", menu=filemenu)
 
@@ -546,6 +548,10 @@ class SpriteEditor:
         self._select_sprite(0)
 
     # --- C Export ---
+
+    def _take_screenshot(self):
+        if hasattr(self, 'emu_tab'):
+            self.emu_tab._screenshot()
 
     def _export_c(self):
         path = filedialog.askdirectory(title="Export to directory")

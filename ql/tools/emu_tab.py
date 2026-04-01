@@ -172,10 +172,6 @@ class EmulatorTab:
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
             side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
 
-        ttk.Button(toolbar, text="Screenshot",
-                   command=self._screenshot).pack(side=tk.LEFT, padx=2)
-
-
         ttk.Separator(toolbar, orient=tk.VERTICAL).pack(
             side=tk.LEFT, fill=tk.Y, padx=5, pady=2)
 
