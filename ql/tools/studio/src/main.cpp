@@ -14,20 +14,27 @@
 #include "app.h"
 #include "emulator.h"
 
-// SDL keycode → iQL virtual key
+// SDL keycode → iQL virtual key (from rb_virtual_keys.h)
 static int sdl_to_vk(SDL_Keycode k) {
-    if (k >= SDLK_a && k <= SDLK_z) return k - SDLK_a; // VK_A=0..VK_Z=25
-    if (k >= SDLK_0 && k <= SDLK_9) return 26 + (k - SDLK_0); // VK_0=26..VK_9=35
+    if (k >= SDLK_a && k <= SDLK_z) return k - SDLK_a;       // RBVK_A=0..RBVK_Z=25
+    if (k >= SDLK_0 && k <= SDLK_9) return 26 + (k - SDLK_0); // RBVK_Num0=26..RBVK_Num9=35
     switch (k) {
-        case SDLK_RETURN: return 52;
-        case SDLK_SPACE: return 53;
-        case SDLK_ESCAPE: return 54;
-        case SDLK_TAB: return 55;
-        case SDLK_BACKSPACE: return 56;
-        case SDLK_UP: return 57;
-        case SDLK_DOWN: return 58;
-        case SDLK_LEFT: return 59;
-        case SDLK_RIGHT: return 60;
+        case SDLK_SPACE:     return 69;  // RBVK_Space
+        case SDLK_TAB:       return 70;  // RBVK_Tab
+        case SDLK_RETURN:    return 71;  // RBVK_Return
+        case SDLK_BACKSPACE: return 72;  // RBVK_BackSpace
+        case SDLK_ESCAPE:    return 73;  // RBVK_Escape
+        case SDLK_LEFT:      return 74;  // RBVK_Left
+        case SDLK_RIGHT:     return 75;  // RBVK_Right
+        case SDLK_UP:        return 76;  // RBVK_Up
+        case SDLK_DOWN:      return 77;  // RBVK_Down
+        case SDLK_COMMA:     return 47;  // RBVK_Comma
+        case SDLK_PERIOD:    return 48;  // RBVK_Period
+        case SDLK_SLASH:     return 50;  // RBVK_Slash
+        case SDLK_SEMICOLON: return 45;  // RBVK_SemiColon
+        case SDLK_QUOTE:     return 46;  // RBVK_Quote
+        case SDLK_MINUS:     return 51;  // RBVK_Dash
+        case SDLK_EQUALS:    return 52;  // RBVK_Equal
         default: return -1;
     }
 }

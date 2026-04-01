@@ -372,39 +372,7 @@ void App::draw_sprite_properties() {
 
 #include "emulator.h"
 
-// Virtual key codes from iQL (matching rb_virtual_keys.h enum)
-enum {
-    VK_A=0,VK_B,VK_C,VK_D,VK_E,VK_F,VK_G,VK_H,VK_I,VK_J,VK_K,VK_L,VK_M,
-    VK_N,VK_O,VK_P,VK_Q,VK_R,VK_S,VK_T,VK_U,VK_V,VK_W,VK_X,VK_Y,VK_Z,
-    VK_0,VK_1,VK_2,VK_3,VK_4,VK_5,VK_6,VK_7,VK_8,VK_9,
-    VK_RETURN=52, VK_SPACE=53, VK_ESCAPE=54, VK_TAB=55, VK_BACKSPACE=56,
-    VK_UP=57, VK_DOWN=58, VK_LEFT=59, VK_RIGHT=60,
-    VK_LSHIFT=61, VK_RSHIFT=62, VK_LCONTROL=63, VK_RCONTROL=64,
-    VK_LALT=65, VK_RALT=66,
-};
-
-static int sdl_key_to_vk(SDL_Keycode k) {
-    if (k >= SDLK_a && k <= SDLK_z) return VK_A + (k - SDLK_a);
-    if (k >= SDLK_0 && k <= SDLK_9) return VK_0 + (k - SDLK_0);
-    switch (k) {
-        case SDLK_RETURN: return VK_RETURN;
-        case SDLK_SPACE: return VK_SPACE;
-        case SDLK_ESCAPE: return VK_ESCAPE;
-        case SDLK_TAB: return VK_TAB;
-        case SDLK_BACKSPACE: return VK_BACKSPACE;
-        case SDLK_UP: return VK_UP;
-        case SDLK_DOWN: return VK_DOWN;
-        case SDLK_LEFT: return VK_LEFT;
-        case SDLK_RIGHT: return VK_RIGHT;
-        case SDLK_LSHIFT: return VK_LSHIFT;
-        case SDLK_RSHIFT: return VK_RSHIFT;
-        case SDLK_LCTRL: return VK_LCONTROL;
-        case SDLK_RCTRL: return VK_RCONTROL;
-        case SDLK_LALT: return VK_LALT;
-        case SDLK_RALT: return VK_RALT;
-        default: return -1;
-    }
-}
+// (Key mapping is in main.cpp sdl_to_vk function)
 
 bool emu_wants_keys = false;  // read by main.cpp for keyboard forwarding
 static int speed_idx = 1;
