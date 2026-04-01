@@ -58,6 +58,10 @@ static void *emu_thread_func(void *arg) {
 /* Forward declarations */
 static void check_breakpoints_after_tick(void);
 
+/* Software breakpoint state */
+static int soft_bp_enabled = 1;
+static int soft_bp_hit_id = 0;
+
 /* Trap logging — our own hook called from patched base_instructions_pz.c */
 extern int tracetrap;
 extern void rb_log_debug(const char *fmt, ...);
@@ -504,16 +508,36 @@ iql_check_breakpoint(PyObject *self, PyObject *args)
 {
     (void)args;
     if (breakpoint_hit) {
+        int soft_id = soft_bp_hit_id;
         breakpoint_hit = 0;
-        return PyLong_FromUnsignedLong(bp_hit_addr);
+        soft_bp_hit_id = 0;
+        /* Return dict: addr + soft_id (0 if PC breakpoint, 1-255 if software) */
+        return Py_BuildValue("{s:I,s:i}",
+            "addr", bp_hit_addr, "soft_id", soft_id);
     }
     Py_RETURN_NONE;
 }
 
+/*
+ * Software breakpoint: game code writes a marker byte to a magic address.
+ * The emulator checks this address every tick and pauses if non-zero.
+ *
+ * Usage in C code:
+ *   #define BREAK(n)  *((volatile uint8_t *)0x3FFFE) = (n)
+ *   BREAK(1);  // emulator pauses, shows "Software BP #1"
+ *
+ * The marker byte identifies which breakpoint was hit (1-255).
+ * The emulator resets it to 0 after detecting it.
+ */
+#define SOFT_BP_ADDR  0x3FFFE
+
 /* Call this from the tick function to check breakpoints */
 static void check_breakpoints_after_tick(void)
 {
-    if (num_breakpoints > 0 && emu_running && !emu_paused) {
+    if (!emu_running || emu_paused) return;
+
+    /* Check PC-based breakpoints */
+    if (num_breakpoints > 0) {
         unsigned int pc_addr = (unsigned int)((char *)pc - (char *)theROM);
         int i;
         for (i = 0; i < num_breakpoints; i++) {
@@ -522,8 +546,21 @@ static void check_breakpoints_after_tick(void)
                 emu_paused = 1;
                 breakpoint_hit = 1;
                 bp_hit_addr = pc_addr;
-                break;
+                return;
             }
+        }
+    }
+
+    /* Check software breakpoint */
+    if (soft_bp_enabled) {
+        unsigned char marker = (unsigned char)ReadByte(SOFT_BP_ADDR);
+        if (marker != 0) {
+            WriteByte(SOFT_BP_ADDR, 0);  /* reset marker */
+            soft_bp_hit_id = marker;
+            QLPause();
+            emu_paused = 1;
+            breakpoint_hit = 1;
+            bp_hit_addr = (unsigned int)((char *)pc - (char *)theROM);
         }
     }
 }
