@@ -30,11 +30,17 @@ void app_log(App *app, const char *fmt, ...) {
 
 void app_log_dbg(App *app, const char *fmt, ...) {
     va_list args; va_start(args, fmt);
-    log_append(app, "> ", fmt, args);
+    log_append(app, "- ", fmt, args);
     va_end(args);
 }
 
 void app_log_info(App *app, const char *fmt, ...) {
+    va_list args; va_start(args, fmt);
+    log_append(app, "> ", fmt, args);
+    va_end(args);
+}
+
+void app_log_warn(App *app, const char *fmt, ...) {
     va_list args; va_start(args, fmt);
     log_append(app, "* ", fmt, args);
     va_end(args);

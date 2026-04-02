@@ -205,7 +205,7 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
     /* Check software breakpoint hit */
     int bp_hit = emu_get_last_bp_hit();
     if (bp_hit > 0) {
-        app_log_err(app, "SOFTWARE BP #%d hit", bp_hit);
+        app_log_warn(app, "SOFTWARE BP #%d hit", bp_hit);
     }
 
     /* Drain iQL log + trap log to console */

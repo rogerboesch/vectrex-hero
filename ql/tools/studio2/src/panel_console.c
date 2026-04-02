@@ -52,9 +52,10 @@ void draw_console(App *app, int px, int py, int pw, int ph) {
     for (int i = start; i < app->console_count; i++) {
         const char *line = app->console_lines[i];
         SDL_Color col = ui_theme.text_dim;
-        if (line[0] == '!' && line[1] == ' ')      col = ui_theme.console_err;
-        else if (line[0] == '*' && line[1] == ' ')  col = ui_theme.console_warn;
-        else if (line[0] == '>' && line[1] == ' ')  col = ui_theme.text_dim;
+        if (line[0] == '!' && line[1] == ' ')      col = ui_theme.console_err;   /* error */
+        else if (line[0] == '*' && line[1] == ' ')  col = ui_theme.console_warn;  /* warning */
+        else if (line[0] == '>' && line[1] == ' ')  col = ui_theme.text;          /* info */
+        else if (line[0] == '-' && line[1] == ' ')  col = ui_theme.text_dim;      /* debug */
         ui_text_color(c.x, y, line, col);
         y += ui_line_height() + 1;
         if (y > c.y + c.h - ui_line_height()) break;
