@@ -100,5 +100,6 @@ void draw_image_canvas(App *app, int x, int y, int w, int h);
 void draw_image_tools(App *app, int x, int y, int w, int h);
 void draw_console(App *app, int x, int y, int w, int h);
 void draw_emulator(App *app, int x, int y, int w, int h);
+void draw_breakpoints(App *app, int x, int y, int w, int h);
 void draw_cpu_state(App *app, int x, int y, int w, int h);
 void draw_memory(App *app, int x, int y, int w, int h);

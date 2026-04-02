@@ -109,8 +109,7 @@ static void draw_left_panel(App *app, int px, int py, int pw, int ph) {
     } else if (app->view == VIEW_IMAGES) {
         draw_image_list(app, px, py, pw, ph);
     } else {
-        ui_panel_begin("Emulator", px, py, pw, ph);
-        ui_panel_end();
+        draw_breakpoints(app, px, py, pw, ph);
     }
 }
 
