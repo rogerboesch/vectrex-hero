@@ -1,6 +1,6 @@
 # QL R.E.S.C.U.E. — Makefile
 #
-# Pipeline: vbccm68k (C→asm) → vasm (asm→obj) → vlink (→TOS exe) → tos2ql.py (→QDOS)
+# Pipeline: vbccm68k (C→asm) → vasm (asm→obj) → vlink (→TOS exe) → tos2ql (→QDOS)
 #
 # Build: make
 # Output: rescue (QDOS executable with self-relocating loader)
@@ -10,7 +10,7 @@ VBCC     = $(VBCC_DIR)/bin/vbccm68k
 VASM     = /Users/roger/retro-tools/vasm/vasm68k_mot
 VLINK    = $(VBCC_DIR)/bin/vlink
 VBCC_LIB = $(VBCC_DIR)/targets/m68k-atari/lib
-INCLUDES = -I$(VBCC_DIR)/targets/m68k-atari/include -I. -I..
+INCLUDES = -I$(VBCC_DIR)/targets/m68k-atari/include -I.
 
 VBCC_FLAGS = -quiet -c99 -cpu=68000 -O=1 $(INCLUDES)
 VASM_FLAGS = -Fvobj -m68000 -quiet
@@ -36,8 +36,13 @@ $(BUILD)/rescue.tos: $(C_OBJS) $(S_OBJS)
 	$(VLINK) $(VLINK_FLAGS) -o $@ $(BUILD)/crt0.o $(C_OBJS) $(BUILD)/ql_hw.o -lvc
 
 # Step 2: Convert to self-relocating QDOS binary
-$(TARGET): $(BUILD)/rescue.tos tools/tos2ql.py
-	python3 tools/tos2ql.py $(BUILD)/rescue.tos $(TARGET)
+TOS2QL = ../tools/tos2ql/tos2ql
+
+$(TARGET): $(BUILD)/rescue.tos $(TOS2QL)
+	$(TOS2QL) $(BUILD)/rescue.tos $(TARGET)
+
+$(TOS2QL):
+	$(MAKE) -C ../tools/tos2ql
 
 # C → asm → obj (all go into build/)
 $(BUILD)/main.o: main.c game.h sprites.h ql_hw.h | $(BUILD)
