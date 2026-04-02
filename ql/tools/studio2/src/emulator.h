@@ -57,6 +57,7 @@ void emu_step(int count);
 void emu_set_soft_bp_enabled(bool en);
 bool emu_get_soft_bp_enabled(void);
 int  emu_check_soft_bp(void);
+int  emu_get_last_bp_hit(void);  /* returns marker ID and clears it, 0 if none */
 
 /* PC breakpoints */
 void emu_add_breakpoint(uint32_t addr);

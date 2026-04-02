@@ -141,6 +141,12 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
                       msg, ui_theme.emu_text);
     }
 
+    /* Check software breakpoint hit */
+    int bp_hit = emu_get_last_bp_hit();
+    if (bp_hit > 0) {
+        app_log(app, "*** SOFTWARE BP #%d ***", bp_hit);
+    }
+
     /* Drain iQL log + trap log to console, line by line */
     if (emu_is_running()) {
         char logbuf[8192];

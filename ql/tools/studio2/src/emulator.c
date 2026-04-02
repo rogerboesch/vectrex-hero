@@ -117,6 +117,7 @@ static SDL_Renderer *g_renderer = NULL;
 #define MAX_BREAKPOINTS 16
 static uint32_t bp_addrs[MAX_BREAKPOINTS];
 static int bp_count = 0;
+static int g_last_bp_hit = 0;
 
 /* ── Thread ───────────────────────────────────────────────── */
 
@@ -204,7 +205,9 @@ void emu_update_texture(void) {
         uint8_t marker = (uint8_t)ReadByte(SOFT_BP_ADDR);
         if (marker != 0) {
             WriteByte(SOFT_BP_ADDR, 0);
+            g_last_bp_hit = marker;
             emu_pause();
+            printf("*** SOFTWARE BP #%d ***\n", marker);
         }
     }
 }
@@ -269,6 +272,7 @@ void emu_set_soft_bp_enabled(bool en) {
     if (en && g_running) WriteByte(SOFT_BP_ADDR, 0);
 }
 bool emu_get_soft_bp_enabled(void) { return g_soft_bp_enabled; }
+int emu_get_last_bp_hit(void) { int v = g_last_bp_hit; g_last_bp_hit = 0; return v; }
 int emu_check_soft_bp(void) {
     if (!g_running || !g_soft_bp_enabled) return 0;
     uint8_t m = (uint8_t)ReadByte(SOFT_BP_ADDR);
