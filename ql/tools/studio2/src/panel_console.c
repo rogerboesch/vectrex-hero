@@ -59,9 +59,5 @@ void draw_console(App *app, int px, int py, int pw, int ph) {
         if (y > c.y + c.h - ui_line_height()) break;
     }
 
-    if (app->console_count == 0) {
-        ui_text_color(c.x, c.y, "Console output appears here.", ui_theme.text_dim);
-    }
-
     ui_panel_end();
 }
