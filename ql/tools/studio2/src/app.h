@@ -56,15 +56,26 @@ typedef struct {
     int console_count;
 } App;
 
+/* ── Core ─────────────────────────────────────────────────── */
+
 void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer);
 void app_cleanup(App *app);
 void app_draw(App *app);
+void app_log(App *app, const char *fmt, ...);
 
-/* File I/O */
+/* ── File I/O ─────────────────────────────────────────────── */
+
 void app_new_project(App *app);
 void app_load_project(App *app, const char *path);
 void app_save_project(App *app, const char *path);
 void app_export_c(App *app, const char *directory);
 
-/* Console */
-void app_log(App *app, const char *fmt, ...);
+/* ── Panel draw functions (each in its own .c file) ───────── */
+
+void draw_sprite_list(App *app, int x, int y, int w, int h);
+void draw_sprite_canvas(App *app, int x, int y, int w, int h);
+void draw_palette(App *app, int x, int y, int w, int *out_y);
+void draw_properties(App *app, int x, int y, int w, int *out_y);
+void draw_preview(App *app, int x, int y, int w, int *out_y);
+void draw_console(App *app, int x, int y, int w, int h);
+void draw_emulator(App *app, int x, int y, int w, int h);

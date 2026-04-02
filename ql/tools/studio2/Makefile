@@ -20,7 +20,10 @@ LDFLAGS = $(SDL_STATIC)
 TARGET = qlstudio2
 BUILD  = build
 
-SRCS = src/main.c src/ui.c src/app.c
+SRCS = src/main.c src/ui.c src/app.c src/file_io.c \
+       src/panel_sprite_list.c src/panel_sprite_canvas.c \
+       src/panel_palette.c src/panel_properties.c src/panel_preview.c \
+       src/panel_console.c src/panel_emulator.c
 OBJS = $(patsubst src/%.c,$(BUILD)/%.o,$(SRCS))
 
 all: $(TARGET)
