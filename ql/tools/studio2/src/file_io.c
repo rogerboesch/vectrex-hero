@@ -94,11 +94,74 @@ void app_load_project(App *app, const char *path) {
         app->sprite_count++;
     }
 
+    /* Parse images array (same structure as sprites but 256x256) */
+    app->image_count = 0;
+    const char *ip = strstr(json, "\"images\"");
+    if (ip) {
+        ip = strchr(ip, '[');
+        if (ip) {
+            ip++;
+            while (*ip && app->image_count < MAX_IMAGES) {
+                while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ',') ip++;
+                if (*ip == ']') break;
+                if (*ip != '{') break;
+                ip++;
+
+                QLImage *img = &app->images[app->image_count];
+                memset(img, 0, sizeof(*img));
+
+                while (*ip && *ip != '}') {
+                    while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ',') ip++;
+                    if (*ip == '}') break;
+                    if (*ip != '"') break;
+                    ip++;
+                    char key[32] = {};
+                    int ki = 0;
+                    while (*ip && *ip != '"' && ki < 31) key[ki++] = *ip++;
+                    if (*ip == '"') ip++;
+                    while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ':') ip++;
+
+                    if (strcmp(key, "name") == 0) {
+                        if (*ip == '"') ip++;
+                        int ni = 0;
+                        while (*ip && *ip != '"' && ni < 63) img->name[ni++] = *ip++;
+                        if (*ip == '"') ip++;
+                    } else if (strcmp(key, "width") == 0 || strcmp(key, "height") == 0) {
+                        while ((*ip >= '0' && *ip <= '9') || *ip == '-') ip++;
+                    } else if (strcmp(key, "pixels") == 0) {
+                        if (*ip == '[') ip++;
+                        int row = 0;
+                        while (*ip && *ip != ']' && row < IMAGE_SIZE) {
+                            while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ',') ip++;
+                            if (*ip == ']') break;
+                            if (*ip != '[') break;
+                            ip++;
+                            int col = 0;
+                            while (*ip && *ip != ']' && col < IMAGE_SIZE) {
+                                while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ',') ip++;
+                                if (*ip == ']') break;
+                                img->pixels[row][col++] = atoi(ip);
+                                while ((*ip >= '0' && *ip <= '9') || *ip == '-') ip++;
+                            }
+                            if (*ip == ']') ip++;
+                            row++;
+                        }
+                        if (*ip == ']') ip++;
+                    }
+                }
+                if (*ip == '}') ip++;
+                app->image_count++;
+            }
+        }
+    }
+
     free(json);
     strncpy(app->project_path, path, sizeof(app->project_path) - 1);
     app->current_sprite = 0;
+    app->current_image = 0;
+    app->image_tex_dirty = true;
     app->modified = 0;
-    app_log(app, "Loaded: %s (%d sprites)", path, app->sprite_count);
+    app_log(app, "Loaded: %s (%d sprites, %d images)", path, app->sprite_count, app->image_count);
 }
 
 void app_save_project(App *app, const char *path) {
@@ -127,10 +190,36 @@ void app_save_project(App *app, const char *path) {
         fprintf(f, "      ]\n");
         fprintf(f, "    }%s\n", i < app->sprite_count - 1 ? "," : "");
     }
-    fprintf(f, "  ]\n}\n");
+    fprintf(f, "  ]");
+
+    /* Save images if any */
+    if (app->image_count > 0) {
+        fprintf(f, ",\n  \"images\": [\n");
+        for (int i = 0; i < app->image_count; i++) {
+            QLImage *img = &app->images[i];
+            fprintf(f, "    {\n");
+            fprintf(f, "      \"name\": \"%s\",\n", img->name);
+            fprintf(f, "      \"width\": %d,\n", IMAGE_SIZE);
+            fprintf(f, "      \"height\": %d,\n", IMAGE_SIZE);
+            fprintf(f, "      \"pixels\": [\n");
+            for (int y = 0; y < IMAGE_SIZE; y++) {
+                fprintf(f, "        [");
+                for (int x = 0; x < IMAGE_SIZE; x++) {
+                    fprintf(f, "%d", img->pixels[y][x]);
+                    if (x < IMAGE_SIZE - 1) fprintf(f, ",");
+                }
+                fprintf(f, "]%s\n", y < IMAGE_SIZE - 1 ? "," : "");
+            }
+            fprintf(f, "      ]\n");
+            fprintf(f, "    }%s\n", i < app->image_count - 1 ? "," : "");
+        }
+        fprintf(f, "  ]");
+    }
+
+    fprintf(f, "\n}\n");
     fclose(f);
     app->modified = 0;
-    app_log(app, "Saved: %s (%d sprites)", app->project_path, app->sprite_count);
+    app_log(app, "Saved: %s (%d sprites, %d images)", app->project_path, app->sprite_count, app->image_count);
 }
 
 void app_export_c(App *app, const char *directory) {
@@ -173,4 +262,43 @@ void app_export_c(App *app, const char *directory) {
     fclose(fc);
     fclose(fh);
     app_log(app, "Exported %d sprites to %s", app->sprite_count, directory);
+
+    /* Export images if any */
+    if (app->image_count > 0) {
+        snprintf(c_path, sizeof(c_path), "%s/images.c", directory);
+        snprintf(h_path, sizeof(h_path), "%s/images.h", directory);
+        fc = fopen(c_path, "w");
+        fh = fopen(h_path, "w");
+        if (!fc || !fh) { if (fc) fclose(fc); if (fh) fclose(fh); return; }
+
+        fprintf(fc, "/* images.c — Generated by QL Studio 2 */\n");
+        fprintf(fc, "#include \"images.h\"\n\n");
+        fprintf(fh, "/* images.h — Generated by QL Studio 2 */\n");
+        fprintf(fh, "#ifndef IMAGES_H\n#define IMAGES_H\n\n");
+        fprintf(fh, "#include <stdint.h>\n\n");
+
+        for (int i = 0; i < app->image_count; i++) {
+            QLImage *img = &app->images[i];
+            uint8_t mode8[MODE8_BYTES_PER_IMAGE];
+            image_to_mode8(img, mode8);
+            fprintf(fc, "const uint8_t img_%s[%d] = {\n", img->name, MODE8_BYTES_PER_IMAGE);
+            for (int j = 0; j < MODE8_BYTES_PER_IMAGE; j += 16) {
+                fprintf(fc, "    ");
+                int end = j + 16;
+                if (end > MODE8_BYTES_PER_IMAGE) end = MODE8_BYTES_PER_IMAGE;
+                for (int k = j; k < end; k++) {
+                    fprintf(fc, "0x%02X", mode8[k]);
+                    if (k < MODE8_BYTES_PER_IMAGE - 1) fprintf(fc, ", ");
+                }
+                fprintf(fc, "\n");
+            }
+            fprintf(fc, "};\n\n");
+            fprintf(fh, "extern const uint8_t img_%s[%d];\n", img->name, MODE8_BYTES_PER_IMAGE);
+        }
+
+        fprintf(fh, "\n#endif\n");
+        fclose(fc);
+        fclose(fh);
+        app_log(app, "Exported %d images to %s", app->image_count, directory);
+    }
 }

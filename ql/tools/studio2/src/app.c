@@ -31,6 +31,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->renderer = renderer;
     app->view = VIEW_SPRITES;
     app->current_color = 7;
+    app->image_zoom = 2;
 
     /* Default sprite */
     sprite_init(&app->sprites[0], "sprite_0", 10, 20);
@@ -42,6 +43,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
 void app_cleanup(App *app) {
     if (app->canvas_tex) SDL_DestroyTexture(app->canvas_tex);
     if (app->preview_tex) SDL_DestroyTexture(app->preview_tex);
+    if (app->image_tex) SDL_DestroyTexture(app->image_tex);
 }
 
 /* ── Tab bar ──────────────────────────────────────────────── */
@@ -102,9 +104,10 @@ static void draw_tools_panel(App *app, int px, int py, int pw, int ph) {
 static void draw_left_panel(App *app, int px, int py, int pw, int ph) {
     if (app->view == VIEW_SPRITES) {
         draw_sprite_list(app, px, py, pw, ph);
+    } else if (app->view == VIEW_IMAGES) {
+        draw_image_list(app, px, py, pw, ph);
     } else {
-        const char *title = app->view == VIEW_IMAGES ? "Images" : "Emulator";
-        ui_panel_begin(title, px, py, pw, ph);
+        ui_panel_begin("Emulator", px, py, pw, ph);
         ui_panel_end();
     }
 }
@@ -144,9 +147,8 @@ void app_draw(App *app) {
         draw_sprite_canvas(app, cx, top, cw, ch);
         draw_tools_panel(app, rx, top, rw, ch);
     } else if (app->view == VIEW_IMAGES) {
-        ui_panel_begin("Image Canvas", cx, top, cw + rw, ch);
-        ui_text(cx + 20, top + 40, "Image editor — coming soon");
-        ui_panel_end();
+        draw_image_canvas(app, cx, top, cw, ch);
+        draw_image_tools(app, rx, top, rw, ch);
     } else if (app->view == VIEW_EMULATOR) {
         draw_emulator(app, cx, top, cw + rw, ch);
     }

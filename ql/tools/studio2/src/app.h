@@ -6,6 +6,7 @@
 #include <SDL.h>
 #include <stdbool.h>
 #include "sprite.h"
+#include "image.h"
 
 /* Which main view is active */
 typedef enum {
@@ -38,6 +39,15 @@ typedef struct {
     bool animate;
     int anim_frame;
     float anim_timer;
+
+    /* Images */
+    QLImage images[MAX_IMAGES];
+    int image_count;
+    int current_image;
+    int image_zoom;          /* 1, 2, or 4 */
+    SDL_Texture *image_tex;
+    bool image_tex_dirty;
+    int image_scroll_x, image_scroll_y;
 
     /* Clipboard */
     Sprite clipboard;
@@ -77,5 +87,8 @@ void draw_sprite_canvas(App *app, int x, int y, int w, int h);
 void draw_palette(App *app, int x, int y, int w, int *out_y);
 void draw_properties(App *app, int x, int y, int w, int *out_y);
 void draw_preview(App *app, int x, int y, int w, int *out_y);
+void draw_image_list(App *app, int x, int y, int w, int h);
+void draw_image_canvas(App *app, int x, int y, int w, int h);
+void draw_image_tools(App *app, int x, int y, int w, int h);
 void draw_console(App *app, int x, int y, int w, int h);
 void draw_emulator(App *app, int x, int y, int w, int h);
