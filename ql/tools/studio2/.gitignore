@@ -1,2 +1,3 @@
 build/
 qlstudio2
+*.log
