@@ -139,7 +139,7 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
         SDL_GetTicks() - app->emu_start_ticks > 3000) {
         emu_set_soft_bp_enabled(true);
         app->soft_bp_armed = true;
-        app_log_dbg(app, "Software breakpoints enabled (after boot delay)");
+        app_log_warn(app, "Software breakpoints enabled (after boot delay)");
     }
 
     /* Display area */
