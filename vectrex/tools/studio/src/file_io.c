@@ -260,7 +260,18 @@ void app_load_project(App *app, const char *path) {
                                             if (strcmp(ek, "x") == 0) p = parse_int_val(p, &e->x);
                                             else if (strcmp(ek, "y") == 0) p = parse_int_val(p, &e->y);
                                             else if (strcmp(ek, "vx") == 0) p = parse_int_val(p, &e->vx);
-                                            else if (strcmp(ek, "type") == 0) p = parse_int_val(p, &e->type);
+                                            else if (strcmp(ek, "type") == 0) {
+                                                p = skip_ws(p);
+                                                if (*p == '"') {
+                                                    char tstr[16] = {};
+                                                    p = parse_str(p, tstr, sizeof(tstr));
+                                                    if (strcmp(tstr, "bat") == 0 || strcmp(tstr, "enemy") == 0) e->type = ENEMY_BAT;
+                                                    else if (strcmp(tstr, "spider") == 0) e->type = ENEMY_SPIDER;
+                                                    else if (strcmp(tstr, "snake") == 0) e->type = ENEMY_SNAKE;
+                                                } else {
+                                                    p = parse_int_val(p, &e->type);
+                                                }
+                                            }
                                             else p = skip_value(p);
                                         }
                                         if (*p == '}') p++;
