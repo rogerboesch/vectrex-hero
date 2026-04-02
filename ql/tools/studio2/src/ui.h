@@ -1,0 +1,147 @@
+/*
+ * ui.h — Minimal SDL2 UI library for QL Studio 2
+ *
+ * Provides: Button, Text, Panel, ColorSwatch, InputText
+ * All rendering via SDL_Renderer. Text via SDL_ttf.
+ * Fixed-layout panels (no docking/dragging).
+ */
+#pragma once
+
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* ── Theme colors ─────────────────────────────────────────── */
+
+typedef struct {
+    /* Base UI */
+    SDL_Color bg;             /* window background */
+    SDL_Color panel_bg;       /* panel background */
+    SDL_Color panel_title;    /* panel title bar */
+    SDL_Color toolbar_bg;     /* toolbar / section header background */
+    SDL_Color border;         /* general borders */
+    SDL_Color text;           /* normal text */
+    SDL_Color text_dim;       /* dimmed/label text */
+    SDL_Color text_dark;      /* very dim text (size info etc.) */
+    /* Buttons */
+    SDL_Color btn_bg;         /* button background */
+    SDL_Color btn_hover;      /* button hover */
+    SDL_Color btn_active;     /* button pressed / active tab */
+    SDL_Color btn_text;       /* button text */
+    /* Input */
+    SDL_Color input_bg;       /* input field background */
+    SDL_Color input_border;   /* input field border */
+    SDL_Color select_bg;      /* selected item */
+    SDL_Color swatch_sel;     /* color swatch selection border */
+    /* Canvas */
+    SDL_Color canvas_grid;    /* pixel grid lines */
+    SDL_Color canvas_byte;    /* byte boundary lines */
+    SDL_Color preview_bg;     /* preview background */
+    /* Console */
+    SDL_Color console_bg;     /* console content background */
+    SDL_Color console_err;    /* error text */
+    SDL_Color console_warn;   /* warning text */
+    /* Emulator */
+    SDL_Color emu_placeholder;/* emulator placeholder background */
+    SDL_Color emu_text;       /* emulator placeholder text */
+    /* Misc */
+    SDL_Color tab_active;     /* active tab indicator */
+    SDL_Color tooltip_bg;     /* tooltip background */
+} UITheme;
+
+extern UITheme ui_theme;
+
+/* ── Init / shutdown ──────────────────────────────────────── */
+
+/* Initialize the UI system. Call after SDL_Init and creating renderer. */
+bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size);
+
+/* Shutdown and free resources. */
+void ui_shutdown(void);
+
+/* ── Frame cycle ──────────────────────────────────────────── */
+
+/* Call at start of each frame to reset input state. */
+void ui_begin_frame(void);
+
+/* Process an SDL event. Call for every event in the poll loop. */
+void ui_process_event(const SDL_Event *event);
+
+/* ── Layout helpers ───────────────────────────────────────── */
+
+/* A panel is a titled, bordered rectangle. Not moveable. */
+void ui_panel_begin(const char *title, int x, int y, int w, int h);
+void ui_panel_end(void);
+
+/* Get the content area inside the current panel. */
+SDL_Rect ui_panel_content(void);
+
+/* Panel with toolbar instead of title. Returns the toolbar rect for placing widgets. */
+SDL_Rect ui_panel_begin_toolbar(int x, int y, int w, int h);
+
+/* ── Widgets ──────────────────────────────────────────────── */
+
+/* Draw text at position. Returns width in pixels. */
+int ui_text(int x, int y, const char *text);
+int ui_text_color(int x, int y, const char *text, SDL_Color color);
+int ui_text_small(int x, int y, const char *text);
+
+/* Button. Returns true on click. */
+bool ui_button(int x, int y, int w, int h, const char *label);
+
+/* Small button (auto-sized to text). Returns true on click. */
+bool ui_button_auto(int x, int y, const char *label);
+
+/* Selectable list item (full width of panel content). Returns true on click. */
+bool ui_selectable(int x, int y, int w, const char *label, bool selected);
+
+/* Color swatch button. Returns true on click. */
+bool ui_color_swatch(int x, int y, int size, SDL_Color color, bool selected);
+
+/* Input text field. Returns true when Enter is pressed.
+   buf is modified in-place. max_len is buffer size. */
+bool ui_input_text(int x, int y, int w, char *buf, int max_len, bool *has_focus);
+
+/* Integer input with +/- buttons. Returns true on change.
+   label_w: fixed label width (0 = auto-size from text). */
+bool ui_input_int(int x, int y, int w, const char *label, int *value, int step, int min_val, int max_val);
+bool ui_input_int_ex(int x, int y, int w, const char *label, int label_w, int *value, int step, int min_val, int max_val);
+
+/* Checkbox. Returns true on toggle. */
+bool ui_checkbox(int x, int y, const char *label, bool *value);
+
+/* Section header — full-width toolbar-colored title bar. Returns y after it. */
+int ui_section(int x, int y, int w, const char *label);
+
+/* Tooltip — call after the widget it describes. Appears near mouse. */
+void ui_tooltip(const char *text);
+
+/* ── Metrics ──────────────────────────────────────────────── */
+
+int ui_line_height(void);       /* line height in pixels */
+int ui_text_width(const char *text);  /* width of text in pixels */
+int ui_char_width(void);        /* width of a single char (monospace) */
+
+/* ── Input queries ────────────────────────────────────────── */
+
+bool ui_mouse_in_rect(int x, int y, int w, int h);
+bool ui_mouse_clicked(void);    /* left button just pressed this frame */
+bool ui_mouse_down(void);       /* left button held down */
+bool ui_mouse_right_clicked(void); /* right button just pressed */
+void ui_mouse_pos(int *x, int *y);
+
+/* Was a key pressed this frame? */
+bool ui_key_pressed(SDL_Keycode key);
+
+/* Is a modifier held? */
+bool ui_key_mod_cmd(void);     /* Cmd on macOS */
+bool ui_key_mod_shift(void);
+
+#ifdef __cplusplus
+}
+#endif
