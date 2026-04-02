@@ -262,7 +262,7 @@ void app_export_c(App *app, const char *directory) {
     fprintf(fh, "\n#endif\n");
     fclose(fc);
     fclose(fh);
-    app_log_info(app, "Exported %d sprites to %s", app->sprite_count, directory);
+    app_log_info(app, "Exported %d sprites to %s/sprites.c/.h", app->sprite_count, directory);
 
     /* Export images if any */
     if (app->image_count > 0) {
@@ -300,7 +300,7 @@ void app_export_c(App *app, const char *directory) {
         fprintf(fh, "\n#endif\n");
         fclose(fc);
         fclose(fh);
-        app_log_info(app, "Exported %d images to %s", app->image_count, directory);
+        app_log_info(app, "Exported %d images to %s/images.c/.h", app->image_count, directory);
     }
 }
 
