@@ -30,7 +30,9 @@ void draw_image_tools(App *app, int px, int py, int pw, int ph) {
         int field_x = c.x + lw + 8;
         int field_w = c.w - lw - 8;
         ui_text_color(c.x, y + 3, "Name:", ui_theme.text_dim);
-        strncpy(img_name_buf, img->name, sizeof(img_name_buf) - 1);
+        if (!img_name_focus) {
+            strncpy(img_name_buf, img->name, sizeof(img_name_buf) - 1);
+        }
         if (ui_input_text(field_x, y, field_w, img_name_buf, sizeof(img_name_buf), &img_name_focus)) {
             strncpy(img->name, img_name_buf, sizeof(img->name) - 1);
         }

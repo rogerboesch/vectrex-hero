@@ -25,9 +25,11 @@ void draw_properties(App *app, int x, int y, int w, int *out_y) {
     int field_x = cx + lw + 8;
     int field_w = cw - lw - 8;
 
-    /* Name */
+    /* Name — only sync from sprite when not editing */
     ui_text_color(cx, y + 3, "Name:", ui_theme.text_dim);
-    strncpy(app->name_buf, spr->name, sizeof(app->name_buf) - 1);
+    if (!app->name_focus) {
+        strncpy(app->name_buf, spr->name, sizeof(app->name_buf) - 1);
+    }
     if (ui_input_text(field_x, y, field_w, app->name_buf, sizeof(app->name_buf), &app->name_focus)) {
         strncpy(spr->name, app->name_buf, sizeof(spr->name) - 1);
     }

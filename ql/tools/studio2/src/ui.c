@@ -348,9 +348,12 @@ bool ui_input_text(int x, int y, int w, char *buf, int max_len, bool *has_focus)
 
     /* Click to focus */
     if (g_mouse_left_clicked) {
+        bool was_focused = *has_focus;
         *has_focus = hover;
-        if (hover) {
+        if (hover && !was_focused) {
             SDL_StartTextInput();
+        } else if (!hover && was_focused) {
+            SDL_StopTextInput();
         }
     }
 
