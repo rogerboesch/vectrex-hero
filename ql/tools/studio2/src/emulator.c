@@ -202,7 +202,7 @@ void emu_update_texture(void) {
         SDL_UpdateTexture(g_fb_texture, NULL, pixel_buffer, w * 4);
 
     /* Check PC breakpoints (skip one cycle after resume to avoid re-trigger) */
-    if (bp_count > 0 && !g_paused) {
+    if (bp_count > 0 && !g_paused && g_soft_bp_enabled) {
         if (g_bp_skip_once) {
             g_bp_skip_once = false;
         } else {
