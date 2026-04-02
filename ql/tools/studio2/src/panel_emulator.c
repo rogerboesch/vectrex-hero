@@ -119,8 +119,8 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
             app->speed_idx = (app->speed_idx + 1) % 4;
             emu_set_speed(speed_values[app->speed_idx]);
         }
-        bx += 59;
-        if (ui_checkbox(bx, tb.y + 2, "Traps", &app->trap_log_enabled))
+        bx += 75;
+        if (ui_checkbox(bx, tb.y + 2, "Log OS Traps", &app->trap_log_enabled))
             emu_set_trap_logging(app->trap_log_enabled);
 
         /* Status */
