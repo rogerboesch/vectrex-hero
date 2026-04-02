@@ -29,7 +29,7 @@ void draw_console(App *app, int px, int py, int pw, int ph) {
             for (int i = 0; i < app->console_count; i++)
                 fprintf(f, "%s\n", app->console_lines[i]);
             fclose(f);
-            app_log(app, "Log saved: %s", filename);
+            app_log_info(app, "Log saved: %s", filename);
         }
     }
     btn_x -= btn_w + 4;
@@ -52,8 +52,9 @@ void draw_console(App *app, int px, int py, int pw, int ph) {
     for (int i = start; i < app->console_count; i++) {
         const char *line = app->console_lines[i];
         SDL_Color col = ui_theme.text_dim;
-        if (strstr(line, "ERR"))  col = ui_theme.console_err;
-        else if (strstr(line, "***")) col = ui_theme.console_warn;
+        if (line[0] == '!' && line[1] == ' ')      col = ui_theme.console_err;
+        else if (line[0] == '*' && line[1] == ' ')  col = ui_theme.console_warn;
+        else if (line[0] == '>' && line[1] == ' ')  col = ui_theme.text_dim;
         ui_text_color(c.x, y, line, col);
         y += ui_line_height() + 1;
         if (y > c.y + c.h - ui_line_height()) break;

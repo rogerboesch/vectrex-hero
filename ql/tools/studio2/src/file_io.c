@@ -17,7 +17,7 @@ void app_new_project(App *app) {
 
 void app_load_project(App *app, const char *path) {
     FILE *f = fopen(path, "r");
-    if (!f) { app_log(app, "ERR Cannot open %s", path); return; }
+    if (!f) { app_log_err(app, "Cannot open %s", path); return; }
 
     /* Read entire file */
     fseek(f, 0, SEEK_END);
@@ -161,7 +161,7 @@ void app_load_project(App *app, const char *path) {
     app->current_image = 0;
     app->image_tex_dirty = true;
     app->modified = 0;
-    app_log(app, "Loaded: %s (%d sprites, %d images)", path, app->sprite_count, app->image_count);
+    app_log_info(app, "Loaded: %s (%d sprites, %d images)", path, app->sprite_count, app->image_count);
 }
 
 void app_save_project(App *app, const char *path) {
@@ -219,7 +219,7 @@ void app_save_project(App *app, const char *path) {
     fprintf(f, "\n}\n");
     fclose(f);
     app->modified = 0;
-    app_log(app, "Saved: %s (%d sprites, %d images)", app->project_path, app->sprite_count, app->image_count);
+    app_log_info(app, "Saved: %s (%d sprites, %d images)", app->project_path, app->sprite_count, app->image_count);
 }
 
 void app_export_c(App *app, const char *directory) {
@@ -261,7 +261,7 @@ void app_export_c(App *app, const char *directory) {
     fprintf(fh, "\n#endif\n");
     fclose(fc);
     fclose(fh);
-    app_log(app, "Exported %d sprites to %s", app->sprite_count, directory);
+    app_log_info(app, "Exported %d sprites to %s", app->sprite_count, directory);
 
     /* Export images if any */
     if (app->image_count > 0) {
@@ -299,6 +299,6 @@ void app_export_c(App *app, const char *directory) {
         fprintf(fh, "\n#endif\n");
         fclose(fc);
         fclose(fh);
-        app_log(app, "Exported %d images to %s", app->image_count, directory);
+        app_log_info(app, "Exported %d images to %s", app->image_count, directory);
     }
 }

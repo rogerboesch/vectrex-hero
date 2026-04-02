@@ -11,16 +11,39 @@
 
 /* ── Helpers ──────────────────────────────────────────────── */
 
-void app_log(App *app, const char *fmt, ...) {
+static void log_append(App *app, const char *prefix, const char *fmt, va_list args) {
     if (app->console_count >= 64) {
         memmove(app->console_lines[0], app->console_lines[1], 63 * 256);
         app->console_count = 63;
     }
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(app->console_lines[app->console_count], 256, fmt, args);
-    va_end(args);
+    char *line = app->console_lines[app->console_count];
+    int off = snprintf(line, 256, "%s", prefix);
+    vsnprintf(line + off, 256 - off, fmt, args);
     app->console_count++;
+}
+
+void app_log(App *app, const char *fmt, ...) {
+    va_list args; va_start(args, fmt);
+    log_append(app, "", fmt, args);
+    va_end(args);
+}
+
+void app_log_dbg(App *app, const char *fmt, ...) {
+    va_list args; va_start(args, fmt);
+    log_append(app, "> ", fmt, args);
+    va_end(args);
+}
+
+void app_log_info(App *app, const char *fmt, ...) {
+    va_list args; va_start(args, fmt);
+    log_append(app, "* ", fmt, args);
+    va_end(args);
+}
+
+void app_log_err(App *app, const char *fmt, ...) {
+    va_list args; va_start(args, fmt);
+    log_append(app, "! ", fmt, args);
+    va_end(args);
 }
 
 /* ── Init / cleanup ───────────────────────────────────────── */
@@ -39,7 +62,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     sprite_init(&app->sprites[0], "sprite_0", 10, 20);
     app->sprite_count = 1;
 
-    app_log(app, "QL Studio 2 ready");
+    app_log_info(app, "QL Studio 2 ready");
 }
 
 void app_cleanup(App *app) {

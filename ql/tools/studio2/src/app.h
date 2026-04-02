@@ -79,7 +79,10 @@ typedef struct {
 void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer);
 void app_cleanup(App *app);
 void app_draw(App *app);
-void app_log(App *app, const char *fmt, ...);
+void app_log(App *app, const char *fmt, ...);       /* raw, no prefix */
+void app_log_dbg(App *app, const char *fmt, ...);   /* > message */
+void app_log_info(App *app, const char *fmt, ...);  /* * message */
+void app_log_err(App *app, const char *fmt, ...);   /* ! message */
 
 /* ── File I/O ─────────────────────────────────────────────── */
 

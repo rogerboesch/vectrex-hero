@@ -5,13 +5,76 @@
 #include "app.h"
 #include "ui.h"
 #include "emulator.h"
-#include "style.h"
 #include "sprite.h"  /* QL_COLOR_NAMES */
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 static const char *speed_names[] = {"Fast", "Normal", "Slow", "V.Slow"};
 static int speed_values[] = {0, 1, 4, 10};
+
+/*
+ * Parse an iQL log line and re-log with our format.
+ * Input:  "[HH:MM:SS.mmm] INF (file.c:123) message"
+ * Output: "> message (file.c:123)"  for DBG
+ *         "* message"               for INF
+ *         "! message"               for ERR
+ */
+static void log_emu_line(App *app, const char *line) {
+    /* Find level marker after "] " */
+    const char *p = strstr(line, "] ");
+    if (!p) { app_log_dbg(app, "%s", line); return; }
+    p += 2; /* skip "] " */
+
+    /* Extract level (3 chars) */
+    char level[4] = {};
+    strncpy(level, p, 3);
+    p += 3;
+
+    /* Skip " (" to find filename:line */
+    char fileline[64] = {};
+    if (*p == ' ' && *(p+1) == '(') {
+        p += 2;
+        const char *end = strchr(p, ')');
+        if (end) {
+            int len = (int)(end - p);
+            if (len > 63) len = 63;
+            strncpy(fileline, p, len);
+            p = end + 1;
+        }
+    }
+
+    /* Skip space before message */
+    while (*p == ' ') p++;
+
+    if (strcmp(level, "DBG") == 0) {
+        if (fileline[0])
+            app_log_dbg(app, "%s (%s)", p, fileline);
+        else
+            app_log_dbg(app, "%s", p);
+    } else if (strcmp(level, "ERR") == 0) {
+        app_log_err(app, "%s", p);
+    } else {
+        app_log_info(app, "%s", p);
+    }
+}
+
+/* Drain a log buffer, split by newlines, parse each line */
+static void drain_and_log(App *app, int (*drain_fn)(char *, int), bool parse_emu) {
+    char logbuf[8192];
+    int n = drain_fn(logbuf, sizeof(logbuf));
+    if (n <= 0) return;
+    char *p = logbuf;
+    while (*p) {
+        char *nl = strchr(p, '\n');
+        if (nl) *nl = 0;
+        if (*p) {
+            if (parse_emu) log_emu_line(app, p);
+            else app_log_dbg(app, "%s", p);
+        }
+        if (nl) p = nl + 1; else break;
+    }
+}
 
 void draw_emulator(App *app, int px, int py, int pw, int ph) {
     SDL_Rect tb = ui_panel_begin_toolbar(px, py, pw, ph);
@@ -20,20 +83,18 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
     /* Toolbar */
     int bx = tb.x;
     int bh = tb.h;
-    int bw = 50;
-    int gap = 4;
 
     /* Build — always available */
     if (ui_button(bx, tb.y, 50, bh, "Build")) {
         char ql_dir[512];
         snprintf(ql_dir, sizeof(ql_dir), "%s../../", SDL_GetBasePath());
         char output[4096] = {};
-        app_log(app, "Building...");
+        app_log_info(app, "Building...");
         if (emu_build(ql_dir, output, sizeof(output)))
-            app_log(app, "Build OK");
+            app_log_info(app, "Build OK");
         else
-            app_log(app, "ERR Build FAILED");
-        if (output[0]) app_log(app, "%s", output);
+            app_log_err(app, "Build FAILED");
+        if (output[0]) app_log_dbg(app, "%s", output);
     }
     bx += 62;
 
@@ -42,7 +103,7 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
             char sys_path[512];
             snprintf(sys_path, sizeof(sys_path), "%s/Documents/iQLmac/", getenv("HOME"));
             if (emu_start(app->renderer, sys_path)) {
-                app_log(app, "Emulator started");
+                app_log_info(app, "Emulator started");
                 app->emu_start_ticks = SDL_GetTicks();
                 app->soft_bp_armed = false;
             }
@@ -78,7 +139,7 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
         SDL_GetTicks() - app->emu_start_ticks > 3000) {
         emu_set_soft_bp_enabled(true);
         app->soft_bp_armed = true;
-        app_log(app, "Software breakpoints enabled (after boot delay)");
+        app_log_dbg(app, "Software breakpoints enabled (after boot delay)");
     }
 
     /* Display area */
@@ -144,34 +205,14 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
     /* Check software breakpoint hit */
     int bp_hit = emu_get_last_bp_hit();
     if (bp_hit > 0) {
-        app_log(app, "*** SOFTWARE BP #%d ***", bp_hit);
+        app_log_err(app, "SOFTWARE BP #%d hit", bp_hit);
     }
 
-    /* Drain iQL log + trap log to console, line by line */
+    /* Drain iQL log + trap log to console */
     if (emu_is_running()) {
-        char logbuf[8192];
-        int n = emu_drain_iql_log(logbuf, sizeof(logbuf));
-        if (n > 0) {
-            char *p = logbuf;
-            while (*p) {
-                char *nl = strchr(p, '\n');
-                if (nl) *nl = 0;
-                if (*p) app_log(app, "%s", p);
-                if (nl) p = nl + 1; else break;
-            }
-        }
-        if (app->trap_log_enabled) {
-            n = emu_drain_trap_log(logbuf, sizeof(logbuf));
-            if (n > 0) {
-                char *p = logbuf;
-                while (*p) {
-                    char *nl = strchr(p, '\n');
-                    if (nl) *nl = 0;
-                    if (*p) app_log(app, "%s", p);
-                    if (nl) p = nl + 1; else break;
-                }
-            }
-        }
+        drain_and_log(app, emu_drain_iql_log, true);
+        if (app->trap_log_enabled)
+            drain_and_log(app, emu_drain_trap_log, false);
     }
 
     /* Auto-route keyboard when emulator panel is hovered */
