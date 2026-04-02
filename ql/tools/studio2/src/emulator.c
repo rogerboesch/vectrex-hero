@@ -200,6 +200,18 @@ void emu_update_texture(void) {
     if (g_fb_texture)
         SDL_UpdateTexture(g_fb_texture, NULL, pixel_buffer, w * 4);
 
+    /* Check PC breakpoints */
+    if (bp_count > 0 && !g_paused) {
+        uint32_t cur_pc = (uint32_t)((char *)pc - (char *)theROM);
+        for (int i = 0; i < bp_count; i++) {
+            if (bp_addrs[i] == cur_pc) {
+                g_last_bp_hit = -(int)cur_pc; /* negative = PC breakpoint */
+                emu_pause();
+                break;
+            }
+        }
+    }
+
     /* Check software breakpoint */
     if (g_soft_bp_enabled && !g_paused) {
         uint8_t marker = (uint8_t)ReadByte(SOFT_BP_ADDR);
@@ -207,7 +219,6 @@ void emu_update_texture(void) {
             WriteByte(SOFT_BP_ADDR, 0);
             g_last_bp_hit = marker;
             emu_pause();
-            printf("*** SOFTWARE BP #%d ***\n", marker);
         }
     }
 }
