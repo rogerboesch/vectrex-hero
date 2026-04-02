@@ -29,7 +29,7 @@
  */
 
 #include "game.h"
-#include "../vectrex/src/levels.h"
+#include "../../vectrex/src/levels.h"
 
 /* ===================================================================
  * Room table arrays — indexed by room number within current level.

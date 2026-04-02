@@ -631,7 +631,7 @@ void App::draw_emulator() {
 
     // Toolbar — Build is always available
     if (ImGui::Button("Build")) {
-        std::string ql_dir = std::string(SDL_GetBasePath()) + "../../";
+        std::string ql_dir = std::string(SDL_GetBasePath()) + "../../game/";
         write_c_files(last_export_dir.empty() ? ql_dir : last_export_dir);
         log("Sprites exported to %s", ql_dir.c_str());
         std::string output;

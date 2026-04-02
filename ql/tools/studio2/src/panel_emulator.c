@@ -87,7 +87,7 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
     /* Build — always available */
     if (ui_button(bx, tb.y, 50, bh, "Build")) {
         char ql_dir[512];
-        snprintf(ql_dir, sizeof(ql_dir), "%s../../", SDL_GetBasePath());
+        snprintf(ql_dir, sizeof(ql_dir), "%s../../game/", SDL_GetBasePath());
         char output[4096] = {};
         app_log_info(app, "Building...");
         if (emu_build(ql_dir, output, sizeof(output)))
