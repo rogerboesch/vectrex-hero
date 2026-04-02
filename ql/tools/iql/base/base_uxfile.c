@@ -6,6 +6,7 @@
 //
 
 #include "QL_68000.h"
+#include "rb_logger.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -425,7 +426,7 @@ void FillXHXtcc(int fd, struct fileHeader *h)
 	read(fd, buffer, 8);
 
 	if (!strncmp(buffer, "XTcc", 4)) {
-		printf("Found XTcc setting data space 0x%x\n", RL(buffer + 4));
+		rb_log_debug("Found XTcc setting data space 0x%x", RL(buffer + 4));
 		WW((Ptr)h + 4, 1);
 		WL(((Ptr)h) + 6, RL(buffer + 4));
 	}
