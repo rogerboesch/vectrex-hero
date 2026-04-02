@@ -78,7 +78,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (!ui_init(renderer, STYLE_FONT_PATH, STYLE_FONT_SIZE)) {
+    if (!ui_init(renderer, STYLE_FONT_PATH, STYLE_FONT_SIZE,
+                 STYLE_MONO_FONT_PATH, STYLE_MONO_FONT_SIZE)) {
         SDL_Log("ui_init failed");
         return 1;
     }

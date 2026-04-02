@@ -8,8 +8,10 @@
 
 /* ── Font ─────────────────────────────────────────────────── */
 
-#define STYLE_FONT_PATH   "/System/Library/Fonts/SFNS.ttf"
-#define STYLE_FONT_SIZE   14
+#define STYLE_FONT_PATH       "/System/Library/Fonts/SFNS.ttf"
+#define STYLE_FONT_SIZE       14
+#define STYLE_MONO_FONT_PATH  "/System/Library/Fonts/Monaco.ttf"
+#define STYLE_MONO_FONT_SIZE  12
 
 /* ── Layout ───────────────────────────────────────────────── */
 

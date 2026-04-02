@@ -59,7 +59,8 @@ extern UITheme ui_theme;
 /* ── Init / shutdown ──────────────────────────────────────── */
 
 /* Initialize the UI system. Call after SDL_Init and creating renderer. */
-bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size);
+bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size,
+             const char *mono_font_path, int mono_font_size);
 
 /* Shutdown and free resources. */
 void ui_shutdown(void);
@@ -90,6 +91,8 @@ SDL_Rect ui_panel_begin_toolbar(int x, int y, int w, int h);
 int ui_text(int x, int y, const char *text);
 int ui_text_color(int x, int y, const char *text, SDL_Color color);
 int ui_text_small(int x, int y, const char *text);
+int ui_text_mono(int x, int y, const char *text);
+int ui_text_mono_color(int x, int y, const char *text, SDL_Color color);
 
 /* Button. Returns true on click. */
 bool ui_button(int x, int y, int w, int h, const char *label);

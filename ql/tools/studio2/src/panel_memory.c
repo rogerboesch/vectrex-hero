@@ -54,7 +54,7 @@ void draw_memory(App *app, int px, int py, int pw, int ph) {
 
         pos += snprintf(line + pos, sizeof(line) - pos, " %s", ascii);
 
-        ui_text(c.x, y, line);
+        ui_text_mono(c.x, y, line);
         y += ui_line_height() + 1;
     }
 

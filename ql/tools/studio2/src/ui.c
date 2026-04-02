@@ -49,6 +49,7 @@ UITheme ui_theme = {
 static SDL_Renderer *g_renderer = NULL;
 static TTF_Font *g_font = NULL;
 static TTF_Font *g_font_small = NULL;
+static TTF_Font *g_font_mono = NULL;
 
 /* Input state */
 static int g_mouse_x, g_mouse_y;
@@ -110,7 +111,8 @@ static int render_text(TTF_Font *font, int x, int y, const char *text, SDL_Color
 
 /* ── Init / shutdown ──────────────────────────────────────── */
 
-bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size) {
+bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size,
+             const char *mono_font_path, int mono_font_size) {
     g_renderer = renderer;
 
     if (TTF_Init() < 0) {
@@ -127,6 +129,9 @@ bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size) {
     g_font_small = TTF_OpenFont(font_path, font_size - 2);
     if (!g_font_small) g_font_small = g_font;
 
+    g_font_mono = TTF_OpenFont(mono_font_path, mono_font_size);
+    if (!g_font_mono) g_font_mono = g_font;
+
     g_line_height = TTF_FontLineSkip(g_font) + 2;
     /* Measure a char for monospace width */
     int adv = 0;
@@ -137,6 +142,7 @@ bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size) {
 }
 
 void ui_shutdown(void) {
+    if (g_font_mono && g_font_mono != g_font) TTF_CloseFont(g_font_mono);
     if (g_font_small && g_font_small != g_font) TTF_CloseFont(g_font_small);
     if (g_font) TTF_CloseFont(g_font);
     g_font = NULL;
@@ -261,6 +267,14 @@ int ui_text_color(int x, int y, const char *text, SDL_Color color) {
 
 int ui_text_small(int x, int y, const char *text) {
     return render_text(g_font_small, x, y, text, ui_theme.text_dim);
+}
+
+int ui_text_mono(int x, int y, const char *text) {
+    return render_text(g_font_mono, x, y, text, ui_theme.text);
+}
+
+int ui_text_mono_color(int x, int y, const char *text, SDL_Color color) {
+    return render_text(g_font_mono, x, y, text, color);
 }
 
 /* ── Button ───────────────────────────────────────────────── */
