@@ -181,9 +181,11 @@ void app_draw(App *app) {
         draw_image_tools(app, rx, top, rw, ch);
     } else if (app->view == VIEW_EMULATOR) {
         draw_emulator(app, cx, top, cw, ch);
-        /* Right panel: CPU top half, Memory bottom half */
-        draw_cpu_state(app, rx, top, rw, ch / 2);
-        draw_memory(app, rx, top + ch / 2, rw, ch - ch / 2);
+        /* Right panel: CPU / Disassembly / Memory (thirds) */
+        int rh3 = ch / 3;
+        draw_cpu_state(app, rx, top, rw, rh3);
+        draw_disasm(app, rx, top + rh3, rw, rh3);
+        draw_memory(app, rx, top + rh3 * 2, rw, ch - rh3 * 2);
     }
 
     /* Keyboard shortcuts */

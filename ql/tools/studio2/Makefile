@@ -37,7 +37,8 @@ APP_SRCS = src/main.c src/ui.c src/app.c src/file_io.c src/emulator.c \
            src/panel_palette.c src/panel_properties.c src/panel_preview.c \
            src/panel_image_list.c src/panel_image_canvas.c src/panel_image_tools.c \
            src/panel_console.c src/panel_emulator.c \
-           src/panel_cpu_state.c src/panel_memory.c src/panel_breakpoints.c \
+           src/panel_cpu_state.c src/panel_disasm.c src/panel_memory.c \
+           src/panel_breakpoints.c src/m68k_disasm.c \
            src/native_macos.m
 
 # iQL emulator C sources
