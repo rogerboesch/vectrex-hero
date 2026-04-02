@@ -1,35 +1,162 @@
 /*
- * panel_emulator.c — Emulator view (placeholder for now)
+ * panel_emulator.c — Emulator display with toolbar + pixel inspector
  */
 
 #include "app.h"
 #include "ui.h"
+#include "emulator.h"
+#include "style.h"
+#include "sprite.h"  /* QL_COLOR_NAMES */
+#include <stdio.h>
+#include <string.h>
+
+static const char *speed_names[] = {"Fast", "Normal", "Slow", "V.Slow"};
+static int speed_values[] = {0, 1, 4, 10};
 
 void draw_emulator(App *app, int px, int py, int pw, int ph) {
-    ui_panel_begin("Emulator", px, py, pw, ph);
-    SDL_Rect ec = ui_panel_content();
+    SDL_Rect tb = ui_panel_begin_toolbar(px, py, pw, ph);
+    SDL_Rect c = ui_panel_content();
 
-    /* Emulator screen area — 512x256 scaled to fit */
-    float emu_w = 512, emu_h = 256;
-    float sx = (float)ec.w / emu_w;
-    float sy = (float)(ec.h - 40) / emu_h;
-    float s = sx < sy ? sx : sy;
-    if (s < 0.1f) s = 1.0f;
-    int pw2 = (int)(emu_w * s);
-    int ph2 = (int)(emu_h * s);
-    int scr_x = ec.x + (ec.w - pw2) / 2;
-    int scr_y = ec.y + 30 + ((ec.h - 30 - ph2) / 2);
+    /* Toolbar */
+    int bx = tb.x;
+    int bh = tb.h;
+    int bw = 50;
+    int gap = 4;
 
-    /* Dark red placeholder */
-    SDL_Rect scr = {scr_x, scr_y, pw2, ph2};
-    SDL_SetRenderDrawColor(app->renderer, ui_theme.emu_placeholder.r, ui_theme.emu_placeholder.g, ui_theme.emu_placeholder.b, 255);
-    SDL_RenderFillRect(app->renderer, &scr);
+    /* Build — always available */
+    if (ui_button(bx, tb.y, 50, bh, "Build")) {
+        char ql_dir[512];
+        snprintf(ql_dir, sizeof(ql_dir), "%s../../", SDL_GetBasePath());
+        char output[4096] = {};
+        app_log(app, "Building...");
+        if (emu_build(ql_dir, output, sizeof(output)))
+            app_log(app, "Build OK");
+        else
+            app_log(app, "ERR Build FAILED");
+        if (output[0]) app_log(app, "%s", output);
+    }
+    bx += 54;
 
-    /* Centered message */
-    const char *msg = "Press Build & Run";
-    int tw = ui_text_width(msg);
-    ui_text_color(scr_x + (pw2 - tw) / 2, scr_y + ph2 / 2 - ui_line_height() / 2,
-                  msg, ui_theme.emu_text);
+    if (!emu_is_running()) {
+        if (ui_button(bx, tb.y, 40, bh, "Run")) {
+            char sys_path[512];
+            snprintf(sys_path, sizeof(sys_path), "%s/Documents/iQLmac/", getenv("HOME"));
+            if (emu_start(app->renderer, sys_path)) {
+                app_log(app, "Emulator started");
+                app->emu_start_ticks = SDL_GetTicks();
+                app->soft_bp_armed = false;
+            }
+        }
+    } else {
+        if (ui_button(bx, tb.y, 55, bh, emu_is_paused() ? "Resume" : "Pause")) {
+            if (emu_is_paused()) emu_resume(); else emu_pause();
+        }
+        bx += 59;
+        if (ui_button(bx, tb.y, 42, bh, "Stop")) { emu_stop(); app->emu_wants_keys = false; }
+        bx += 46;
+        if (ui_button(bx, tb.y, 55, bh, "Restart")) { emu_restart(); }
+        bx += 59;
+        if (ui_button(bx, tb.y, 55, bh, speed_names[app->speed_idx])) {
+            app->speed_idx = (app->speed_idx + 1) % 4;
+            emu_set_speed(speed_values[app->speed_idx]);
+        }
+        bx += 59;
+        if (ui_checkbox(bx, tb.y + 2, "BPs", &app->bp_enabled))
+            emu_set_soft_bp_enabled(app->bp_enabled);
+        bx += ui_text_width("BPs") + 30;
+        if (ui_checkbox(bx, tb.y + 2, "Traps", &app->trap_log_enabled))
+            emu_set_trap_logging(app->trap_log_enabled);
+
+        /* Status */
+        bx = tb.x + tb.w - 70;
+        if (emu_is_paused())
+            ui_text_color(bx, tb.y + 2, "Paused", (SDL_Color){255, 200, 50, 255});
+        else
+            ui_text_color(bx, tb.y + 2, "Running", (SDL_Color){80, 200, 80, 255});
+    }
+
+    /* Boot delay for software breakpoints */
+    if (emu_is_running() && !app->soft_bp_armed && app->bp_enabled &&
+        SDL_GetTicks() - app->emu_start_ticks > 3000) {
+        emu_set_soft_bp_enabled(true);
+        app->soft_bp_armed = true;
+        app_log(app, "Software breakpoints enabled (after boot delay)");
+    }
+
+    /* Display area */
+    if (emu_is_running()) emu_update_texture();
+
+    float dw = 512, dh = 256;
+    if (emu_is_ready()) {
+        int sw = emu_screen_width(), sh = emu_screen_height();
+        if (sw > 0 && sh > 0) { dw = (float)sw; dh = (float)sh; }
+    }
+
+    float scale = (float)c.w / dw;
+    float sy = (float)(c.h - 20) / dh;
+    if (sy < scale) scale = sy;
+    if (scale < 0.1f) scale = 1.0f;
+    int disp_w = (int)(dw * scale);
+    int disp_h = (int)(dh * scale);
+    int scr_x = c.x + (c.w - disp_w) / 2;
+    int scr_y = c.y + (c.h - 20 - disp_h) / 2;
+
+    SDL_Texture *tex = emu_get_texture();
+    if (emu_is_ready() && tex) {
+        SDL_Rect dst = {scr_x, scr_y, disp_w, disp_h};
+        SDL_RenderCopy(app->renderer, tex, NULL, &dst);
+
+        /* Pixel inspector on hover */
+        if (ui_mouse_in_rect(scr_x, scr_y, disp_w, disp_h)) {
+            int mx, my;
+            ui_mouse_pos(&mx, &my);
+            int qx = (int)((mx - scr_x) / scale);
+            int qy = (int)((my - scr_y) / scale);
+            int ql_x = qx / 2;
+            int ql_y = qy;
+            if (ql_x >= 0 && ql_x < 256 && ql_y >= 0 && ql_y < 256) {
+                uint32_t pair_addr = 0x20000 + ql_y * 128 + (ql_x / 4) * 2;
+                int pos = ql_x & 3;
+                uint8_t even = emu_read_byte(pair_addr);
+                uint8_t odd = emu_read_byte(pair_addr + 1);
+                int shift = (3 - pos) * 2;
+                int g = (even >> (shift + 1)) & 1;
+                int r = (odd >> shift) & 1;
+                int b = (odd >> (shift + 1)) & 1;
+                int color = (g << 2) | (b << 1) | r;
+                char info[80];
+                snprintf(info, sizeof(info), "X:%d Y:%d  Color:%d (%s)  $%05X  E:$%02X O:$%02X",
+                         ql_x, ql_y, color, color < 8 ? QL_COLOR_NAMES[color] : "?",
+                         pair_addr, even, odd);
+                ui_text_color(c.x, c.y + c.h - 16, info, ui_theme.text_dim);
+            }
+        }
+    } else {
+        /* Dark red placeholder */
+        SDL_Rect scr = {scr_x, scr_y, disp_w, disp_h};
+        SDL_SetRenderDrawColor(app->renderer, ui_theme.emu_placeholder.r,
+                               ui_theme.emu_placeholder.g, ui_theme.emu_placeholder.b, 255);
+        SDL_RenderFillRect(app->renderer, &scr);
+        const char *msg = emu_is_running() ? "Booting..." : "Press Run";
+        int tw = ui_text_width(msg);
+        ui_text_color(scr_x + (disp_w - tw) / 2, scr_y + disp_h / 2 - ui_line_height() / 2,
+                      msg, ui_theme.emu_text);
+    }
+
+    /* Drain iQL log + trap log to console */
+    if (emu_is_running()) {
+        char logbuf[8192];
+        int n = emu_drain_iql_log(logbuf, sizeof(logbuf));
+        if (n > 0) app_log(app, "%s", logbuf);
+        if (app->trap_log_enabled) {
+            n = emu_drain_trap_log(logbuf, sizeof(logbuf));
+            if (n > 0) app_log(app, "%s", logbuf);
+        }
+    }
+
+    /* Auto-route keyboard when emulator panel is hovered */
+    app->emu_wants_keys = emu_is_running() && !emu_is_paused() &&
+                          ui_mouse_in_rect(px, py, pw, ph);
 
     ui_panel_end();
 }

@@ -32,6 +32,8 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->view = VIEW_SPRITES;
     app->current_color = 7;
     app->image_zoom = 2;
+    app->speed_idx = 1;
+    app->bp_enabled = true;
 
     /* Default sprite */
     sprite_init(&app->sprites[0], "sprite_0", 10, 20);
@@ -150,7 +152,10 @@ void app_draw(App *app) {
         draw_image_canvas(app, cx, top, cw, ch);
         draw_image_tools(app, rx, top, rw, ch);
     } else if (app->view == VIEW_EMULATOR) {
-        draw_emulator(app, cx, top, cw + rw, ch);
+        draw_emulator(app, cx, top, cw, ch);
+        /* Right panel: CPU top half, Memory bottom half */
+        draw_cpu_state(app, rx, top, rw, ch / 2);
+        draw_memory(app, rx, top + ch / 2, rw, ch - ch / 2);
     }
 
     /* Keyboard shortcuts */

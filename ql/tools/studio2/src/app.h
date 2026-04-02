@@ -61,6 +61,14 @@ typedef struct {
     bool name_focus;       /* is name input focused */
     char name_buf[64];     /* name input buffer */
 
+    /* Emulator */
+    Uint32 emu_start_ticks;
+    bool soft_bp_armed;
+    int speed_idx;
+    bool bp_enabled;
+    bool trap_log_enabled;
+    bool emu_wants_keys;
+
     /* Console */
     char console_lines[64][256];
     int console_count;
@@ -92,3 +100,5 @@ void draw_image_canvas(App *app, int x, int y, int w, int h);
 void draw_image_tools(App *app, int x, int y, int w, int h);
 void draw_console(App *app, int x, int y, int w, int h);
 void draw_emulator(App *app, int x, int y, int w, int h);
+void draw_cpu_state(App *app, int x, int y, int w, int h);
+void draw_memory(App *app, int x, int y, int w, int h);

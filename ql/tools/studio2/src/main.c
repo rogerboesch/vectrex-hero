@@ -1,5 +1,5 @@
 /*
- * QL Studio 2 — SDL2-only sprite editor
+ * QL Studio 2 — SDL2-only sprite editor + emulator
  *
  * No third-party UI libraries. Custom UI built on SDL2 + SDL_ttf.
  */
@@ -7,7 +7,50 @@
 #include <SDL.h>
 #include "ui.h"
 #include "app.h"
+#include "emulator.h"
 #include "style.h"
+
+/* iQL virtual key mapping */
+#include "rb_virtual_keys.h"
+
+static int sdl_to_vk(SDL_Keycode k) {
+    if (k >= SDLK_a && k <= SDLK_z) return RBVK_A + (k - SDLK_a);
+    if (k >= SDLK_0 && k <= SDLK_9) return RBVK_Num0 + (k - SDLK_0);
+    switch (k) {
+        case SDLK_SPACE:        return RBVK_Space;
+        case SDLK_TAB:          return RBVK_Tab;
+        case SDLK_RETURN:       return RBVK_Return;
+        case SDLK_BACKSPACE:    return RBVK_BackSpace;
+        case SDLK_ESCAPE:       return RBVK_Escape;
+        case SDLK_LEFT:         return RBVK_Left;
+        case SDLK_RIGHT:        return RBVK_Right;
+        case SDLK_UP:           return RBVK_Up;
+        case SDLK_DOWN:         return RBVK_Down;
+        case SDLK_COMMA:        return RBVK_Comma;
+        case SDLK_PERIOD:       return RBVK_Period;
+        case SDLK_SLASH:        return RBVK_Slash;
+        case SDLK_BACKSLASH:    return RBVK_BackSlash;
+        case SDLK_SEMICOLON:    return RBVK_SemiColon;
+        case SDLK_QUOTE:        return RBVK_Quote;
+        case SDLK_MINUS:        return RBVK_Dash;
+        case SDLK_EQUALS:       return RBVK_Equal;
+        case SDLK_LEFTBRACKET:  return RBVK_LSquareBracket;
+        case SDLK_RIGHTBRACKET: return RBVK_RSquareBracket;
+        case SDLK_BACKQUOTE:    return RBVK_Grave;
+        case SDLK_F1:           return RBVK_F1;
+        case SDLK_F2:           return RBVK_F2;
+        case SDLK_F3:           return RBVK_F3;
+        case SDLK_F4:           return RBVK_F4;
+        case SDLK_F5:           return RBVK_F5;
+        case SDLK_LSHIFT:       return RBVK_LShift;
+        case SDLK_RSHIFT:       return RBVK_RShift;
+        case SDLK_LCTRL:        return RBVK_LControl;
+        case SDLK_RCTRL:        return RBVK_RControl;
+        case SDLK_LALT:         return RBVK_LAlt;
+        case SDLK_RALT:         return RBVK_RAlt;
+        default: return -1;
+    }
+}
 
 int main(int argc, char *argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -53,7 +96,22 @@ int main(int argc, char *argv[]) {
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            ui_process_event(&event);
+            /* Forward keyboard to emulator BEFORE UI processes it */
+            bool key_forwarded = false;
+            if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+                int vk = sdl_to_vk(event.key.keysym.sym);
+                bool pressed = (event.type == SDL_KEYDOWN);
+                if (app.emu_wants_keys && vk >= 0) {
+                    bool shift = (event.key.keysym.mod & KMOD_SHIFT) != 0;
+                    bool ctrl  = (event.key.keysym.mod & KMOD_CTRL) != 0;
+                    bool alt   = (event.key.keysym.mod & KMOD_ALT) != 0;
+                    emu_send_key(vk, pressed, shift, ctrl, alt);
+                    key_forwarded = true;
+                }
+            }
+
+            if (!key_forwarded)
+                ui_process_event(&event);
 
             if (event.type == SDL_QUIT) running = 0;
             if (event.type == SDL_WINDOWEVENT &&
@@ -72,6 +130,7 @@ int main(int argc, char *argv[]) {
         SDL_RenderPresent(renderer);
     }
 
+    emu_stop();
     app_cleanup(&app);
     ui_shutdown();
     SDL_DestroyRenderer(renderer);
