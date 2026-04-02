@@ -52,8 +52,6 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
             if (emu_is_paused()) emu_resume(); else emu_pause();
         }
         bx += 59;
-        if (ui_button(bx, tb.y, 42, bh, "Stop")) { emu_stop(); app->emu_wants_keys = false; }
-        bx += 46;
         if (ui_button(bx, tb.y, 55, bh, "Restart")) { emu_restart(); }
         bx += 59;
         if (ui_button(bx, tb.y, 55, bh, speed_names[app->speed_idx])) {
