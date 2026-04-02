@@ -118,6 +118,7 @@ static SDL_Renderer *g_renderer = NULL;
 static uint32_t bp_addrs[MAX_BREAKPOINTS];
 static int bp_count = 0;
 static int g_last_bp_hit = 0;
+static bool g_bp_skip_once = false; /* skip one check after resume */
 
 /* ── Thread ───────────────────────────────────────────────── */
 
@@ -161,7 +162,7 @@ void emu_restart(void) { if (g_running) QLRestart(); }
 bool emu_is_running(void) { return g_running; }
 bool emu_is_ready(void) { return g_running && g_rom_ready; }
 void emu_pause(void) { if (g_running && !g_paused) { QLPause(); g_paused = true; } }
-void emu_resume(void) { if (g_running && g_paused) { QLResume(); g_paused = false; } }
+void emu_resume(void) { if (g_running && g_paused) { QLResume(); g_paused = false; g_bp_skip_once = true; } }
 bool emu_is_paused(void) { return g_paused; }
 
 /* ── Display ──────────────────────────────────────────────── */
@@ -200,14 +201,18 @@ void emu_update_texture(void) {
     if (g_fb_texture)
         SDL_UpdateTexture(g_fb_texture, NULL, pixel_buffer, w * 4);
 
-    /* Check PC breakpoints */
+    /* Check PC breakpoints (skip one cycle after resume to avoid re-trigger) */
     if (bp_count > 0 && !g_paused) {
-        uint32_t cur_pc = (uint32_t)((char *)pc - (char *)theROM);
-        for (int i = 0; i < bp_count; i++) {
-            if (bp_addrs[i] == cur_pc) {
-                g_last_bp_hit = -(int)cur_pc; /* negative = PC breakpoint */
-                emu_pause();
-                break;
+        if (g_bp_skip_once) {
+            g_bp_skip_once = false;
+        } else {
+            uint32_t cur_pc = (uint32_t)((char *)pc - (char *)theROM);
+            for (int i = 0; i < bp_count; i++) {
+                if (bp_addrs[i] == cur_pc) {
+                    g_last_bp_hit = -(int)cur_pc;
+                    emu_pause();
+                    break;
+                }
             }
         }
     }
