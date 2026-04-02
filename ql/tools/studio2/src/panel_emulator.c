@@ -141,14 +141,30 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
                       msg, ui_theme.emu_text);
     }
 
-    /* Drain iQL log + trap log to console */
+    /* Drain iQL log + trap log to console, line by line */
     if (emu_is_running()) {
         char logbuf[8192];
         int n = emu_drain_iql_log(logbuf, sizeof(logbuf));
-        if (n > 0) app_log(app, "%s", logbuf);
+        if (n > 0) {
+            char *p = logbuf;
+            while (*p) {
+                char *nl = strchr(p, '\n');
+                if (nl) *nl = 0;
+                if (*p) app_log(app, "%s", p);
+                if (nl) p = nl + 1; else break;
+            }
+        }
         if (app->trap_log_enabled) {
             n = emu_drain_trap_log(logbuf, sizeof(logbuf));
-            if (n > 0) app_log(app, "%s", logbuf);
+            if (n > 0) {
+                char *p = logbuf;
+                while (*p) {
+                    char *nl = strchr(p, '\n');
+                    if (nl) *nl = 0;
+                    if (*p) app_log(app, "%s", p);
+                    if (nl) p = nl + 1; else break;
+                }
+            }
         }
     }
 
