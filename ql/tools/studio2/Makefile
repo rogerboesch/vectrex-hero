@@ -83,7 +83,7 @@ IQL_SRCS = \
 	$(IQL_DIR)/platform/rb_virtual_keys.c
 
 # Platform stub
-PLATFORM_SRCS = ../iql_ext/iql_platform.c
+PLATFORM_SRCS = $(IQL_DIR)/platform/iql_platform.c
 
 APP_OBJS = $(patsubst src/%.c,$(BUILD)/%.o,$(APP_SRCS))
 IQL_OBJS = $(patsubst $(IQL_DIR)/%.c,$(BUILD)/iql_%.o,$(IQL_SRCS))
@@ -107,7 +107,7 @@ $(BUILD)/iql_%.o: $(IQL_DIR)/%.c
 	$(CC) $(IQL_CFLAGS) -c $< -o $@
 
 # Platform stub
-$(BUILD)/iql_platform.o: ../iql_ext/iql_platform.c
+$(BUILD)/iql_platform.o: $(IQL_DIR)/platform/iql_platform.c
 	@mkdir -p $(BUILD)
 	$(CC) $(IQL_CFLAGS) -c $< -o $@
 
