@@ -18,6 +18,11 @@ void draw_breakpoints(App *app, int px, int py, int pw, int ph) {
     SDL_Rect c = ui_panel_content();
     int y = c.y;
 
+    /* Enable/disable toggle */
+    if (ui_checkbox(c.x, y, "Breakpoints", &app->bp_enabled))
+        emu_set_soft_bp_enabled(app->bp_enabled);
+    y += ui_line_height() + 8;
+
     /* Add address input + buttons */
     ui_text_color(c.x, y + 3, "Addr:", ui_theme.text_dim);
     ui_input_text(c.x + 42, y, c.w - 42 - 50, bp_addr_buf, sizeof(bp_addr_buf), &bp_addr_focus);

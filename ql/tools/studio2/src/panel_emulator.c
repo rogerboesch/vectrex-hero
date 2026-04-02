@@ -120,9 +120,6 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
             emu_set_speed(speed_values[app->speed_idx]);
         }
         bx += 59;
-        if (ui_checkbox(bx, tb.y + 2, "BPs", &app->bp_enabled))
-            emu_set_soft_bp_enabled(app->bp_enabled);
-        bx += ui_text_width("BPs") + 30;
         if (ui_checkbox(bx, tb.y + 2, "Traps", &app->trap_log_enabled))
             emu_set_trap_logging(app->trap_log_enabled);
 
