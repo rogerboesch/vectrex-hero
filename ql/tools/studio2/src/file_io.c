@@ -3,6 +3,7 @@
  */
 
 #include "app.h"
+#include "native_macos.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -300,5 +301,29 @@ void app_export_c(App *app, const char *directory) {
         fclose(fc);
         fclose(fh);
         app_log_info(app, "Exported %d images to %s", app->image_count, directory);
+    }
+}
+
+void app_open_project(App *app) {
+    char *path = dialog_open_file("Open Project", "json");
+    if (path) {
+        app_load_project(app, path);
+        free(path);
+    }
+}
+
+void app_save_project_as(App *app) {
+    char *path = dialog_save_file("Save Project", "sprites.json");
+    if (path) {
+        app_save_project(app, path);
+        free(path);
+    }
+}
+
+void app_export_c_dialog(App *app) {
+    char *dir = dialog_open_folder("Export C files to directory");
+    if (dir) {
+        app_export_c(app, dir);
+        free(dir);
     }
 }

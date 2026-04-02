@@ -37,7 +37,8 @@ APP_SRCS = src/main.c src/ui.c src/app.c src/file_io.c src/emulator.c \
            src/panel_palette.c src/panel_properties.c src/panel_preview.c \
            src/panel_image_list.c src/panel_image_canvas.c src/panel_image_tools.c \
            src/panel_console.c src/panel_emulator.c \
-           src/panel_cpu_state.c src/panel_memory.c src/panel_breakpoints.c
+           src/panel_cpu_state.c src/panel_memory.c src/panel_breakpoints.c \
+           src/native_macos.m
 
 # iQL emulator C sources
 IQL_SRCS = \
@@ -85,7 +86,9 @@ IQL_SRCS = \
 # Platform stub
 PLATFORM_SRCS = $(IQL_DIR)/platform/iql_platform.c
 
-APP_OBJS = $(patsubst src/%.c,$(BUILD)/%.o,$(APP_SRCS))
+APP_OBJS_C = $(patsubst src/%.c,$(BUILD)/%.o,$(filter %.c,$(APP_SRCS)))
+APP_OBJS_M = $(patsubst src/%.m,$(BUILD)/%.o,$(filter %.m,$(APP_SRCS)))
+APP_OBJS = $(APP_OBJS_C) $(APP_OBJS_M)
 IQL_OBJS = $(patsubst $(IQL_DIR)/%.c,$(BUILD)/iql_%.o,$(IQL_SRCS))
 PLATFORM_OBJS = $(BUILD)/iql_platform.o
 
@@ -98,6 +101,11 @@ $(TARGET): $(ALL_OBJS)
 
 # App C sources
 $(BUILD)/%.o: src/%.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Objective-C sources
+$(BUILD)/%.o: src/%.m
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 

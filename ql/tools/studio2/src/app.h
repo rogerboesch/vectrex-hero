@@ -88,9 +88,12 @@ void app_log_err(App *app, const char *fmt, ...);   /* ! message (error, red) */
 /* ── File I/O ─────────────────────────────────────────────── */
 
 void app_new_project(App *app);
+void app_open_project(App *app);
 void app_load_project(App *app, const char *path);
 void app_save_project(App *app, const char *path);
+void app_save_project_as(App *app);
 void app_export_c(App *app, const char *directory);
+void app_export_c_dialog(App *app);
 
 /* ── Panel draw functions (each in its own .c file) ───────── */
 

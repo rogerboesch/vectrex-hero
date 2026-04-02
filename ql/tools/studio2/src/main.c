@@ -2,12 +2,14 @@
  * QL Studio 2 — SDL2-only sprite editor + emulator
  *
  * No third-party UI libraries. Custom UI built on SDL2 + SDL_ttf.
+ * Native macOS menus and file dialogs.
  */
 
 #include <SDL.h>
 #include "ui.h"
 #include "app.h"
 #include "emulator.h"
+#include "native_macos.h"
 #include "style.h"
 
 /* iQL virtual key mapping */
@@ -84,6 +86,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    native_menu_init();
+
     App app;
     app_init(&app, window, renderer);
 
@@ -119,11 +123,34 @@ int main(int argc, char *argv[]) {
                 event.window.event == SDL_WINDOWEVENT_CLOSE) running = 0;
         }
 
-        /* Keyboard shortcuts (Cmd+key) */
-        if (ui_key_mod_cmd()) {
-            if (ui_key_pressed(SDLK_n)) app_new_project(&app);
-            if (ui_key_pressed(SDLK_s)) app_save_project(&app, NULL);
-            if (ui_key_pressed(SDLK_q)) running = 0;
+        /* Poll native menu actions */
+        MenuAction action = native_menu_poll();
+        switch (action) {
+            case MENU_NEW:     app_new_project(&app); break;
+            case MENU_OPEN:    app_open_project(&app); break;
+            case MENU_SAVE:    app_save_project(&app, NULL); break;
+            case MENU_SAVE_AS: app_save_project_as(&app); break;
+            case MENU_EXPORT:  app_export_c_dialog(&app); break;
+            case MENU_QUIT:    running = 0; break;
+            case MENU_COPY:
+                if (app.current_sprite < app.sprite_count) {
+                    app.clipboard = app.sprites[app.current_sprite];
+                    app.has_clipboard = 1;
+                }
+                break;
+            case MENU_PASTE:
+                if (app.current_sprite < app.sprite_count && app.has_clipboard) {
+                    memcpy(app.sprites[app.current_sprite].pixels,
+                           app.clipboard.pixels, sizeof(app.clipboard.pixels));
+                    sprite_resize(&app.sprites[app.current_sprite],
+                                  app.clipboard.width, app.clipboard.height);
+                }
+                break;
+            case MENU_CLEAR:
+                if (app.current_sprite < app.sprite_count)
+                    sprite_clear(&app.sprites[app.current_sprite]);
+                break;
+            default: break;
         }
 
         app_draw(&app);
