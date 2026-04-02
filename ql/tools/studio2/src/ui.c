@@ -211,7 +211,7 @@ void ui_panel_begin(const char *title, int x, int y, int w, int h) {
     render_text(g_font, x + 6, y + 2, title, ui_theme.text);
 
     /* Content area */
-    g_panel_content = (SDL_Rect){x + 4, y + title_h + 2, w - 8, h - title_h - 6};
+    g_panel_content = (SDL_Rect){x + 4, y + title_h + 10, w - 8, h - title_h - 14};
 
     /* Set clip to panel */
     if (g_clip_depth < 8) {
@@ -230,7 +230,7 @@ SDL_Rect ui_panel_begin_toolbar(int x, int y, int w, int h) {
     fill_rect(x, y, w, title_h, ui_theme.toolbar_bg);
 
     /* Content area */
-    g_panel_content = (SDL_Rect){x + 4, y + title_h + 2, w - 8, h - title_h - 6};
+    g_panel_content = (SDL_Rect){x + 4, y + title_h + 10, w - 8, h - title_h - 14};
 
     /* Set clip to panel */
     if (g_clip_depth < 8) {
