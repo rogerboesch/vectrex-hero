@@ -35,7 +35,7 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
             app_log(app, "ERR Build FAILED");
         if (output[0]) app_log(app, "%s", output);
     }
-    bx += 54;
+    bx += 62;
 
     if (!emu_is_running()) {
         if (ui_button(bx, tb.y, 40, bh, "Run")) {
