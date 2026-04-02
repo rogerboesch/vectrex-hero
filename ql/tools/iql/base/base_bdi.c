@@ -5,6 +5,7 @@
 // All changes that are made by Roger Boesch:
 // "You can do whatever you like with it!"
 
+#include "rb_logger.h"
 #include <fcntl.h>
 #include <stdint.h>
 #include <sys/stat.h>
@@ -38,7 +39,7 @@ void SQLUXBDISelect(uint8_t d)
 			bdi_file = open(QMD.bdi1, O_RDWR);
 			if (bdi_file < 0) {
 				perror("BDI: Select Open File");
-				printf("BDI: ERROR Opening %s\n", QMD.bdi1);
+				rb_log_error("BDI: ERROR Opening %s", QMD.bdi1);
 			} else {
 				bdi_files[d - 1] = bdi_file;
 			}
@@ -112,7 +113,7 @@ void SQLUXBDIDataWrite(uint8_t d)
 		lseek(bdi_files[bdi_unit - 1], bdi_address * 512, SEEK_SET);
 	}
 
-	printf("BDI: Write %d\n", bdi_ctr);
+	rb_log_debug("BDI: Write %d", bdi_ctr);
 
 	if (bdi_ctr < 512)
 		bdi_buffer[bdi_ctr++] = d;

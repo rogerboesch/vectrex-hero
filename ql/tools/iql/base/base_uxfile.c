@@ -331,7 +331,7 @@ void reopen_uxfile(struct mdvFile *f)
 
 	cpos = lseek(fd, 0, SEEK_CUR);
 	close(fd);
-	printf("reopening file %s, pos %lu\n", GET_FCB(f)->uxname, cpos);
+	rb_log_debug("reopening file %s, pos %lu", GET_FCB(f)->uxname, cpos);
 
 	strncpy(mount, qdevs[GET_FILESYS(f)].mountPoints[GET_DRIVE(f)], 320);
 	fd = qopenfile(mount, GET_FCB(f)->uxname, O_RDWR, 0666, 400);
@@ -520,7 +520,7 @@ void QHFillHeader(struct fileHeader *h, int pof,
 	if (err) {
 		perror("sorry no stat info:");
 		if (pof != FILDES)
-			printf("mount point: %s\t file %s\n", mount, file.pth);
+			rb_log_debug("mount point: %s, file %s", mount, file.pth);
 	}
 	if (!err) {
 		SET_FLEN(h, buf.st_size + 64);
@@ -623,7 +623,7 @@ int QHOpenDir(struct mdvFile *f, int fstype) {
     snprintf(templ, 255, "%s%sxx%d", rb_get_temporary_path(), template, templ_count++);
 	fd = open(templ, O_RDWR | O_CREAT, 0666);
 	if (fd < 0) {
-        printf("could not open temporary file for directory operation \n");
+        rb_log_error("could not open temporary file for directory operation");
 		return -7;
 	}
 
@@ -640,8 +640,8 @@ int QHOpenDir(struct mdvFile *f, int fstype) {
 	WW(NAME_REF(f), mlen);
 
 	if (!(dirp = qopendir(mount, mname, 400))) {
-        printf("could not find directory\n");
-		printf("mount point %s \t name %s \n", mount, mname);
+        rb_log_error("could not find directory");
+		rb_log_debug("mount point %s, name %s", mount, mname);
 		return -7;
 	}
 

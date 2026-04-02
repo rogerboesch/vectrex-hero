@@ -6,6 +6,7 @@
 //
 
 /* fucntions to translate C68 to/from HOST constants and options */
+#include "rb_logger.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -76,7 +77,7 @@ void xso_q2x(int level,int optname, void* optval,int len)
   
   proto=protoname(level);
   
-  printf("xso_q2x: proto %d %s, optname %d\n",level,proto,optname);
+  rb_log_debug("xso_q2x: proto %d %s, optname %d",level,proto,optname);
 }
 void xso_x2q(int level,int optname, void* optval,int len)
 {
@@ -84,6 +85,6 @@ void xso_x2q(int level,int optname, void* optval,int len)
   
   proto=protoname(level);
   
-  printf("xso_q2x: proto %d %s, optname %d\n",level,proto,optname);
+  rb_log_debug("xso_q2x: proto %d %s, optname %d",level,proto,optname);
 }
 

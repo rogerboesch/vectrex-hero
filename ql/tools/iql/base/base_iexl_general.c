@@ -332,7 +332,7 @@ void ShowException(void)
       if(xc>35 && xc<48) {p3="TRAP instruction"; p4=xc-35;}
       else p4=0;
     }
-  printf("Exception %s %d at PC=%x, xx=%d\n",p3,p1,p2,p4);
+  rb_log_error("Exception %s %d at PC=%x, xx=%d",p3,p1,p2,p4);
 }
 #endif
 
