@@ -25,7 +25,7 @@ void draw_tile_editor(App *app, int px, int py, int pw, int ph) {
 
     if (app->cur_tile >= app->tile_count) { ui_panel_end(); return; }
     GBCTile *tile = &app->tiles[app->cur_tile];
-    GBCPalette *pal = &app->spr_pals[tile->palette < MAX_SPR_PALS ? tile->palette : 0];
+    GBCPalette *pal = &app->tmap.spr_pals[tile->palette < MAX_SPR_PALS ? tile->palette : 0];
 
     /* Compute cell size — fit 8x16 in the canvas */
     int cell = c.h / TILE_H;

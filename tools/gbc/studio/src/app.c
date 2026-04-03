@@ -36,45 +36,20 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     memset(app, 0, sizeof(*app));
     app->window = window;
     app->renderer = renderer;
-    app->view = VIEW_TILES;
+    app->view = VIEW_LEVELS;
     app->cur_color = 3;
+    app->tset_tex_dirty = true;
 
-    /* Default palettes matching tiles.c */
-    /* Sprite palette 0 — player green */
-    app->spr_pals[0] = (GBCPalette){{{0,0,0},{0,12,0},{0,24,4},{8,31,8}}};
-    app->spr_pals[1] = (GBCPalette){{{0,0,0},{20,0,0},{31,8,4},{31,20,16}}};
-    app->spr_pals[2] = (GBCPalette){{{0,0,0},{16,0,16},{26,6,26},{31,18,31}}};
-    app->spr_pals[3] = (GBCPalette){{{0,0,0},{0,10,16},{0,22,28},{12,31,31}}};
-    app->spr_pals[4] = (GBCPalette){{{0,0,0},{16,16,0},{28,28,4},{31,31,20}}};
-
-    app->bg_pals[0] = (GBCPalette){{{0,0,0},{8,6,4},{16,12,8},{24,20,16}}};
-    app->bg_pals[1] = (GBCPalette){{{0,0,0},{16,12,0},{24,20,4},{31,28,8}}};
-    app->bg_pals[2] = (GBCPalette){{{0,0,0},{20,4,0},{31,10,0},{31,24,4}}};
-    app->bg_pals[3] = (GBCPalette){{{0,0,0},{0,10,0},{0,22,0},{28,31,28}}};
-    app->bg_pals[4] = (GBCPalette){{{0,0,0},{0,0,0},{2,2,4},{4,4,6}}};
-    app->bg_pals[5] = (GBCPalette){{{0,0,0},{20,0,0},{31,4,4},{31,31,31}}};
-
-    app->room_tool = TOOL_SELECT;
-    project_init(&app->level_project);
+    tilemap_project_init(&app->tmap);
     load_default_sprites(app);
     app_log_info(app, "GBC Studio ready");
 }
 
-void app_cleanup(App *app) { (void)app; }
-
-/* Coordinate helpers for room editor */
-void room_vx_to_px(int vx, int vy, int cx, int cy, int cw, int ch, int *px, int *py) {
-    *px = cx + (int)((float)(vx - ROOM_LEFT) / 250.0f * cw);
-    *py = cy + (int)((float)(ROOM_TOP - vy) / 100.0f * ch);
-}
-void room_px_to_vx(int px, int py, int cx, int cy, int cw, int ch, int *vx, int *vy) {
-    *vx = ROOM_LEFT + (int)((float)(px - cx) / cw * 250.0f);
-    *vy = ROOM_TOP - (int)((float)(py - cy) / ch * 100.0f);
-    *vx = clamp_i(*vx, ROOM_LEFT, ROOM_RIGHT);
-    *vy = clamp_i(*vy, ROOM_BOTTOM, ROOM_TOP);
+void app_cleanup(App *app) {
+    if (app->tset_texture) SDL_DestroyTexture(app->tset_texture);
 }
 
-/* ── Load hardcoded sprites from tiles.c data ─────────────── */
+/* ── Default sprites ──────────────────────────────────────── */
 
 static void add_tile(App *app, const char *name, const uint8_t *data, int pal) {
     if (app->tile_count >= MAX_TILES) return;
@@ -85,36 +60,15 @@ static void add_tile(App *app, const char *name, const uint8_t *data, int pal) {
     app->tile_count++;
 }
 
-/* Embed the sprite data directly so we have something to show */
 static void load_default_sprites(App *app) {
     static const uint8_t spr_player_r[] = {
         0x00,0x00, 0x38,0x38, 0x44,0x7C, 0x00,0x6C, 0x44,0x7C, 0x00,0x10,
         0x7C,0x7C, 0x00,0x7C, 0x00,0x7C, 0x7C,0x00, 0x00,0x30, 0x00,0x30,
         0x00,0x18, 0x00,0x18, 0x00,0x24, 0x66,0x00,
     };
-    static const uint8_t spr_player_walk[] = {
-        0x00,0x00, 0x38,0x38, 0x44,0x7C, 0x00,0x6C, 0x44,0x7C, 0x00,0x10,
-        0x7C,0x7C, 0x00,0x7C, 0x00,0x7C, 0x7C,0x00, 0x00,0x30, 0x00,0x28,
-        0x00,0x24, 0x00,0x12, 0x00,0x22, 0x66,0x00,
-    };
-    static const uint8_t spr_player_fly[] = {
-        0x00,0x00, 0x38,0x38, 0x44,0x7C, 0x00,0x6C, 0x44,0x7C, 0x00,0x10,
-        0x7C,0x7C, 0x00,0x7C, 0x00,0x7C, 0x7C,0x00, 0x00,0x18, 0x00,0x18,
-        0x00,0x24, 0x00,0x24, 0x00,0x42, 0x00,0x42,
-    };
     static const uint8_t spr_bat0[] = {
         0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x42,0x42, 0x24,0x24,
         0x3C,0x3C, 0x18,0x18, 0x18,0x18, 0x00,0x18, 0x00,0x00, 0x00,0x00,
-        0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00,
-    };
-    static const uint8_t spr_spider[] = {
-        0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x42,0x42,
-        0x24,0x24, 0x18,0x18, 0x3C,0x3C, 0x42,0x42, 0x00,0x00, 0x00,0x00,
-        0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00,
-    };
-    static const uint8_t spr_snake_r[] = {
-        0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00,
-        0x70,0x70, 0x18,0x18, 0x0E,0x0E, 0x18,0x18, 0x60,0x60, 0x00,0x00,
         0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00,
     };
     static const uint8_t spr_miner[] = {
@@ -122,14 +76,9 @@ static void load_default_sprites(App *app) {
         0x00,0x10, 0x00,0x7C, 0x00,0x7C, 0x00,0x7C, 0x00,0x30, 0x00,0x30,
         0x00,0x18, 0x00,0x18, 0x00,0x24, 0x00,0x24,
     };
-
-    add_tile(app, "player_r",    spr_player_r,    0);
-    add_tile(app, "player_walk", spr_player_walk, 0);
-    add_tile(app, "player_fly",  spr_player_fly,  0);
-    add_tile(app, "bat0",        spr_bat0,        1);
-    add_tile(app, "spider",      spr_spider,      2);
-    add_tile(app, "snake_r",     spr_snake_r,     1);
-    add_tile(app, "miner",       spr_miner,       3);
+    add_tile(app, "player_r", spr_player_r, 0);
+    add_tile(app, "bat0",     spr_bat0,     1);
+    add_tile(app, "miner",    spr_miner,    3);
 }
 
 /* ── Tab bar ──────────────────────────────────────────────── */
@@ -140,11 +89,11 @@ static void draw_tab_bar(App *app) {
                            ui_theme.panel_title.b, 255);
     SDL_RenderFillRect(app->renderer, &bar);
 
-    const char *tabs[] = {"Tiles", "Palettes", "Rooms", "Rows", "Emulator"};
-    ViewMode modes[] = {VIEW_TILES, VIEW_PALETTES, VIEW_ROOMS, VIEW_ROWS, VIEW_EMULATOR};
+    const char *tabs[] = {"Tiles", "Palettes", "Levels", "Emulator"};
+    ViewMode modes[] = {VIEW_TILES, VIEW_PALETTES, VIEW_LEVELS, VIEW_EMULATOR};
     int tab_w = STYLE_TAB_W, pad = 4;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
         int tx = pad + i * (tab_w + pad), ty = 3, th = STYLE_TAB_BAR_H - 6;
         bool active = (app->view == modes[i]);
         bool hover = ui_mouse_in_rect(tx, ty, tab_w, th);
@@ -192,14 +141,10 @@ void app_draw(App *app) {
     case VIEW_PALETTES:
         draw_palette_editor(app, 0, top, app->win_w, ch);
         break;
-    case VIEW_ROOMS:
-        draw_level_list(app, 0, top, lw, ch);
-        draw_room_editor(app, cx, top, cw, ch);
-        draw_room_tools(app, app->win_w - rw, top, rw, ch);
-        break;
-    case VIEW_ROWS:
-        draw_row_tools(app, 0, top, lw, ch);
-        draw_row_editor(app, cx, top, cw + rw, ch);
+    case VIEW_LEVELS:
+        draw_level_tileset(app, 0, top, lw, ch);
+        draw_level_editor(app, cx, top, cw, ch);
+        draw_level_tools(app, app->win_w - rw, top, rw, ch);
         break;
     case VIEW_EMULATOR:
         draw_gbp(app, 0, top, lw, ch / 2);

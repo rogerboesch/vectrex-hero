@@ -44,7 +44,7 @@ void draw_tile_list(App *app, int px, int py, int pw, int ph) {
     /* Tile list with mini previews */
     for (int i = 0; i < app->tile_count; i++) {
         GBCTile *t = &app->tiles[i];
-        GBCPalette *pal = &app->spr_pals[t->palette < MAX_SPR_PALS ? t->palette : 0];
+        GBCPalette *pal = &app->tmap.spr_pals[t->palette < MAX_SPR_PALS ? t->palette : 0];
 
         /* Draw 16x32 preview (2x scale) */
         int prev_x = c.x, prev_y = y;

@@ -18,7 +18,7 @@ void draw_palette_editor(App *app, int px, int py, int pw, int ph) {
         snprintf(label, sizeof(label), "SP%d:", pi);
         ui_text_color(c.x, y + 8, label, ui_theme.text_dim);
         for (int ci = 0; ci < COLORS_PER_PAL; ci++) {
-            RGB5 rgb = app->spr_pals[pi].colors[ci];
+            RGB5 rgb = app->tmap.spr_pals[pi].colors[ci];
             uint8_t r, g, b;
             rgb5_to_rgb8(rgb, &r, &g, &b);
             SDL_Color sc = {r, g, b, 255};
@@ -46,7 +46,7 @@ void draw_palette_editor(App *app, int px, int py, int pw, int ph) {
         snprintf(label, sizeof(label), "BG%d:", pi);
         ui_text_color(c.x, y + 8, label, ui_theme.text_dim);
         for (int ci = 0; ci < COLORS_PER_PAL; ci++) {
-            RGB5 rgb = app->bg_pals[pi].colors[ci];
+            RGB5 rgb = app->tmap.bg_pals[pi].colors[ci];
             uint8_t r, g, b;
             rgb5_to_rgb8(rgb, &r, &g, &b);
             SDL_Color sc = {r, g, b, 255};
