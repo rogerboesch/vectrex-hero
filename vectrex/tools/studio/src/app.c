@@ -128,8 +128,11 @@ void app_draw(App *app) {
     int cx = lw;
     int cw = app->win_w - lw - rw;
 
-    /* Left panel */
-    draw_level_list(app, 0, top, lw, ch);
+    /* Left panel — context-dependent */
+    if (app->view == VIEW_ROW_EDITOR)
+        draw_row_tools(app, 0, top, lw, ch);
+    else
+        draw_level_list(app, 0, top, lw, ch);
 
     /* Console */
     draw_console(app, 0, con_y, app->win_w, STYLE_CONSOLE_H);
@@ -141,8 +144,7 @@ void app_draw(App *app) {
         draw_room_tools(app, app->win_w - rw, top, rw, ch);
         break;
     case VIEW_ROW_EDITOR:
-        draw_row_editor(app, cx, top, cw, ch);
-        draw_row_tools(app, app->win_w - rw, top, rw, ch);
+        draw_row_editor(app, cx, top, cw + rw, ch);
         break;
     case VIEW_SPRITE_EDITOR:
         draw_sprite_editor(app, cx, top, cw, ch);
