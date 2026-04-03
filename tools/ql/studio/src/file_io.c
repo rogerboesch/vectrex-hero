@@ -4,9 +4,18 @@
 
 #include "app.h"
 #include "native_macos.h"
+#include "json.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+/* Aliases for brevity */
+#define ws        json_skip_ws
+#define comma     json_skip_comma
+#define pstr      json_parse_str
+#define pint      json_parse_int
+#define pbool     json_parse_bool
+#define skip_val  json_skip_value
 
 void app_new_project(App *app) {
     app->sprite_count = 1;
@@ -20,7 +29,6 @@ void app_load_project(App *app, const char *path) {
     FILE *f = fopen(path, "r");
     if (!f) { app_log_err(app, "Cannot open %s", path); return; }
 
-    /* Read entire file */
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
     fseek(f, 0, SEEK_SET);
@@ -29,130 +37,121 @@ void app_load_project(App *app, const char *path) {
     json[len] = 0;
     fclose(f);
 
-    /* Simple JSON parse — find sprites array */
+    /* Parse sprites */
     app->sprite_count = 0;
     const char *p = strstr(json, "\"sprites\"");
-    if (!p) { free(json); return; }
-    p = strchr(p, '[');
-    if (!p) { free(json); return; }
-    p++;
-
-    while (*p && app->sprite_count < MAX_SPRITES) {
-        /* Skip whitespace/commas */
-        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') p++;
-        if (*p == ']') break;
-        if (*p != '{') break;
-        p++;
-
-        Sprite *spr = &app->sprites[app->sprite_count];
-        memset(spr, 0, sizeof(*spr));
-
-        while (*p && *p != '}') {
-            while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') p++;
-            if (*p == '}') break;
-            if (*p != '"') break;
+    if (p) {
+        p = strchr(p, '['); if (p) p++;
+        while (p && *p && app->sprite_count < MAX_SPRITES) {
+            p = ws(p);
+            if (*p == ']') break;
+            if (*p == ',') { p++; continue; }
+            if (*p != '{') break;
             p++;
-            char key[32] = {};
-            int ki = 0;
-            while (*p && *p != '"' && ki < 31) key[ki++] = *p++;
-            if (*p == '"') p++;
-            while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ':') p++;
 
-            if (strcmp(key, "name") == 0) {
-                if (*p == '"') p++;
-                int ni = 0;
-                while (*p && *p != '"' && ni < 63) spr->name[ni++] = *p++;
-                if (*p == '"') p++;
-            } else if (strcmp(key, "width") == 0) {
-                spr->width = atoi(p);
-                while ((*p >= '0' && *p <= '9') || *p == '-') p++;
-            } else if (strcmp(key, "height") == 0) {
-                spr->height = atoi(p);
-                while ((*p >= '0' && *p <= '9') || *p == '-') p++;
-            } else if (strcmp(key, "pixels") == 0) {
-                /* Parse [[0,1,...], ...] */
-                if (*p == '[') p++;
-                int row = 0;
-                while (*p && *p != ']' && row < MAX_SPRITE_H) {
-                    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') p++;
-                    if (*p == ']') break;
-                    if (*p != '[') break;
-                    p++;
-                    int col = 0;
-                    while (*p && *p != ']' && col < MAX_SPRITE_W) {
-                        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r' || *p == ',') p++;
+            Sprite *spr = &app->sprites[app->sprite_count];
+            memset(spr, 0, sizeof(*spr));
+
+            for (;;) {
+                p = ws(p);
+                if (!*p || *p == '}') break;
+                if (*p == ',') { p++; continue; }
+                if (*p != '"') break;
+                char key[32] = {};
+                p = pstr(p, key, sizeof(key));
+                p = ws(p); if (*p == ':') p++;
+
+                if (strcmp(key, "name") == 0) {
+                    p = pstr(p, spr->name, sizeof(spr->name));
+                } else if (strcmp(key, "width") == 0) {
+                    p = pint(p, &spr->width);
+                } else if (strcmp(key, "height") == 0) {
+                    p = pint(p, &spr->height);
+                } else if (strcmp(key, "pixels") == 0) {
+                    p = ws(p); if (*p == '[') p++;
+                    int row = 0;
+                    while (*p && *p != ']' && row < MAX_SPRITE_H) {
+                        p = ws(p);
+                        if (*p == ',') { p++; continue; }
                         if (*p == ']') break;
-                        spr->pixels[row][col++] = atoi(p);
-                        while ((*p >= '0' && *p <= '9') || *p == '-') p++;
+                        if (*p != '[') break;
+                        p++;
+                        int col = 0;
+                        while (*p && *p != ']' && col < MAX_SPRITE_W) {
+                            p = ws(p);
+                            if (*p == ',') { p++; continue; }
+                            if (*p == ']') break;
+                            spr->pixels[row][col++] = atoi(p);
+                            while ((*p >= '0' && *p <= '9') || *p == '-') p++;
+                        }
+                        if (*p == ']') p++;
+                        row++;
                     }
                     if (*p == ']') p++;
-                    row++;
+                } else {
+                    p = skip_val(p);
                 }
-                if (*p == ']') p++;
             }
+            if (*p == '}') p++;
+            app->sprite_count++;
         }
-        if (*p == '}') p++;
-        app->sprite_count++;
     }
 
-    /* Parse images array (same structure as sprites but 256x256) */
+    /* Parse images */
     app->image_count = 0;
-    const char *ip = strstr(json, "\"images\"");
-    if (ip) {
-        ip = strchr(ip, '[');
-        if (ip) {
-            ip++;
-            while (*ip && app->image_count < MAX_IMAGES) {
-                while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ',') ip++;
-                if (*ip == ']') break;
-                if (*ip != '{') break;
-                ip++;
+    p = strstr(json, "\"images\"");
+    if (p) {
+        p = strchr(p, '['); if (p) p++;
+        while (p && *p && app->image_count < MAX_IMAGES) {
+            p = ws(p);
+            if (*p == ']') break;
+            if (*p == ',') { p++; continue; }
+            if (*p != '{') break;
+            p++;
 
-                QLImage *img = &app->images[app->image_count];
-                memset(img, 0, sizeof(*img));
+            QLImage *img = &app->images[app->image_count];
+            memset(img, 0, sizeof(*img));
 
-                while (*ip && *ip != '}') {
-                    while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ',') ip++;
-                    if (*ip == '}') break;
-                    if (*ip != '"') break;
-                    ip++;
-                    char key[32] = {};
-                    int ki = 0;
-                    while (*ip && *ip != '"' && ki < 31) key[ki++] = *ip++;
-                    if (*ip == '"') ip++;
-                    while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ':') ip++;
+            for (;;) {
+                p = ws(p);
+                if (!*p || *p == '}') break;
+                if (*p == ',') { p++; continue; }
+                if (*p != '"') break;
+                char key[32] = {};
+                p = pstr(p, key, sizeof(key));
+                p = ws(p); if (*p == ':') p++;
 
-                    if (strcmp(key, "name") == 0) {
-                        if (*ip == '"') ip++;
-                        int ni = 0;
-                        while (*ip && *ip != '"' && ni < 63) img->name[ni++] = *ip++;
-                        if (*ip == '"') ip++;
-                    } else if (strcmp(key, "width") == 0 || strcmp(key, "height") == 0) {
-                        while ((*ip >= '0' && *ip <= '9') || *ip == '-') ip++;
-                    } else if (strcmp(key, "pixels") == 0) {
-                        if (*ip == '[') ip++;
-                        int row = 0;
-                        while (*ip && *ip != ']' && row < IMAGE_SIZE) {
-                            while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ',') ip++;
-                            if (*ip == ']') break;
-                            if (*ip != '[') break;
-                            ip++;
-                            int col = 0;
-                            while (*ip && *ip != ']' && col < IMAGE_SIZE) {
-                                while (*ip == ' ' || *ip == '\t' || *ip == '\n' || *ip == '\r' || *ip == ',') ip++;
-                                if (*ip == ']') break;
-                                img->pixels[row][col++] = atoi(ip);
-                                while ((*ip >= '0' && *ip <= '9') || *ip == '-') ip++;
-                            }
-                            if (*ip == ']') ip++;
-                            row++;
+                if (strcmp(key, "name") == 0) {
+                    p = pstr(p, img->name, sizeof(img->name));
+                } else if (strcmp(key, "width") == 0 || strcmp(key, "height") == 0) {
+                    int dummy; p = pint(p, &dummy);
+                } else if (strcmp(key, "pixels") == 0) {
+                    p = ws(p); if (*p == '[') p++;
+                    int row = 0;
+                    while (*p && *p != ']' && row < IMAGE_SIZE) {
+                        p = ws(p);
+                        if (*p == ',') { p++; continue; }
+                        if (*p == ']') break;
+                        if (*p != '[') break;
+                        p++;
+                        int col = 0;
+                        while (*p && *p != ']' && col < IMAGE_SIZE) {
+                            p = ws(p);
+                            if (*p == ',') { p++; continue; }
+                            if (*p == ']') break;
+                            img->pixels[row][col++] = atoi(p);
+                            while ((*p >= '0' && *p <= '9') || *p == '-') p++;
                         }
-                        if (*ip == ']') ip++;
+                        if (*p == ']') p++;
+                        row++;
                     }
+                    if (*p == ']') p++;
+                } else {
+                    p = skip_val(p);
                 }
-                if (*ip == '}') ip++;
-                app->image_count++;
             }
+            if (*p == '}') p++;
+            app->image_count++;
         }
     }
 
@@ -193,7 +192,6 @@ void app_save_project(App *app, const char *path) {
     }
     fprintf(f, "  ]");
 
-    /* Save images if any */
     if (app->image_count > 0) {
         fprintf(f, ",\n  \"images\": [\n");
         for (int i = 0; i < app->image_count; i++) {
@@ -232,10 +230,9 @@ void app_export_c(App *app, const char *directory) {
     FILE *fh = fopen(h_path, "w");
     if (!fc || !fh) { if (fc) fclose(fc); if (fh) fclose(fh); return; }
 
-    fprintf(fc, "/* sprites.c — Generated by QL Studio 2 */\n");
+    fprintf(fc, "/* sprites.c — Generated by QL Studio */\n");
     fprintf(fc, "#include \"sprites.h\"\n\n");
-
-    fprintf(fh, "/* sprites.h — Generated by QL Studio 2 */\n");
+    fprintf(fh, "/* sprites.h — Generated by QL Studio */\n");
     fprintf(fh, "#ifndef SPRITES_H\n#define SPRITES_H\n\n");
     fprintf(fh, "#include \"game.h\"\n\n");
     fprintf(fh, "typedef struct { uint8_t w; uint8_t h; const uint8_t *data; } Sprite;\n\n");
@@ -260,21 +257,18 @@ void app_export_c(App *app, const char *directory) {
     }
 
     fprintf(fh, "\n#endif\n");
-    fclose(fc);
-    fclose(fh);
+    fclose(fc); fclose(fh);
     app_log_info(app, "Exported %d sprites to %s/sprites.c/.h", app->sprite_count, directory);
 
-    /* Export images if any */
     if (app->image_count > 0) {
         snprintf(c_path, sizeof(c_path), "%s/images.c", directory);
         snprintf(h_path, sizeof(h_path), "%s/images.h", directory);
-        fc = fopen(c_path, "w");
-        fh = fopen(h_path, "w");
+        fc = fopen(c_path, "w"); fh = fopen(h_path, "w");
         if (!fc || !fh) { if (fc) fclose(fc); if (fh) fclose(fh); return; }
 
-        fprintf(fc, "/* images.c — Generated by QL Studio 2 */\n");
+        fprintf(fc, "/* images.c — Generated by QL Studio */\n");
         fprintf(fc, "#include \"images.h\"\n\n");
-        fprintf(fh, "/* images.h — Generated by QL Studio 2 */\n");
+        fprintf(fh, "/* images.h — Generated by QL Studio */\n");
         fprintf(fh, "#ifndef IMAGES_H\n#define IMAGES_H\n\n");
         fprintf(fh, "#include <stdint.h>\n\n");
 
@@ -285,8 +279,7 @@ void app_export_c(App *app, const char *directory) {
             fprintf(fc, "const uint8_t img_%s[%d] = {\n", img->name, MODE8_BYTES_PER_IMAGE);
             for (int j = 0; j < MODE8_BYTES_PER_IMAGE; j += 16) {
                 fprintf(fc, "    ");
-                int end = j + 16;
-                if (end > MODE8_BYTES_PER_IMAGE) end = MODE8_BYTES_PER_IMAGE;
+                int end = j + 16; if (end > MODE8_BYTES_PER_IMAGE) end = MODE8_BYTES_PER_IMAGE;
                 for (int k = j; k < end; k++) {
                     fprintf(fc, "0x%02X", mode8[k]);
                     if (k < MODE8_BYTES_PER_IMAGE - 1) fprintf(fc, ", ");
@@ -298,32 +291,22 @@ void app_export_c(App *app, const char *directory) {
         }
 
         fprintf(fh, "\n#endif\n");
-        fclose(fc);
-        fclose(fh);
+        fclose(fc); fclose(fh);
         app_log_info(app, "Exported %d images to %s/images.c/.h", app->image_count, directory);
     }
 }
 
 void app_open_project(App *app) {
     char *path = dialog_open_file("Open Project", "json");
-    if (path) {
-        app_load_project(app, path);
-        free(path);
-    }
+    if (path) { app_load_project(app, path); free(path); }
 }
 
 void app_save_project_as(App *app) {
     char *path = dialog_save_file("Save Project", "sprites.json");
-    if (path) {
-        app_save_project(app, path);
-        free(path);
-    }
+    if (path) { app_save_project(app, path); free(path); }
 }
 
 void app_export_c_dialog(App *app) {
     char *dir = dialog_open_folder("Export C files to directory");
-    if (dir) {
-        app_export_c(app, dir);
-        free(dir);
-    }
+    if (dir) { app_export_c(app, dir); free(dir); }
 }

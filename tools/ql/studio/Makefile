@@ -15,8 +15,10 @@ SDL_STATIC  = $(shell sdl2-config --static-libs) \
               /opt/homebrew/lib/libpng.a \
               -lharfbuzz -lz -lbz2 -lc++
 
+SHARED = ../../shared
+
 CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function \
-         $(SDL_CFLAGS) \
+         $(SDL_CFLAGS) -I$(SHARED) \
          -I $(IQL_DIR)/QL -I $(IQL_DIR)/base -I $(IQL_DIR)/platform
 
 # iQL needs gnu89 + specific flags

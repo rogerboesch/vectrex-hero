@@ -6,85 +6,20 @@
 
 #include "app.h"
 #include "native_macos.h"
+#include "json.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* ── JSON helpers ─────────────────────────────────────────── */
-
-static const char *skip_ws(const char *p) {
-    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++;
-    return p;
-}
-
-static const char *skip_comma(const char *p) {
-    p = skip_ws(p);
-    if (*p == ',') p++;
-    return skip_ws(p);
-}
-
-static const char *parse_str(const char *p, char *out, int max) {
-    p = skip_ws(p);
-    if (*p == '"') p++;
-    int i = 0;
-    while (*p && *p != '"' && i < max - 1) out[i++] = *p++;
-    out[i] = 0;
-    if (*p == '"') p++;
-    return p;
-}
-
-static const char *parse_int_val(const char *p, int *out) {
-    p = skip_ws(p);
-    *out = atoi(p);
-    if (*p == '-') p++;
-    while (*p >= '0' && *p <= '9') p++;
-    return p;
-}
-
-static const char *parse_bool(const char *p, bool *out) {
-    p = skip_ws(p);
-    if (strncmp(p, "true", 4) == 0) { *out = true; return p + 4; }
-    if (strncmp(p, "false", 5) == 0) { *out = false; return p + 5; }
-    *out = false;
-    return p;
-}
-
-static const char *skip_value(const char *p);
-
-static const char *skip_array(const char *p) {
-    if (*p != '[') return p;
-    p++;
-    int depth = 1;
-    while (*p && depth > 0) {
-        if (*p == '[' || *p == '{') depth++;
-        else if (*p == ']' || *p == '}') depth--;
-        else if (*p == '"') { p++; while (*p && *p != '"') p++; }
-        p++;
-    }
-    return p;
-}
-
-static const char *skip_object(const char *p) {
-    if (*p != '{') return p;
-    p++;
-    int depth = 1;
-    while (*p && depth > 0) {
-        if (*p == '{' || *p == '[') depth++;
-        else if (*p == '}' || *p == ']') depth--;
-        else if (*p == '"') { p++; while (*p && *p != '"') p++; }
-        p++;
-    }
-    return p;
-}
-
-static const char *skip_value(const char *p) {
-    p = skip_ws(p);
-    if (*p == '"') { p++; while (*p && *p != '"') p++; if (*p) p++; return p; }
-    if (*p == '[') return skip_array(p);
-    if (*p == '{') return skip_object(p);
-    while (*p && *p != ',' && *p != '}' && *p != ']') p++;
-    return p;
-}
+/* Aliases for brevity */
+#define skip_ws       json_skip_ws
+#define skip_comma    json_skip_comma
+#define parse_str     json_parse_str
+#define parse_int_val json_parse_int
+#define parse_bool    json_parse_bool
+#define skip_value    json_skip_value
+#define skip_array    json_skip_array
+#define skip_object   json_skip_object
 
 /* ── Load ─────────────────────────────────────────────────── */
 
