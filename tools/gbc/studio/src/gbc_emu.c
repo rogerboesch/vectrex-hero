@@ -1,9 +1,9 @@
 /*
- * gbc_emu.c — gaembuoy wrapper for embedded use in GBC Studio
+ * gbc_emu.c — igb wrapper for embedded use in GBC Studio
  */
 
 #include "gbc_emu.h"
-#include "gaembuoy/gb.h"
+#include "igb/gb.h"
 #include <string.h>
 #include <stdlib.h>
 
