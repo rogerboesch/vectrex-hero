@@ -28,6 +28,14 @@ int main(int argc, char *argv[]) {
     app_init(&app, window, renderer);
     if (argc > 1) app_load_project(&app, argv[1]);
 
+    /* Auto-load hero.json for level editing */
+    {
+        char levels_path[512];
+        snprintf(levels_path, sizeof(levels_path), "%s/../../../vectrex/assets/hero.json", SDL_GetBasePath());
+        FILE *f = fopen(levels_path, "r");
+        if (f) { fclose(f); app_load_levels(&app, levels_path); }
+    }
+
     int running = 1;
     while (running) {
         ui_begin_frame();

@@ -4,6 +4,7 @@
 #include "app.h"
 #include "native_macos.h"
 #include "json.h"
+#include "project_io.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -88,6 +89,21 @@ void app_export_c(App *app) {
 }
 
 void app_import_tiles_c(App *app, const char *path) {
-    /* TODO: parse tiles.c format to import existing sprites */
     app_log_info(app, "Import not yet implemented: %s", path);
+}
+
+void app_load_levels(App *app, const char *path) {
+    FILE *f = fopen(path, "r");
+    if (!f) { app_log_err(app, "Cannot open %s", path); return; }
+    fseek(f, 0, SEEK_END); long len = ftell(f); fseek(f, 0, SEEK_SET);
+    char *json = malloc(len + 1); fread(json, 1, len, f); json[len] = 0; fclose(f);
+
+    project_init(&app->level_project);
+    int n = project_parse_json(json, &app->level_project);
+    free(json);
+
+    app->cur_level = 0;
+    app->cur_room = app->level_project.levels[0].room_count > 0 ? 0 : -1;
+    app->cur_row_type = 0;
+    app_log_info(app, "Levels loaded: %s (%d levels)", path, n);
 }

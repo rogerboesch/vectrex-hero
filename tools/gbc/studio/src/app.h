@@ -6,13 +6,25 @@
 #include <SDL.h>
 #include <stdbool.h>
 #include "tile.h"
+#include "project.h"
 
 typedef enum {
     VIEW_TILES,
     VIEW_PALETTES,
-    VIEW_PREVIEW,
+    VIEW_ROOMS,
+    VIEW_ROWS,
     VIEW_EMULATOR,
 } ViewMode;
+
+typedef enum {
+    TOOL_SELECT,
+    TOOL_WALL,
+    TOOL_ENEMY_BAT,
+    TOOL_ENEMY_SPIDER,
+    TOOL_ENEMY_SNAKE,
+    TOOL_MINER,
+    TOOL_PLAYER_START,
+} RoomTool;
 
 typedef struct {
     SDL_Window *window;
@@ -32,6 +44,13 @@ typedef struct {
     GBCPalette spr_pals[MAX_SPR_PALS];
     int cur_pal_type;  /* 0=bg, 1=spr */
     int cur_pal_idx;
+
+    /* Level data (shared with Vectrex) */
+    Project level_project;
+    int cur_level, cur_room, cur_row_type;
+    RoomTool room_tool;
+    bool drawing_polyline;
+    Polyline temp_polyline;
 
     /* Project */
     char project_path[512];
@@ -70,7 +89,17 @@ void draw_tile_editor(App *app, int x, int y, int w, int h);
 void draw_tile_tools(App *app, int x, int y, int w, int h);
 void draw_palette_editor(App *app, int x, int y, int w, int h);
 void draw_preview(App *app, int x, int y, int w, int h);
+void draw_level_list(App *app, int x, int y, int w, int h);
+void draw_room_editor(App *app, int x, int y, int w, int h);
+void draw_room_tools(App *app, int x, int y, int w, int h);
+void draw_row_editor(App *app, int x, int y, int w, int h);
+void draw_row_tools(App *app, int x, int y, int w, int h);
 void draw_gbc_emulator(App *app, int x, int y, int w, int h);
+
+void app_load_levels(App *app, const char *path);
+
+void room_vx_to_px(int vx, int vy, int cx, int cy, int cw, int ch, int *px, int *py);
+void room_px_to_vx(int px, int py, int cx, int cy, int cw, int ch, int *vx, int *vy);
 void draw_gcpu(App *app, int x, int y, int w, int h);
 void draw_gmem(App *app, int x, int y, int w, int h);
 void draw_gdisasm(App *app, int x, int y, int w, int h);

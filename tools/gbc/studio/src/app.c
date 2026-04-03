@@ -54,11 +54,25 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->bg_pals[4] = (GBCPalette){{{0,0,0},{0,0,0},{2,2,4},{4,4,6}}};
     app->bg_pals[5] = (GBCPalette){{{0,0,0},{20,0,0},{31,4,4},{31,31,31}}};
 
+    app->room_tool = TOOL_SELECT;
+    project_init(&app->level_project);
     load_default_sprites(app);
     app_log_info(app, "GBC Studio ready");
 }
 
 void app_cleanup(App *app) { (void)app; }
+
+/* Coordinate helpers for room editor */
+void room_vx_to_px(int vx, int vy, int cx, int cy, int cw, int ch, int *px, int *py) {
+    *px = cx + (int)((float)(vx - ROOM_LEFT) / 250.0f * cw);
+    *py = cy + (int)((float)(ROOM_TOP - vy) / 100.0f * ch);
+}
+void room_px_to_vx(int px, int py, int cx, int cy, int cw, int ch, int *vx, int *vy) {
+    *vx = ROOM_LEFT + (int)((float)(px - cx) / cw * 250.0f);
+    *vy = ROOM_TOP - (int)((float)(py - cy) / ch * 100.0f);
+    *vx = clamp_i(*vx, ROOM_LEFT, ROOM_RIGHT);
+    *vy = clamp_i(*vy, ROOM_BOTTOM, ROOM_TOP);
+}
 
 /* ── Load hardcoded sprites from tiles.c data ─────────────── */
 
@@ -126,11 +140,11 @@ static void draw_tab_bar(App *app) {
                            ui_theme.panel_title.b, 255);
     SDL_RenderFillRect(app->renderer, &bar);
 
-    const char *tabs[] = {"Tiles", "Palettes", "Preview", "Emulator"};
-    ViewMode modes[] = {VIEW_TILES, VIEW_PALETTES, VIEW_PREVIEW, VIEW_EMULATOR};
+    const char *tabs[] = {"Tiles", "Palettes", "Rooms", "Rows", "Emulator"};
+    ViewMode modes[] = {VIEW_TILES, VIEW_PALETTES, VIEW_ROOMS, VIEW_ROWS, VIEW_EMULATOR};
     int tab_w = STYLE_TAB_W, pad = 4;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         int tx = pad + i * (tab_w + pad), ty = 3, th = STYLE_TAB_BAR_H - 6;
         bool active = (app->view == modes[i]);
         bool hover = ui_mouse_in_rect(tx, ty, tab_w, th);
@@ -178,8 +192,14 @@ void app_draw(App *app) {
     case VIEW_PALETTES:
         draw_palette_editor(app, 0, top, app->win_w, ch);
         break;
-    case VIEW_PREVIEW:
-        draw_preview(app, 0, top, app->win_w, ch);
+    case VIEW_ROOMS:
+        draw_level_list(app, 0, top, lw, ch);
+        draw_room_editor(app, cx, top, cw, ch);
+        draw_room_tools(app, app->win_w - rw, top, rw, ch);
+        break;
+    case VIEW_ROWS:
+        draw_row_tools(app, 0, top, lw, ch);
+        draw_row_editor(app, cx, top, cw + rw, ch);
         break;
     case VIEW_EMULATOR:
         draw_gbp(app, 0, top, lw, ch / 2);

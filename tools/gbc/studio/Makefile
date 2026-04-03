@@ -22,7 +22,9 @@ BUILD  = build
 
 APP_SRCS = src/main.c src/app.c src/file_io.c src/gbc_emu.c \
            src/panel_tile_list.c src/panel_tile_editor.c src/panel_tile_tools.c \
-           src/panel_palette.c src/panel_preview.c src/panel_emulator.c \
+           src/panel_palette.c src/panel_emulator.c \
+           src/panel_level_list.c src/panel_room_editor.c src/panel_room_tools.c \
+           src/panel_row_editor.c src/panel_row_tools.c \
            src/panel_gcpu.c src/panel_gmem.c src/panel_gdisasm.c src/panel_gbp.c \
            src/gb_disasm.c src/panel_console.c
 
