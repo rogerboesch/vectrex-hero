@@ -117,10 +117,11 @@ void app_load_project(App *app, const char *path) {
             RowType *rt = &proj->row_types[idx];
             memset(rt, 0, sizeof(*rt));
 
-            while (*p && *p != '}') {
+            for (;;) {
                 p = skip_ws(p);
+                if (!*p || *p == '}') break;
                 if (*p == ',') { p++; continue; }
-                if (*p == '}') break;
+                if (*p != '"') break;
                 char key[32] = {};
                 p = parse_str(p, key, sizeof(key));
                 p = skip_ws(p); if (*p == ':') p++;
@@ -182,10 +183,11 @@ void app_load_project(App *app, const char *path) {
             Level *lvl = &proj->levels[proj->level_count];
             memset(lvl, 0, sizeof(*lvl));
 
-            while (*p && *p != '}') {
+            for (;;) {
                 p = skip_ws(p);
+                if (!*p || *p == '}') break;
                 if (*p == ',') { p++; continue; }
-                if (*p == '}') break;
+                if (*p != '"') break;
                 char key[32] = {};
                 p = parse_str(p, key, sizeof(key));
                 p = skip_ws(p); if (*p == ':') p++;
@@ -206,10 +208,11 @@ void app_load_project(App *app, const char *path) {
                             memset(room, 0, sizeof(*room));
                             room->exit_left = room->exit_right = room->exit_top = room->exit_bottom = -1;
 
-                            while (*p && *p != '}') {
+                            for (;;) {
                                 p = skip_ws(p);
+                                if (!*p || *p == '}') break;
                                 if (*p == ',') { p++; continue; }
-                                if (*p == '}') break;
+                                if (*p != '"') break;
                                 char rkey[32] = {};
                                 p = parse_str(p, rkey, sizeof(rkey));
                                 p = skip_ws(p); if (*p == ':') p++;
@@ -232,8 +235,8 @@ void app_load_project(App *app, const char *path) {
                                         if (*p != '{') break; p++;
                                         Wall *w = &room->walls[room->wall_count];
                                         memset(w, 0, sizeof(*w));
-                                        while (*p && *p != '}') {
-                                            p = skip_ws(p); if (*p == ',') { p++; continue; } if (*p == '}') break;
+                                        for (;;) {
+                                            p = skip_ws(p); if (!*p || *p == '}') break; if (*p == ',') { p++; continue; } if (*p != '"') break;
                                             char wk[16] = {}; p = parse_str(p, wk, sizeof(wk)); p = skip_ws(p); if (*p == ':') p++;
                                             if (strcmp(wk, "y") == 0) p = parse_int_val(p, &w->y);
                                             else if (strcmp(wk, "x") == 0) p = parse_int_val(p, &w->x);
@@ -254,8 +257,8 @@ void app_load_project(App *app, const char *path) {
                                         if (*p != '{') break; p++;
                                         Enemy *e = &room->enemies[room->enemy_count];
                                         memset(e, 0, sizeof(*e));
-                                        while (*p && *p != '}') {
-                                            p = skip_ws(p); if (*p == ',') { p++; continue; } if (*p == '}') break;
+                                        for (;;) {
+                                            p = skip_ws(p); if (!*p || *p == '}') break; if (*p == ',') { p++; continue; } if (*p != '"') break;
                                             char ek[16] = {}; p = parse_str(p, ek, sizeof(ek)); p = skip_ws(p); if (*p == ':') p++;
                                             if (strcmp(ek, "x") == 0) p = parse_int_val(p, &e->x);
                                             else if (strcmp(ek, "y") == 0) p = parse_int_val(p, &e->y);
@@ -284,8 +287,8 @@ void app_load_project(App *app, const char *path) {
                                     if (*p == 'n') { room->has_miner = false; p += 4; }
                                     else if (*p == '{') {
                                         p++; room->has_miner = true;
-                                        while (*p && *p != '}') {
-                                            p = skip_ws(p); if (*p == ',') { p++; continue; }
+                                        for (;;) {
+                                            p = skip_ws(p); if (!*p || *p == '}') break; if (*p == ',') { p++; continue; } if (*p != '"') break;
                                             char mk[8] = {}; p = parse_str(p, mk, sizeof(mk)); p = skip_ws(p); if (*p == ':') p++;
                                             if (strcmp(mk, "x") == 0) p = parse_int_val(p, &room->miner.x);
                                             else if (strcmp(mk, "y") == 0) p = parse_int_val(p, &room->miner.y);
@@ -299,8 +302,8 @@ void app_load_project(App *app, const char *path) {
                                     if (*p == 'n') { room->has_player_start = false; p += 4; }
                                     else if (*p == '{') {
                                         p++; room->has_player_start = true;
-                                        while (*p && *p != '}') {
-                                            p = skip_ws(p); if (*p == ',') { p++; continue; }
+                                        for (;;) {
+                                            p = skip_ws(p); if (!*p || *p == '}') break; if (*p == ',') { p++; continue; } if (*p != '"') break;
                                             char pk[8] = {}; p = parse_str(p, pk, sizeof(pk)); p = skip_ws(p); if (*p == ':') p++;
                                             if (strcmp(pk, "x") == 0) p = parse_int_val(p, &room->player_start.x);
                                             else if (strcmp(pk, "y") == 0) p = parse_int_val(p, &room->player_start.y);
