@@ -158,18 +158,64 @@ void app_convert_levels(App *app, const char *hero_json_path) {
 
     for (int li = 0; li < proj.level_count; li++) {
         Level *lvl = &proj.levels[li];
-        /* Compute layout (BFS from room exits) to get grid positions */
-        /* For simplicity: arrange rooms left-to-right, wrapping after 4 */
-        int cols = 4;
-        if (lvl->room_count <= 2) cols = 2;
-        else if (lvl->room_count <= 4) cols = 4;
-        int rows = (lvl->room_count + cols - 1) / cols;
+
+        /* BFS from room 0 using exits to compute grid positions */
+        int gx[MAX_ROOMS], gy[MAX_ROOMS];
+        int placed[MAX_ROOMS];
+        memset(placed, 0, sizeof(placed));
+        memset(gx, 0, sizeof(gx)); memset(gy, 0, sizeof(gy));
+
+        if (lvl->room_count > 0) {
+            placed[0] = 1;
+            int queue[MAX_ROOMS], qh = 0, qt = 0;
+            queue[qt++] = 0;
+            while (qh < qt) {
+                int ri = queue[qh++];
+                Room *r = &lvl->rooms[ri];
+                struct { int target; int dx; int dy; } exits[] = {
+                    {r->exit_right,  1,  0},
+                    {r->exit_left,  -1,  0},
+                    {r->exit_top,    0, -1},
+                    {r->exit_bottom, 0,  1},
+                };
+                for (int e = 0; e < 4; e++) {
+                    if (exits[e].target < 0) continue;
+                    int ti = exits[e].target - 1; /* 1-based to 0-based */
+                    if (ti < 0 || ti >= lvl->room_count || placed[ti]) continue;
+                    placed[ti] = 1;
+                    gx[ti] = gx[ri] + exits[e].dx;
+                    gy[ti] = gy[ri] + exits[e].dy;
+                    queue[qt++] = ti;
+                }
+            }
+            /* Place unreachable rooms */
+            int max_gy = 0;
+            for (int i = 0; i < lvl->room_count; i++)
+                if (placed[i] && gy[i] > max_gy) max_gy = gy[i];
+            int col = 0;
+            for (int i = 0; i < lvl->room_count; i++) {
+                if (!placed[i]) { placed[i] = 1; gx[i] = col++; gy[i] = max_gy + 2; }
+            }
+        }
+
+        /* Normalize so min is (0,0) */
+        int min_gx = 0, min_gy = 0;
+        for (int i = 0; i < lvl->room_count; i++) {
+            if (gx[i] < min_gx) min_gx = gx[i];
+            if (gy[i] < min_gy) min_gy = gy[i];
+        }
+        int max_gx = 0, max_gy = 0;
+        for (int i = 0; i < lvl->room_count; i++) {
+            gx[i] -= min_gx; gy[i] -= min_gy;
+            if (gx[i] > max_gx) max_gx = gx[i];
+            if (gy[i] > max_gy) max_gy = gy[i];
+        }
 
         TilemapLevel *tm = &app->tmap.levels[li];
         memset(tm, 0, sizeof(*tm));
         strncpy(tm->name, lvl->name, sizeof(tm->name) - 1);
-        tm->width = cols * GRID_W;
-        tm->height = rows * GRID_H;
+        tm->width = (max_gx + 1) * GRID_W;
+        tm->height = (max_gy + 1) * GRID_H;
         if (tm->width > TMAP_MAX_W) tm->width = TMAP_MAX_W;
         if (tm->height > TMAP_MAX_H) tm->height = TMAP_MAX_H;
 
@@ -178,8 +224,7 @@ void app_convert_levels(App *app, const char *hero_json_path) {
 
         for (int ri = 0; ri < lvl->room_count; ri++) {
             Room *room = &lvl->rooms[ri];
-            int gc = ri % cols, gr = ri / cols;
-            int ox = gc * GRID_W, oy = gr * GRID_H;
+            int ox = gx[ri] * GRID_W, oy = gy[ri] * GRID_H;
 
             /* Build room grid */
             uint8_t grid[GRID_H][GRID_W];
