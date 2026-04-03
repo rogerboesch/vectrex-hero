@@ -94,6 +94,7 @@ void draw_sprite_editor(App *app, int x, int y, int w, int h);
 void draw_sprite_tools(App *app, int x, int y, int w, int h);
 void draw_level_viewer(App *app, int x, int y, int w, int h);
 void draw_emu_panel(App *app, int x, int y, int w, int h);
+bool vectrex_emu_wants_keys(void);
 void draw_console(App *app, int x, int y, int w, int h);
 
 /* ── Coordinate helpers ───────────────────────────────────── */

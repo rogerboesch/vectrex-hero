@@ -56,6 +56,15 @@ static unsigned reg_dp;
 
 static unsigned reg_cc;
 
+/* Accessor for external debug tools */
+void e6809_get_regs(unsigned *pc, unsigned *a, unsigned *b,
+                    unsigned *x, unsigned *y, unsigned *u,
+                    unsigned *s, unsigned *dp, unsigned *cc) {
+    if (pc) *pc = reg_pc; if (a) *a = reg_a; if (b) *b = reg_b;
+    if (x) *x = reg_x; if (y) *y = reg_y; if (u) *u = reg_u;
+    if (s) *s = reg_s; if (dp) *dp = reg_dp; if (cc) *cc = reg_cc;
+}
+
 /* flag to see if interrupts should be handled (sync/cwai). */
 
 static unsigned irq_status;

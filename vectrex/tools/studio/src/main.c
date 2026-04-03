@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include "ui.h"
 #include "app.h"
+#include "vectrex_emu.h"
 #include "native_macos.h"
 #include "style.h"
 
@@ -47,7 +48,13 @@ int main(int argc, char *argv[]) {
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            ui_process_event(&event);
+            /* Forward keys to emulator when active */
+            bool key_forwarded = false;
+            if (vectrex_emu_wants_keys()) {
+                if (event.type == SDL_KEYDOWN) { vemu_key_down(event.key.keysym.sym); key_forwarded = true; }
+                if (event.type == SDL_KEYUP)   { vemu_key_up(event.key.keysym.sym); key_forwarded = true; }
+            }
+            if (!key_forwarded) ui_process_event(&event);
             if (event.type == SDL_QUIT) running = 0;
             if (event.type == SDL_WINDOWEVENT &&
                 event.window.event == SDL_WINDOWEVENT_CLOSE) running = 0;
@@ -69,6 +76,7 @@ int main(int argc, char *argv[]) {
         SDL_RenderPresent(renderer);
     }
 
+    vemu_stop();
     app_cleanup(&app);
     ui_shutdown();
     SDL_DestroyRenderer(renderer);
