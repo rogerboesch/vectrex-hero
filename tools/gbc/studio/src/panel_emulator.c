@@ -44,6 +44,10 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
                 app_log_err(app, "Failed to load ROM");
         }
     } else {
+        if (ui_button(bx, tb.y, 55, bh, gbc_emu_is_paused() ? "Resume" : "Pause")) {
+            if (gbc_emu_is_paused()) gbc_emu_resume(); else gbc_emu_pause();
+        }
+        bx += 59;
         /* Status */
         GbcCpuState cpu = gbc_emu_get_cpu();
         char status[48];
@@ -58,6 +62,8 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
 
     if (gbc_emu_is_running()) {
         gbc_emu_step();
+        int bp = gbc_emu_get_last_bp();
+        if (bp > 0) app_log_warn(app, "BREAKPOINT hit at $%04X", bp - 1);
         gbc_emu_render(app->renderer, c.x, c.y, c.w, c.h);
     } else {
         const char *msg = "Press Run";

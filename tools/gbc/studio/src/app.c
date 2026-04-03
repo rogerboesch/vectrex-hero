@@ -182,7 +182,11 @@ void app_draw(App *app) {
         draw_preview(app, 0, top, app->win_w, ch);
         break;
     case VIEW_EMULATOR:
-        draw_gbc_emulator(app, 0, top, app->win_w, ch);
+        draw_gbp(app, 0, top, lw, ch / 2);
+        draw_gmem(app, 0, top + ch / 2, lw, ch - ch / 2);
+        draw_gbc_emulator(app, cx, top, cw, ch);
+        draw_gcpu(app, app->win_w - rw, top, rw, ch / 2);
+        draw_gdisasm(app, app->win_w - rw, top + ch / 2, rw, ch - ch / 2);
         break;
     }
 }

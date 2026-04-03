@@ -14,7 +14,15 @@ static struct gb *g_gb = NULL;
 static SDL_Texture *g_texture = NULL;
 static uint32_t g_pixels[LCD_W * LCD_H];
 static bool g_running = false;
+static bool g_paused = false;
 static SDL_Renderer *g_renderer = NULL;
+
+#define MAX_BP 16
+static uint16_t g_bps[MAX_BP];
+static int g_bp_count = 0;
+static bool g_bp_enabled = true;
+static int g_last_bp = 0;
+static bool g_bp_skip = false;
 
 /* ── Frontend callbacks ───────────────────────────────────── */
 
@@ -116,9 +124,16 @@ void gbc_emu_stop(void) {
 bool gbc_emu_is_running(void) { return g_running; }
 
 void gbc_emu_step(void) {
-    if (!g_running || !g_gb) return;
-    /* Run ~1/120s worth of cycles */
+    if (!g_running || !g_gb || g_paused) return;
     gb_cpu_run_cycles(g_gb, GB_CPU_FREQ_HZ / 120);
+    /* Check breakpoints */
+    if (g_bp_enabled && g_bp_count > 0 && !g_bp_skip) {
+        uint16_t pc = g_gb->cpu.pc;
+        for (int i = 0; i < g_bp_count; i++) {
+            if (g_bps[i] == pc) { g_paused = true; g_last_bp = pc + 1; break; }
+        }
+    }
+    g_bp_skip = false;
 }
 
 void gbc_emu_render(SDL_Renderer *renderer, int x, int y, int w, int h) {
@@ -184,4 +199,35 @@ GbcCpuState gbc_emu_get_cpu(void) {
 uint8_t gbc_emu_read8(uint16_t addr) {
     if (!g_gb) return 0;
     return gb_memory_readb(g_gb, addr);
+}
+
+void gbc_emu_read_mem(uint16_t addr, uint8_t *buf, int len) {
+    for (int i = 0; i < len; i++)
+        buf[i] = g_gb ? gb_memory_readb(g_gb, (addr + i) & 0xFFFF) : 0;
+}
+
+/* Breakpoints */
+bool gbc_emu_is_paused(void) { return g_paused; }
+void gbc_emu_pause(void) { g_paused = true; }
+void gbc_emu_resume(void) { g_paused = false; g_bp_skip = true; }
+void gbc_emu_set_bp_enabled(bool en) { g_bp_enabled = en; }
+bool gbc_emu_get_bp_enabled(void) { return g_bp_enabled; }
+int gbc_emu_get_last_bp(void) { int v = g_last_bp; g_last_bp = 0; return v; }
+
+void gbc_emu_add_bp(uint16_t addr) {
+    if (g_bp_count < MAX_BP) g_bps[g_bp_count++] = addr;
+}
+void gbc_emu_remove_bp(uint16_t addr) {
+    for (int i = 0; i < g_bp_count; i++) {
+        if (g_bps[i] == addr) {
+            for (int j = i; j < g_bp_count - 1; j++) g_bps[j] = g_bps[j+1];
+            g_bp_count--; return;
+        }
+    }
+}
+void gbc_emu_clear_bps(void) { g_bp_count = 0; }
+int gbc_emu_list_bps(uint16_t *out, int max) {
+    int n = g_bp_count < max ? g_bp_count : max;
+    for (int i = 0; i < n; i++) out[i] = g_bps[i];
+    return n;
 }
