@@ -13,8 +13,8 @@ SDL_STATIC  = $(shell sdl2-config --static-libs) \
               /opt/homebrew/lib/libpng.a \
               -lharfbuzz -lz -lbz2 -lc++
 
-CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function $(SDL_CFLAGS) -I$(SHARED) -Isrc/igb
-GB_CFLAGS = -std=c11 -O2 -w $(SDL_CFLAGS) -Isrc/igb
+CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function $(SDL_CFLAGS) -I$(SHARED) -I../igb
+GB_CFLAGS = -std=c11 -O2 -w $(SDL_CFLAGS) -I../igb
 LDFLAGS = $(SDL_STATIC)
 
 TARGET = gbc-studio
@@ -28,15 +28,15 @@ APP_SRCS = src/main.c src/app.c src/file_io.c src/gbc_emu.c \
            src/panel_gcpu.c src/panel_gmem.c src/panel_gdisasm.c src/panel_gbp.c \
            src/gb_disasm.c src/panel_console.c
 
-GB_SRCS = src/igb/cpu.c src/igb/gpu.c src/igb/memory.c \
-          src/igb/cart.c src/igb/irq.c src/igb/dma.c \
-          src/igb/hdma.c src/igb/timer.c src/igb/input.c \
-          src/igb/spu.c src/igb/sync.c src/igb/rtc.c
+GB_SRCS = ../igb/cpu.c ../igb/gpu.c ../igb/memory.c \
+          ../igb/cart.c ../igb/irq.c ../igb/dma.c \
+          ../igb/hdma.c ../igb/timer.c ../igb/input.c \
+          ../igb/spu.c ../igb/sync.c ../igb/rtc.c
 
 SHARED_SRCS = $(SHARED)/ui.c $(SHARED)/native_macos.m
 
 APP_OBJS = $(patsubst src/%.c,$(BUILD)/%.o,$(filter %.c,$(APP_SRCS)))
-GB_OBJS = $(patsubst src/igb/%.c,$(BUILD)/gb_%.o,$(GB_SRCS))
+GB_OBJS = $(patsubst ../igb/%.c,$(BUILD)/gb_%.o,$(GB_SRCS))
 SHARED_OBJS = $(BUILD)/ui.o $(BUILD)/native_macos.o
 ALL_OBJS = $(APP_OBJS) $(GB_OBJS) $(SHARED_OBJS)
 
@@ -50,7 +50,7 @@ $(BUILD)/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Gaembuoy emulator sources (relaxed warnings)
-$(BUILD)/gb_%.o: src/igb/%.c
+$(BUILD)/gb_%.o: ../igb/%.c
 	@mkdir -p $(BUILD)
 	$(CC) $(GB_CFLAGS) -c $< -o $@
 

@@ -3,7 +3,7 @@
  */
 
 #include "gbc_emu.h"
-#include "igb/gb.h"
+#include "../igb/gb.h"
 #include <string.h>
 #include <stdlib.h>
 
