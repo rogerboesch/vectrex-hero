@@ -133,7 +133,14 @@ void app_draw(App *app) {
         draw_row_tools(app, 0, top, lw, ch);
     else if (app->view == VIEW_SPRITE_EDITOR)
         draw_sprite_tools(app, 0, top, lw, ch);
-    else
+    else if (app->view == VIEW_EMULATOR) {
+        /* Breakpoints top half, memory bottom half */
+        draw_vmem(app, 0, top, lw, ch / 2);
+        /* placeholder for breakpoints panel — reuse memory for now */
+        ui_panel_begin("Breakpoints", 0, top + ch / 2, lw, ch - ch / 2);
+        ui_text_color(4, top + ch / 2 + 30, "Coming soon", ui_theme.text_dim);
+        ui_panel_end();
+    } else
         draw_level_list(app, 0, top, lw, ch);
 
     /* Console */
@@ -156,12 +163,8 @@ void app_draw(App *app) {
         break;
     case VIEW_EMULATOR:
         draw_emu_panel(app, cx, top, cw, ch);
-        {
-            int rh3 = ch / 3;
-            draw_vcpu(app, app->win_w - rw, top, rw, rh3);
-            draw_vdisasm(app, app->win_w - rw, top + rh3, rw, rh3);
-            draw_vmem(app, app->win_w - rw, top + rh3 * 2, rw, ch - rh3 * 2);
-        }
+        draw_vcpu(app, app->win_w - rw, top, rw, ch / 2);
+        draw_vdisasm(app, app->win_w - rw, top + ch / 2, rw, ch - ch / 2);
         break;
     }
 }
