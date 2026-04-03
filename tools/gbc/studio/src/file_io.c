@@ -240,8 +240,24 @@ void app_convert_levels(App *app, const char *hero_json_path) {
                                  pl->points[j].x, pl->points[j].y+yoff[rri]);
                 }
             }
-            if (room->has_player_start)
+            /* Flood fill: use player_start if available, else find a cell
+               adjacent to a border that is still solid (inside the cave) */
+            if (room->has_player_start) {
                 ff(grid, tr(room->player_start.y), tc(room->player_start.x));
+            } else {
+                /* Find first solid cell next to a border — that's inside the cave */
+                int found = 0;
+                for (int r = 1; r < GRID_H - 1 && !found; r++) {
+                    for (int c2 = 1; c2 < GRID_W - 1 && !found; c2++) {
+                        if (grid[r][c2] == CELL_SOLID &&
+                            (grid[r-1][c2] == CELL_BORDER || grid[r+1][c2] == CELL_BORDER ||
+                             grid[r][c2-1] == CELL_BORDER || grid[r][c2+1] == CELL_BORDER)) {
+                            ff(grid, r, c2);
+                            found = 1;
+                        }
+                    }
+                }
+            }
 
             /* Copy to tilemap */
             for (int r = 0; r < GRID_H; r++) {
