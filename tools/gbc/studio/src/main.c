@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     /* Auto-load hero.json for level editing */
     {
         char levels_path[512];
-        snprintf(levels_path, sizeof(levels_path), "%s/../../../vectrex/assets/hero.json", SDL_GetBasePath());
+        snprintf(levels_path, sizeof(levels_path), "%s/../../../vectrex/hero.json", SDL_GetBasePath());
         FILE *f = fopen(levels_path, "r");
         if (f) { fclose(f); app_load_levels(&app, levels_path); }
     }
