@@ -3,15 +3,15 @@
  */
 
 #include "vectrex_emu.h"
-#include "vec2x/vec2x.h"
-#include "vec2x/e8910.h"
-#include "vec2x/e6809.h"
+#include "ivec/vec2x.h"
+#include "ivec/e8910.h"
+#include "ivec/e6809.h"
 #include <stdio.h>
 #include <string.h>
 
 #define EMU_TIMER 20
 
-/* Stub — vec2x.c calls this but we render ourselves */
+/* Stub — ivec.c calls this but we render ourselves */
 void vec2x_platform_render(void) {}
 
 static bool g_running = false;

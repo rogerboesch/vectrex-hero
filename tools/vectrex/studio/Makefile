@@ -13,8 +13,8 @@ SDL_STATIC  = $(shell sdl2-config --static-libs) \
               /opt/homebrew/lib/libpng.a \
               -lharfbuzz -lz -lbz2 -lc++
 
-CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function $(SDL_CFLAGS) -I$(SHARED) -Isrc/vec2x
-VEC2X_CFLAGS = -std=c99 -O2 -w $(SDL_CFLAGS) -Isrc/vec2x
+CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function $(SDL_CFLAGS) -I$(SHARED) -Isrc/ivec
+VEC2X_CFLAGS = -std=c99 -O2 -w $(SDL_CFLAGS) -Isrc/ivec
 LDFLAGS = $(SDL_STATIC)
 
 TARGET = vectrex-studio
@@ -28,7 +28,7 @@ APP_SRCS = src/main.c src/app.c src/file_io.c src/vectrex_emu.c \
            src/panel_vbp.c src/panel_vcpu.c src/panel_vmem.c src/panel_vdisasm.c \
            src/m6809_disasm.c src/panel_console.c
 
-VEC2X_SRCS = src/vec2x/vec2x.c src/vec2x/e6809.c src/vec2x/e8910.c
+VEC2X_SRCS = src/ivec/vec2x.c src/ivec/e6809.c src/ivec/e8910.c
 
 SHARED_SRCS = $(SHARED)/ui.c $(SHARED)/native_macos.m
 
@@ -47,15 +47,15 @@ $(BUILD)/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Vec2x emulator sources (relaxed C standard)
-$(BUILD)/vec2x.o: src/vec2x/vec2x.c
+$(BUILD)/vec2x.o: src/ivec/vec2x.c
 	@mkdir -p $(BUILD)
 	$(CC) $(VEC2X_CFLAGS) -c $< -o $@
 
-$(BUILD)/e6809.o: src/vec2x/e6809.c
+$(BUILD)/e6809.o: src/ivec/e6809.c
 	@mkdir -p $(BUILD)
 	$(CC) $(VEC2X_CFLAGS) -c $< -o $@
 
-$(BUILD)/e8910.o: src/vec2x/e8910.c
+$(BUILD)/e8910.o: src/ivec/e8910.c
 	@mkdir -p $(BUILD)
 	$(CC) $(VEC2X_CFLAGS) -c $< -o $@
 
