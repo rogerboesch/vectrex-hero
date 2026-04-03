@@ -109,6 +109,16 @@ void vemu_key_up(SDL_Keycode key) {
     }
 }
 
+unsigned char vemu_read8(unsigned addr) {
+    if (!g_running) return 0;
+    return e6809_read8(addr);
+}
+
+void vemu_read_mem(unsigned addr, unsigned char *buf, int len) {
+    for (int i = 0; i < len; i++)
+        buf[i] = g_running ? e6809_read8((addr + i) & 0xFFFF) : 0;
+}
+
 VemuCpuState vemu_get_cpu(void) {
     VemuCpuState st;
     e6809_get_regs(&st.pc, &st.a, &st.b, &st.x, &st.y, &st.u, &st.s, &st.dp, &st.cc);

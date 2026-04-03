@@ -21,6 +21,10 @@ void vemu_render(SDL_Renderer *renderer, int x, int y, int w, int h);
 void vemu_key_down(SDL_Keycode key);
 void vemu_key_up(SDL_Keycode key);
 
+/* Memory access */
+unsigned char vemu_read8(unsigned addr);
+void vemu_read_mem(unsigned addr, unsigned char *buf, int len);
+
 /* CPU state for debug */
 typedef struct {
     unsigned pc, a, b, x, y, u, s, dp, cc;

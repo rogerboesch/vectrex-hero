@@ -155,7 +155,13 @@ void app_draw(App *app) {
         draw_level_viewer(app, cx, top, cw + rw, ch);
         break;
     case VIEW_EMULATOR:
-        draw_emu_panel(app, cx, top, cw + rw, ch);
+        draw_emu_panel(app, cx, top, cw, ch);
+        {
+            int rh3 = ch / 3;
+            draw_vcpu(app, app->win_w - rw, top, rw, rh3);
+            draw_vdisasm(app, app->win_w - rw, top + rh3, rw, rh3);
+            draw_vmem(app, app->win_w - rw, top + rh3 * 2, rw, ch - rh3 * 2);
+        }
         break;
     }
 }
