@@ -1,20 +1,89 @@
 /*
- * panel_level_viewer.c — Level overview: all rooms in a grid with exits
+ * panel_level_viewer.c — Level map: rooms placed spatially using exit connections
+ *
+ * BFS from room 0 using exits to compute a 2D grid layout.
+ * Each room drawn at correct position showing cave lines, walls, enemies, etc.
  */
 
 #include "app.h"
 #include "ui.h"
 #include <stdio.h>
+#include <string.h>
 
-/* Colors */
-static const SDL_Color COL_ROOM_BG   = { 30,  30,  40, 255};
-static const SDL_Color COL_ROOM_SEL  = { 50,  70, 100, 255};
-static const SDL_Color COL_ROOM_BDR  = { 80,  80, 100, 255};
-static const SDL_Color COL_EXIT_LINE = {100, 150, 200, 255};
-static const SDL_Color COL_CAVE_LINE = {  0, 150,   0, 255};
-static const SDL_Color COL_WALL_MINI = {200, 200,   0, 255};
-static const SDL_Color COL_ENEMY_MINI= {200,   0,   0, 255};
-static const SDL_Color COL_LAVA_MINI = {150,  30,  30, 255};
+#define DRAW_W 250  /* room width in pixels (unscaled) */
+#define DRAW_H 100  /* room height in pixels (unscaled) */
+
+/* Map room-local vectrex coords to pixel coords within a room cell */
+static void vcx(int vx, int vy, int ox, int oy, float scale, int *px, int *py) {
+    *px = ox + (int)(((vx + 125) / 250.0f) * DRAW_W * scale);
+    *py = oy + (int)(((50 - vy) / 100.0f) * DRAW_H * scale);
+}
+
+/* BFS to compute grid positions from room exits */
+static void compute_layout(Level *lvl, int *gx, int *gy, int *placed) {
+    memset(placed, 0, sizeof(int) * MAX_ROOMS);
+    memset(gx, 0, sizeof(int) * MAX_ROOMS);
+    memset(gy, 0, sizeof(int) * MAX_ROOMS);
+
+    if (lvl->room_count == 0) return;
+
+    placed[0] = 1;
+    gx[0] = 0; gy[0] = 0;
+
+    /* Simple BFS queue */
+    int queue[MAX_ROOMS], qh = 0, qt = 0;
+    queue[qt++] = 0;
+
+    while (qh < qt) {
+        int ri = queue[qh++];
+        Room *room = &lvl->rooms[ri];
+        int cx = gx[ri], cy = gy[ri];
+
+        /* For each exit, find target room index (number is 1-based) */
+        struct { int target; int dx; int dy; } exits[] = {
+            {room->exit_right,  1,  0},
+            {room->exit_left,  -1,  0},
+            {room->exit_top,    0, -1},
+            {room->exit_bottom, 0,  1},
+        };
+
+        for (int e = 0; e < 4; e++) {
+            if (exits[e].target < 0) continue;
+            int ti = exits[e].target - 1; /* 1-indexed to 0-indexed */
+            if (ti < 0 || ti >= lvl->room_count) continue;
+            if (placed[ti]) continue;
+            placed[ti] = 1;
+            gx[ti] = cx + exits[e].dx;
+            gy[ti] = cy + exits[e].dy;
+            queue[qt++] = ti;
+        }
+    }
+
+    /* Place unreachable rooms in an extra row */
+    int max_gy = 0;
+    for (int i = 0; i < lvl->room_count; i++)
+        if (placed[i] && gy[i] > max_gy) max_gy = gy[i];
+
+    int col = 0;
+    for (int i = 0; i < lvl->room_count; i++) {
+        if (!placed[i]) {
+            placed[i] = 1;
+            gx[i] = col++;
+            gy[i] = max_gy + 2;
+        }
+    }
+
+    /* Normalize so min is (0,0) */
+    int min_gx = gx[0], min_gy = gy[0];
+    for (int i = 1; i < lvl->room_count; i++) {
+        if (gx[i] < min_gx) min_gx = gx[i];
+        if (gy[i] < min_gy) min_gy = gy[i];
+    }
+    for (int i = 0; i < lvl->room_count; i++) {
+        gx[i] -= min_gx;
+        gy[i] -= min_gy;
+    }
+}
 
 void draw_level_viewer(App *app, int x, int y, int w, int h) {
     ui_panel_begin("Level Viewer", x, y, w, h);
@@ -24,117 +93,137 @@ void draw_level_viewer(App *app, int x, int y, int w, int h) {
         ui_panel_end(); return;
     }
     Level *lvl = &app->project.levels[app->cur_level];
+    if (lvl->room_count == 0) { ui_panel_end(); return; }
 
-    /* Calculate grid layout */
-    int cols = 4;
-    if (lvl->room_count <= 2) cols = 2;
-    else if (lvl->room_count <= 6) cols = 3;
-    int rows_needed = (lvl->room_count + cols - 1) / cols;
+    /* Compute layout */
+    int grid_x[MAX_ROOMS], grid_y[MAX_ROOMS], placed[MAX_ROOMS];
+    compute_layout(lvl, grid_x, grid_y, placed);
 
-    int gap = 8;
-    int room_w = (c.w - gap * (cols + 1)) / cols;
-    int room_h = (c.h - gap * (rows_needed + 1)) / rows_needed;
-    if (room_h > room_w / 2) room_h = room_w / 2;
+    int max_gx = 0, max_gy = 0;
+    for (int i = 0; i < lvl->room_count; i++) {
+        if (grid_x[i] > max_gx) max_gx = grid_x[i];
+        if (grid_y[i] > max_gy) max_gy = grid_y[i];
+    }
+
+    /* Compute scale to fit */
+    int cols = max_gx + 1, rows = max_gy + 1;
+    float scale_x = (float)c.w / (cols * DRAW_W);
+    float scale_y = (float)c.h / (rows * DRAW_H);
+    float scale = scale_x < scale_y ? scale_x : scale_y;
+    if (scale > 1.5f) scale = 1.5f;
+
+    int cell_w = (int)(DRAW_W * scale);
+    int cell_h = (int)(DRAW_H * scale);
+
+    /* Center the map */
+    int total_w = cols * cell_w;
+    int total_h = rows * cell_h;
+    int off_x = c.x + (c.w - total_w) / 2;
+    int off_y = c.y + (c.h - total_h) / 2;
 
     for (int i = 0; i < lvl->room_count; i++) {
         Room *room = &lvl->rooms[i];
-        int col = i % cols;
-        int row = i / cols;
-        int rx = c.x + gap + col * (room_w + gap);
-        int ry = c.y + gap + row * (room_h + gap);
+        int ox = off_x + grid_x[i] * cell_w;
+        int oy = off_y + grid_y[i] * cell_h;
 
-        /* Room background */
-        SDL_Color bg_col = (app->cur_room == i) ? COL_ROOM_SEL : COL_ROOM_BG;
-        SDL_Rect rr = {rx, ry, room_w, room_h};
-        SDL_SetRenderDrawColor(app->renderer, bg_col.r, bg_col.g, bg_col.b, 255);
-        SDL_RenderFillRect(app->renderer, &rr);
-        SDL_SetRenderDrawColor(app->renderer, COL_ROOM_BDR.r, COL_ROOM_BDR.g, COL_ROOM_BDR.b, 255);
-        SDL_RenderDrawRect(app->renderer, &rr);
+        /* Room border */
+        SDL_Color bdr = (app->cur_room == i) ? (SDL_Color){255, 255, 0, 255} : (SDL_Color){50, 50, 70, 255};
+        int bw = (app->cur_room == i) ? 2 : 1;
+        SDL_Rect rr = {ox, oy, cell_w, cell_h};
+        SDL_SetRenderDrawColor(app->renderer, bdr.r, bdr.g, bdr.b, 255);
+        for (int b = 0; b < bw; b++) {
+            SDL_Rect br = {rr.x + b, rr.y + b, rr.w - b*2, rr.h - b*2};
+            SDL_RenderDrawRect(app->renderer, &br);
+        }
 
-        /* Mini cave lines */
-        SDL_SetRenderDrawColor(app->renderer, COL_CAVE_LINE.r, COL_CAVE_LINE.g, COL_CAVE_LINE.b, 255);
-        int row_y_offsets[] = {ROOM_TOP, ROW_BOUNDARY_TOP, ROW_BOUNDARY_MID};
+        /* Cave lines */
+        SDL_SetRenderDrawColor(app->renderer, 220, 220, 255, 255);
+        int row_y_offsets[] = {20, -10, -40};
         for (int ri = 0; ri < 3; ri++) {
             int rt_idx = room->rows[ri];
             if (rt_idx < 0 || rt_idx >= app->project.row_type_count) continue;
             RowType *rt = &app->project.row_types[rt_idx];
-            int y_off = row_y_offsets[ri];
             for (int pi = 0; pi < rt->cave_line_count; pi++) {
                 Polyline *pl = &rt->cave_lines[pi];
                 for (int j = 1; j < pl->count; j++) {
-                    int vx1 = pl->points[j-1].x, vy1 = y_off - (ROW_TOP - pl->points[j-1].y);
-                    int vx2 = pl->points[j].x,   vy2 = y_off - (ROW_TOP - pl->points[j].y);
-                    int px1 = rx + (int)((float)(vx1 - ROOM_LEFT) / 250.0f * room_w);
-                    int py1 = ry + (int)((float)(ROOM_TOP - vy1) / 100.0f * room_h);
-                    int px2 = rx + (int)((float)(vx2 - ROOM_LEFT) / 250.0f * room_w);
-                    int py2 = ry + (int)((float)(ROOM_TOP - vy2) / 100.0f * room_h);
+                    int px1, py1, px2, py2;
+                    vcx(pl->points[j-1].x, pl->points[j-1].y + row_y_offsets[ri],
+                        ox, oy, scale, &px1, &py1);
+                    vcx(pl->points[j].x, pl->points[j].y + row_y_offsets[ri],
+                        ox, oy, scale, &px2, &py2);
                     SDL_RenderDrawLine(app->renderer, px1, py1, px2, py2);
                 }
             }
         }
 
-        /* Mini walls */
-        SDL_SetRenderDrawColor(app->renderer, COL_WALL_MINI.r, COL_WALL_MINI.g, COL_WALL_MINI.b, 255);
+        /* Lava */
+        if (room->has_lava) {
+            int lx1, ly1, lx2, ly2;
+            vcx(-125, -40, ox, oy, scale, &lx1, &ly1);
+            vcx(125, -50, ox, oy, scale, &lx2, &ly2);
+            SDL_SetRenderDrawColor(app->renderer, 60, 25, 0, 255);
+            SDL_Rect lr = {lx1, ly1, lx2 - lx1, ly2 - ly1};
+            SDL_RenderFillRect(app->renderer, &lr);
+            SDL_SetRenderDrawColor(app->renderer, 255, 100, 0, 255);
+            SDL_RenderDrawLine(app->renderer, lx1, ly1, lx2, ly1);
+        }
+
+        /* Walls */
         for (int wi = 0; wi < room->wall_count; wi++) {
             Wall *wl = &room->walls[wi];
-            int wx = rx + (int)((float)(wl->x - ROOM_LEFT) / 250.0f * room_w);
-            int wy = ry + (int)((float)(ROOM_TOP - wl->y) / 100.0f * room_h);
-            int ww = (int)((float)wl->w / 250.0f * room_w);
-            int wh = (int)((float)wl->h / 100.0f * room_h);
-            if (ww < 2) ww = 2; if (wh < 2) wh = 2;
-            SDL_Rect wr = {wx, wy, ww, wh};
-            SDL_RenderFillRect(app->renderer, &wr);
+            int wx1, wy1, wx2, wy2;
+            vcx(wl->x, wl->y, ox, oy, scale, &wx1, &wy1);
+            vcx(wl->x + wl->w, wl->y - wl->h, ox, oy, scale, &wx2, &wy2);
+            SDL_Color wc = wl->destroyable ? (SDL_Color){255,100,70,255} : (SDL_Color){130,170,255,255};
+            SDL_SetRenderDrawColor(app->renderer, wc.r, wc.g, wc.b, 255);
+            SDL_Rect wr = {wx1, wy1, wx2 - wx1, wy2 - wy1};
+            SDL_RenderDrawRect(app->renderer, &wr);
         }
 
-        /* Mini enemies */
-        SDL_SetRenderDrawColor(app->renderer, COL_ENEMY_MINI.r, COL_ENEMY_MINI.g, COL_ENEMY_MINI.b, 255);
+        /* Enemies */
         for (int ei = 0; ei < room->enemy_count; ei++) {
-            int ex = rx + (int)((float)(room->enemies[ei].x - ROOM_LEFT) / 250.0f * room_w);
-            int ey = ry + (int)((float)(ROOM_TOP - room->enemies[ei].y) / 100.0f * room_h);
-            SDL_Rect er = {ex - 2, ey - 2, 4, 4};
-            SDL_RenderFillRect(app->renderer, &er);
+            Enemy *e = &room->enemies[ei];
+            int epx, epy;
+            vcx(e->x, e->y, ox, oy, scale, &epx, &epy);
+            SDL_Color ec = e->type == ENEMY_SPIDER ? (SDL_Color){200,50,255,255} :
+                           e->type == ENEMY_SNAKE  ? (SDL_Color){50,200,50,255} :
+                                                     (SDL_Color){255,50,50,255};
+            SDL_SetRenderDrawColor(app->renderer, ec.r, ec.g, ec.b, 255);
+            int r = (int)(3 * scale); if (r < 2) r = 2;
+            SDL_Rect er = {epx - r, epy - r, r*2, r*2};
+            SDL_RenderDrawRect(app->renderer, &er);
         }
 
-        /* Lava strip */
-        if (room->has_lava) {
-            int lava_y = ry + (int)(0.9f * room_h);
-            SDL_Rect lr = {rx, lava_y, room_w, room_h - (lava_y - ry)};
-            SDL_SetRenderDrawColor(app->renderer, COL_LAVA_MINI.r, COL_LAVA_MINI.g, COL_LAVA_MINI.b, 180);
-            SDL_RenderFillRect(app->renderer, &lr);
+        /* Miner */
+        if (room->has_miner) {
+            int mx, my;
+            vcx(room->miner.x, room->miner.y, ox, oy, scale, &mx, &my);
+            SDL_SetRenderDrawColor(app->renderer, 0, 255, 130, 255);
+            int r = (int)(3 * scale); if (r < 2) r = 2;
+            SDL_Rect mr = {mx - r, my - r, r*2, r*2};
+            SDL_RenderDrawRect(app->renderer, &mr);
+        }
+
+        /* Player start */
+        if (room->has_player_start) {
+            int spx, spy;
+            vcx(room->player_start.x, room->player_start.y, ox, oy, scale, &spx, &spy);
+            SDL_SetRenderDrawColor(app->renderer, 255, 255, 0, 255);
+            int r = (int)(4 * scale); if (r < 2) r = 2;
+            SDL_RenderDrawLine(app->renderer, spx, spy - r, spx - r, spy + r);
+            SDL_RenderDrawLine(app->renderer, spx - r, spy + r, spx + r, spy + r);
+            SDL_RenderDrawLine(app->renderer, spx + r, spy + r, spx, spy - r);
         }
 
         /* Room label */
         char label[16];
         snprintf(label, sizeof(label), "R%d", room->number);
-        ui_text_color(rx + 3, ry + 2, label, ui_theme.text_dim);
+        ui_text_small(ox + 2, oy + 1, label);
 
-        /* Click to select room and jump to editor */
-        if (ui_mouse_in_rect(rx, ry, room_w, room_h) && ui_mouse_clicked()) {
+        /* Click to select and jump to editor */
+        if (ui_mouse_in_rect(ox, oy, cell_w, cell_h) && ui_mouse_clicked()) {
             app->cur_room = i;
             app->view = VIEW_ROOM_EDITOR;
-        }
-    }
-
-    /* Draw exit connections */
-    SDL_SetRenderDrawColor(app->renderer, COL_EXIT_LINE.r, COL_EXIT_LINE.g, COL_EXIT_LINE.b, 255);
-    for (int i = 0; i < lvl->room_count; i++) {
-        Room *room = &lvl->rooms[i];
-        int col1 = i % cols, row1 = i / cols;
-        int cx1 = c.x + gap + col1 * (room_w + gap) + room_w / 2;
-        int cy1 = c.y + gap + row1 * (room_h + gap) + room_h / 2;
-
-        int exits[] = {room->exit_right, room->exit_bottom}; /* only draw right+down to avoid doubles */
-        for (int e = 0; e < 2; e++) {
-            if (exits[e] < 0) continue;
-            for (int j = 0; j < lvl->room_count; j++) {
-                if (lvl->rooms[j].number == exits[e] && j != i) {
-                    int col2 = j % cols, row2 = j / cols;
-                    int cx2 = c.x + gap + col2 * (room_w + gap) + room_w / 2;
-                    int cy2 = c.y + gap + row2 * (room_h + gap) + room_h / 2;
-                    SDL_RenderDrawLine(app->renderer, cx1, cy1, cx2, cy2);
-                    break;
-                }
-            }
         }
     }
 
