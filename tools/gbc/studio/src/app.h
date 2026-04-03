@@ -11,6 +11,7 @@ typedef enum {
     VIEW_TILES,
     VIEW_PALETTES,
     VIEW_PREVIEW,
+    VIEW_EMULATOR,
 } ViewMode;
 
 typedef struct {
@@ -69,4 +70,6 @@ void draw_tile_editor(App *app, int x, int y, int w, int h);
 void draw_tile_tools(App *app, int x, int y, int w, int h);
 void draw_palette_editor(App *app, int x, int y, int w, int h);
 void draw_preview(App *app, int x, int y, int w, int h);
+void draw_gbc_emulator(App *app, int x, int y, int w, int h);
+bool gbc_emu_wants_keys(void);
 void draw_console(App *app, int x, int y, int w, int h);

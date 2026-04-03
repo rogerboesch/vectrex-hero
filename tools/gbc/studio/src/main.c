@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "ui.h"
 #include "app.h"
+#include "gbc_emu.h"
 #include "native_macos.h"
 #include "style.h"
 
@@ -32,7 +33,12 @@ int main(int argc, char *argv[]) {
         ui_begin_frame();
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            ui_process_event(&event);
+            bool fwd = false;
+            if (gbc_emu_wants_keys()) {
+                if (event.type == SDL_KEYDOWN) { gbc_emu_key_down(event.key.keysym.sym); fwd = true; }
+                if (event.type == SDL_KEYUP)   { gbc_emu_key_up(event.key.keysym.sym); fwd = true; }
+            }
+            if (!fwd) ui_process_event(&event);
             if (event.type == SDL_QUIT) running = 0;
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) running = 0;
         }
@@ -52,6 +58,7 @@ int main(int argc, char *argv[]) {
         SDL_RenderPresent(renderer);
     }
 
+    gbc_emu_stop();
     app_cleanup(&app);
     ui_shutdown();
     SDL_DestroyRenderer(renderer);

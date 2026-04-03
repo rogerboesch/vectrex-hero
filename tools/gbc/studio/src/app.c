@@ -126,11 +126,11 @@ static void draw_tab_bar(App *app) {
                            ui_theme.panel_title.b, 255);
     SDL_RenderFillRect(app->renderer, &bar);
 
-    const char *tabs[] = {"Tiles", "Palettes", "Preview"};
-    ViewMode modes[] = {VIEW_TILES, VIEW_PALETTES, VIEW_PREVIEW};
+    const char *tabs[] = {"Tiles", "Palettes", "Preview", "Emulator"};
+    ViewMode modes[] = {VIEW_TILES, VIEW_PALETTES, VIEW_PREVIEW, VIEW_EMULATOR};
     int tab_w = STYLE_TAB_W, pad = 4;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
         int tx = pad + i * (tab_w + pad), ty = 3, th = STYLE_TAB_BAR_H - 6;
         bool active = (app->view == modes[i]);
         bool hover = ui_mouse_in_rect(tx, ty, tab_w, th);
@@ -180,6 +180,9 @@ void app_draw(App *app) {
         break;
     case VIEW_PREVIEW:
         draw_preview(app, 0, top, app->win_w, ch);
+        break;
+    case VIEW_EMULATOR:
+        draw_gbc_emulator(app, 0, top, app->win_w, ch);
         break;
     }
 }
