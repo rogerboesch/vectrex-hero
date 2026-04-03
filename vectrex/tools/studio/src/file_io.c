@@ -331,12 +331,97 @@ void app_load_project(App *app, const char *path) {
         }
     }
 
+    /* Parse sprites */
+    p = strstr(json, "\"sprites\"");
+    if (p) {
+        p = strchr(p, '['); if (p) p++;
+        proj->sprite_count = 0;
+        while (p && *p && proj->sprite_count < MAX_SPRITES) {
+            p = skip_ws(p);
+            if (*p == ']') break;
+            if (*p == ',') { p++; continue; }
+            if (*p != '{') break;
+            p++;
+            VecSprite *spr = &proj->sprites[proj->sprite_count];
+            memset(spr, 0, sizeof(*spr));
+
+            for (;;) {
+                p = skip_ws(p);
+                if (!*p || *p == '}') break;
+                if (*p == ',') { p++; continue; }
+                if (*p != '"') break;
+                char key[32] = {};
+                p = parse_str(p, key, sizeof(key));
+                p = skip_ws(p); if (*p == ':') p++;
+
+                if (strcmp(key, "name") == 0) {
+                    p = parse_str(p, spr->name, sizeof(spr->name));
+                } else if (strcmp(key, "frames") == 0) {
+                    p = skip_ws(p);
+                    if (*p == '[') {
+                        p++;
+                        while (*p && *p != ']' && spr->frame_count < MAX_FRAMES) {
+                            p = skip_ws(p);
+                            if (*p == ',') { p++; continue; }
+                            if (*p == ']') break;
+                            if (*p != '{') break;
+                            p++;
+                            SpriteFrame *frame = &spr->frames[spr->frame_count];
+                            frame->count = 0;
+
+                            for (;;) {
+                                p = skip_ws(p);
+                                if (!*p || *p == '}') break;
+                                if (*p == ',') { p++; continue; }
+                                if (*p != '"') break;
+                                char fkey[32] = {};
+                                p = parse_str(p, fkey, sizeof(fkey));
+                                p = skip_ws(p); if (*p == ':') p++;
+
+                                if (strcmp(fkey, "points") == 0) {
+                                    p = skip_ws(p);
+                                    if (*p == '[') {
+                                        p++;
+                                        while (*p && *p != ']' && frame->count < MAX_POINTS) {
+                                            p = skip_ws(p);
+                                            if (*p == ',') { p++; continue; }
+                                            if (*p == ']') break;
+                                            if (*p != '[') break;
+                                            p++;
+                                            int fx = 0, fy = 0;
+                                            p = parse_int_val(p, &fx);
+                                            p = skip_comma(p);
+                                            p = parse_int_val(p, &fy);
+                                            p = skip_ws(p);
+                                            if (*p == ']') p++;
+                                            frame->points[frame->count++] = (Point){fx, fy};
+                                        }
+                                        if (*p == ']') p++;
+                                    }
+                                } else {
+                                    p = skip_value(p);
+                                }
+                            }
+                            if (*p == '}') p++;
+                            spr->frame_count++;
+                        }
+                        if (*p == ']') p++;
+                    }
+                } else {
+                    p = skip_value(p);
+                }
+            }
+            if (*p == '}') p++;
+            proj->sprite_count++;
+        }
+    }
+
     free(json);
     strncpy(app->project_path, path, sizeof(app->project_path) - 1);
     app->cur_level = 0;
     app->cur_room = proj->levels[0].room_count > 0 ? 0 : -1;
     app->modified = false;
-    app_log_info(app, "Loaded: %s (%d levels)", path, proj->level_count);
+    app_log_info(app, "Loaded: %s (%d levels, %d sprites)", path, proj->level_count, proj->sprite_count);
 }
 
 /* ── Save / New / Open / Export stubs ─────────────────────── */
