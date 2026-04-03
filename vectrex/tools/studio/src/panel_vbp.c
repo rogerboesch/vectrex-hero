@@ -18,10 +18,16 @@ void draw_vbp(App *app, int px, int py, int pw, int ph) {
     SDL_Rect c = ui_panel_content();
     int y = c.y;
 
-    /* Enable toggle */
+    /* PC breakpoints toggle */
     bool en = vemu_bp_enabled();
-    if (ui_checkbox(c.x, y, "Breakpoints", &en))
+    if (ui_checkbox(c.x, y, "PC Breakpoints", &en))
         vemu_set_bp_enabled(en);
+    y += ui_line_height() + 4;
+
+    /* Software breakpoints toggle */
+    bool soft_en = vemu_get_soft_bp_enabled();
+    if (ui_checkbox(c.x, y, "Software BPs", &soft_en))
+        vemu_set_soft_bp_enabled(soft_en);
     y += ui_line_height() + 8;
 
     /* Address input + Add */

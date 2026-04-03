@@ -23,6 +23,8 @@ static int g_bp_count = 0;
 static bool g_bp_enabled = true;
 static int g_last_bp_hit = 0;
 static bool g_bp_skip_once = false;
+static bool g_soft_bp_enabled = false;
+static int g_last_soft_bp = 0;
 
 /* CPU register access via e6809.h */
 
@@ -69,6 +71,18 @@ void vemu_step(void) {
         }
     }
     g_bp_skip_once = false;
+
+    /* Check software breakpoint */
+    if (g_soft_bp_enabled && !g_paused) {
+        unsigned char marker = e6809_read8(VEMU_SOFT_BP_ADDR);
+        if (marker != 0) {
+            /* Clear it */
+            extern void (*e6809_write8)(unsigned address, unsigned char data);
+            e6809_write8(VEMU_SOFT_BP_ADDR, 0);
+            g_last_soft_bp = marker;
+            g_paused = true;
+        }
+    }
 }
 
 bool vemu_is_running(void) { return g_running; }
@@ -178,3 +192,13 @@ int vemu_list_breakpoints(unsigned *out, int max) {
 }
 
 int vemu_get_last_bp_hit(void) { int v = g_last_bp_hit; g_last_bp_hit = 0; return v; }
+
+void vemu_set_soft_bp_enabled(bool en) {
+    g_soft_bp_enabled = en;
+    if (en && g_running) {
+        extern void (*e6809_write8)(unsigned address, unsigned char data);
+        e6809_write8(VEMU_SOFT_BP_ADDR, 0);
+    }
+}
+bool vemu_get_soft_bp_enabled(void) { return g_soft_bp_enabled; }
+int vemu_get_last_soft_bp(void) { int v = g_last_soft_bp; g_last_soft_bp = 0; return v; }

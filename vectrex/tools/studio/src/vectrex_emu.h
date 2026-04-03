@@ -43,3 +43,9 @@ int  vemu_get_last_bp_hit(void);  /* returns addr+1 or 0, clears after read */
 bool vemu_is_paused(void);
 void vemu_pause(void);
 void vemu_resume(void);
+
+/* Software breakpoints — game writes marker to SOFT_BP_ADDR */
+#define VEMU_SOFT_BP_ADDR 0xCFFF
+void vemu_set_soft_bp_enabled(bool en);
+bool vemu_get_soft_bp_enabled(void);
+int  vemu_get_last_soft_bp(void);  /* returns marker (1-255) or 0, clears after read */

@@ -93,10 +93,13 @@ void draw_emu_panel(App *app, int x, int y, int w, int h) {
     if (vemu_is_running()) {
         /* Run one frame */
         vemu_step();
-        /* Check breakpoint hit */
+        /* Check breakpoint hits */
         int bp = vemu_get_last_bp_hit();
         if (bp > 0)
             app_log_warn(app, "BREAKPOINT hit at $%04X", bp - 1);
+        int sbp = vemu_get_last_soft_bp();
+        if (sbp > 0)
+            app_log_warn(app, "SOFTWARE BP #%d hit", sbp);
         /* Render vectors */
         vemu_render(app->renderer, scr_x, scr_y, pw, ph);
     } else {
