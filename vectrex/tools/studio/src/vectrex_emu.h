@@ -31,3 +31,15 @@ typedef struct {
 } VemuCpuState;
 VemuCpuState vemu_get_cpu(void);
 long vemu_get_vector_count(void);
+
+/* Breakpoints */
+void vemu_add_breakpoint(unsigned addr);
+void vemu_remove_breakpoint(unsigned addr);
+void vemu_clear_breakpoints(void);
+int  vemu_list_breakpoints(unsigned *out, int max);
+bool vemu_bp_enabled(void);
+void vemu_set_bp_enabled(bool en);
+int  vemu_get_last_bp_hit(void);  /* returns addr+1 or 0, clears after read */
+bool vemu_is_paused(void);
+void vemu_pause(void);
+void vemu_resume(void);

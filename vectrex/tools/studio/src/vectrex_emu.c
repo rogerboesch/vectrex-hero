@@ -15,6 +15,14 @@
 void vec2x_platform_render(void) {}
 
 static bool g_running = false;
+static bool g_paused = false;
+
+#define MAX_BP 16
+static unsigned g_bp[MAX_BP];
+static int g_bp_count = 0;
+static bool g_bp_enabled = true;
+static int g_last_bp_hit = 0;
+static bool g_bp_skip_once = false;
 
 /* CPU register access via e6809.h */
 
@@ -46,8 +54,21 @@ void vemu_reset(void) {
 }
 
 void vemu_step(void) {
-    if (!g_running) return;
+    if (!g_running || g_paused) return;
     vec2x_emu((VECTREX_MHZ / 1000) * EMU_TIMER);
+
+    /* Check breakpoints */
+    if (g_bp_enabled && g_bp_count > 0 && !g_bp_skip_once) {
+        VemuCpuState st = vemu_get_cpu();
+        for (int i = 0; i < g_bp_count; i++) {
+            if (g_bp[i] == st.pc) {
+                g_paused = true;
+                g_last_bp_hit = (int)st.pc + 1; /* +1 so 0 means no hit */
+                break;
+            }
+        }
+    }
+    g_bp_skip_once = false;
 }
 
 bool vemu_is_running(void) { return g_running; }
@@ -126,3 +147,34 @@ VemuCpuState vemu_get_cpu(void) {
 }
 
 long vemu_get_vector_count(void) { return vector_draw_cnt; }
+
+bool vemu_is_paused(void) { return g_paused; }
+void vemu_pause(void) { g_paused = true; }
+void vemu_resume(void) { g_paused = false; g_bp_skip_once = true; }
+
+bool vemu_bp_enabled(void) { return g_bp_enabled; }
+void vemu_set_bp_enabled(bool en) { g_bp_enabled = en; }
+
+void vemu_add_breakpoint(unsigned addr) {
+    if (g_bp_count < MAX_BP) g_bp[g_bp_count++] = addr;
+}
+
+void vemu_remove_breakpoint(unsigned addr) {
+    for (int i = 0; i < g_bp_count; i++) {
+        if (g_bp[i] == addr) {
+            for (int j = i; j < g_bp_count - 1; j++) g_bp[j] = g_bp[j+1];
+            g_bp_count--;
+            return;
+        }
+    }
+}
+
+void vemu_clear_breakpoints(void) { g_bp_count = 0; }
+
+int vemu_list_breakpoints(unsigned *out, int max) {
+    int n = g_bp_count < max ? g_bp_count : max;
+    for (int i = 0; i < n; i++) out[i] = g_bp[i];
+    return n;
+}
+
+int vemu_get_last_bp_hit(void) { int v = g_last_bp_hit; g_last_bp_hit = 0; return v; }

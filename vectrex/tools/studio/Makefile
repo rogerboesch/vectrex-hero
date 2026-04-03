@@ -25,7 +25,7 @@ APP_SRCS = src/main.c src/app.c src/file_io.c src/vectrex_emu.c \
            src/panel_row_editor.c src/panel_row_tools.c \
            src/panel_sprite_editor.c src/panel_sprite_tools.c \
            src/panel_level_viewer.c src/panel_emu.c \
-           src/panel_vcpu.c src/panel_vmem.c src/panel_vdisasm.c \
+           src/panel_vbp.c src/panel_vcpu.c src/panel_vmem.c src/panel_vdisasm.c \
            src/m6809_disasm.c src/panel_console.c
 
 VEC2X_SRCS = src/vec2x/vec2x.c src/vec2x/e6809.c src/vec2x/e8910.c

@@ -57,6 +57,10 @@ void draw_emu_panel(App *app, int x, int y, int w, int h) {
             }
         }
     } else {
+        if (ui_button(bx, tb.y, 55, bh, vemu_is_paused() ? "Resume" : "Pause")) {
+            if (vemu_is_paused()) vemu_resume(); else vemu_pause();
+        }
+        bx += 59;
         if (ui_button(bx, tb.y, 50, bh, "Reset")) {
             vemu_reset();
             app_log_info(app, "Emulator reset");
@@ -65,7 +69,9 @@ void draw_emu_panel(App *app, int x, int y, int w, int h) {
         /* Status */
         VemuCpuState cpu = vemu_get_cpu();
         char status[64];
-        snprintf(status, sizeof(status), "PC:%04X  Vectors:%ld", cpu.pc, vemu_get_vector_count());
+        snprintf(status, sizeof(status), "PC:%04X  Vec:%ld  %s",
+                 cpu.pc, vemu_get_vector_count(),
+                 vemu_is_paused() ? "PAUSED" : "");
         ui_text_mono_color(tb.x + tb.w - 250, tb.y + 2, status, ui_theme.text_dim);
     }
 
@@ -87,6 +93,10 @@ void draw_emu_panel(App *app, int x, int y, int w, int h) {
     if (vemu_is_running()) {
         /* Run one frame */
         vemu_step();
+        /* Check breakpoint hit */
+        int bp = vemu_get_last_bp_hit();
+        if (bp > 0)
+            app_log_warn(app, "BREAKPOINT hit at $%04X", bp - 1);
         /* Render vectors */
         vemu_render(app->renderer, scr_x, scr_y, pw, ph);
     } else {
