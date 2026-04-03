@@ -1,316 +1,193 @@
 /*
- * panel_room_editor.c — Room editor canvas
+ * panel_room_editor.c — GBC room editor with tile-based rendering
  *
- * Displays cave walls (from row types), enemies, walls, miner, player start, lava.
- * Select tool: click to select, drag to move, Delete to remove.
- * Other tools: click to place new element.
+ * Rasterizes cave polylines onto a 20x16 tile grid, flood fills,
+ * then renders each cell as a colored tile matching GBC palette style.
  */
 
 #include "app.h"
 #include "ui.h"
 #include <stdio.h>
-#include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
-/* Colors for room elements */
-static const SDL_Color COL_CAVE     = {  0, 200,   0, 255};
-static const SDL_Color COL_WALL     = {200, 200,   0, 255};
-static const SDL_Color COL_WALL_D   = {200, 100,   0, 255};
-static const SDL_Color COL_ENEMY    = {200,   0,   0, 255};
-static const SDL_Color COL_MINER    = {  0, 200, 200, 255};
-static const SDL_Color COL_PLAYER   = {255, 255, 255, 255};
-static const SDL_Color COL_LAVA     = {200,  50,  50, 255};
-static const SDL_Color COL_BOUNDARY = {  0, 150, 150, 100};
-static const SDL_Color COL_GRID     = { 40,  40,  40, 255};
-static const SDL_Color COL_SELECT   = {255, 255,   0, 255};
+#define GRID_W 20
+#define GRID_H 16
+#define CELL_EMPTY  0
+#define CELL_BORDER 1
+#define CELL_SOLID  2
 
-/* Selection state */
-static int sel_type = -1;  /* -1=none, 0=wall, 1=enemy, 2=miner, 3=player_start */
-static int sel_idx = -1;
-static bool is_dragging = false;
-static int drag_off_x = 0, drag_off_y = 0;
+/* GBC palette-matched colors */
+static const SDL_Color COL_ROCK    = {130, 100,  65, 255};
+static const SDL_Color COL_BORDER  = {195, 160, 130, 255};
+static const SDL_Color COL_EMPTY   = { 15,  15,  25, 255};
+static const SDL_Color COL_WALL    = {195, 160,  30, 255};
+static const SDL_Color COL_WALL_D  = {250, 225,  65, 255};
+static const SDL_Color COL_LAVA    = {250,  80,   0, 255};
+static const SDL_Color COL_ENEMY   = {250,  65,  30, 255};
+static const SDL_Color COL_SPIDER  = {210,  50, 210, 255};
+static const SDL_Color COL_SNAKE   = { 50, 200,  50, 255};
+static const SDL_Color COL_MINER   = {  0, 200, 200, 255};
+static const SDL_Color COL_PLAYER  = { 65, 250,  65, 255};
+static const SDL_Color COL_SELECT  = {255, 255,   0, 255};
 
-/* Hit test: check if pixel pos is near a vectrex coord */
-static bool hit_test(int px, int py, int tx, int ty, int radius) {
-    return abs(px - tx) < radius && abs(py - ty) < radius;
+static int tile_col(int gx) { return (int)(((unsigned)((unsigned char)(gx + 128)) * 20) >> 8); }
+static int tile_row(int gy) { int v = (int)(((unsigned)(50 - gy) * 39) >> 8); return v < 0 ? 0 : v >= GRID_H ? GRID_H-1 : v; }
+
+static void trace_line(uint8_t grid[GRID_H][GRID_W], int gx1, int gy1, int gx2, int gy2) {
+    int c1 = tile_col(gx1), r1 = tile_row(gy1), c2 = tile_col(gx2), r2 = tile_row(gy2);
+    int dx = abs(c2-c1), dy = abs(r2-r1), sx = c1<c2?1:-1, sy = r1<r2?1:-1, err = dx-dy;
+    for (;;) {
+        if (r1>=0 && r1<GRID_H && c1>=0 && c1<GRID_W) grid[r1][c1] = CELL_BORDER;
+        if (c1==c2 && r1==r2) break;
+        int e2 = 2*err;
+        if (e2 > -dy) { err -= dy; c1 += sx; }
+        if (e2 < dx)  { err += dx; r1 += sy; }
+    }
 }
 
-static Room *get_room(App *app) {
-    if (app->cur_level < 0 || app->cur_level >= app->level_project.level_count) return NULL;
-    Level *lvl = &app->level_project.levels[app->cur_level];
-    if (app->cur_room < 0 || app->cur_room >= lvl->room_count) return NULL;
-    return &lvl->rooms[app->cur_room];
+static void flood_fill(uint8_t grid[GRID_H][GRID_W], int sr, int sc) {
+    if (sr<0||sr>=GRID_H||sc<0||sc>=GRID_W) return;
+    grid[sr][sc] = CELL_EMPTY;
+    int changed = 1;
+    while (changed) { changed = 0;
+        for (int r=0; r<GRID_H; r++) for (int c=0; c<GRID_W; c++) {
+            if (grid[r][c]!=CELL_SOLID) continue;
+            if ((r>0&&grid[r-1][c]==CELL_EMPTY)||(r<GRID_H-1&&grid[r+1][c]==CELL_EMPTY)||
+                (c>0&&grid[r][c-1]==CELL_EMPTY)||(c<GRID_W-1&&grid[r][c+1]==CELL_EMPTY))
+                { grid[r][c]=CELL_EMPTY; changed=1; }
+        }
+    }
 }
+
+static void build_grid(App *app, Room *room, uint8_t grid[GRID_H][GRID_W]) {
+    memset(grid, CELL_SOLID, GRID_H * GRID_W);
+    int yoff[] = {20, -10, -40};
+    for (int ri = 0; ri < 3; ri++) {
+        int rt_idx = room->rows[ri];
+        if (rt_idx < 0 || rt_idx >= app->level_project.row_type_count) continue;
+        RowType *rt = &app->level_project.row_types[rt_idx];
+        for (int pi = 0; pi < rt->cave_line_count; pi++) {
+            Polyline *pl = &rt->cave_lines[pi];
+            for (int j = 1; j < pl->count; j++)
+                trace_line(grid, pl->points[j-1].x, pl->points[j-1].y + yoff[ri],
+                                 pl->points[j].x,   pl->points[j].y + yoff[ri]);
+        }
+    }
+    if (room->has_player_start)
+        flood_fill(grid, tile_row(room->player_start.y), tile_col(room->player_start.x));
+}
+
+static int sel_type = -1, sel_idx = -1;
 
 void draw_room_editor(App *app, int px, int py, int pw, int ph) {
     SDL_Rect tb = ui_panel_begin_toolbar(px, py, pw, ph);
     SDL_Rect c = ui_panel_content();
 
-    /* Toolbar: current tool display */
-    const char *tool_names[] = {"Select", "Wall", "Bat", "Spider", "Snake", "Miner", "Player"};
-    char tool_label[32];
-    snprintf(tool_label, sizeof(tool_label), "Tool: %s", tool_names[app->room_tool]);
-    ui_text_color(tb.x, tb.y + 2, tool_label, ui_theme.text_dim);
+    const char *tnames[] = {"Select","Wall","Bat","Spider","Snake","Miner","Player"};
+    char lbl[32]; snprintf(lbl, sizeof(lbl), "Tool: %s", tnames[app->room_tool]);
+    ui_text_color(tb.x, tb.y+2, lbl, ui_theme.text_dim);
 
-    Room *room = get_room(app);
-    if (!room) { ui_panel_end(); return; }
+    if (app->cur_level<0||app->cur_level>=app->level_project.level_count) { ui_panel_end(); return; }
+    Level *lvl = &app->level_project.levels[app->cur_level];
+    if (app->cur_room<0||app->cur_room>=lvl->room_count) { ui_panel_end(); return; }
+    Room *room = &lvl->rooms[app->cur_room];
 
-    /* Canvas area with margin */
-    int margin = 10;
-    int canvas_x = c.x + margin;
-    int canvas_y = c.y + margin;
-    int canvas_w = c.w - margin * 2;
-    int canvas_h = c.h - margin * 2;
+    int margin=10, cx=c.x+margin, cy=c.y+margin, cw=c.w-margin*2, ch=c.h-margin*2;
+    int cell_w=cw/GRID_W, cell_h=ch/GRID_H;
+    if (cell_w<2) cell_w=2; if (cell_h<2) cell_h=2;
+    int tw=GRID_W*cell_w, th=GRID_H*cell_h;
+    int ox=cx+(cw-tw)/2, oy=cy+(ch-th)/2;
 
-    /* Black background */
-    SDL_Rect bg = {canvas_x, canvas_y, canvas_w, canvas_h};
-    SDL_SetRenderDrawColor(app->renderer, 10, 10, 10, 255);
-    SDL_RenderFillRect(app->renderer, &bg);
+    uint8_t grid[GRID_H][GRID_W];
+    build_grid(app, room, grid);
 
-    /* Grid */
-    SDL_SetRenderDrawColor(app->renderer, COL_GRID.r, COL_GRID.g, COL_GRID.b, 255);
-    for (int vx = ROOM_LEFT; vx <= ROOM_RIGHT; vx += 25) {
-        int px1, py1, px2, py2;
-        room_vx_to_px(vx, ROOM_TOP, canvas_x, canvas_y, canvas_w, canvas_h, &px1, &py1);
-        room_vx_to_px(vx, ROOM_BOTTOM, canvas_x, canvas_y, canvas_w, canvas_h, &px2, &py2);
-        SDL_RenderDrawLine(app->renderer, px1, py1, px2, py2);
-    }
-    for (int vy = ROOM_BOTTOM; vy <= ROOM_TOP; vy += 10) {
-        int px1, py1, px2, py2;
-        room_vx_to_px(ROOM_LEFT, vy, canvas_x, canvas_y, canvas_w, canvas_h, &px1, &py1);
-        room_vx_to_px(ROOM_RIGHT, vy, canvas_x, canvas_y, canvas_w, canvas_h, &px2, &py2);
-        SDL_RenderDrawLine(app->renderer, px1, py1, px2, py2);
+    /* Draw tile cells */
+    for (int r=0; r<GRID_H; r++) for (int col=0; col<GRID_W; col++) {
+        SDL_Color tc = grid[r][col]==CELL_EMPTY ? COL_EMPTY : grid[r][col]==CELL_BORDER ? COL_BORDER : COL_ROCK;
+        SDL_Rect tr = {ox+col*cell_w, oy+r*cell_h, cell_w, cell_h};
+        SDL_SetRenderDrawColor(app->renderer, tc.r, tc.g, tc.b, 255);
+        SDL_RenderFillRect(app->renderer, &tr);
     }
 
-    /* Row boundaries */
-    SDL_SetRenderDrawColor(app->renderer, COL_BOUNDARY.r, COL_BOUNDARY.g, COL_BOUNDARY.b, 255);
-    int bx1, by1, bx2, by2;
-    room_vx_to_px(ROOM_LEFT, ROW_BOUNDARY_TOP, canvas_x, canvas_y, canvas_w, canvas_h, &bx1, &by1);
-    room_vx_to_px(ROOM_RIGHT, ROW_BOUNDARY_TOP, canvas_x, canvas_y, canvas_w, canvas_h, &bx2, &by2);
-    SDL_RenderDrawLine(app->renderer, bx1, by1, bx2, by2);
-    room_vx_to_px(ROOM_LEFT, ROW_BOUNDARY_MID, canvas_x, canvas_y, canvas_w, canvas_h, &bx1, &by1);
-    room_vx_to_px(ROOM_RIGHT, ROW_BOUNDARY_MID, canvas_x, canvas_y, canvas_w, canvas_h, &bx2, &by2);
-    SDL_RenderDrawLine(app->renderer, bx1, by1, bx2, by2);
-
-    /* Draw cave polylines from row types */
-    SDL_SetRenderDrawColor(app->renderer, COL_CAVE.r, COL_CAVE.g, COL_CAVE.b, 255);
-    int row_y_offsets[] = {ROOM_TOP, ROW_BOUNDARY_TOP, ROW_BOUNDARY_MID};
-    for (int ri = 0; ri < 3; ri++) {
-        int rt_idx = room->rows[ri];
-        if (rt_idx < 0 || rt_idx >= app->level_project.row_type_count) continue;
-        RowType *rt = &app->level_project.row_types[rt_idx];
-        int y_off = row_y_offsets[ri];
-        for (int pi = 0; pi < rt->cave_line_count; pi++) {
-            Polyline *pl = &rt->cave_lines[pi];
-            for (int j = 1; j < pl->count; j++) {
-                int px1, py1, px2, py2;
-                int vx1 = pl->points[j-1].x, vy1 = y_off - (ROW_TOP - pl->points[j-1].y);
-                int vx2 = pl->points[j].x,   vy2 = y_off - (ROW_TOP - pl->points[j].y);
-                room_vx_to_px(vx1, vy1, canvas_x, canvas_y, canvas_w, canvas_h, &px1, &py1);
-                room_vx_to_px(vx2, vy2, canvas_x, canvas_y, canvas_w, canvas_h, &px2, &py2);
-                SDL_RenderDrawLine(app->renderer, px1, py1, px2, py2);
-            }
-        }
-    }
-
-    /* Draw walls */
-    for (int i = 0; i < room->wall_count; i++) {
+    /* Walls */
+    for (int i=0; i<room->wall_count; i++) {
         Wall *w = &room->walls[i];
-        int wx1, wy1, wx2, wy2;
-        room_vx_to_px(w->x, w->y, canvas_x, canvas_y, canvas_w, canvas_h, &wx1, &wy1);
-        room_vx_to_px(w->x + w->w, w->y - w->h, canvas_x, canvas_y, canvas_w, canvas_h, &wx2, &wy2);
-        SDL_Color wc = w->destroyable ? COL_WALL_D : COL_WALL;
-        if (sel_type == 0 && sel_idx == i) wc = COL_SELECT;
-        SDL_SetRenderDrawColor(app->renderer, wc.r, wc.g, wc.b, 255);
-        SDL_Rect wr = {wx1, wy1, wx2 - wx1, wy2 - wy1};
-        SDL_RenderFillRect(app->renderer, &wr);
+        int c1=tile_col(w->x), r1=tile_row(w->y), c2=tile_col(w->x+w->w), r2=tile_row(w->y-w->h);
+        SDL_Color wc = (sel_type==0&&sel_idx==i)?COL_SELECT : w->destroyable?COL_WALL_D:COL_WALL;
+        for (int r=r1; r<=r2&&r<GRID_H; r++) for (int cc=c1; cc<=c2&&cc<GRID_W; cc++) {
+            SDL_Rect wr={ox+cc*cell_w,oy+r*cell_h,cell_w,cell_h};
+            SDL_SetRenderDrawColor(app->renderer,wc.r,wc.g,wc.b,255);
+            SDL_RenderFillRect(app->renderer,&wr);
+        }
     }
 
-    /* Draw enemies */
-    for (int i = 0; i < room->enemy_count; i++) {
-        Enemy *e = &room->enemies[i];
-        int ex, ey;
-        room_vx_to_px(e->x, e->y, canvas_x, canvas_y, canvas_w, canvas_h, &ex, &ey);
-        SDL_Color ec = (sel_type == 1 && sel_idx == i) ? COL_SELECT : COL_ENEMY;
-        SDL_SetRenderDrawColor(app->renderer, ec.r, ec.g, ec.b, 255);
-        SDL_Rect er = {ex - 5, ey - 5, 10, 10};
-        SDL_RenderFillRect(app->renderer, &er);
-        const char *etype = e->type == ENEMY_BAT ? "B" : e->type == ENEMY_SPIDER ? "S" : "N";
-        ui_text_mono_color(ex + 7, ey - 6, etype, ec);
-    }
-
-    /* Draw miner */
-    if (room->has_miner) {
-        int mmx, mmy;
-        room_vx_to_px(room->miner.x, room->miner.y, canvas_x, canvas_y, canvas_w, canvas_h, &mmx, &mmy);
-        SDL_Color mc = (sel_type == 2) ? COL_SELECT : COL_MINER;
-        SDL_SetRenderDrawColor(app->renderer, mc.r, mc.g, mc.b, 255);
-        SDL_Rect mr = {mmx - 5, mmy - 5, 10, 10};
-        SDL_RenderDrawRect(app->renderer, &mr);
-        ui_text_mono_color(mmx + 7, mmy - 6, "M", mc);
-    }
-
-    /* Draw player start */
-    if (room->has_player_start) {
-        int spx, spy;
-        room_vx_to_px(room->player_start.x, room->player_start.y,
-                       canvas_x, canvas_y, canvas_w, canvas_h, &spx, &spy);
-        SDL_Color pc = (sel_type == 3) ? COL_SELECT : COL_PLAYER;
-        SDL_SetRenderDrawColor(app->renderer, pc.r, pc.g, pc.b, 255);
-        SDL_RenderDrawLine(app->renderer, spx - 6, spy, spx + 6, spy);
-        SDL_RenderDrawLine(app->renderer, spx, spy - 6, spx, spy + 6);
-        ui_text_mono_color(spx + 8, spy - 6, "P", pc);
-    }
-
-    /* Draw lava zone */
+    /* Lava */
     if (room->has_lava) {
-        int lx1, ly1, lx2, ly2;
-        room_vx_to_px(ROOM_LEFT, -40, canvas_x, canvas_y, canvas_w, canvas_h, &lx1, &ly1);
-        room_vx_to_px(ROOM_RIGHT, ROOM_BOTTOM, canvas_x, canvas_y, canvas_w, canvas_h, &lx2, &ly2);
-        SDL_SetRenderDrawColor(app->renderer, COL_LAVA.r, COL_LAVA.g, COL_LAVA.b, 80);
-        SDL_Rect lr = {lx1, ly1, lx2 - lx1, ly2 - ly1};
-        SDL_RenderFillRect(app->renderer, &lr);
-    }
-
-    /* ── Mouse interaction ── */
-    if (ui_mouse_in_rect(canvas_x, canvas_y, canvas_w, canvas_h)) {
-        int mx, my;
-        ui_mouse_pos(&mx, &my);
-        int vx, vy;
-        room_px_to_vx(mx, my, canvas_x, canvas_y, canvas_w, canvas_h, &vx, &vy);
-
-        /* Tooltip */
-        char coord[32];
-        snprintf(coord, sizeof(coord), "(%d, %d)", vx, vy);
-        ui_tooltip(coord);
-
-        if (app->room_tool == TOOL_SELECT) {
-            /* Click to select nearest element */
-            if (ui_mouse_clicked()) {
-                sel_type = -1; sel_idx = -1; is_dragging = false;
-                int best_dist = 15; /* pixel hit radius */
-
-                /* Check enemies */
-                for (int i = 0; i < room->enemy_count; i++) {
-                    int ex, ey;
-                    room_vx_to_px(room->enemies[i].x, room->enemies[i].y,
-                                   canvas_x, canvas_y, canvas_w, canvas_h, &ex, &ey);
-                    if (hit_test(mx, my, ex, ey, best_dist)) {
-                        sel_type = 1; sel_idx = i; break;
-                    }
-                }
-                /* Check walls (center point) */
-                if (sel_type < 0) {
-                    for (int i = 0; i < room->wall_count; i++) {
-                        Wall *w = &room->walls[i];
-                        int wx, wy;
-                        room_vx_to_px(w->x + w->w/2, w->y - w->h/2,
-                                       canvas_x, canvas_y, canvas_w, canvas_h, &wx, &wy);
-                        if (hit_test(mx, my, wx, wy, best_dist + 10)) {
-                            sel_type = 0; sel_idx = i; break;
-                        }
-                    }
-                }
-                /* Check miner */
-                if (sel_type < 0 && room->has_miner) {
-                    int mmx2, mmy2;
-                    room_vx_to_px(room->miner.x, room->miner.y,
-                                   canvas_x, canvas_y, canvas_w, canvas_h, &mmx2, &mmy2);
-                    if (hit_test(mx, my, mmx2, mmy2, best_dist)) { sel_type = 2; sel_idx = 0; }
-                }
-                /* Check player start */
-                if (sel_type < 0 && room->has_player_start) {
-                    int spx2, spy2;
-                    room_vx_to_px(room->player_start.x, room->player_start.y,
-                                   canvas_x, canvas_y, canvas_w, canvas_h, &spx2, &spy2);
-                    if (hit_test(mx, my, spx2, spy2, best_dist)) { sel_type = 3; sel_idx = 0; }
-                }
-
-                if (sel_type >= 0) {
-                    is_dragging = true;
-                    drag_off_x = 0; drag_off_y = 0;
-                }
-            }
-
-            /* Drag selected element */
-            if (is_dragging && ui_mouse_down() && sel_type >= 0) {
-                switch (sel_type) {
-                case 0: /* wall */
-                    room->walls[sel_idx].x = vx - room->walls[sel_idx].w / 2;
-                    room->walls[sel_idx].y = vy + room->walls[sel_idx].h / 2;
-                    app->modified = true;
-                    break;
-                case 1: /* enemy */
-                    room->enemies[sel_idx].x = vx;
-                    room->enemies[sel_idx].y = vy;
-                    app->modified = true;
-                    break;
-                case 2: /* miner */
-                    room->miner.x = vx;
-                    room->miner.y = vy;
-                    app->modified = true;
-                    break;
-                case 3: /* player start */
-                    room->player_start.x = vx;
-                    room->player_start.y = vy;
-                    app->modified = true;
-                    break;
-                }
-            }
-
-            if (!ui_mouse_down()) is_dragging = false;
-
-        } else {
-            /* Place tool: click to add element */
-            if (ui_mouse_clicked()) {
-                switch (app->room_tool) {
-                case TOOL_WALL:
-                    if (room->wall_count < MAX_WALLS) {
-                        room->walls[room->wall_count++] = (Wall){vy, vx, 10, 20, false};
-                        app->modified = true;
-                    }
-                    break;
-                case TOOL_ENEMY_BAT: case TOOL_ENEMY_SPIDER: case TOOL_ENEMY_SNAKE: {
-                    if (room->enemy_count < MAX_ENEMIES) {
-                        int type = app->room_tool - TOOL_ENEMY_BAT;
-                        room->enemies[room->enemy_count++] = (Enemy){vx, vy, 1, type};
-                        app->modified = true;
-                    }
-                    break;
-                }
-                case TOOL_MINER:
-                    room->miner = (Point){vx, vy};
-                    room->has_miner = true;
-                    app->modified = true;
-                    break;
-                case TOOL_PLAYER_START:
-                    room->player_start = (Point){vx, vy};
-                    room->has_player_start = true;
-                    app->modified = true;
-                    break;
-                default: break;
-                }
-            }
+        int lr=tile_row(-40);
+        for (int r=lr; r<GRID_H; r++) for (int col=0; col<GRID_W; col++) {
+            SDL_Rect lr2={ox+col*cell_w,oy+r*cell_h,cell_w,cell_h};
+            SDL_SetRenderDrawColor(app->renderer,COL_LAVA.r,COL_LAVA.g,COL_LAVA.b,200);
+            SDL_RenderFillRect(app->renderer,&lr2);
         }
     }
 
-    /* Delete key removes selected element */
-    if (sel_type >= 0 && (ui_key_pressed(SDLK_DELETE) || ui_key_pressed(SDLK_BACKSPACE))) {
-        switch (sel_type) {
-        case 0: /* wall */
-            for (int i = sel_idx; i < room->wall_count - 1; i++)
-                room->walls[i] = room->walls[i + 1];
-            room->wall_count--;
-            break;
-        case 1: /* enemy */
-            for (int i = sel_idx; i < room->enemy_count - 1; i++)
-                room->enemies[i] = room->enemies[i + 1];
-            room->enemy_count--;
-            break;
-        case 2: room->has_miner = false; break;
-        case 3: room->has_player_start = false; break;
+    /* Enemies */
+    for (int i=0; i<room->enemy_count; i++) {
+        Enemy *e=&room->enemies[i]; int ec=tile_col(e->x), er=tile_row(e->y);
+        SDL_Color ec2=(sel_type==1&&sel_idx==i)?COL_SELECT:e->type==ENEMY_SPIDER?COL_SPIDER:e->type==ENEMY_SNAKE?COL_SNAKE:COL_ENEMY;
+        if (er>=0&&er<GRID_H&&ec>=0&&ec<GRID_W) {
+            SDL_Rect er2={ox+ec*cell_w,oy+er*cell_h,cell_w,cell_h};
+            SDL_SetRenderDrawColor(app->renderer,ec2.r,ec2.g,ec2.b,255);
+            SDL_RenderFillRect(app->renderer,&er2);
         }
-        sel_type = -1; sel_idx = -1;
-        app->modified = true;
+    }
+
+    /* Miner */
+    if (room->has_miner) {
+        int mc=tile_col(room->miner.x),mr=tile_row(room->miner.y);
+        SDL_Color mc2=sel_type==2?COL_SELECT:COL_MINER;
+        if (mr>=0&&mr<GRID_H&&mc>=0&&mc<GRID_W) {
+            SDL_Rect mr2={ox+mc*cell_w,oy+mr*cell_h,cell_w,cell_h};
+            SDL_SetRenderDrawColor(app->renderer,mc2.r,mc2.g,mc2.b,255);
+            SDL_RenderFillRect(app->renderer,&mr2);
+        }
+    }
+
+    /* Player start */
+    if (room->has_player_start) {
+        int pc=tile_col(room->player_start.x),pr=tile_row(room->player_start.y);
+        SDL_Color pc2=sel_type==3?COL_SELECT:COL_PLAYER;
+        if (pr>=0&&pr<GRID_H&&pc>=0&&pc<GRID_W) {
+            SDL_Rect pr2={ox+pc*cell_w,oy+pr*cell_h,cell_w,cell_h};
+            SDL_SetRenderDrawColor(app->renderer,pc2.r,pc2.g,pc2.b,255);
+            SDL_RenderFillRect(app->renderer,&pr2);
+        }
+    }
+
+    /* Grid lines */
+    SDL_SetRenderDrawColor(app->renderer,30,30,40,255);
+    for (int col=0; col<=GRID_W; col++) SDL_RenderDrawLine(app->renderer,ox+col*cell_w,oy,ox+col*cell_w,oy+th);
+    for (int r=0; r<=GRID_H; r++) SDL_RenderDrawLine(app->renderer,ox,oy+r*cell_h,ox+tw,oy+r*cell_h);
+
+    /* Tooltip */
+    if (ui_mouse_in_rect(ox,oy,tw,th)) {
+        int mx,my; ui_mouse_pos(&mx,&my);
+        int gc=(mx-ox)/cell_w, gr=(my-oy)/cell_h;
+        int vx=(gc*256/20)-128, vy=50-(gr*100/16);
+        char tip[32]; snprintf(tip,sizeof(tip),"(%d,%d) [%d,%d]",vx,vy,gc,gr);
+        ui_tooltip(tip);
+
+        if (ui_mouse_clicked() && app->room_tool != TOOL_SELECT) {
+            switch (app->room_tool) {
+            case TOOL_WALL: if (room->wall_count<MAX_WALLS) { room->walls[room->wall_count++]=(Wall){vy,vx,10,20,false}; app->modified=true; } break;
+            case TOOL_ENEMY_BAT: case TOOL_ENEMY_SPIDER: case TOOL_ENEMY_SNAKE:
+                if (room->enemy_count<MAX_ENEMIES) { room->enemies[room->enemy_count++]=(Enemy){vx,vy,1,app->room_tool-TOOL_ENEMY_BAT}; app->modified=true; } break;
+            case TOOL_MINER: room->miner=(Point){vx,vy}; room->has_miner=true; app->modified=true; break;
+            case TOOL_PLAYER_START: room->player_start=(Point){vx,vy}; room->has_player_start=true; app->modified=true; break;
+            default: break;
+            }
+        }
     }
 
     ui_panel_end();
