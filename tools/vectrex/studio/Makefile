@@ -4,7 +4,7 @@
 # Run:   ./vectrex-studio [hero.json]
 
 CC = cc
-SHARED = ../../../shared/ui
+SHARED = ../../shared
 
 SDL_CFLAGS  = $(shell sdl2-config --cflags)
 SDL_STATIC  = $(shell sdl2-config --static-libs) \

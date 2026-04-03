@@ -24,7 +24,7 @@ void draw_emu_panel(App *app, int x, int y, int w, int h) {
     if (ui_button(bx, tb.y, 50, bh, "Build")) {
         /* Run make in vectrex/ directory */
         char cmd[512];
-        snprintf(cmd, sizeof(cmd), "cd \"%s/../..\" && make 2>&1", SDL_GetBasePath());
+        snprintf(cmd, sizeof(cmd), "cd \"%s/../../../vectrex\" && make 2>&1", SDL_GetBasePath());
         FILE *fp = popen(cmd, "r");
         if (fp) {
             char buf[256];
@@ -48,7 +48,7 @@ void draw_emu_panel(App *app, int x, int y, int w, int h) {
             /* Find ROM and cart */
             char rom_path[512], cart_path[512];
             snprintf(rom_path, sizeof(rom_path), "%s/retro-tools/vectrec/roms/romfast.bin", getenv("HOME"));
-            snprintf(cart_path, sizeof(cart_path), "%s/../../bin/main.bin", SDL_GetBasePath());
+            snprintf(cart_path, sizeof(cart_path), "%s/../../../vectrex/bin/main.bin", SDL_GetBasePath());
 
             if (vemu_load(rom_path, cart_path)) {
                 app_log_info(app, "Emulator started");

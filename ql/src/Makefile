@@ -36,13 +36,13 @@ $(BUILD)/rescue.tos: $(C_OBJS) $(S_OBJS)
 	$(VLINK) $(VLINK_FLAGS) -o $@ $(BUILD)/crt0.o $(C_OBJS) $(BUILD)/ql_hw.o -lvc
 
 # Step 2: Convert to self-relocating QDOS binary
-TOS2QL = ../tools/tos2ql/tos2ql
+TOS2QL = ../../tools/ql/tos2ql/tos2ql
 
 $(TARGET): $(BUILD)/rescue.tos $(TOS2QL)
 	$(TOS2QL) $(BUILD)/rescue.tos $(TARGET)
 
 $(TOS2QL):
-	$(MAKE) -C ../tools/tos2ql
+	$(MAKE) -C ../../tools/ql/tos2ql
 
 # C → asm → obj (all go into build/)
 $(BUILD)/main.o: main.c game.h sprites.h ql_hw.h | $(BUILD)

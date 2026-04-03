@@ -6,6 +6,7 @@
 
 #include "hero.h"
 #include "sprites.h"
+#include "debug.h"
 
 #ifndef EDITOR_TEST
 #pragma vx_copyright "2026"
@@ -136,6 +137,8 @@ int main(void) {
 #endif
 
     while (TRUE) {
+        BREAK(1);
+
         wait_recal();
         intensity_a(INTENSITY_NORMAL);
         controller_check_buttons();
