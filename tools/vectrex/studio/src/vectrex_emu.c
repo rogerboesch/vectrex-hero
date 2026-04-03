@@ -3,9 +3,9 @@
  */
 
 #include "vectrex_emu.h"
-#include "ivec/vec2x.h"
-#include "ivec/e8910.h"
-#include "ivec/e6809.h"
+#include "../ivec/vec2x.h"
+#include "../ivec/e8910.h"
+#include "../ivec/e6809.h"
 #include <stdio.h>
 #include <string.h>
 
