@@ -420,6 +420,8 @@ void app_load_project(App *app, const char *path) {
     strncpy(app->project_path, path, sizeof(app->project_path) - 1);
     app->cur_level = 0;
     app->cur_room = proj->levels[0].room_count > 0 ? 0 : -1;
+    app->cur_sprite = 0;
+    app->cur_frame = 0;
     app->modified = false;
     app_log_info(app, "Loaded: %s (%d levels, %d sprites)", path, proj->level_count, proj->sprite_count);
 }
