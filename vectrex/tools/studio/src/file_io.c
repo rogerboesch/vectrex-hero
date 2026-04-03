@@ -317,6 +317,11 @@ void app_load_project(App *app, const char *path) {
                             if (*p == '}') p++;
                             lvl->room_count++;
                         }
+                        /* Skip any remaining rooms beyond MAX_ROOMS */
+                        while (*p && *p != ']') {
+                            if (*p == '{') p = skip_object(p);
+                            else p++;
+                        }
                         if (*p == ']') p++;
                     }
                 } else p = skip_value(p);
