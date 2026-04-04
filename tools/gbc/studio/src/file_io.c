@@ -10,8 +10,8 @@
 #include <stdlib.h>
 
 void app_new_project(App *app) {
-    app->tile_count = 0;
-    app->cur_tile = 0;
+    app->sprite_count = 0;
+    app->cur_sprite = 0;
     tilemap_project_init(&app->tmap);
     app->cur_level = 0;
     app->project_path[0] = 0;

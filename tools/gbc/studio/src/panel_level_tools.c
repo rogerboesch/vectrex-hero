@@ -80,7 +80,7 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
     }
 
     /* Entity type selector (when in sprite layer) */
-    if (app->layer_sprites) {
+    if ((app->sel_type == SEL_SPRITE)) {
         y = ui_section(c.x - 4, y, c.w + 8, "Entity Type");
         static const char *ent_names[] = {"Player", "Bat", "Spider", "Snake", "Miner"};
         int ebw = (c.w - 4) / 2;
@@ -89,7 +89,7 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
             int ex = c.x + col * (ebw + 4);
             int ey = y + row * (ui_line_height() + 6);
             if (ui_button(ex, ey, ebw, ui_line_height() + 4, ent_names[i]))
-                app->cur_entity_type = i;
+                app->cur_sprite = i;
         }
         y += ((ENT_TYPE_COUNT + 1) / 2) * (ui_line_height() + 6) + 4;
 

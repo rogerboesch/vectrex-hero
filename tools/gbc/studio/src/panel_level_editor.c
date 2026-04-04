@@ -20,27 +20,16 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     GBCPalette *pal = &app->tmap.bg_pals[0];
 
     /* Toolbar */
-    int bx = tb.x;
-    /* Layer toggle */
-    if (ui_button(bx, tb.y, 50, tb.h, app->layer_sprites ? "Sprites" : "Tiles")) {
-        app->layer_sprites = !app->layer_sprites;
-    }
-    bx += 54;
-
     char info[64];
-    if (app->layer_sprites) {
-        static const char *ent_names[] = {"Player","Bat","Spider","Snake","Miner"};
-        snprintf(info, sizeof(info), "%s  Entity: %s", lvl->name, ent_names[app->cur_entity_type]);
-    } else {
-        snprintf(info, sizeof(info), "%s  Tile:%d  Zoom:%d", lvl->name, app->cur_tset_tile, zoom);
-    }
-    ui_text_color(bx, tb.y + 2, info, ui_theme.text_dim);
+    const char *layer = (app->sel_type == SEL_SPRITE) ? "Sprite Layer" : "Tile Layer";
+    snprintf(info, sizeof(info), "%s  %s  Zoom:%d", lvl->name, layer, zoom);
+    ui_text_color(tb.x, tb.y + 2, info, ui_theme.text_dim);
 
     /* Zoom buttons */
-    bx = tb.x + tb.w - 100;
-    if (ui_button(bx, tb.y, 30, tb.h, "-")) { if (zoom > 1) zoom--; }
-    bx += 34;
-    if (ui_button(bx, tb.y, 30, tb.h, "+")) { if (zoom < 4) zoom++; }
+    int zbx = tb.x + tb.w - 100;
+    if (ui_button(zbx, tb.y, 30, tb.h, "-")) { if (zoom > 1) zoom--; }
+    zbx += 34;
+    if (ui_button(zbx, tb.y, 30, tb.h, "+")) { if (zoom < 4) zoom++; }
 
     /* Cell size in pixels */
     int cell = 8 * zoom;
@@ -158,7 +147,7 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
             snprintf(tip, sizeof(tip), "[%d,%d] tile:%d", tx, ty, lvl->tiles[ty][tx]);
             ui_tooltip(tip);
 
-            if (app->layer_sprites) {
+            if ((app->sel_type == SEL_SPRITE)) {
                 /* Sprite layer: click to place entity, right-click to select/delete */
                 if (ui_mouse_clicked()) {
                     /* Check if clicking existing entity */
@@ -169,7 +158,7 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                     if (hit >= 0) {
                         app->sel_entity = hit;
                     } else if (lvl->entity_count < MAX_ENTITIES) {
-                        lvl->entities[lvl->entity_count++] = (TilemapEntity){tx, ty, (uint8_t)app->cur_entity_type, 1};
+                        lvl->entities[lvl->entity_count++] = (TilemapEntity){tx, ty, (uint8_t)app->cur_sprite, 1};
                         app->sel_entity = lvl->entity_count - 1;
                         app->modified = true;
                     }
@@ -207,7 +196,7 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     }
 
     /* Delete selected entity with Delete key */
-    if (app->layer_sprites && app->sel_entity >= 0 &&
+    if ((app->sel_type == SEL_SPRITE) && app->sel_entity >= 0 &&
         (ui_key_pressed(SDLK_DELETE) || ui_key_pressed(SDLK_BACKSPACE))) {
         for (int j = app->sel_entity; j < lvl->entity_count - 1; j++)
             lvl->entities[j] = lvl->entities[j + 1];

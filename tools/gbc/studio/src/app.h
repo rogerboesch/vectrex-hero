@@ -9,11 +9,15 @@
 #include "tilemap.h"
 
 typedef enum {
-    VIEW_TILES,
-    VIEW_PALETTES,
     VIEW_LEVELS,
+    VIEW_EDITOR,
     VIEW_EMULATOR,
 } ViewMode;
+
+typedef enum {
+    SEL_TILE,     /* a tileset entry is selected */
+    SEL_SPRITE,   /* a sprite is selected */
+} SelectionType;
 
 typedef struct {
     SDL_Window *window;
@@ -23,25 +27,18 @@ typedef struct {
     ViewMode view;
 
     /* Sprite tiles (8x16 for OAM sprites) */
-    GBCTile tiles[MAX_TILES];
-    int tile_count;
-    int cur_tile;
+    GBCTile sprites[MAX_TILES];
+    int sprite_count;
     int cur_color;  /* 0-3 within current palette */
 
     /* Tilemap project */
     TilemapProject tmap;
     int cur_level;
-    int cur_tset_tile;     /* selected tileset entry */
-    int cur_entity_type;   /* selected entity type for placement */
+    int cur_tset_tile;     /* selected tileset entry index */
+    int cur_sprite;        /* selected sprite index */
+    SelectionType sel_type;/* what's currently selected */
     int scroll_x, scroll_y;
-    bool layer_sprites;    /* false=tile layer, true=sprite layer */
-    int sel_entity;        /* selected entity index, -1=none */
-    SDL_Texture *tset_texture;
-    bool tset_tex_dirty;
-
-    /* Palettes */
-    int cur_pal_type;  /* 0=bg, 1=spr */
-    int cur_pal_idx;
+    int sel_entity;        /* selected entity index in level, -1=none */
 
     /* Project */
     char project_path[512];
@@ -75,13 +72,11 @@ void app_export_c(App *app);
 void app_convert_levels(App *app, const char *hero_json_path);
 
 /* Panels */
-void draw_tile_list(App *app, int x, int y, int w, int h);
-void draw_tile_editor(App *app, int x, int y, int w, int h);
-void draw_tile_tools(App *app, int x, int y, int w, int h);
-void draw_palette_editor(App *app, int x, int y, int w, int h);
+void draw_asset_list(App *app, int x, int y, int w, int h);  /* tiles + sprites */
 void draw_level_editor(App *app, int x, int y, int w, int h);
-void draw_level_tileset(App *app, int x, int y, int w, int h);
 void draw_level_tools(App *app, int x, int y, int w, int h);
+void draw_pixel_editor(App *app, int x, int y, int w, int h);
+void draw_editor_tools(App *app, int x, int y, int w, int h);
 void draw_gbc_emulator(App *app, int x, int y, int w, int h);
 void draw_gcpu(App *app, int x, int y, int w, int h);
 void draw_gmem(App *app, int x, int y, int w, int h);

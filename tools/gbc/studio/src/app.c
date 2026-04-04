@@ -1,5 +1,5 @@
 /*
- * app.c — GBC Studio core
+ * app.c — GBC Studio core (3 tabs: Levels, Editor, Emulator)
  */
 
 #include "app.h"
@@ -38,27 +38,25 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->renderer = renderer;
     app->view = VIEW_LEVELS;
     app->cur_color = 3;
-    app->tset_tex_dirty = true;
     app->sel_entity = -1;
+    app->sel_type = SEL_TILE;
 
     tilemap_project_init(&app->tmap);
     load_default_sprites(app);
     app_log_info(app, "GBC Studio ready");
 }
 
-void app_cleanup(App *app) {
-    if (app->tset_texture) SDL_DestroyTexture(app->tset_texture);
-}
+void app_cleanup(App *app) { (void)app; }
 
 /* ── Default sprites ──────────────────────────────────────── */
 
-static void add_tile(App *app, const char *name, const uint8_t *data, int pal) {
-    if (app->tile_count >= MAX_TILES) return;
-    GBCTile *t = &app->tiles[app->tile_count];
+static void add_sprite(App *app, const char *name, const uint8_t *data, int pal) {
+    if (app->sprite_count >= MAX_TILES) return;
+    GBCTile *t = &app->sprites[app->sprite_count];
     strncpy(t->name, name, sizeof(t->name) - 1);
     memcpy(t->data, data, TILE_BYTES);
     t->palette = pal;
-    app->tile_count++;
+    app->sprite_count++;
 }
 
 static void load_default_sprites(App *app) {
@@ -77,9 +75,9 @@ static void load_default_sprites(App *app) {
         0x00,0x10, 0x00,0x7C, 0x00,0x7C, 0x00,0x7C, 0x00,0x30, 0x00,0x30,
         0x00,0x18, 0x00,0x18, 0x00,0x24, 0x00,0x24,
     };
-    add_tile(app, "player_r", spr_player_r, 0);
-    add_tile(app, "bat0",     spr_bat0,     1);
-    add_tile(app, "miner",    spr_miner,    3);
+    add_sprite(app, "player_r", spr_player_r, 0);
+    add_sprite(app, "bat0",     spr_bat0,     1);
+    add_sprite(app, "miner",    spr_miner,    3);
 }
 
 /* ── Tab bar ──────────────────────────────────────────────── */
@@ -90,11 +88,11 @@ static void draw_tab_bar(App *app) {
                            ui_theme.panel_title.b, 255);
     SDL_RenderFillRect(app->renderer, &bar);
 
-    const char *tabs[] = {"Tiles", "Palettes", "Levels", "Emulator"};
-    ViewMode modes[] = {VIEW_TILES, VIEW_PALETTES, VIEW_LEVELS, VIEW_EMULATOR};
+    const char *tabs[] = {"Levels", "Editor", "Emulator"};
+    ViewMode modes[] = {VIEW_LEVELS, VIEW_EDITOR, VIEW_EMULATOR};
     int tab_w = STYLE_TAB_W, pad = 4;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         int tx = pad + i * (tab_w + pad), ty = 3, th = STYLE_TAB_BAR_H - 6;
         bool active = (app->view == modes[i]);
         bool hover = ui_mouse_in_rect(tx, ty, tab_w, th);
@@ -134,18 +132,15 @@ void app_draw(App *app) {
     draw_console(app, 0, con_y, app->win_w, STYLE_CONSOLE_H);
 
     switch (app->view) {
-    case VIEW_TILES:
-        draw_tile_list(app, 0, top, lw, ch);
-        draw_tile_editor(app, cx, top, cw, ch);
-        draw_tile_tools(app, app->win_w - rw, top, rw, ch);
-        break;
-    case VIEW_PALETTES:
-        draw_palette_editor(app, 0, top, app->win_w, ch);
-        break;
     case VIEW_LEVELS:
-        draw_level_tileset(app, 0, top, lw, ch);
+        draw_asset_list(app, 0, top, lw, ch);
         draw_level_editor(app, cx, top, cw, ch);
         draw_level_tools(app, app->win_w - rw, top, rw, ch);
+        break;
+    case VIEW_EDITOR:
+        draw_asset_list(app, 0, top, lw, ch);
+        draw_pixel_editor(app, cx, top, cw, ch);
+        draw_editor_tools(app, app->win_w - rw, top, rw, ch);
         break;
     case VIEW_EMULATOR:
         draw_gbp(app, 0, top, lw, ch / 2);
