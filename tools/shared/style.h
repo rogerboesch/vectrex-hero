@@ -17,6 +17,6 @@
 
 #define STYLE_LEFT_PANEL_W    300
 #define STYLE_RIGHT_PANEL_W   300
-#define STYLE_CONSOLE_H       240
+#define STYLE_CONSOLE_H       120
 #define STYLE_TAB_BAR_H        36
 #define STYLE_TAB_W           140
