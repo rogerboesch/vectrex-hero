@@ -105,9 +105,9 @@
 // =========================================================================
 
 // 8 and 16 are GBC hardware sprite offsets
-// HUD_H accounts for window layer covering top 16px
+// HUD is at bottom (window layer), so no Y offset needed
 #define SPR_SCR_X(wpx) ((uint8_t)(8 + (int16_t)(wpx) - cam_x))
-#define SPR_SCR_Y(wpy) ((uint8_t)(16 + HUD_H + (int16_t)(wpy) - cam_y))
+#define SPR_SCR_Y(wpy) ((uint8_t)(16 + (int16_t)(wpy) - cam_y))
 
 // =========================================================================
 // Types

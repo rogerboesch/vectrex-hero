@@ -5,16 +5,10 @@
 #include "game.h"
 #include "tiles.h"
 
-// No window layer — HUD is baked into background tilemap rows 0-1
+// Window layer at bottom (WY=128) for HUD.
+// Background uses full 32x32 VRAM as scrolling ring buffer via SCX/SCY.
+// Only 1 new row/column written per tile scroll step.
 
-// =========================================================================
-// VRAM shadow maps (what's currently in the 32x32 VRAM tile maps)
-// =========================================================================
-
-static uint8_t tilemap[VRAM_MAP_H][VRAM_MAP_W];
-static uint8_t attrmap[VRAM_MAP_H][VRAM_MAP_W];
-
-// HUD tilemap (window layer, 20x2)
 static uint8_t hud_tiles[2][20];
 static uint8_t hud_attrs[2][20];
 
@@ -31,68 +25,54 @@ static uint8_t tile_palette(uint8_t tile_idx) {
 }
 
 // =========================================================================
-// Fill a column in the VRAM map from decode cache
+// Stream a single row into the VRAM ring buffer
 // =========================================================================
 
-static void stream_column(uint8_t level_col) {
-    uint8_t vram_col = level_col & (VRAM_MAP_W - 1);
-    uint8_t start_row = cam_ty;
-    uint8_t buf_tile[VRAM_MAP_H];
-    uint8_t buf_attr[VRAM_MAP_H];
-    uint8_t count = 0;
+static void stream_row(uint8_t level_row) {
+    uint8_t vr = level_row & (VRAM_MAP_H - 1);
+    uint8_t buf_tile[VRAM_MAP_W];
+    uint8_t buf_attr[VRAM_MAP_W];
+    uint8_t x;
 
-    for (uint8_t i = 0; i < PLAY_ROWS + 2 && start_row + i < level_h; i++) {
-        uint8_t lr = start_row + i;
-        uint8_t vr = lr & (VRAM_MAP_H - 1);
-        uint8_t t = tile_at(level_col, lr);
-        tilemap[vr][vram_col] = t;
-        attrmap[vr][vram_col] = tile_palette(t);
-        buf_tile[count] = t;
-        buf_attr[count] = tile_palette(t);
-        count++;
+    // Fill full 32-tile row (level tiles + solid padding)
+    for (x = 0; x < VRAM_MAP_W; x++) {
+        uint8_t lx = cam_tx + x;
+        uint8_t t;
+        if (lx < level_w && level_row < level_h)
+            t = tile_at(lx, level_row);
+        else
+            t = 1;
+        buf_tile[x] = t;
+        buf_attr[x] = tile_palette(t);
     }
-
-    // Upload column to VRAM tile by tile
-    for (uint8_t i = 0; i < count; i++) {
-        uint8_t lr = start_row + i;
-        uint8_t vr = lr & (VRAM_MAP_H - 1);
-        VBK_REG = 0;
-        set_bkg_tiles(vram_col, vr, 1, 1, &buf_tile[i]);
-        VBK_REG = 1;
-        set_bkg_tiles(vram_col, vr, 1, 1, &buf_attr[i]);
-    }
+    VBK_REG = 0;
+    set_bkg_tiles(0, vr, VRAM_MAP_W, 1, buf_tile);
+    VBK_REG = 1;
+    set_bkg_tiles(0, vr, VRAM_MAP_W, 1, buf_attr);
     VBK_REG = 0;
 }
 
 // =========================================================================
-// Fill a row in the VRAM map from decode cache
+// Stream a single column into the VRAM ring buffer
 // =========================================================================
 
-static void stream_row(uint8_t level_row) {
-    uint8_t vram_row = level_row & (VRAM_MAP_H - 1);
-    uint8_t start_col = cam_tx;
-    uint8_t buf_tile[VRAM_MAP_W];
-    uint8_t buf_attr[VRAM_MAP_W];
-    uint8_t count = 0;
+static void stream_column(uint8_t level_col) {
+    uint8_t vc = level_col & (VRAM_MAP_W - 1);
+    uint8_t y;
+    uint8_t t;
 
-    for (uint8_t i = 0; i < PLAY_COLS + 2 && start_col + i < level_w; i++) {
-        uint8_t lc = start_col + i;
-        uint8_t vc = lc & (VRAM_MAP_W - 1);
-        uint8_t t = tile_at(lc, level_row);
-        tilemap[vram_row][vc] = t;
-        attrmap[vram_row][vc] = tile_palette(t);
-        buf_tile[count] = t;
-        buf_attr[count] = tile_palette(t);
-        count++;
-    }
-
-    for (uint8_t i = 0; i < count; i++) {
-        uint8_t lc = start_col + i;
-        uint8_t vc = lc & (VRAM_MAP_W - 1);
+    for (y = 0; y < PLAY_ROWS + 2; y++) {
+        uint8_t ly = cam_ty + y;
+        uint8_t vr = ly & (VRAM_MAP_H - 1);
+        if (level_col < level_w && ly < level_h)
+            t = tile_at(level_col, ly);
+        else
+            t = 1;
         VBK_REG = 0;
-        set_bkg_tiles(vc, vram_row, 1, 1, &buf_tile[i]);
+        set_bkg_tiles(vc, vr, 1, 1, &t);
+        uint8_t a = tile_palette(t);
         VBK_REG = 1;
-        set_bkg_tiles(vc, vram_row, 1, 1, &buf_attr[i]);
+        set_bkg_tiles(vc, vr, 1, 1, &a);
     }
     VBK_REG = 0;
 }
@@ -111,44 +91,48 @@ void render_init_level(void) {
     int16_t max_cy = (int16_t)level_h * 8 - PLAY_H;
     if (cam_x < 0) cam_x = 0;
     if (cam_y < 0) cam_y = 0;
+    if (max_cx < 0) max_cx = 0;
+    if (max_cy < 0) max_cy = 0;
     if (cam_x > max_cx) cam_x = max_cx;
     if (cam_y > max_cy) cam_y = max_cy;
 
     cam_tx = (uint8_t)(cam_x >> 3);
     cam_ty = (uint8_t)(cam_y >> 3);
 
-    // Simple approach: rows 0-1 = HUD, rows 2-17 = level tiles
-    // Fill 18 rows (20 cols) into a flat buffer and upload
+    // Fill all 32 VRAM rows with level tile data (ring buffer)
     {
-        uint8_t row_tiles[20];
-        uint8_t row_attrs[20];
-        uint8_t r, c;
-
-        // Rows 2-17: level tiles
-        for (r = 0; r < 16; r++) {
-            uint8_t ly = cam_ty + r;
-            for (c = 0; c < 20; c++) {
-                uint8_t lx = cam_tx + c;
+        uint8_t buf_tile[VRAM_MAP_W];
+        uint8_t buf_attr[VRAM_MAP_W];
+        uint8_t y, x;
+        for (y = 0; y < VRAM_MAP_H; y++) {
+            uint8_t ly = cam_ty + y;
+            for (x = 0; x < VRAM_MAP_W; x++) {
+                uint8_t lx = cam_tx + x;
                 uint8_t t;
                 if (lx < level_w && ly < level_h)
                     t = tile_at(lx, ly);
                 else
                     t = 1;
-                row_tiles[c] = t;
-                row_attrs[c] = tile_palette(t);
+                buf_tile[x] = t;
+                buf_attr[x] = tile_palette(t);
             }
+            uint8_t vr = ly & (VRAM_MAP_H - 1);
             VBK_REG = 0;
-            set_bkg_tiles(0, r + HUD_ROWS, 20, 1, row_tiles);
+            set_bkg_tiles(0, vr, VRAM_MAP_W, 1, buf_tile);
             VBK_REG = 1;
-            set_bkg_tiles(0, r + HUD_ROWS, 20, 1, row_attrs);
+            set_bkg_tiles(0, vr, VRAM_MAP_W, 1, buf_attr);
         }
         VBK_REG = 0;
     }
 
-    SCX_REG = 0;
-    SCY_REG = 0;
+    // Scroll registers: pixel offset into the ring buffer
+    SCX_REG = (cam_tx * 8) & 0xFF;
+    SCY_REG = (cam_ty * 8) & 0xFF;
 
-    // Build HUD into background rows 0-1
+    // Window at bottom for HUD (2 rows = 16 pixels)
+    move_win(7, PLAY_H);  // WY = 128, WX = 7
+    SHOW_WIN;
+
     render_update_hud();
 }
 
@@ -176,36 +160,31 @@ void render_update_camera(void) {
     uint8_t new_tx = (uint8_t)(cam_x >> 3);
     uint8_t new_ty = (uint8_t)(cam_y >> 3);
 
-    // If camera tile position changed, re-render the playfield
-    if (new_tx != cam_tx || new_ty != cam_ty) {
-        cam_tx = new_tx;
-        cam_ty = new_ty;
-        uint8_t row_tiles[20];
-        uint8_t row_attrs[20];
-        uint8_t r, c;
-        for (r = 0; r < 16; r++) {
-            uint8_t ly = cam_ty + r;
-            for (c = 0; c < 20; c++) {
-                uint8_t lx = cam_tx + c;
-                uint8_t t;
-                if (lx < level_w && ly < level_h)
-                    t = tile_at(lx, ly);
-                else
-                    t = 1;
-                row_tiles[c] = t;
-                row_attrs[c] = tile_palette(t);
-            }
-            VBK_REG = 0;
-            set_bkg_tiles(0, r + HUD_ROWS, 20, 1, row_tiles);
-            VBK_REG = 1;
-            set_bkg_tiles(0, r + HUD_ROWS, 20, 1, row_attrs);
+    // Stream new rows when camera moves vertically (1 row per step)
+    while (cam_ty != new_ty) {
+        if (new_ty > cam_ty) {
+            cam_ty++;
+            stream_row(cam_ty + PLAY_ROWS);  // new row below viewport
+        } else {
+            cam_ty--;
+            stream_row(cam_ty);  // new row above viewport
         }
-        VBK_REG = 0;
     }
 
-    // Sub-tile scroll: use SCX/SCY for pixel-level offset within tiles
-    SCX_REG = cam_x & 7;
-    SCY_REG = cam_y & 7;
+    // Stream new columns when camera moves horizontally
+    while (cam_tx != new_tx) {
+        if (new_tx > cam_tx) {
+            cam_tx++;
+            stream_column(cam_tx + PLAY_COLS);  // new col right of viewport
+        } else {
+            cam_tx--;
+            stream_column(cam_tx);  // new col left of viewport
+        }
+    }
+
+    // Pixel-level scroll
+    SCX_REG = cam_x & 0xFF;
+    SCY_REG = cam_y & 0xFF;
 }
 
 // =========================================================================
@@ -215,12 +194,12 @@ void render_update_camera(void) {
 void render_clear_tile(uint8_t tx, uint8_t ty) {
     uint8_t vx = tx & (VRAM_MAP_W - 1);
     uint8_t vy = ty & (VRAM_MAP_H - 1);
-    tilemap[vy][vx] = 0;
-    attrmap[vy][vx] = PAL_BG_EMPTY;
+    uint8_t empty = TILE_EMPTY;
+    uint8_t attr = PAL_BG_EMPTY;
     VBK_REG = 0;
-    set_bkg_tiles(vx, vy, 1, 1, &tilemap[vy][vx]);
+    set_bkg_tiles(vx, vy, 1, 1, &empty);
     VBK_REG = 1;
-    set_bkg_tiles(vx, vy, 1, 1, &attrmap[vy][vx]);
+    set_bkg_tiles(vx, vy, 1, 1, &attr);
     VBK_REG = 0;
 }
 
@@ -281,13 +260,13 @@ void render_update_hud(void) {
         }
     }
 
-    // Upload to background rows 0-1
+    // Upload to window layer (bottom of screen)
     VBK_REG = 0;
-    set_bkg_tiles(0, 0, 20, 1, &hud_tiles[0][0]);
-    set_bkg_tiles(0, 1, 20, 1, &hud_tiles[1][0]);
+    set_win_tiles(0, 0, 20, 1, &hud_tiles[0][0]);
+    set_win_tiles(0, 1, 20, 1, &hud_tiles[1][0]);
     VBK_REG = 1;
-    set_bkg_tiles(0, 0, 20, 1, &hud_attrs[0][0]);
-    set_bkg_tiles(0, 1, 20, 1, &hud_attrs[1][0]);
+    set_win_tiles(0, 0, 20, 1, &hud_attrs[0][0]);
+    set_win_tiles(0, 1, 20, 1, &hud_attrs[1][0]);
     VBK_REG = 0;
 }
 
@@ -454,13 +433,17 @@ static uint8_t char_to_tile(char ch) {
     }
 }
 
+// Screen buffers for title/message screens (20 wide, 18 rows)
+static uint8_t scr_tiles[18][20];
+static uint8_t scr_attrs[18][20];
+
 static void draw_text_row(uint8_t row, const char *text, uint8_t pal) {
     uint8_t i = 0, c;
     while (text[i]) i++;
     c = (20 - i) / 2;
     for (i = 0; text[i] && c < 20; i++, c++) {
-        tilemap[row][c] = char_to_tile(text[i]);
-        attrmap[row][c] = pal;
+        scr_tiles[row][c] = char_to_tile(text[i]);
+        scr_attrs[row][c] = pal;
     }
 }
 
@@ -468,20 +451,21 @@ static void clear_screen_tiles(void) {
     uint8_t r, c;
     for (r = 0; r < 18; r++)
         for (c = 0; c < 20; c++) {
-            tilemap[r][c] = TILE_EMPTY;
-            attrmap[r][c] = PAL_BG_EMPTY;
+            scr_tiles[r][c] = TILE_EMPTY;
+            scr_attrs[r][c] = PAL_BG_EMPTY;
         }
 }
 
 static void upload_full_screen(void) {
     uint8_t r;
+    HIDE_WIN;
     SCX_REG = 0;
     SCY_REG = 0;
     for (r = 0; r < 18; r++) {
         VBK_REG = 0;
-        set_bkg_tiles(0, r, 20, 1, &tilemap[r][0]);
+        set_bkg_tiles(0, r, 20, 1, &scr_tiles[r][0]);
         VBK_REG = 1;
-        set_bkg_tiles(0, r, 20, 1, &attrmap[r][0]);
+        set_bkg_tiles(0, r, 20, 1, &scr_attrs[r][0]);
     }
     VBK_REG = 0;
 }
@@ -499,10 +483,10 @@ void render_title(void) {
 
     // Decorative bars
     for (c = 0; c < 20; c++) {
-        tilemap[3][c] = TILE_WALL + 0x0F;
-        tilemap[14][c] = TILE_WALL + 0x0F;
-        attrmap[3][c] = PAL_BG_CAVE;
-        attrmap[14][c] = PAL_BG_CAVE;
+        scr_tiles[3][c] = TILE_WALL + 0x0F;
+        scr_tiles[14][c] = TILE_WALL + 0x0F;
+        scr_attrs[3][c] = PAL_BG_CAVE;
+        scr_attrs[14][c] = PAL_BG_CAVE;
     }
 
     draw_text_row(7, "R.E.S.C.U.E.", PAL_BG_DWALL);
@@ -524,10 +508,10 @@ void render_msg(const char *line1, const char *line2) {
 
     // Decorative bars
     for (c = 0; c < 20; c++) {
-        tilemap[5][c] = TILE_WALL + 0x0A;
-        tilemap[12][c] = TILE_WALL + 0x0A;
-        attrmap[5][c] = PAL_BG_CAVE;
-        attrmap[12][c] = PAL_BG_CAVE;
+        scr_tiles[5][c] = TILE_WALL + 0x0A;
+        scr_tiles[12][c] = TILE_WALL + 0x0A;
+        scr_attrs[5][c] = PAL_BG_CAVE;
+        scr_attrs[12][c] = PAL_BG_CAVE;
     }
 
     draw_text_row(8, line1, PAL_BG_DWALL);
