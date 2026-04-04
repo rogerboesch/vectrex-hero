@@ -27,8 +27,55 @@ void app_load_project(App *app, const char *path) {
 void app_save_project(App *app, const char *path) {
     if (path) strncpy(app->project_path, path, sizeof(app->project_path) - 1);
     if (!app->project_path[0]) { app_save_project_as(app); return; }
-    /* TODO: JSON save for tilemap project */
-    app_log_info(app, "Save not yet implemented");
+
+    FILE *f = fopen(app->project_path, "w");
+    if (!f) { app_log_err(app, "Cannot write %s", app->project_path); return; }
+
+    fprintf(f, "{\n");
+
+    /* Tileset */
+    fprintf(f, "  \"tileset\": [\n");
+    for (int i = 0; i < app->tmap.tileset.used_count; i++) {
+        fprintf(f, "    [");
+        for (int j = 0; j < 16; j++)
+            fprintf(f, "%d%s", app->tmap.tileset.entries[i].data[j], j < 15 ? "," : "");
+        fprintf(f, "]%s\n", i < app->tmap.tileset.used_count - 1 ? "," : "");
+    }
+    fprintf(f, "  ],\n");
+
+    /* Levels */
+    fprintf(f, "  \"levels\": [\n");
+    for (int li = 0; li < app->tmap.level_count; li++) {
+        TilemapLevel *lvl = &app->tmap.levels[li];
+        fprintf(f, "    {\n");
+        fprintf(f, "      \"name\": \"%s\",\n", lvl->name);
+        fprintf(f, "      \"width\": %d,\n", lvl->width);
+        fprintf(f, "      \"height\": %d,\n", lvl->height);
+        /* Tiles as rows of comma-separated indices */
+        fprintf(f, "      \"tiles\": [\n");
+        for (int y = 0; y < lvl->height; y++) {
+            fprintf(f, "        [");
+            for (int x = 0; x < lvl->width; x++)
+                fprintf(f, "%d%s", lvl->tiles[y][x], x < lvl->width - 1 ? "," : "");
+            fprintf(f, "]%s\n", y < lvl->height - 1 ? "," : "");
+        }
+        fprintf(f, "      ],\n");
+        /* Entities */
+        fprintf(f, "      \"entities\": [\n");
+        for (int i = 0; i < lvl->entity_count; i++) {
+            TilemapEntity *e = &lvl->entities[i];
+            fprintf(f, "        {\"x\":%d,\"y\":%d,\"type\":%d,\"vx\":%d}%s\n",
+                    e->x, e->y, e->type, e->vx, i < lvl->entity_count - 1 ? "," : "");
+        }
+        fprintf(f, "      ]\n");
+        fprintf(f, "    }%s\n", li < app->tmap.level_count - 1 ? "," : "");
+    }
+    fprintf(f, "  ]\n");
+
+    fprintf(f, "}\n");
+    fclose(f);
+    app->modified = false;
+    app_log_info(app, "Saved: %s (%d levels)", app->project_path, app->tmap.level_count);
 }
 
 void app_open_project(App *app) {

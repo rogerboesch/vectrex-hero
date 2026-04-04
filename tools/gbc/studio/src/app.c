@@ -39,6 +39,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->view = VIEW_LEVELS;
     app->cur_color = 3;
     app->tset_tex_dirty = true;
+    app->sel_entity = -1;
 
     tilemap_project_init(&app->tmap);
     load_default_sprites(app);

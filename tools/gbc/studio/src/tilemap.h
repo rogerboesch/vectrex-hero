@@ -35,11 +35,29 @@ static inline void tset_set_pixel(TilesetEntry *t, int x, int y, uint8_t color) 
     t->data[y * 2 + 1] = (t->data[y * 2 + 1] & mask) | (((color >> 1) & 1) << bit);
 }
 
+/* Entity types for sprite layer */
+#define ENT_PLAYER_START 0
+#define ENT_BAT          1
+#define ENT_SPIDER       2
+#define ENT_SNAKE        3
+#define ENT_MINER        4
+#define ENT_TYPE_COUNT   5
+
+#define MAX_ENTITIES     64
+
+typedef struct {
+    int x, y;       /* tile position */
+    uint8_t type;   /* ENT_* */
+    int8_t vx;      /* velocity for enemies */
+} TilemapEntity;
+
 /* A tilemap level */
 typedef struct {
     char name[32];
     int width, height;  /* actual used size (up to 256x256) */
     uint8_t tiles[TMAP_MAX_H][TMAP_MAX_W];  /* tile indices into tileset */
+    TilemapEntity entities[MAX_ENTITIES];
+    int entity_count;
 } TilemapLevel;
 
 /* The complete tileset */

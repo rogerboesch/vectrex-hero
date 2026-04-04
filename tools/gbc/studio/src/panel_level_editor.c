@@ -20,12 +20,24 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     GBCPalette *pal = &app->tmap.bg_pals[0];
 
     /* Toolbar */
-    char info[64];
-    snprintf(info, sizeof(info), "%s %dx%d  Tile:%d  Zoom:%d", lvl->name, lvl->width, lvl->height, app->cur_tset_tile, zoom);
-    ui_text_color(tb.x, tb.y + 2, info, ui_theme.text_dim);
+    int bx = tb.x;
+    /* Layer toggle */
+    if (ui_button(bx, tb.y, 50, tb.h, app->layer_sprites ? "Sprites" : "Tiles")) {
+        app->layer_sprites = !app->layer_sprites;
+    }
+    bx += 54;
 
-    /* Zoom buttons in toolbar */
-    int bx = tb.x + tb.w - 100;
+    char info[64];
+    if (app->layer_sprites) {
+        static const char *ent_names[] = {"Player","Bat","Spider","Snake","Miner"};
+        snprintf(info, sizeof(info), "%s  Entity: %s", lvl->name, ent_names[app->cur_entity_type]);
+    } else {
+        snprintf(info, sizeof(info), "%s  Tile:%d  Zoom:%d", lvl->name, app->cur_tset_tile, zoom);
+    }
+    ui_text_color(bx, tb.y + 2, info, ui_theme.text_dim);
+
+    /* Zoom buttons */
+    bx = tb.x + tb.w - 100;
     if (ui_button(bx, tb.y, 30, tb.h, "-")) { if (zoom > 1) zoom--; }
     bx += 34;
     if (ui_button(bx, tb.y, 30, tb.h, "+")) { if (zoom < 4) zoom++; }
@@ -107,6 +119,34 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
             SDL_RenderDrawLine(app->renderer, ox, oy + ty * cell, ox + draw_w, oy + ty * cell);
     }
 
+    /* Draw entities (sprite layer) on top */
+    {
+        static const SDL_Color ent_colors[] = {
+            {65, 250, 65, 255},   /* player — green */
+            {250, 65, 30, 255},   /* bat — red */
+            {210, 50, 210, 255},  /* spider — magenta */
+            {50, 200, 50, 255},   /* snake — green-dark */
+            {0, 200, 200, 255},   /* miner — cyan */
+        };
+        static const char *ent_labels[] = {"P", "B", "S", "N", "M"};
+
+        for (int i = 0; i < lvl->entity_count; i++) {
+            TilemapEntity *e = &lvl->entities[i];
+            int ex = e->x - app->scroll_x, ey = e->y - app->scroll_y;
+            if (ex < 0 || ex >= vis_w || ey < 0 || ey >= vis_h) continue;
+            int dx = ox + ex * cell, dy = oy + ey * cell;
+
+            SDL_Color ec = (app->sel_entity == i) ? (SDL_Color){255,255,0,255} : ent_colors[e->type % ENT_TYPE_COUNT];
+            SDL_SetRenderDrawColor(app->renderer, ec.r, ec.g, ec.b, 255);
+            SDL_Rect er = {dx + 2, dy + 2, cell - 4, cell - 4};
+            SDL_RenderFillRect(app->renderer, &er);
+
+            /* Label */
+            if (zoom >= 2)
+                ui_text_small(dx + 2, dy + 1, ent_labels[e->type % ENT_TYPE_COUNT]);
+        }
+    }
+
     /* Mouse interaction */
     if (ui_mouse_in_rect(ox, oy, draw_w, draw_h)) {
         int mx, my; ui_mouse_pos(&mx, &my);
@@ -118,14 +158,62 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
             snprintf(tip, sizeof(tip), "[%d,%d] tile:%d", tx, ty, lvl->tiles[ty][tx]);
             ui_tooltip(tip);
 
-            if (ui_mouse_down()) {
-                lvl->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
-                app->modified = true;
-            }
-            if (ui_mouse_right_clicked()) {
-                app->cur_tset_tile = lvl->tiles[ty][tx];
+            if (app->layer_sprites) {
+                /* Sprite layer: click to place entity, right-click to select/delete */
+                if (ui_mouse_clicked()) {
+                    /* Check if clicking existing entity */
+                    int hit = -1;
+                    for (int i = 0; i < lvl->entity_count; i++) {
+                        if (lvl->entities[i].x == tx && lvl->entities[i].y == ty) { hit = i; break; }
+                    }
+                    if (hit >= 0) {
+                        app->sel_entity = hit;
+                    } else if (lvl->entity_count < MAX_ENTITIES) {
+                        lvl->entities[lvl->entity_count++] = (TilemapEntity){tx, ty, (uint8_t)app->cur_entity_type, 1};
+                        app->sel_entity = lvl->entity_count - 1;
+                        app->modified = true;
+                    }
+                }
+                if (ui_mouse_right_clicked()) {
+                    /* Delete entity at this position */
+                    for (int i = 0; i < lvl->entity_count; i++) {
+                        if (lvl->entities[i].x == tx && lvl->entities[i].y == ty) {
+                            for (int j = i; j < lvl->entity_count - 1; j++)
+                                lvl->entities[j] = lvl->entities[j + 1];
+                            lvl->entity_count--;
+                            app->sel_entity = -1;
+                            app->modified = true;
+                            break;
+                        }
+                    }
+                }
+                /* Drag selected entity */
+                if (app->sel_entity >= 0 && ui_mouse_down()) {
+                    lvl->entities[app->sel_entity].x = tx;
+                    lvl->entities[app->sel_entity].y = ty;
+                    app->modified = true;
+                }
+            } else {
+                /* Tile layer */
+                if (ui_mouse_down()) {
+                    lvl->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
+                    app->modified = true;
+                }
+                if (ui_mouse_right_clicked()) {
+                    app->cur_tset_tile = lvl->tiles[ty][tx];
+                }
             }
         }
+    }
+
+    /* Delete selected entity with Delete key */
+    if (app->layer_sprites && app->sel_entity >= 0 &&
+        (ui_key_pressed(SDLK_DELETE) || ui_key_pressed(SDLK_BACKSPACE))) {
+        for (int j = app->sel_entity; j < lvl->entity_count - 1; j++)
+            lvl->entities[j] = lvl->entities[j + 1];
+        lvl->entity_count--;
+        app->sel_entity = -1;
+        app->modified = true;
     }
 
     /* Scroll bar indicator */

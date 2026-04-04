@@ -31,9 +31,12 @@ typedef struct {
     /* Tilemap project */
     TilemapProject tmap;
     int cur_level;
-    int cur_tset_tile;  /* selected tileset entry */
-    int scroll_x, scroll_y;  /* tilemap canvas scroll */
-    SDL_Texture *tset_texture;  /* tileset preview texture */
+    int cur_tset_tile;     /* selected tileset entry */
+    int cur_entity_type;   /* selected entity type for placement */
+    int scroll_x, scroll_y;
+    bool layer_sprites;    /* false=tile layer, true=sprite layer */
+    int sel_entity;        /* selected entity index, -1=none */
+    SDL_Texture *tset_texture;
     bool tset_tex_dirty;
 
     /* Palettes */

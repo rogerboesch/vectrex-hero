@@ -79,20 +79,51 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
         y += ui_line_height() + 12;
     }
 
+    /* Entity type selector (when in sprite layer) */
+    if (app->layer_sprites) {
+        y = ui_section(c.x - 4, y, c.w + 8, "Entity Type");
+        static const char *ent_names[] = {"Player", "Bat", "Spider", "Snake", "Miner"};
+        int ebw = (c.w - 4) / 2;
+        for (int i = 0; i < ENT_TYPE_COUNT; i++) {
+            int col = i % 2, row = i / 2;
+            int ex = c.x + col * (ebw + 4);
+            int ey = y + row * (ui_line_height() + 6);
+            if (ui_button(ex, ey, ebw, ui_line_height() + 4, ent_names[i]))
+                app->cur_entity_type = i;
+        }
+        y += ((ENT_TYPE_COUNT + 1) / 2) * (ui_line_height() + 6) + 4;
+
+        /* Entity info */
+        if (lvl) {
+            snprintf(label, sizeof(label), "Entities: %d / %d", lvl->entity_count, MAX_ENTITIES);
+            ui_text_color(c.x, y, label, ui_theme.text_dim);
+            y += ui_line_height() + 4;
+        }
+        ui_text_small(c.x, y, "Click: place entity");
+        y += ui_line_height();
+        ui_text_small(c.x, y, "Right-click: delete");
+        y += ui_line_height();
+        ui_text_small(c.x, y, "Drag: move entity");
+        y += ui_line_height() + 8;
+    }
+
     /* Actions */
     y = ui_section(c.x - 4, y, c.w + 8, "Actions");
     bw = (c.w - 4) / 2;
     if (ui_button(c.x, y, bw, ui_line_height() + 4, "Clear")) {
-        if (lvl) { memset(lvl->tiles, 0, sizeof(lvl->tiles)); app->modified = true; }
+        if (lvl) {
+            memset(lvl->tiles, 0, sizeof(lvl->tiles));
+            lvl->entity_count = 0;
+            app->modified = true;
+        }
     }
     y += ui_line_height() + 8;
 
     /* Scroll info */
-    y = ui_section(c.x - 4, y, c.w + 8, "Scroll");
-    snprintf(label, sizeof(label), "X: %d  Y: %d", app->scroll_x, app->scroll_y);
+    snprintf(label, sizeof(label), "Scroll: %d,%d", app->scroll_x, app->scroll_y);
     ui_text_color(c.x, y, label, ui_theme.text_dim);
     y += ui_line_height() + 4;
-    ui_text_small(c.x, y, "Arrow keys to scroll");
+    ui_text_small(c.x, y, "WASD/Arrows to scroll");
 
     ui_panel_end();
 }
