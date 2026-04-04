@@ -1,59 +1,84 @@
 //
-// enemies.c — Enemy AI, laser, dynamite, miner rescue (GBC port)
+// enemies.c — Enemy AI, laser, dynamite, miner rescue (tilemap version)
 //
 
 #include "game.h"
 
+// =========================================================================
+// Laser
+// =========================================================================
+
 void fire_laser(void) {
     if (laser_active) return;
     laser_active = 1;
-    laser_x = player_x;
-    laser_y = player_y;
+    laser_px = player_px;
+    laser_py = player_py;
     laser_dir = player_facing;
     laser_timer = LASER_LIFETIME;
 }
 
 void update_laser(void) {
     uint8_t i;
-    int8_t lx_end, lx_min, lx_max;
+    int16_t lx_end, lx_min, lx_max;
     int8_t ehw, ehh;
     if (!laser_active) return;
 
     laser_timer--;
     if (laser_timer == 0) { laser_active = 0; return; }
 
-    lx_end = laser_x + (laser_dir * LASER_LENGTH);
-    if (laser_dir > 0) { lx_min = laser_x; lx_max = lx_end; }
-    else { lx_min = lx_end; lx_max = laser_x; }
+    lx_end = laser_px + (int16_t)(laser_dir * LASER_LENGTH);
+    if (laser_dir > 0) { lx_min = laser_px; lx_max = lx_end; }
+    else { lx_min = lx_end; lx_max = laser_px; }
 
-    for (i = 0; i < enemy_count; i++) {
-        if (!enemies[i].alive) continue;
-        if (enemies[i].type == ENEMY_SPIDER) { ehw = SPIDER_HW; ehh = SPIDER_HH; }
-        else if (enemies[i].type == ENEMY_SNAKE) { ehw = SNAKE_HW; ehh = SNAKE_HH; }
+    // Check laser vs tile collision (stop at walls)
+    {
+        int16_t check_x;
+        int8_t step = (laser_dir > 0) ? 8 : -8;
+        for (check_x = laser_px; ; check_x += step) {
+            if (laser_dir > 0 && check_x > lx_max) break;
+            if (laser_dir < 0 && check_x < lx_min) break;
+            if (tile_solid((uint8_t)(check_x >> 3), (uint8_t)(laser_py >> 3))) {
+                // Hit a wall — shorten laser
+                if (laser_dir > 0) lx_max = check_x;
+                else lx_min = check_x;
+                break;
+            }
+        }
+    }
+
+    for (i = 0; i < active_enemy_count; i++) {
+        if (!active_enemies[i].alive) continue;
+        ActiveEnemy *ae = &active_enemies[i];
+        if (ae->type == ENEMY_SPIDER) { ehw = SPIDER_HW; ehh = SPIDER_HH; }
+        else if (ae->type == ENEMY_SNAKE) { ehw = SNAKE_HW; ehh = SNAKE_HH; }
         else { ehw = BAT_HW; ehh = BAT_HH; }
-        if (enemies[i].x + ehw >= lx_min &&
-            enemies[i].x - ehw <= lx_max &&
-            enemies[i].y + ehh >= laser_y - 3 &&
-            enemies[i].y - ehh <= laser_y + 3) {
-            enemies[i].alive = 0;
+        if (ae->px + ehw >= lx_min &&
+            ae->px - ehw <= lx_max &&
+            ae->py + ehh >= laser_py - 3 &&
+            ae->py - ehh <= laser_py + 3) {
+            ae->alive = 0;
+            level_entities[ae->ent_idx].alive = 0;
             score += 50;
         }
     }
 }
+
+// =========================================================================
+// Dynamite
+// =========================================================================
 
 void place_dynamite(void) {
     if (dyn_active || dyn_exploding) return;
     if (player_dynamite == 0) return;
     player_dynamite--;
     dyn_active = 1;
-    dyn_x = player_x;
-    dyn_y = player_y - PLAYER_HH + 4;
+    dyn_px = player_px;
+    dyn_py = player_py + PLAYER_HH - 4;
     dyn_timer = DYNAMITE_FUSE;
 }
 
 void update_dynamite(void) {
     uint8_t i;
-    int8_t wcx, wcy;
     int8_t ehw, ehh;
 
     if (dyn_active && !dyn_exploding) {
@@ -69,32 +94,48 @@ void update_dynamite(void) {
         dyn_expl_timer--;
 
         if (dyn_expl_timer == EXPLOSION_TIME - 1) {
-            for (i = 0; i < cur_wall_count; i++) {
-                if (walls_destroyed & (1 << i)) continue;
-                wcx = wall_x(i) + (wall_w(i) / 2);
-                wcy = wall_y(i);
-                if (box_overlap(dyn_x, dyn_y, EXPLOSION_RADIUS, EXPLOSION_RADIUS,
-                                wcx, wcy, wall_w(i) / 2, wall_h(i))) {
-                    walls_destroyed |= (uint8_t)(1 << i);
-                    score += 75;
-                    render_destroy_wall(i);
+            // Destroy tiles in explosion radius
+            {
+                uint8_t ctx = (uint8_t)(dyn_px >> 3);
+                uint8_t cty = (uint8_t)(dyn_py >> 3);
+                int8_t radius_tiles = (EXPLOSION_RADIUS >> 3) + 1;
+                int8_t dy2, dx2;
+                for (dy2 = -radius_tiles; dy2 <= radius_tiles; dy2++) {
+                    for (dx2 = -radius_tiles; dx2 <= radius_tiles; dx2++) {
+                        uint8_t ttx = ctx + dx2;
+                        uint8_t tty = cty + dy2;
+                        if (ttx < level_w && tty < level_h) {
+                            uint8_t t = tile_at(ttx, tty);
+                            // Destroy non-empty tiles near explosion
+                            if (t != 0) {
+                                // Update decode cache
+                                decode_cache[tty & (DECODE_ROWS - 1)][ttx] = 0;
+                                render_clear_tile(ttx, tty);
+                                score += 10;
+                            }
+                        }
+                    }
                 }
             }
 
-            for (i = 0; i < enemy_count; i++) {
-                if (!enemies[i].alive) continue;
-                if (enemies[i].type == ENEMY_SPIDER) { ehw = SPIDER_HW; ehh = SPIDER_HH; }
-                else if (enemies[i].type == ENEMY_SNAKE) { ehw = SNAKE_HW; ehh = SNAKE_HH; }
+            // Kill enemies in radius
+            for (i = 0; i < active_enemy_count; i++) {
+                if (!active_enemies[i].alive) continue;
+                ActiveEnemy *ae = &active_enemies[i];
+                if (ae->type == ENEMY_SPIDER) { ehw = SPIDER_HW; ehh = SPIDER_HH; }
+                else if (ae->type == ENEMY_SNAKE) { ehw = SNAKE_HW; ehh = SNAKE_HH; }
                 else { ehw = BAT_HW; ehh = BAT_HH; }
-                if (box_overlap(dyn_x, dyn_y, EXPLOSION_RADIUS, EXPLOSION_RADIUS,
-                                enemies[i].x, enemies[i].y, ehw, ehh)) {
-                    enemies[i].alive = 0;
+                if (box_overlap(dyn_px, dyn_py, EXPLOSION_RADIUS, EXPLOSION_RADIUS,
+                                ae->px, ae->py, ehw, ehh)) {
+                    ae->alive = 0;
+                    level_entities[ae->ent_idx].alive = 0;
                     score += 50;
                 }
             }
 
-            if (box_overlap(dyn_x, dyn_y, EXPLOSION_KILL, EXPLOSION_KILL,
-                            player_x, player_y, PLAYER_HW, PLAYER_HH)) {
+            // Player damage
+            if (box_overlap(dyn_px, dyn_py, EXPLOSION_KILL, EXPLOSION_KILL,
+                            player_px, player_py, PLAYER_HW, PLAYER_HH)) {
                 game_state = STATE_DYING;
                 death_timer = DEATH_ANIM_TIME;
             }
@@ -107,139 +148,145 @@ void update_dynamite(void) {
     }
 }
 
-void update_enemies(void) {
-    uint8_t i, j;
-    int8_t x1, y1, x2, y2, seg_min, seg_max;
+// =========================================================================
+// Active enemy management
+// =========================================================================
+
+#define ACTIVATE_MARGIN 80  // pixels beyond viewport
+
+void activate_nearby_enemies(void) {
+    uint8_t i;
+    int16_t ax0 = cam_x - ACTIVATE_MARGIN;
+    int16_t ax1 = cam_x + SCREEN_W + ACTIVATE_MARGIN;
+    int16_t ay0 = cam_y - ACTIVATE_MARGIN;
+    int16_t ay1 = cam_y + PLAY_H + ACTIVATE_MARGIN;
+
+    // Deactivate far enemies
+    for (i = 0; i < active_enemy_count; ) {
+        ActiveEnemy *ae = &active_enemies[i];
+        if (ae->px < ax0 - 64 || ae->px > ax1 + 64 ||
+            ae->py < ay0 - 64 || ae->py > ay1 + 64) {
+            // Remove from active list
+            active_enemies[i] = active_enemies[active_enemy_count - 1];
+            active_enemy_count--;
+        } else {
+            i++;
+        }
+    }
+
+    // Activate nearby entities
+    for (i = 0; i < level_entity_count && active_enemy_count < MAX_ACTIVE_ENEMIES; i++) {
+        LevelEntity *le = &level_entities[i];
+        if (!le->alive) continue;
+        if (le->type == 0 || le->type == 4) continue; // skip player_start and miner
+
+        int16_t epx = (int16_t)le->tx * 8 + 4;
+        int16_t epy = (int16_t)le->ty * 8 + 4;
+
+        if (epx < ax0 || epx > ax1 || epy < ay0 || epy > ay1) continue;
+
+        // Check if already active
+        uint8_t already = 0;
+        uint8_t j;
+        for (j = 0; j < active_enemy_count; j++) {
+            if (active_enemies[j].ent_idx == i) { already = 1; break; }
+        }
+        if (already) continue;
+
+        // Spawn active enemy
+        ActiveEnemy *ae = &active_enemies[active_enemy_count++];
+        ae->px = epx;
+        ae->py = epy;
+        ae->home_py = epy;
+        ae->vx = le->vx;
+        if (ae->vx == 0) ae->vx = 1; // default velocity
+        ae->alive = 1;
+        ae->anim = 0;
+        ae->type = le->type;
+        ae->ent_idx = i;
+    }
+}
+
+// =========================================================================
+// Enemy AI update
+// =========================================================================
+
+void update_active_enemies(void) {
+    uint8_t i;
     int8_t ehw, ehh;
-    const int8_t *segs;
 
-    for (i = 0; i < enemy_count; i++) {
-        if (!enemies[i].alive) continue;
+    for (i = 0; i < active_enemy_count; i++) {
+        ActiveEnemy *ae = &active_enemies[i];
+        if (!ae->alive) continue;
 
-        if (enemies[i].type == ENEMY_SPIDER) {
-            enemies[i].y += enemies[i].vx;
-            if (enemies[i].home_y - enemies[i].y >= SPIDER_PATROL) {
-                enemies[i].y = enemies[i].home_y - SPIDER_PATROL;
-                enemies[i].vx = -enemies[i].vx;
-            } else if (enemies[i].y > enemies[i].home_y) {
-                enemies[i].y = enemies[i].home_y;
-                enemies[i].vx = -enemies[i].vx;
+        if (ae->type == ENEMY_SPIDER) {
+            // Vertical patrol
+            ae->py += ae->vx;
+            if (ae->home_py - ae->py >= SPIDER_PATROL) {
+                ae->py = ae->home_py - SPIDER_PATROL;
+                ae->vx = -ae->vx;
+            } else if (ae->py > ae->home_py) {
+                ae->py = ae->home_py;
+                ae->vx = -ae->vx;
+            }
+            // Tile collision (vertical)
+            if (tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py - SPIDER_HH) >> 3)) ||
+                tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py + SPIDER_HH) >> 3))) {
+                ae->vx = -ae->vx;
+                ae->py += ae->vx;
             }
             ehw = SPIDER_HW; ehh = SPIDER_HH;
 
-        } else if (enemies[i].type == ENEMY_SNAKE) {
-            enemies[i].x += enemies[i].vx;
-
-            if (enemies[i].x > cur_cave_right - SNAKE_HW ||
-                enemies[i].x < cur_cave_left + SNAKE_HW)
-                enemies[i].vx = -enemies[i].vx;
-
-            segs = cur_cave_segs;
-            for (j = 0; j < cur_seg_count; j++) {
-                if (segs[j * 4] != segs[j * 4 + 2]) continue;
-                x1 = segs[j * 4];
-                y1 = segs[j * 4 + 1];
-                y2 = segs[j * 4 + 3];
-                seg_min = y1 < y2 ? y1 : y2;
-                seg_max = y1 > y2 ? y1 : y2;
-                if (enemies[i].y + SNAKE_HH > seg_min &&
-                    enemies[i].y - SNAKE_HH < seg_max) {
-                    if (enemies[i].vx > 0 &&
-                        enemies[i].x + SNAKE_HW > x1 && enemies[i].x < x1) {
-                        enemies[i].x = x1 - SNAKE_HW;
-                        enemies[i].vx = -enemies[i].vx;
-                    } else if (enemies[i].vx < 0 &&
-                               enemies[i].x - SNAKE_HW < x1 && enemies[i].x > x1) {
-                        enemies[i].x = x1 + SNAKE_HW;
-                        enemies[i].vx = -enemies[i].vx;
-                    }
-                }
+        } else if (ae->type == ENEMY_SNAKE) {
+            ae->px += ae->vx;
+            // Tile collision ahead
+            if (ae->vx > 0) {
+                if (tile_solid((uint8_t)((ae->px + SNAKE_HW) >> 3), (uint8_t)(ae->py >> 3)))
+                    ae->vx = -ae->vx;
+            } else {
+                if (tile_solid((uint8_t)((ae->px - SNAKE_HW) >> 3), (uint8_t)(ae->py >> 3)))
+                    ae->vx = -ae->vx;
             }
-
-            for (j = 0; j < cur_wall_count; j++) {
-                int8_t wl, wr, wt, wb;
-                if (walls_destroyed & (1 << j)) continue;
-                wl = wall_x(j); wr = wl + wall_w(j);
-                wt = wall_y(j) + wall_h(j); wb = wall_y(j) - wall_h(j);
-                if (enemies[i].y + SNAKE_HH > wb && enemies[i].y - SNAKE_HH < wt) {
-                    if (enemies[i].vx > 0 &&
-                        enemies[i].x + SNAKE_HW > wl && enemies[i].x < wl) {
-                        enemies[i].x = wl - SNAKE_HW;
-                        enemies[i].vx = -enemies[i].vx;
-                    } else if (enemies[i].vx < 0 &&
-                               enemies[i].x - SNAKE_HW < wr && enemies[i].x > wr) {
-                        enemies[i].x = wr + SNAKE_HW;
-                        enemies[i].vx = -enemies[i].vx;
-                    }
-                }
-            }
-
-            // Floor-edge detection
-            segs = cur_cave_segs;
-            for (j = 0; j < cur_seg_count; j++) {
-                if (segs[j * 4 + 1] != segs[j * 4 + 3]) continue;
-                y1 = segs[j * 4 + 1];
-                if (y1 > enemies[i].y - SNAKE_HH) continue;
-                if (y1 < enemies[i].y - SNAKE_HH - 5) continue;
-                x1 = segs[j * 4]; x2 = segs[j * 4 + 2];
-                seg_min = x1 < x2 ? x1 : x2;
-                seg_max = x1 > x2 ? x1 : x2;
-                if (enemies[i].x >= seg_min && enemies[i].x <= seg_max) {
-                    if (enemies[i].vx > 0 && enemies[i].x + SNAKE_HW >= seg_max) {
-                        enemies[i].x = seg_max - SNAKE_HW;
-                        enemies[i].vx = -enemies[i].vx;
-                    } else if (enemies[i].vx < 0 && enemies[i].x - SNAKE_HW <= seg_min) {
-                        enemies[i].x = seg_min + SNAKE_HW;
-                        enemies[i].vx = -enemies[i].vx;
-                    }
-                }
+            // Floor check: if no ground below, turn around
+            if (!tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py + SNAKE_HH + 1) >> 3))) {
+                ae->vx = -ae->vx;
+                ae->px += ae->vx;
             }
             ehw = SNAKE_HW; ehh = SNAKE_HH;
 
         } else {
-            // Bat
-            enemies[i].x += enemies[i].vx;
-            if (enemies[i].x > cur_cave_right - BAT_HW ||
-                enemies[i].x < cur_cave_left + BAT_HW)
-                enemies[i].vx = -enemies[i].vx;
-
-            segs = cur_cave_segs;
-            for (j = 0; j < cur_seg_count; j++) {
-                if (segs[j * 4] != segs[j * 4 + 2]) continue;
-                x1 = segs[j * 4];
-                y1 = segs[j * 4 + 1]; y2 = segs[j * 4 + 3];
-                seg_min = y1 < y2 ? y1 : y2;
-                seg_max = y1 > y2 ? y1 : y2;
-                if (enemies[i].y + BAT_HH > seg_min &&
-                    enemies[i].y - BAT_HH < seg_max) {
-                    if (enemies[i].vx > 0 &&
-                        enemies[i].x + BAT_HW > x1 && enemies[i].x < x1) {
-                        enemies[i].x = x1 - BAT_HW;
-                        enemies[i].vx = -enemies[i].vx;
-                    } else if (enemies[i].vx < 0 &&
-                               enemies[i].x - BAT_HW < x1 && enemies[i].x > x1) {
-                        enemies[i].x = x1 + BAT_HW;
-                        enemies[i].vx = -enemies[i].vx;
-                    }
-                }
+            // Bat: horizontal patrol
+            ae->px += ae->vx;
+            // Tile collision ahead
+            if (ae->vx > 0) {
+                if (tile_solid((uint8_t)((ae->px + BAT_HW) >> 3), (uint8_t)(ae->py >> 3)))
+                    ae->vx = -ae->vx;
+            } else {
+                if (tile_solid((uint8_t)((ae->px - BAT_HW) >> 3), (uint8_t)(ae->py >> 3)))
+                    ae->vx = -ae->vx;
             }
             ehw = BAT_HW; ehh = BAT_HH;
         }
 
-        enemies[i].anim++;
+        ae->anim++;
 
-        if (box_overlap(player_x, player_y, PLAYER_HW, PLAYER_HH,
-                        enemies[i].x, enemies[i].y, ehw, ehh)) {
+        // Enemy-player collision
+        if (box_overlap(player_px, player_py, PLAYER_HW, PLAYER_HH,
+                        ae->px, ae->py, ehw, ehh)) {
             game_state = STATE_DYING;
             death_timer = DEATH_ANIM_TIME;
         }
     }
 }
 
+// =========================================================================
+// Miner rescue
+// =========================================================================
+
 void check_miner_rescue(void) {
-    if (!cur_has_miner) return;
-    if (box_overlap(player_x, player_y, PLAYER_HW, PLAYER_HH,
-                    cur_miner_x, cur_miner_y, MINER_HW, MINER_HH)) {
+    if (!miner_active) return;
+    if (box_overlap(player_px, player_py, PLAYER_HW, PLAYER_HH,
+                    miner_px, miner_py, MINER_HW, MINER_HH)) {
         score += 1000;
         score += player_fuel;
         score += player_dynamite * 50;

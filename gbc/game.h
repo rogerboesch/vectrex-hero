@@ -1,6 +1,8 @@
 //
 // game.h — GBC H.E.R.O. shared defines, types, externs
 //
+// Tilemap scrolling version: pixel coordinates, tile-based collision
+//
 
 #ifndef GAME_H
 #define GAME_H
@@ -10,61 +12,51 @@
 #include <stdint.h>
 #include <string.h>
 
-// Prevent levels.h from pulling in Vectrex hero.h
-#ifndef HERO_H
-#define HERO_H
-#endif
+#include "level_data.h"
 
 #define TRUE  1
 #define FALSE 0
 #define NONE  255
 
 // =========================================================================
-// Game constants (matching original)
+// Game constants
 // =========================================================================
 
 #define GRAVITY         1
-#define THRUST          3
-#define MAX_VEL_Y       4
-#define MAX_VEL_X       3
-#define WALK_SPEED      2
+#define THRUST          2
+#define MAX_VEL_Y       3
+#define MAX_VEL_X       2
+#define WALK_SPEED      1
 #define FUEL_DRAIN      1
 #define START_FUEL      255
 #define START_DYNAMITE  3
 #define START_LIVES     3
-#define LASER_LENGTH    40
+#define LASER_LENGTH    40   // pixels
 #define LASER_LIFETIME  10
 #define DYNAMITE_FUSE   60
 #define EXPLOSION_TIME  20
-#define EXPLOSION_RADIUS 25
+#define EXPLOSION_RADIUS 24  // pixels
 #define EXPLOSION_KILL   10
-#define LAVA_HEIGHT      3
-#define MAX_ENEMIES     3
-#define MAX_ROOMS       16
-#define NUM_LEVELS      20
+#define MAX_ACTIVE_ENEMIES 4
+#define MAX_LEVEL_ENTITIES 64
 
-#define ENEMY_BAT       0
-#define ENEMY_SPIDER    1
-#define ENEMY_SNAKE     2
-#define SPIDER_PATROL   20
+#define ENEMY_BAT       1  // matches ENT_BAT from tilemap.h
+#define ENEMY_SPIDER    2
+#define ENEMY_SNAKE     3
 
-// Sprite collision boxes
-#define PLAYER_HW  5
-#define PLAYER_HH  11
-#define BAT_HW     6
-#define BAT_HH     5
-#define SPIDER_HW  5
-#define SPIDER_HH  4
-#define SNAKE_HW   7
+#define SPIDER_PATROL   20  // pixels
+
+// Collision boxes (pixels, half-widths/heights)
+#define PLAYER_HW  3
+#define PLAYER_HH  7
+#define BAT_HW     5
+#define BAT_HH     4
+#define SPIDER_HW  4
+#define SPIDER_HH  3
+#define SNAKE_HW   6
 #define SNAKE_HH   2
-#define MINER_HW   6
-#define MINER_HH   6
-
-// Room boundaries
-#define ROOM_BOUND_LEFT   (-128)
-#define ROOM_BOUND_RIGHT  (127)
-#define ROOM_BOUND_TOP    (50)
-#define ROOM_BOUND_FLOOR  (-50)
+#define MINER_HW   5
+#define MINER_HH   5
 
 // Timing
 #define LEVEL_INTRO_TIME    120
@@ -82,52 +74,68 @@
 #define STATE_LEVEL_FAILED  7
 
 // =========================================================================
-// GBC screen layout
+// Screen layout
 // =========================================================================
 //
-//  GBC: 160x144 px = 20x18 tiles (8x8 each)
-//  Row 0-1:  HUD (score, lives, fuel)
-//  Row 2-17: Playfield (16 tile rows)
+// GBC: 160x144 px = 20x18 tiles
+// Window layer: rows 0-1 = HUD (16px)
+// Background: scrolling playfield (128px visible below HUD)
 //
-#define PLAY_COLS   20
-#define PLAY_ROWS   16
-#define HUD_ROWS    2
+#define SCREEN_W     160
+#define SCREEN_H     144
+#define HUD_H         16   // 2 tile rows for HUD in background
+#define PLAY_H       128   // 16 tile rows visible
+#define PLAY_COLS     20
+#define PLAY_ROWS     16
+#define HUD_ROWS       2
+
+// VRAM background map is 32x32 tiles (wrapping)
+#define VRAM_MAP_W    32
+#define VRAM_MAP_H    32
 
 // =========================================================================
-// Coordinate conversions (game coords -> tile/pixel coords)
+// Decode cache for tilemap rows
 // =========================================================================
 
-// Game X (-128..127) -> tile column (0..19)
-#define TILE_COL(gx)  ((uint8_t)(((uint16_t)((uint8_t)((gx) + 128)) * 20) >> 8))
+#define DECODE_ROWS   32   // power of 2 for fast masking
+#define DECODE_MAX_W  128  // max level width + padding
 
-// Game Y (50..-50) -> playfield tile row (0..15), top=0
-#define TILE_ROW(gy)  ((uint8_t)(((uint16_t)(50 - (gy)) * 39) >> 8))
+// =========================================================================
+// Sprite screen positioning (world px -> screen sprite pos)
+// =========================================================================
 
-// Game X -> sprite pixel X (add 8 for GBC sprite offset)
-#define SPR_X(gx)    ((uint8_t)(8 + (((uint16_t)((uint8_t)((gx) + 128)) * 5) >> 3)))
-
-// Game Y -> sprite pixel Y (add 16 for GBC offset + 16 for HUD)
-#define SPR_Y(gy)    ((uint8_t)(32 + (((uint16_t)(50 - (gy)) * 81) >> 6)))
+// 8 and 16 are GBC hardware sprite offsets
+// HUD_H accounts for window layer covering top 16px
+#define SPR_SCR_X(wpx) ((uint8_t)(8 + (int16_t)(wpx) - cam_x))
+#define SPR_SCR_Y(wpy) ((uint8_t)(16 + HUD_H + (int16_t)(wpy) - cam_y))
 
 // =========================================================================
 // Types
 // =========================================================================
 
 typedef struct {
-    int8_t x;
-    int8_t y;
+    int16_t px, py;       // pixel position
+    int16_t home_py;      // spider home Y
     int8_t vx;
     uint8_t alive;
     uint8_t anim;
-    uint8_t type;
-    int8_t home_y;
-} Enemy;
+    uint8_t type;         // ENEMY_BAT, ENEMY_SPIDER, ENEMY_SNAKE
+    uint8_t ent_idx;      // index into level_entities[] (to track death)
+} ActiveEnemy;
+
+typedef struct {
+    uint8_t tx, ty;       // tile position (from level data)
+    uint8_t type;         // entity type
+    int8_t vx;            // initial velocity
+    uint8_t alive;        // 0 = killed this attempt
+} LevelEntity;
 
 // =========================================================================
 // Externs
 // =========================================================================
 
-extern int8_t player_x, player_y;
+// Player state (pixel coords, y-down)
+extern int16_t player_px, player_py;
 extern int8_t player_vx, player_vy;
 extern int8_t player_facing;
 extern uint8_t player_fuel;
@@ -141,64 +149,54 @@ extern int16_t score;
 
 extern uint8_t game_state;
 extern uint8_t current_level;
-extern uint8_t current_room;
 extern uint8_t death_timer;
 extern uint8_t level_msg_timer;
 
-extern Enemy enemies[MAX_ENEMIES];
-extern uint8_t enemy_count;
+// Camera
+extern int16_t cam_x, cam_y;
+extern uint8_t cam_tx, cam_ty;
 
+// Current level info
+extern uint8_t level_w, level_h;  // tiles
+
+// Decode cache
+extern uint8_t decode_cache[DECODE_ROWS][DECODE_MAX_W];
+
+// Active enemies
+extern ActiveEnemy active_enemies[MAX_ACTIVE_ENEMIES];
+extern uint8_t active_enemy_count;
+
+// Level entities
+extern LevelEntity level_entities[MAX_LEVEL_ENTITIES];
+extern uint8_t level_entity_count;
+
+// Miner
+extern int16_t miner_px, miner_py;
+extern uint8_t miner_active;
+
+// Laser
 extern uint8_t laser_active;
-extern int8_t laser_x, laser_y, laser_dir;
+extern int16_t laser_px, laser_py;
+extern int8_t laser_dir;
 extern uint8_t laser_timer;
 
+// Dynamite
 extern uint8_t dyn_active;
-extern int8_t dyn_x, dyn_y;
+extern int16_t dyn_px, dyn_py;
 extern uint8_t dyn_timer;
 extern uint8_t dyn_exploding;
 extern uint8_t dyn_expl_timer;
 
-extern uint8_t walls_destroyed;
-extern uint8_t room_walls_destroyed[MAX_ROOMS];
-
-extern const int8_t *cur_cave_lines;
-extern int8_t cur_cave_left, cur_cave_right, cur_cave_top, cur_cave_floor;
-extern const int8_t *cur_walls;
-extern uint8_t cur_wall_count;
-extern const int8_t *cur_enemies_data;
-extern uint8_t cur_enemy_count;
-extern int8_t *cur_cave_segs;
-extern uint8_t cur_seg_count;
-extern int8_t cur_miner_x, cur_miner_y;
-extern uint8_t cur_has_miner;
-extern uint8_t cur_has_lava;
-
-extern const int8_t *room_cave_lines[MAX_ROOMS];
-extern const int8_t *room_walls[MAX_ROOMS];
-extern uint8_t room_wall_counts[MAX_ROOMS];
-extern const int8_t *room_enemies_data[MAX_ROOMS];
-extern uint8_t room_enemy_counts[MAX_ROOMS];
-extern int8_t room_starts[MAX_ROOMS * 2];
-extern int8_t room_miners[MAX_ROOMS * 2];
-extern uint8_t room_exits[MAX_ROOMS * 4];
-extern uint8_t room_has_miner[MAX_ROOMS];
-extern uint8_t room_has_lava[MAX_ROOMS];
-
-extern uint8_t joy;          // current joypad state
-extern uint8_t joy_pressed;  // newly pressed buttons this frame
+extern uint8_t joy;
+extern uint8_t joy_pressed;
 
 // =========================================================================
 // Prototypes
 // =========================================================================
 
 // main.c
-uint8_t box_overlap(int8_t ax, int8_t ay, int8_t ahw, int8_t ahh,
-                    int8_t bx, int8_t by, int8_t bhw, int8_t bhh);
-int8_t wall_y(uint8_t i);
-int8_t wall_x(uint8_t i);
-int8_t wall_h(uint8_t i);
-int8_t wall_w(uint8_t i);
-uint8_t player_hits_wall(uint8_t i);
+uint8_t box_overlap(int16_t ax, int16_t ay, int8_t ahw, int8_t ahh,
+                    int16_t bx, int16_t by, int8_t bhw, int8_t bhh);
 
 // player.c
 void update_player_physics(void);
@@ -209,26 +207,28 @@ void fire_laser(void);
 void update_laser(void);
 void place_dynamite(void);
 void update_dynamite(void);
-void update_enemies(void);
+void update_active_enemies(void);
+void activate_nearby_enemies(void);
 void check_miner_rescue(void);
 
 // levels.c
-void set_level_data(void);
-void set_room_data(void);
-void load_enemies(void);
 void init_level(void);
 void start_new_game(void);
+void decode_row(uint8_t row);
+uint8_t tile_at(uint8_t tx, uint8_t ty);
+uint8_t tile_solid(uint8_t tx, uint8_t ty);
 
 // tiles.c
 void tiles_init(void);
 
 // render.c
-void render_init_room(void);
+void render_init_level(void);
+void render_update_camera(void);
 void render_update_sprites(void);
 void render_update_hud(void);
 void render_hide_sprites(void);
 void render_title(void);
 void render_msg(const char *line1, const char *line2);
-void render_destroy_wall(uint8_t idx);
+void render_clear_tile(uint8_t tx, uint8_t ty);
 
 #endif

@@ -26,14 +26,13 @@ int main(int argc, char *argv[]) {
 
     App app;
     app_init(&app, window, renderer);
-    if (argc > 1) app_load_project(&app, argv[1]);
-
-    /* Auto-convert hero.json levels to tilemaps */
-    {
-        char levels_path[512];
-        snprintf(levels_path, sizeof(levels_path), "%s/../../../vectrex/hero.json", SDL_GetBasePath());
-        FILE *f = fopen(levels_path, "r");
-        if (f) { fclose(f); app_convert_levels(&app, levels_path); }
+    /* Load project file */
+    if (argc > 1) {
+        app_load_project(&app, argv[1]);
+    } else {
+        char project_path[512];
+        snprintf(project_path, sizeof(project_path), "%s/../../../gbc/project.json", SDL_GetBasePath());
+        app_load_project(&app, project_path);
     }
 
     int running = 1;

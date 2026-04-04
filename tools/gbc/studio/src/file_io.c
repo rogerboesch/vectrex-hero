@@ -4,7 +4,6 @@
 #include "app.h"
 #include "native_macos.h"
 #include "json.h"
-#include "project_io.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -20,8 +19,187 @@ void app_new_project(App *app) {
 }
 
 void app_load_project(App *app, const char *path) {
-    /* TODO: JSON load for tilemap project */
-    app_log_info(app, "Load not yet implemented: %s", path);
+    FILE *f = fopen(path, "r");
+    if (!f) { app_log_err(app, "Cannot open %s", path); return; }
+    fseek(f, 0, SEEK_END); long len = ftell(f); fseek(f, 0, SEEK_SET);
+    char *json = malloc(len + 1); fread(json, 1, len, f); json[len] = 0; fclose(f);
+
+    tilemap_project_init(&app->tmap);
+
+    /* Parse tileset */
+    const char *p = strstr(json, "\"tileset\"");
+    if (p) {
+        p = strchr(p, '['); if (p) p++;
+        int idx = 0;
+        while (p && *p && idx < TSET_COUNT) {
+            p = json_skip_ws(p);
+            if (*p == ']') break;
+            if (*p == ',') { p++; continue; }
+            if (*p != '[') break;
+            p++;
+            for (int j = 0; j < 16 && *p && *p != ']'; j++) {
+                p = json_skip_ws(p);
+                if (*p == ',') { p++; p = json_skip_ws(p); }
+                int v = 0; p = json_parse_int(p, &v);
+                app->tmap.tileset.entries[idx].data[j] = (uint8_t)v;
+            }
+            if (*p == ']') p++;
+            idx++;
+        }
+        app->tmap.tileset.used_count = idx;
+    }
+
+    /* Parse palettes */
+    const char *pal_sec;
+    pal_sec = strstr(json, "\"bg_palettes\"");
+    if (pal_sec) {
+        pal_sec = strchr(pal_sec, '['); if (pal_sec) pal_sec++;
+        for (int i = 0; i < MAX_BG_PALS; i++) {
+            pal_sec = json_skip_ws(pal_sec);
+            if (!*pal_sec || *pal_sec == ']') break;
+            if (*pal_sec == ',') { pal_sec++; i--; continue; }
+            if (*pal_sec != '[') break;
+            pal_sec++;
+            for (int c = 0; c < COLORS_PER_PAL; c++) {
+                pal_sec = json_skip_ws(pal_sec);
+                if (*pal_sec == ',') { pal_sec++; pal_sec = json_skip_ws(pal_sec); }
+                if (*pal_sec == '[') {
+                    pal_sec++;
+                    int r=0,g=0,b=0;
+                    pal_sec = json_parse_int(pal_sec, &r);
+                    pal_sec = json_skip_ws(pal_sec); if (*pal_sec==',') pal_sec++;
+                    pal_sec = json_parse_int(pal_sec, &g);
+                    pal_sec = json_skip_ws(pal_sec); if (*pal_sec==',') pal_sec++;
+                    pal_sec = json_parse_int(pal_sec, &b);
+                    pal_sec = json_skip_ws(pal_sec); if (*pal_sec==']') pal_sec++;
+                    app->tmap.bg_pals[i].colors[c] = (RGB5){(uint8_t)r,(uint8_t)g,(uint8_t)b};
+                }
+            }
+            pal_sec = json_skip_ws(pal_sec); if (*pal_sec == ']') pal_sec++;
+        }
+    }
+    pal_sec = strstr(json, "\"spr_palettes\"");
+    if (pal_sec) {
+        pal_sec = strchr(pal_sec, '['); if (pal_sec) pal_sec++;
+        for (int i = 0; i < MAX_SPR_PALS; i++) {
+            pal_sec = json_skip_ws(pal_sec);
+            if (!*pal_sec || *pal_sec == ']') break;
+            if (*pal_sec == ',') { pal_sec++; i--; continue; }
+            if (*pal_sec != '[') break;
+            pal_sec++;
+            for (int c = 0; c < COLORS_PER_PAL; c++) {
+                pal_sec = json_skip_ws(pal_sec);
+                if (*pal_sec == ',') { pal_sec++; pal_sec = json_skip_ws(pal_sec); }
+                if (*pal_sec == '[') {
+                    pal_sec++;
+                    int r=0,g=0,b=0;
+                    pal_sec = json_parse_int(pal_sec, &r);
+                    pal_sec = json_skip_ws(pal_sec); if (*pal_sec==',') pal_sec++;
+                    pal_sec = json_parse_int(pal_sec, &g);
+                    pal_sec = json_skip_ws(pal_sec); if (*pal_sec==',') pal_sec++;
+                    pal_sec = json_parse_int(pal_sec, &b);
+                    pal_sec = json_skip_ws(pal_sec); if (*pal_sec==']') pal_sec++;
+                    app->tmap.spr_pals[i].colors[c] = (RGB5){(uint8_t)r,(uint8_t)g,(uint8_t)b};
+                }
+            }
+            pal_sec = json_skip_ws(pal_sec); if (*pal_sec == ']') pal_sec++;
+        }
+    }
+
+    /* Parse levels */
+    p = strstr(json, "\"levels\"");
+    if (p) {
+        p = strchr(p, '['); if (p) p++;
+        app->tmap.level_count = 0;
+        while (p && *p && app->tmap.level_count < TMAP_MAX_LEVELS) {
+            p = json_skip_ws(p);
+            if (*p == ']') break;
+            if (*p == ',') { p++; continue; }
+            if (*p != '{') break;
+            p++;
+
+            TilemapLevel *lvl = &app->tmap.levels[app->tmap.level_count];
+            memset(lvl, 0, sizeof(*lvl));
+
+            for (;;) {
+                p = json_skip_ws(p);
+                if (!*p || *p == '}') break;
+                if (*p == ',') { p++; continue; }
+                if (*p != '"') break;
+                char key[32] = {};
+                p = json_parse_str(p, key, sizeof(key));
+                p = json_skip_ws(p); if (*p == ':') p++;
+
+                if (strcmp(key, "name") == 0) {
+                    p = json_parse_str(p, lvl->name, sizeof(lvl->name));
+                } else if (strcmp(key, "width") == 0) {
+                    p = json_parse_int(p, &lvl->width);
+                } else if (strcmp(key, "height") == 0) {
+                    p = json_parse_int(p, &lvl->height);
+                } else if (strcmp(key, "tiles") == 0) {
+                    p = json_skip_ws(p); if (*p == '[') p++;
+                    int row = 0;
+                    while (*p && *p != ']' && row < TMAP_MAX_H) {
+                        p = json_skip_ws(p);
+                        if (*p == ',') { p++; continue; }
+                        if (*p == ']') break;
+                        if (*p != '[') break;
+                        p++;
+                        int col = 0;
+                        while (*p && *p != ']' && col < TMAP_MAX_W) {
+                            p = json_skip_ws(p);
+                            if (*p == ',') { p++; continue; }
+                            if (*p == ']') break;
+                            int v = 0; p = json_parse_int(p, &v);
+                            lvl->tiles[row][col++] = (uint8_t)v;
+                        }
+                        if (*p == ']') p++;
+                        row++;
+                    }
+                    if (*p == ']') p++;
+                } else if (strcmp(key, "entities") == 0) {
+                    p = json_skip_ws(p); if (*p == '[') p++;
+                    while (*p && *p != ']' && lvl->entity_count < MAX_ENTITIES) {
+                        p = json_skip_ws(p);
+                        if (*p == ',') { p++; continue; }
+                        if (*p == ']') break;
+                        if (*p != '{') break;
+                        p++;
+                        TilemapEntity *e = &lvl->entities[lvl->entity_count];
+                        memset(e, 0, sizeof(*e));
+                        for (;;) {
+                            p = json_skip_ws(p);
+                            if (!*p || *p == '}') break;
+                            if (*p == ',') { p++; continue; }
+                            if (*p != '"') break;
+                            char ek[8] = {};
+                            p = json_parse_str(p, ek, sizeof(ek));
+                            p = json_skip_ws(p); if (*p == ':') p++;
+                            int v = 0; p = json_parse_int(p, &v);
+                            if (strcmp(ek, "x") == 0) e->x = v;
+                            else if (strcmp(ek, "y") == 0) e->y = v;
+                            else if (strcmp(ek, "type") == 0) e->type = (uint8_t)v;
+                            else if (strcmp(ek, "vx") == 0) e->vx = (int8_t)v;
+                        }
+                        if (*p == '}') p++;
+                        lvl->entity_count++;
+                    }
+                    if (*p == ']') p++;
+                } else {
+                    p = json_skip_value(p);
+                }
+            }
+            if (*p == '}') p++;
+            app->tmap.level_count++;
+        }
+    }
+
+    free(json);
+    strncpy(app->project_path, path, sizeof(app->project_path) - 1);
+    app->cur_level = 0;
+    app->modified = false;
+    app_log_info(app, "Loaded: %s (%d tiles, %d levels)", path,
+                 app->tmap.tileset.used_count, app->tmap.level_count);
 }
 
 void app_save_project(App *app, const char *path) {
@@ -40,6 +218,28 @@ void app_save_project(App *app, const char *path) {
         for (int j = 0; j < 16; j++)
             fprintf(f, "%d%s", app->tmap.tileset.entries[i].data[j], j < 15 ? "," : "");
         fprintf(f, "]%s\n", i < app->tmap.tileset.used_count - 1 ? "," : "");
+    }
+    fprintf(f, "  ],\n");
+
+    /* Palettes */
+    fprintf(f, "  \"bg_palettes\": [\n");
+    for (int i = 0; i < MAX_BG_PALS; i++) {
+        fprintf(f, "    [");
+        for (int c = 0; c < COLORS_PER_PAL; c++) {
+            RGB5 rgb = app->tmap.bg_pals[i].colors[c];
+            fprintf(f, "[%d,%d,%d]%s", rgb.r, rgb.g, rgb.b, c < COLORS_PER_PAL - 1 ? "," : "");
+        }
+        fprintf(f, "]%s\n", i < MAX_BG_PALS - 1 ? "," : "");
+    }
+    fprintf(f, "  ],\n");
+    fprintf(f, "  \"spr_palettes\": [\n");
+    for (int i = 0; i < MAX_SPR_PALS; i++) {
+        fprintf(f, "    [");
+        for (int c = 0; c < COLORS_PER_PAL; c++) {
+            RGB5 rgb = app->tmap.spr_pals[i].colors[c];
+            fprintf(f, "[%d,%d,%d]%s", rgb.r, rgb.g, rgb.b, c < COLORS_PER_PAL - 1 ? "," : "");
+        }
+        fprintf(f, "]%s\n", i < MAX_SPR_PALS - 1 ? "," : "");
     }
     fprintf(f, "  ],\n");
 
@@ -146,184 +346,3 @@ void app_export_c(App *app) {
     free(dir);
 }
 
-/* ── Convert hero.json levels to tilemaps ─────────────────── */
-
-/* Same rasterize logic as panel_room_editor.c */
-#define GRID_W 20
-#define GRID_H 16
-#define CELL_EMPTY 0
-#define CELL_BORDER 1
-#define CELL_SOLID 2
-
-static int tc(int gx) { return (int)(((unsigned)((unsigned char)(gx+128))*20)>>8); }
-static int tr(int gy) { int v=(int)(((unsigned)(50-gy)*39)>>8); return v<0?0:v>=GRID_H?GRID_H-1:v; }
-
-static void tl(uint8_t g[GRID_H][GRID_W], int x1,int y1,int x2,int y2) {
-    int c1=tc(x1),r1=tr(y1),c2=tc(x2),r2=tr(y2);
-    int dx=abs(c2-c1),dy=abs(r2-r1),sx=c1<c2?1:-1,sy=r1<r2?1:-1,err=dx-dy;
-    for(;;) {
-        if(r1>=0&&r1<GRID_H&&c1>=0&&c1<GRID_W) g[r1][c1]=CELL_BORDER;
-        if(c1==c2&&r1==r2) break;
-        int e2=2*err;
-        if(e2>-dy){err-=dy;c1+=sx;}
-        if(e2<dx){err+=dx;r1+=sy;}
-    }
-}
-
-static void ff(uint8_t g[GRID_H][GRID_W],int sr,int sc) {
-    if(sr<0||sr>=GRID_H||sc<0||sc>=GRID_W) return;
-    g[sr][sc]=CELL_EMPTY;
-    int ch=1; while(ch){ch=0;
-        for(int r=0;r<GRID_H;r++) for(int c=0;c<GRID_W;c++){
-            if(g[r][c]!=CELL_SOLID) continue;
-            if((r>0&&g[r-1][c]==CELL_EMPTY)||(r<GRID_H-1&&g[r+1][c]==CELL_EMPTY)||
-               (c>0&&g[r][c-1]==CELL_EMPTY)||(c<GRID_W-1&&g[r][c+1]==CELL_EMPTY))
-                {g[r][c]=CELL_EMPTY;ch=1;}
-        }
-    }
-}
-
-void app_convert_levels(App *app, const char *hero_json_path) {
-    FILE *f = fopen(hero_json_path, "r");
-    if (!f) { app_log_err(app, "Cannot open %s", hero_json_path); return; }
-    fseek(f, 0, SEEK_END); long len = ftell(f); fseek(f, 0, SEEK_SET);
-    char *json = malloc(len + 1); fread(json, 1, len, f); json[len] = 0; fclose(f);
-
-    Project proj;
-    project_init(&proj);
-    project_parse_json(json, &proj);
-    free(json);
-
-    app_log_info(app, "Converting %d levels...", proj.level_count);
-
-    /* Ensure tileset has basic tiles */
-    /* 0=empty, 1=solid rock, 2=border */
-    if (app->tmap.tileset.used_count < 3) app->tmap.tileset.used_count = 3;
-
-    app->tmap.level_count = proj.level_count;
-    int yoff[] = {20, -10, -40};
-
-    for (int li = 0; li < proj.level_count; li++) {
-        Level *lvl = &proj.levels[li];
-
-        /* BFS from room 0 using exits to compute grid positions */
-        int gx[MAX_ROOMS], gy[MAX_ROOMS];
-        int placed[MAX_ROOMS];
-        memset(placed, 0, sizeof(placed));
-        memset(gx, 0, sizeof(gx)); memset(gy, 0, sizeof(gy));
-
-        if (lvl->room_count > 0) {
-            placed[0] = 1;
-            int queue[MAX_ROOMS], qh = 0, qt = 0;
-            queue[qt++] = 0;
-            while (qh < qt) {
-                int ri = queue[qh++];
-                Room *r = &lvl->rooms[ri];
-                struct { int target; int dx; int dy; } exits[] = {
-                    {r->exit_right,  1,  0},
-                    {r->exit_left,  -1,  0},
-                    {r->exit_top,    0, -1},
-                    {r->exit_bottom, 0,  1},
-                };
-                for (int e = 0; e < 4; e++) {
-                    if (exits[e].target < 0) continue;
-                    int ti = exits[e].target - 1; /* 1-based to 0-based */
-                    if (ti < 0 || ti >= lvl->room_count || placed[ti]) continue;
-                    placed[ti] = 1;
-                    gx[ti] = gx[ri] + exits[e].dx;
-                    gy[ti] = gy[ri] + exits[e].dy;
-                    queue[qt++] = ti;
-                }
-            }
-            /* Place unreachable rooms */
-            int max_gy = 0;
-            for (int i = 0; i < lvl->room_count; i++)
-                if (placed[i] && gy[i] > max_gy) max_gy = gy[i];
-            int col = 0;
-            for (int i = 0; i < lvl->room_count; i++) {
-                if (!placed[i]) { placed[i] = 1; gx[i] = col++; gy[i] = max_gy + 2; }
-            }
-        }
-
-        /* Normalize so min is (0,0) */
-        int min_gx = 0, min_gy = 0;
-        for (int i = 0; i < lvl->room_count; i++) {
-            if (gx[i] < min_gx) min_gx = gx[i];
-            if (gy[i] < min_gy) min_gy = gy[i];
-        }
-        int max_gx = 0, max_gy = 0;
-        for (int i = 0; i < lvl->room_count; i++) {
-            gx[i] -= min_gx; gy[i] -= min_gy;
-            if (gx[i] > max_gx) max_gx = gx[i];
-            if (gy[i] > max_gy) max_gy = gy[i];
-        }
-
-        TilemapLevel *tm = &app->tmap.levels[li];
-        memset(tm, 0, sizeof(*tm));
-        strncpy(tm->name, lvl->name, sizeof(tm->name) - 1);
-        tm->width = (max_gx + 1) * GRID_W;
-        tm->height = (max_gy + 1) * GRID_H;
-        if (tm->width > TMAP_MAX_W) tm->width = TMAP_MAX_W;
-        if (tm->height > TMAP_MAX_H) tm->height = TMAP_MAX_H;
-
-        /* Fill with solid */
-        memset(tm->tiles, 1, sizeof(tm->tiles));
-
-        for (int ri = 0; ri < lvl->room_count; ri++) {
-            Room *room = &lvl->rooms[ri];
-            int ox = gx[ri] * GRID_W, oy = gy[ri] * GRID_H;
-
-            /* Build room grid */
-            uint8_t grid[GRID_H][GRID_W];
-            memset(grid, CELL_SOLID, sizeof(grid));
-            for (int rri = 0; rri < 3; rri++) {
-                int rt_idx = room->rows[rri];
-                if (rt_idx < 0 || rt_idx >= proj.row_type_count) continue;
-                RowType *rt = &proj.row_types[rt_idx];
-                for (int pi = 0; pi < rt->cave_line_count; pi++) {
-                    Polyline *pl = &rt->cave_lines[pi];
-                    for (int j = 1; j < pl->count; j++)
-                        tl(grid, pl->points[j-1].x, pl->points[j-1].y+yoff[rri],
-                                 pl->points[j].x, pl->points[j].y+yoff[rri]);
-                }
-            }
-            /* Flood fill: use player_start if available, else find a cell
-               adjacent to a border that is still solid (inside the cave) */
-            if (room->has_player_start) {
-                ff(grid, tr(room->player_start.y), tc(room->player_start.x));
-            } else {
-                /* Find first solid cell next to a border — that's inside the cave */
-                int found = 0;
-                for (int r = 1; r < GRID_H - 1 && !found; r++) {
-                    for (int c2 = 1; c2 < GRID_W - 1 && !found; c2++) {
-                        if (grid[r][c2] == CELL_SOLID &&
-                            (grid[r-1][c2] == CELL_BORDER || grid[r+1][c2] == CELL_BORDER ||
-                             grid[r][c2-1] == CELL_BORDER || grid[r][c2+1] == CELL_BORDER)) {
-                            ff(grid, r, c2);
-                            found = 1;
-                        }
-                    }
-                }
-            }
-
-            /* Copy to tilemap */
-            for (int r = 0; r < GRID_H; r++) {
-                for (int c = 0; c < GRID_W; c++) {
-                    int tx = ox + c, ty = oy + r;
-                    if (tx >= tm->width || ty >= tm->height) continue;
-                    switch (grid[r][c]) {
-                    case CELL_EMPTY:  tm->tiles[ty][tx] = 0; break;
-                    case CELL_BORDER: tm->tiles[ty][tx] = 2; break;
-                    default:          tm->tiles[ty][tx] = 1; break;
-                    }
-                }
-            }
-        }
-
-        app_log_dbg(app, "Level %d: %s → %dx%d tilemap (%d rooms)", li, lvl->name, tm->width, tm->height, lvl->room_count);
-    }
-
-    app->cur_level = 0;
-    app->modified = true;
-    app_log_info(app, "Converted %d levels to tilemaps", proj.level_count);
-}

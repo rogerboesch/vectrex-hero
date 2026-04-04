@@ -1,121 +1,106 @@
 //
-// player.c — Player physics and input (GBC port)
+// player.c — Player physics and input (tilemap scrolling version)
 //
 
 #include "game.h"
 
-void update_player_physics(void) {
-    uint8_t i;
-    int8_t wt, wb, wl, wr;
-    int8_t x1, y1, x2, y2, seg_min, seg_max;
-    const int8_t *segs;
+// =========================================================================
+// Tile-based collision helpers
+// =========================================================================
 
-    player_vy -= GRAVITY;
-    if (player_vy < -MAX_VEL_Y) player_vy = -MAX_VEL_Y;
+// Check if player bbox at (px, py) overlaps any solid tile
+static uint8_t collides_x(int16_t px, int16_t py) {
+    uint8_t left  = (uint8_t)((px - PLAYER_HW) >> 3);
+    uint8_t right = (uint8_t)((px + PLAYER_HW) >> 3);
+    uint8_t top   = (uint8_t)((py - PLAYER_HH) >> 3);
+    uint8_t bot   = (uint8_t)((py + PLAYER_HH) >> 3);
+    uint8_t ty;
+    for (ty = top; ty <= bot; ty++) {
+        if (tile_solid(left, ty)) return 1;
+        if (tile_solid(right, ty)) return 1;
+    }
+    return 0;
+}
+
+static uint8_t collides_y(int16_t px, int16_t py) {
+    uint8_t left  = (uint8_t)((px - PLAYER_HW) >> 3);
+    uint8_t right = (uint8_t)((px + PLAYER_HW) >> 3);
+    uint8_t top   = (uint8_t)((py - PLAYER_HH) >> 3);
+    uint8_t bot   = (uint8_t)((py + PLAYER_HH) >> 3);
+    uint8_t tx;
+    for (tx = left; tx <= right; tx++) {
+        if (tile_solid(tx, top)) return 1;
+        if (tile_solid(tx, bot)) return 1;
+    }
+    return 0;
+}
+
+// =========================================================================
+// Physics
+// =========================================================================
+
+void update_player_physics(void) {
+    int16_t new_px, new_py;
+
+    // Gravity (y-down: positive vy = falling)
+    player_vy += GRAVITY;
     if (player_vy > MAX_VEL_Y) player_vy = MAX_VEL_Y;
+    if (player_vy < -MAX_VEL_Y) player_vy = -MAX_VEL_Y;
 
     // --- Move X ---
-    player_x += player_vx;
+    new_px = player_px + player_vx;
 
-    if (room_exits[current_room * 4 + 0] == NONE &&
-        player_x < cur_cave_left + PLAYER_HW) {
-        player_x = cur_cave_left + PLAYER_HW;
-        player_vx = 0;
-    }
-    if (room_exits[current_room * 4 + 1] == NONE &&
-        player_x > cur_cave_right - PLAYER_HW) {
-        player_x = cur_cave_right - PLAYER_HW;
-        player_vx = 0;
-    }
+    // Clamp to level bounds
+    if (new_px < PLAYER_HW) new_px = PLAYER_HW;
+    if (new_px > (int16_t)level_w * 8 - PLAYER_HW - 1) new_px = (int16_t)level_w * 8 - PLAYER_HW - 1;
 
-    for (i = 0; i < cur_wall_count; i++) {
-        if (walls_destroyed & (1 << i)) continue;
-        if (player_hits_wall(i)) {
-            wt = wall_y(i) + wall_h(i);
-            if (player_y < wt) {
-                wl = wall_x(i);
-                wr = wall_x(i) + wall_w(i);
-                if (player_vx > 0) player_x = wl - PLAYER_HW;
-                else if (player_vx < 0) player_x = wr + PLAYER_HW;
-                player_vx = 0;
-            }
-        }
+    // Check tile collision
+    if (collides_x(new_px, player_py)) {
+        // Push back to previous position
+        player_vx = 0;
+    } else {
+        player_px = new_px;
     }
 
     // --- Move Y ---
-    player_y += player_vy;
+    new_py = player_py + player_vy;
     player_on_ground = 0;
 
-    for (i = 0; i < cur_wall_count; i++) {
-        if (walls_destroyed & (1 << i)) continue;
-        if (player_hits_wall(i)) {
-            wl = wall_x(i);
-            wr = wall_x(i) + wall_w(i);
-            if (player_x + PLAYER_HW <= wl || player_x - PLAYER_HW >= wr) continue;
-            wt = wall_y(i) + wall_h(i);
-            wb = wall_y(i) - wall_h(i);
-            if (player_vy <= 0) {
-                player_y = wt + PLAYER_HH;
-                player_vy = 0;
-                player_on_ground = 1;
-            } else {
-                player_y = wb - PLAYER_HH;
-                player_vy = 0;
-            }
-        }
-    }
-
-    if (room_exits[current_room * 4 + 3] == NONE &&
-        player_y - PLAYER_HH < cur_cave_floor) {
-        player_y = cur_cave_floor + PLAYER_HH;
+    // Clamp to level bounds
+    if (new_py < PLAYER_HH) new_py = PLAYER_HH;
+    if (new_py > (int16_t)level_h * 8 - PLAYER_HH - 1) {
+        new_py = (int16_t)level_h * 8 - PLAYER_HH - 1;
         player_vy = 0;
         player_on_ground = 1;
     }
 
-    if (room_exits[current_room * 4 + 2] == NONE &&
-        player_y + PLAYER_HH > cur_cave_top) {
-        player_y = cur_cave_top - PLAYER_HH;
+    // Check tile collision
+    if (collides_y(player_px, new_py)) {
+        if (player_vy > 0) {
+            // Falling: land on top of solid tile
+            uint8_t land_ty = (uint8_t)((new_py + PLAYER_HH) >> 3);
+            player_py = (int16_t)land_ty * 8 - PLAYER_HH - 1;
+            player_on_ground = 1;
+        } else {
+            // Rising: hit ceiling
+            uint8_t ceil_ty = (uint8_t)((new_py - PLAYER_HH) >> 3);
+            player_py = (int16_t)(ceil_ty + 1) * 8 + PLAYER_HH;
+        }
         player_vy = 0;
+    } else {
+        player_py = new_py;
     }
 
-    // Cave segment collision
-    segs = cur_cave_segs;
-    for (i = 0; i < cur_seg_count; i++) {
-        x1 = segs[i * 4];
-        y1 = segs[i * 4 + 1];
-        x2 = segs[i * 4 + 2];
-        y2 = segs[i * 4 + 3];
-
-        if (y1 == y2) {
-            seg_min = x1 < x2 ? x1 : x2;
-            seg_max = x1 > x2 ? x1 : x2;
-            if (player_x + PLAYER_HW > seg_min &&
-                player_x - PLAYER_HW < seg_max) {
-                if (player_y > y1 && player_y - PLAYER_HH < y1) {
-                    player_y = y1 + PLAYER_HH;
-                    player_vy = 0;
-                    player_on_ground = 1;
-                } else if (player_y < y1 && player_y + PLAYER_HH > y1) {
-                    player_y = y1 - PLAYER_HH;
-                    player_vy = 0;
-                }
-            }
-        } else if (x1 == x2) {
-            seg_min = y1 < y2 ? y1 : y2;
-            seg_max = y1 > y2 ? y1 : y2;
-            if (player_y + PLAYER_HH > seg_min &&
-                player_y - PLAYER_HH < seg_max) {
-                if (player_x < x1 && player_x + PLAYER_HW > x1) {
-                    player_x = x1 - PLAYER_HW;
-                    player_vx = 0;
-                } else if (player_x > x1 && player_x - PLAYER_HW < x1) {
-                    player_x = x1 + PLAYER_HW;
-                    player_vx = 0;
-                }
-            }
-        }
+    // Extra ground check: is there a solid tile just below feet?
+    if (!player_on_ground) {
+        if (tile_solid((uint8_t)(player_px >> 3), (uint8_t)((player_py + PLAYER_HH + 1) >> 3)))
+            player_on_ground = 1;
     }
 }
+
+// =========================================================================
+// Input handling
+// =========================================================================
 
 void handle_input(void) {
     player_thrusting = 0;
@@ -131,8 +116,8 @@ void handle_input(void) {
     }
     if (joy & J_UP) {
         if (player_fuel > 0) {
-            player_vy += THRUST;
-            if (player_vy > MAX_VEL_Y) player_vy = MAX_VEL_Y;
+            player_vy -= THRUST;
+            if (player_vy < -MAX_VEL_Y) player_vy = -MAX_VEL_Y;
             player_fuel -= FUEL_DRAIN;
             player_thrusting = 1;
             player_on_ground = 0;

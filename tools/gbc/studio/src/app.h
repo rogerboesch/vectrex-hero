@@ -69,8 +69,6 @@ void app_load_project(App *app, const char *path);
 void app_save_project(App *app, const char *path);
 void app_save_project_as(App *app);
 void app_export_c(App *app);
-void app_convert_levels(App *app, const char *hero_json_path);
-
 /* Panels */
 void draw_asset_list(App *app, int x, int y, int w, int h);  /* tiles + sprites */
 void draw_level_editor(App *app, int x, int y, int w, int h);

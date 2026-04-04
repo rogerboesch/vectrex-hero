@@ -15,14 +15,14 @@ LCC     = $(GBDK)/bin/lcc
 # -Wm-yC       = GBC mode (CGB flag in ROM header)
 # -Wm-yn"HERO" = ROM title
 # -Wl-yt0x19   = MBC5 cartridge type
-# -Wl-yo4      = 4 ROM banks (64KB)
-LCCFLAGS = -Wa-l -Wl-m -Wl-j -Wm-yC -Wm-yn"HERO" -Wl-yt0x19 -Wl-yo4
+# -Wl-yo8      = 4 ROM banks (64KB)
+LCCFLAGS = -Wa-l -Wl-m -Wl-j -Wm-yC -Wm-yn"HERO" -Wl-yt0x19 -Wl-yo8
 
-SRCS = main.c player.c enemies.c levels.c render.c tiles.c
+SRCS = main.c player.c enemies.c levels.c render.c tiles.c level_data.c levels_meta.c
 TARGET = hero.gbc
 
-$(TARGET): $(SRCS) game.h tiles.h
-	$(LCC) $(LCCFLAGS) -I.. -o $@ $(SRCS)
+$(TARGET): $(SRCS) game.h tiles.h level_data.h
+	$(LCC) $(LCCFLAGS) -o $@ $(SRCS)
 
 clean:
 	rm -f $(TARGET) *.o *.lst *.map *.noi *.sym *.asm

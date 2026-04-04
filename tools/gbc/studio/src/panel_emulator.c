@@ -48,6 +48,16 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
             if (gbc_emu_is_paused()) gbc_emu_resume(); else gbc_emu_pause();
         }
         bx += 59;
+        if (ui_button(bx, tb.y, 55, bh, "Reload")) {
+            gbc_emu_stop();
+            char rom[512];
+            snprintf(rom, sizeof(rom), "%s/../../../gbc/hero.gbc", SDL_GetBasePath());
+            if (gbc_emu_load(app->renderer, rom))
+                app_log_info(app, "GBC emulator reloaded");
+            else
+                app_log_err(app, "Failed to reload ROM");
+        }
+        bx += 59;
         /* Status */
         GbcCpuState cpu = gbc_emu_get_cpu();
         char status[48];

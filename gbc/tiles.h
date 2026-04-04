@@ -31,7 +31,20 @@
 #define TILE_LETTER_E    42
 #define TILE_LETTER_DASH 43
 #define TILE_COLON       44
-// tiles up to ~45 used
+#define TILE_LETTER_H    45
+#define TILE_LETTER_O    46
+#define TILE_LETTER_G    47
+#define TILE_LETTER_B    48
+#define TILE_LETTER_A    49
+#define TILE_LETTER_T    50
+#define TILE_LETTER_N    51
+#define TILE_LETTER_U    52
+#define TILE_LETTER_D    53
+#define TILE_LETTER_F    54
+#define TILE_LETTER_I    55
+#define TILE_LETTER_P    56
+#define TILE_DOT         57
+// tiles up to ~58 used
 
 // =========================================================================
 // Sprite tile indices (8x16 mode: each sprite = 2 consecutive tiles)

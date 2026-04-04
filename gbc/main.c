@@ -1,5 +1,5 @@
 //
-// main.c — GBC H.E.R.O. entry point and game loop
+// main.c — GBC H.E.R.O. entry point and game loop (tilemap scrolling version)
 //
 
 #include "game.h"
@@ -9,7 +9,7 @@
 // Global variables
 // =========================================================================
 
-int8_t player_x, player_y;
+int16_t player_px, player_py;
 int8_t player_vx, player_vy;
 int8_t player_facing;
 uint8_t player_fuel;
@@ -23,37 +23,28 @@ int16_t score;
 
 uint8_t game_state;
 uint8_t current_level;
-uint8_t current_room;
 uint8_t death_timer;
 uint8_t level_msg_timer;
 
-Enemy enemies[MAX_ENEMIES];
-uint8_t enemy_count;
+int16_t cam_x, cam_y;
+uint8_t cam_tx, cam_ty;
+
+ActiveEnemy active_enemies[MAX_ACTIVE_ENEMIES];
+uint8_t active_enemy_count;
+
+int16_t miner_px, miner_py;
+uint8_t miner_active;
 
 uint8_t laser_active;
-int8_t laser_x, laser_y, laser_dir;
+int16_t laser_px, laser_py;
+int8_t laser_dir;
 uint8_t laser_timer;
 
 uint8_t dyn_active;
-int8_t dyn_x, dyn_y;
+int16_t dyn_px, dyn_py;
 uint8_t dyn_timer;
 uint8_t dyn_exploding;
 uint8_t dyn_expl_timer;
-
-uint8_t walls_destroyed;
-uint8_t room_walls_destroyed[MAX_ROOMS];
-
-const int8_t *cur_cave_lines;
-int8_t cur_cave_left, cur_cave_right, cur_cave_top, cur_cave_floor;
-const int8_t *cur_walls;
-uint8_t cur_wall_count;
-const int8_t *cur_enemies_data;
-uint8_t cur_enemy_count;
-int8_t *cur_cave_segs;
-uint8_t cur_seg_count;
-int8_t cur_miner_x, cur_miner_y;
-uint8_t cur_has_miner;
-uint8_t cur_has_lava;
 
 uint8_t joy;
 uint8_t joy_pressed;
@@ -63,27 +54,13 @@ static uint8_t joy_prev;
 // Helpers
 // =========================================================================
 
-uint8_t box_overlap(int8_t ax, int8_t ay, int8_t ahw, int8_t ahh,
-                    int8_t bx, int8_t by, int8_t bhw, int8_t bhh) {
+uint8_t box_overlap(int16_t ax, int16_t ay, int8_t ahw, int8_t ahh,
+                    int16_t bx, int16_t by, int8_t bhw, int8_t bhh) {
     if (ax + ahw < bx - bhw) return 0;
     if (ax - ahw > bx + bhw) return 0;
     if (ay + ahh < by - bhh) return 0;
     if (ay - ahh > by + bhh) return 0;
     return 1;
-}
-
-int8_t wall_y(uint8_t i) { return cur_walls[i * 4]; }
-int8_t wall_x(uint8_t i) { return cur_walls[i * 4 + 1]; }
-int8_t wall_h(uint8_t i) { return cur_walls[i * 4 + 2]; }
-int8_t wall_w(uint8_t i) { return cur_walls[i * 4 + 3]; }
-
-uint8_t player_hits_wall(uint8_t i) {
-    int8_t wcx = wall_x(i) + (wall_w(i) / 2);
-    int8_t wcy = wall_y(i);
-    int8_t whw = wall_w(i) / 2;
-    int8_t whh = wall_h(i);
-    return box_overlap(player_x, player_y, PLAYER_HW, PLAYER_HH,
-                       wcx, wcy, whw, whh);
 }
 
 // =========================================================================
@@ -93,27 +70,11 @@ uint8_t player_hits_wall(uint8_t i) {
 static void read_input(void) {
     joy_prev = joy;
     joy = joypad();
-    joy_pressed = joy & ~joy_prev;  // newly pressed this frame
+    joy_pressed = joy & ~joy_prev;
 }
 
 // =========================================================================
-// Room transition
-// =========================================================================
-
-static void enter_room(void) {
-    // Brief LCD off for full tilemap update
-    DISPLAY_OFF;
-    set_room_data();
-    load_enemies();
-    walls_destroyed = room_walls_destroyed[current_room];
-    render_init_room();
-    DISPLAY_ON;
-    SHOW_BKG;
-    SHOW_SPRITES;
-}
-
-// =========================================================================
-// Score to string helper (for message screens)
+// Score to string
 // =========================================================================
 
 static char score_buf[10];
@@ -135,9 +96,8 @@ static const char *score_str(void) {
 // =========================================================================
 
 void main(void) {
-    // Detect and enable CGB mode
     if (_cpu == CGB_TYPE) {
-        cpu_fast();  // double speed mode
+        cpu_fast();
     }
 
     tiles_init();
@@ -158,7 +118,7 @@ void main(void) {
             if (joy_pressed & (J_START | J_A | J_B)) {
                 start_new_game();
                 DISPLAY_OFF;
-                render_init_room();
+                render_init_level();
                 DISPLAY_ON;
                 SHOW_BKG;
                 SHOW_SPRITES;
@@ -169,7 +129,7 @@ void main(void) {
             if (level_msg_timer == 0) {
                 game_state = STATE_PLAYING;
                 DISPLAY_OFF;
-                render_init_room();
+                render_init_level();
                 DISPLAY_ON;
                 SHOW_BKG;
                 SHOW_SPRITES;
@@ -182,42 +142,11 @@ void main(void) {
             update_player_physics();
             update_laser();
             update_dynamite();
-            update_enemies();
+            activate_nearby_enemies();
+            update_active_enemies();
             check_miner_rescue();
 
-            // Lava death
-            if (cur_has_lava && player_y - PLAYER_HH <= cur_cave_floor + LAVA_HEIGHT) {
-                game_state = STATE_DYING;
-                death_timer = DEATH_ANIM_TIME;
-            }
-
-            // Room exits
-            {
-                uint8_t exit_room = NONE;
-                if (player_x <= ROOM_BOUND_LEFT &&
-                    room_exits[current_room * 4 + 0] != NONE) {
-                    exit_room = room_exits[current_room * 4 + 0];
-                    player_x = ROOM_BOUND_RIGHT;
-                } else if (player_x >= ROOM_BOUND_RIGHT &&
-                           room_exits[current_room * 4 + 1] != NONE) {
-                    exit_room = room_exits[current_room * 4 + 1];
-                    player_x = ROOM_BOUND_LEFT;
-                } else if (player_y >= ROOM_BOUND_TOP &&
-                           room_exits[current_room * 4 + 2] != NONE) {
-                    exit_room = room_exits[current_room * 4 + 2];
-                    player_y = ROOM_BOUND_FLOOR;
-                } else if (player_y <= ROOM_BOUND_FLOOR &&
-                           room_exits[current_room * 4 + 3] != NONE) {
-                    exit_room = room_exits[current_room * 4 + 3];
-                    player_y = ROOM_BOUND_TOP;
-                }
-                if (exit_room != NONE) {
-                    room_walls_destroyed[current_room] = walls_destroyed;
-                    current_room = exit_room;
-                    enter_room();
-                }
-            }
-
+            render_update_camera();
             render_update_sprites();
             render_update_hud();
 
