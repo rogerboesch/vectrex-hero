@@ -33,8 +33,10 @@ typedef enum {
     MENU_CLEAR,
 } MenuAction;
 
-/* Install the native menu bar. Call once at startup after SDL_Init. */
-void native_menu_init(void);
+/* Install the native menu bar. Call once at startup after SDL_Init.
+   app_name is shown in the app menu and Quit item. */
+void native_menu_init_ex(const char *app_name);
+void native_menu_init(void);  /* defaults to "Workbench" */
 
 /* Poll for menu action. Returns MENU_NONE if nothing selected.
    Resets after reading (only returns each action once). */

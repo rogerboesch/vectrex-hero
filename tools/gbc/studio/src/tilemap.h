@@ -89,7 +89,11 @@ static inline void tilemap_project_init(TilemapProject *p) {
     p->bg_pals[3] = (GBCPalette){{{0,0,0},{0,10,0},{0,22,0},{28,31,28}}};
     p->bg_pals[4] = (GBCPalette){{{0,0,0},{0,0,0},{2,2,4},{4,4,6}}};
     p->bg_pals[5] = (GBCPalette){{{0,0,0},{20,0,0},{31,4,4},{31,31,31}}};
-    p->spr_pals[0] = (GBCPalette){{{0,0,0},{0,12,0},{0,24,4},{8,31,8}}};
+    p->spr_pals[0] = (GBCPalette){{{0,0,0},{0,12,0},{0,24,4},{8,31,8}}};    /* player green */
+    p->spr_pals[1] = (GBCPalette){{{0,0,0},{20,0,0},{31,8,4},{31,20,16}}};  /* bat/snake red */
+    p->spr_pals[2] = (GBCPalette){{{0,0,0},{16,0,16},{26,6,26},{31,18,31}}};/* spider magenta */
+    p->spr_pals[3] = (GBCPalette){{{0,0,0},{0,10,16},{0,22,28},{12,31,31}}};/* miner cyan */
+    p->spr_pals[4] = (GBCPalette){{{0,0,0},{16,16,0},{28,28,4},{31,31,20}}};/* laser yellow */
 
     /* Default tileset: tile 0 = empty (black), tile 1 = solid rock */
     /* Tile 0: all black */

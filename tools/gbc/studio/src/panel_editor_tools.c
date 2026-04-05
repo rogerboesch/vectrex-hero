@@ -37,7 +37,21 @@ void draw_editor_tools(App *app, int px, int py, int pw, int ph) {
     for (int i = 0; i < 4; i++)
         if (ui_key_pressed(SDLK_0 + i)) app->cur_color = i;
 
-    y += 8;
+    /* Edit selected color's RGB5 values */
+    y += 4;
+    {
+        RGB5 *rgb = &pal->colors[app->cur_color];
+        int r = rgb->r, g = rgb->g, b = rgb->b;
+        int lw = ui_text_width("R:");
+        if (ui_input_int_ex(c.x, y, c.w, "R:", lw, &r, 1, 0, 31)) { rgb->r = (uint8_t)r; app->modified = true; }
+        y += ui_line_height() + 2;
+        if (ui_input_int_ex(c.x, y, c.w, "G:", lw, &g, 1, 0, 31)) { rgb->g = (uint8_t)g; app->modified = true; }
+        y += ui_line_height() + 2;
+        if (ui_input_int_ex(c.x, y, c.w, "B:", lw, &b, 1, 0, 31)) { rgb->b = (uint8_t)b; app->modified = true; }
+        y += ui_line_height() + 2;
+    }
+
+    y += 4;
 
     /* Properties */
     if (app->sel_type == SEL_TILE) {

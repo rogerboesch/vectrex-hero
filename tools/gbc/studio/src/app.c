@@ -1,5 +1,5 @@
 /*
- * app.c — GBC Studio core (3 tabs: Levels, Editor, Emulator)
+ * app.c — GBC Workbench core (3 tabs: Levels, Editor, Emulator)
  */
 
 #include "app.h"
@@ -43,7 +43,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
 
     tilemap_project_init(&app->tmap);
     load_default_sprites(app);
-    app_log_info(app, "GBC Studio ready");
+    app_log_info(app, "GBC Workbench ready");
 }
 
 void app_cleanup(App *app) { (void)app; }

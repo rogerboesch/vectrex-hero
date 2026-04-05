@@ -2,6 +2,7 @@
  * panel_asset_list.c — Combined tile + sprite list (left panel)
  *
  * Selecting a tile activates tile layer, selecting a sprite activates sprite layer.
+ * +/Del/Copy buttons for adding, removing, and duplicating assets.
  */
 #include "app.h"
 #include "ui.h"
@@ -17,6 +18,46 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
 
     /* ── Tiles section ── */
     y = ui_section(c.x - 4, y, c.w + 8, "Tiles");
+
+    /* Tile management buttons */
+    {
+        int bx = c.x;
+        int bw = 24, bh = 20, gap = 2;
+        if (ui_button(bx, y, bw, bh, "+")) {
+            if (ts->used_count < TSET_COUNT) {
+                memset(&ts->entries[ts->used_count], 0, sizeof(TilesetEntry));
+                app->cur_tset_tile = ts->used_count;
+                ts->used_count++;
+                app->sel_type = SEL_TILE;
+                app->modified = true;
+            }
+        }
+        bx += bw + gap;
+        if (ui_button(bx, y, bw, bh, "D")) {
+            if (ts->used_count > 1 && app->cur_tset_tile < ts->used_count) {
+                /* Copy selected tile as new entry */
+                if (ts->used_count < TSET_COUNT) {
+                    ts->entries[ts->used_count] = ts->entries[app->cur_tset_tile];
+                    app->cur_tset_tile = ts->used_count;
+                    ts->used_count++;
+                    app->sel_type = SEL_TILE;
+                    app->modified = true;
+                }
+            }
+        }
+        bx += bw + gap;
+        if (ui_button(bx, y, bw, bh, "X")) {
+            if (ts->used_count > 1 && app->cur_tset_tile < ts->used_count) {
+                for (int j = app->cur_tset_tile; j < ts->used_count - 1; j++)
+                    ts->entries[j] = ts->entries[j + 1];
+                ts->used_count--;
+                if (app->cur_tset_tile >= ts->used_count)
+                    app->cur_tset_tile = ts->used_count - 1;
+                app->modified = true;
+            }
+        }
+        y += bh + 4;
+    }
 
     int scale = 2;
     int tile_px = 8 * scale;
@@ -57,7 +98,49 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
     y = sprite_y;
     y = ui_section(c.x - 4, y, c.w + 8, "Sprites");
 
-    GBCPalette *spal = &app->tmap.spr_pals[0];
+    /* Sprite management buttons */
+    {
+        int bx = c.x;
+        int bw = 24, bh = 20, gap = 2;
+        if (ui_button(bx, y, bw, bh, "+")) {
+            if (app->sprite_count < MAX_TILES) {
+                GBCTile *t = &app->sprites[app->sprite_count];
+                memset(t, 0, sizeof(GBCTile));
+                snprintf(t->name, sizeof(t->name), "spr_%d", app->sprite_count);
+                app->cur_sprite = app->sprite_count;
+                app->sprite_count++;
+                app->sel_type = SEL_SPRITE;
+                app->modified = true;
+            }
+        }
+        bx += bw + gap;
+        if (ui_button(bx, y, bw, bh, "D")) {
+            if (app->sprite_count > 0 && app->cur_sprite < app->sprite_count) {
+                if (app->sprite_count < MAX_TILES) {
+                    app->sprites[app->sprite_count] = app->sprites[app->cur_sprite];
+                    GBCTile *dup = &app->sprites[app->sprite_count];
+                    snprintf(dup->name, sizeof(dup->name), "%s_cp", app->sprites[app->cur_sprite].name);
+                    app->cur_sprite = app->sprite_count;
+                    app->sprite_count++;
+                    app->sel_type = SEL_SPRITE;
+                    app->modified = true;
+                }
+            }
+        }
+        bx += bw + gap;
+        if (ui_button(bx, y, bw, bh, "X")) {
+            if (app->sprite_count > 1 && app->cur_sprite < app->sprite_count) {
+                for (int j = app->cur_sprite; j < app->sprite_count - 1; j++)
+                    app->sprites[j] = app->sprites[j + 1];
+                app->sprite_count--;
+                if (app->cur_sprite >= app->sprite_count)
+                    app->cur_sprite = app->sprite_count - 1;
+                app->modified = true;
+            }
+        }
+        y += bh + 4;
+    }
+
     int sscale = 2;
     int spr_w = 8 * sscale, spr_h = 16 * sscale;
 

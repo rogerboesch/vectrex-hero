@@ -1,5 +1,5 @@
 /*
- * app.h — GBC Studio application state
+ * app.h — GBC Workbench application state
  */
 #pragma once
 
@@ -18,6 +18,12 @@ typedef enum {
     SEL_TILE,     /* a tileset entry is selected */
     SEL_SPRITE,   /* a sprite is selected */
 } SelectionType;
+
+typedef enum {
+    CLIP_NONE = 0,
+    CLIP_TILE,
+    CLIP_SPRITE,
+} ClipboardType;
 
 typedef struct {
     SDL_Window *window;
@@ -43,6 +49,11 @@ typedef struct {
     /* Project */
     char project_path[512];
     bool modified;
+
+    /* Clipboard */
+    ClipboardType clip_type;
+    TilesetEntry clip_tile;
+    GBCTile clip_sprite;
 
     /* UI */
     bool name_focus;

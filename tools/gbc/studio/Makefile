@@ -1,7 +1,7 @@
-# GBC Studio — Tile/sprite editor for Game Boy Color
+# GBC Workbench — Tile/sprite editor for Game Boy Color
 #
 # Build: make
-# Run:   ./gbc-studio
+# Run:   ./GBCWorkbench
 
 CC = cc
 SHARED = ../../shared
@@ -17,7 +17,7 @@ CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function $(SDL_CFLAGS) -I$(SHARED) -I../
 GB_CFLAGS = -std=c11 -O2 -w $(SDL_CFLAGS) -I../igb
 LDFLAGS = $(SDL_STATIC)
 
-TARGET = gbc-studio
+TARGET = GBCWorkbench
 BUILD  = build
 
 APP_SRCS = src/main.c src/app.c src/file_io.c src/gbc_emu.c \

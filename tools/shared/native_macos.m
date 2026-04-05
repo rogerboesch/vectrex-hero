@@ -108,16 +108,25 @@ static NSMenuItem *make_item(NSString *title, SEL action, NSString *key, NSUInte
     return item;
 }
 
-void native_menu_init(void) {
+void native_menu_init(void) { native_menu_init_ex("Workbench"); }
+
+void native_menu_init_ex(const char *app_name) {
     @autoreleasepool {
         g_target = [[MenuTarget alloc] init];
 
-        NSMenu *menuBar = [[NSMenu alloc] init];
+        /* Override app name in macOS menu bar */
+        NSString *name = [NSString stringWithUTF8String:app_name];
+        [[NSProcessInfo processInfo] setValue:name forKey:@"processName"];
+        /* Also set CFBundleName for SDL apps without a bundle */
+        NSMutableDictionary *info = [[[NSBundle mainBundle] infoDictionary] mutableCopy];
+        if (info) {
+            [info setObject:name forKey:@"CFBundleName"];
+        }
 
-        /* App menu (QL Studio 2) */
+        NSMenu *menuBar = [[NSMenu alloc] init];
         NSMenuItem *appMenuItem = [[NSMenuItem alloc] init];
-        NSMenu *appMenu = [[NSMenu alloc] initWithTitle:@"QL Studio 2"];
-        [appMenu addItem:make_item(@"Quit QL Studio 2", @selector(menuQuit:), @"q", NSEventModifierFlagCommand)];
+        NSMenu *appMenu = [[NSMenu alloc] initWithTitle:name];
+        [appMenu addItem:make_item(@"Quit", @selector(menuQuit:), @"q", NSEventModifierFlagCommand)];
         [appMenuItem setSubmenu:appMenu];
         [menuBar addItem:appMenuItem];
 

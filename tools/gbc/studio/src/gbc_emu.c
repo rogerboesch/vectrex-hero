@@ -1,5 +1,5 @@
 /*
- * gbc_emu.c — igb wrapper for embedded use in GBC Studio
+ * gbc_emu.c — igb wrapper for embedded use in GBC Workbench
  */
 
 #include "gbc_emu.h"

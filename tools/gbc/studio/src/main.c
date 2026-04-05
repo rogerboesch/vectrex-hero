@@ -1,5 +1,5 @@
 /*
- * GBC Studio — Tile/sprite editor for Game Boy Color
+ * GBC Workbench — Tile/sprite editor for Game Boy Color
  */
 #include <SDL.h>
 #include "ui.h"
@@ -11,7 +11,7 @@
 int main(int argc, char *argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) { SDL_Log("SDL_Init: %s", SDL_GetError()); return 1; }
 
-    SDL_Window *window = SDL_CreateWindow("GBC Studio", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    SDL_Window *window = SDL_CreateWindow("GBC Workbench", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                            1280, 800, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     if (!window) { SDL_Log("Window: %s", SDL_GetError()); return 1; }
 
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
         SDL_Log("ui_init failed"); return 1;
     }
 
-    native_menu_init();
+    native_menu_init_ex("GBC Workbench");
 
     App app;
     app_init(&app, window, renderer);
@@ -58,6 +58,33 @@ int main(int argc, char *argv[]) {
             case MENU_SAVE_AS: app_save_project_as(&app); break;
             case MENU_EXPORT:  app_export_c(&app); break;
             case MENU_QUIT:    running = 0; break;
+            case MENU_COPY:
+                if (app.sel_type == SEL_TILE && app.cur_tset_tile < app.tmap.tileset.used_count) {
+                    app.clip_type = CLIP_TILE;
+                    app.clip_tile = app.tmap.tileset.entries[app.cur_tset_tile];
+                    app_log_info(&app, "Copied tile %d", app.cur_tset_tile);
+                } else if (app.sel_type == SEL_SPRITE && app.cur_sprite < app.sprite_count) {
+                    app.clip_type = CLIP_SPRITE;
+                    app.clip_sprite = app.sprites[app.cur_sprite];
+                    app_log_info(&app, "Copied sprite %d (%s)", app.cur_sprite, app.sprites[app.cur_sprite].name);
+                }
+                break;
+            case MENU_PASTE:
+                if (app.clip_type == CLIP_TILE && app.sel_type == SEL_TILE &&
+                    app.cur_tset_tile < app.tmap.tileset.used_count) {
+                    app.tmap.tileset.entries[app.cur_tset_tile] = app.clip_tile;
+                    app.modified = true;
+                    app_log_info(&app, "Pasted tile to %d", app.cur_tset_tile);
+                } else if (app.clip_type == CLIP_SPRITE && app.sel_type == SEL_SPRITE &&
+                           app.cur_sprite < app.sprite_count) {
+                    memcpy(app.sprites[app.cur_sprite].data, app.clip_sprite.data, TILE_BYTES);
+                    app.sprites[app.cur_sprite].palette = app.clip_sprite.palette;
+                    app.modified = true;
+                    app_log_info(&app, "Pasted sprite to %d (%s)", app.cur_sprite, app.sprites[app.cur_sprite].name);
+                } else {
+                    app_log_warn(&app, "Paste failed: clip=%d sel=%d", app.clip_type, app.sel_type);
+                }
+                break;
             default: break;
         }
 
