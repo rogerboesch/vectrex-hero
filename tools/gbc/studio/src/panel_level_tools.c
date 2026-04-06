@@ -1,7 +1,7 @@
 /*
  * panel_level_tools.c — Level management tools (right panel)
  *
- * Add/remove/copy/prev/next level, clear, move (scroll controls).
+ * Add/remove/copy/prev/next level, move (scroll controls).
  */
 #include "app.h"
 #include "ui.h"
@@ -12,7 +12,7 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
     ui_panel_begin_toolbar(px, py, pw, ph);
     SDL_Rect c = ui_panel_content();
     int y = c.y;
-    int bw = 30, gap = 3, bh = ui_line_height() + 4;
+    int bw = 30, bh = ui_line_height() + 4;
 
     /* Level browser — section bar with nav + management icons */
     TilemapLevel *lvl = (app->cur_level >= 0 && app->cur_level < app->tmap.level_count)
@@ -111,19 +111,6 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
         ui_text_small(c.x, y, "Drag: move entity");
         y += ui_line_height() + 8;
     }
-
-    /* Actions */
-    y = ui_section(c.x - 4, y, c.w + 8, "Actions");
-    if (ui_button(c.x, y, bw, bh, "")) {
-        if (lvl) {
-            memset(lvl->tiles, 0, sizeof(lvl->tiles));
-            lvl->entity_count = 0;
-            app->modified = true;
-        }
-    }
-        ui_icon_centered(c.x, y, bw, bh, ICON_CLOSE, ui_theme.text);
-    ui_text_color(c.x + bw + 6, y + 3, "Clear", ui_theme.text_dim);
-    y += bh + 8;
 
     /* Scroll info */
     snprintf(label, sizeof(label), "Scroll: %d,%d", app->scroll_x, app->scroll_y);

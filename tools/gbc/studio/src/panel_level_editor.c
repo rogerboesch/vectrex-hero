@@ -7,6 +7,7 @@
 #include "app.h"
 #include "ui.h"
 #include <stdio.h>
+#include <string.h>
 
 static int zoom = 2;  /* 1=8px, 2=16px, 3=24px per tile */
 
@@ -21,7 +22,7 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     Tileset *ts = &app->tmap.tileset;
     GBCPalette *pal = &app->tmap.bg_pals[0];
 
-    /* Toolbar: title + zoom icons */
+    /* Toolbar: title + clear + zoom icons */
     {
         char info[64];
         snprintf(info, sizeof(info), "Level %d - Zoom %d", app->cur_level + 1, zoom);
@@ -29,6 +30,16 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
 
         int bw = tb.h;
         int zbx = tb.x + tb.w - 2 * (bw + 2);
+
+        /* Clear button before zoom, with gap */
+        int cbx = zbx - bw - 10;
+        if (ui_button(cbx, tb.y, bw, tb.h, "")) {
+            memset(lvl->tiles, 0, sizeof(lvl->tiles));
+            lvl->entity_count = 0;
+            app->modified = true;
+        }
+        ui_icon_centered(cbx, tb.y, bw, tb.h, ICON_ERASER, ui_theme.text);
+
         if (ui_button(zbx, tb.y, bw, tb.h, "")) { if (zoom > 1) zoom--; }
         ui_icon_centered(zbx, tb.y, bw, tb.h, ICON_ZOOM_OUT, ui_theme.text);
         zbx += bw + 2;
