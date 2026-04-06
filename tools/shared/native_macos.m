@@ -163,3 +163,15 @@ MenuAction native_menu_poll(void) {
     g_menu_action = MENU_NONE;
     return a;
 }
+
+/* ── Dock icon ───────────────────────────────────────────── */
+
+void native_set_dock_icon(const char *icns_path) {
+    @autoreleasepool {
+        NSString *path = [NSString stringWithUTF8String:icns_path];
+        NSImage *icon = [[NSImage alloc] initWithContentsOfFile:path];
+        if (icon) {
+            [NSApp setApplicationIconImage:icon];
+        }
+    }
+}

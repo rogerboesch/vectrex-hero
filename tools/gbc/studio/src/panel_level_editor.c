@@ -6,12 +6,11 @@
  */
 #include "app.h"
 #include "ui.h"
+#include "style.h"
 #include <stdio.h>
 #include <string.h>
 
 static int zoom = 2;  /* 1=8px, 2=16px, 3=24px per tile */
-
-#define SCROLLBAR_W 12
 
 void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     SDL_Rect tb = ui_panel_begin_toolbar(px, py, pw, ph);
@@ -22,12 +21,8 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     Tileset *ts = &app->tmap.tileset;
     GBCPalette *pal = &app->tmap.bg_pals[0];
 
-    /* Toolbar: title + clear + zoom icons */
+    /* Toolbar: clear + zoom icons */
     {
-        char info[64];
-        snprintf(info, sizeof(info), "Level %d - Zoom %d", app->cur_level + 1, zoom);
-        ui_text_color(tb.x + 4, tb.y + 2, info, ui_theme.text);
-
         int bw = tb.h;
         int zbx = tb.x + tb.w - 2 * (bw + 2);
 
@@ -45,14 +40,19 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
         zbx += bw + 2;
         if (ui_button(zbx, tb.y, bw, tb.h, "")) { if (zoom < 4) zoom++; }
         ui_icon_centered(zbx, tb.y, bw, tb.h, ICON_ZOOM_IN, ui_theme.text);
+
+        /* Zoom label in toolbar */
+        char info[32];
+        snprintf(info, sizeof(info), "Zoom %d", zoom);
+        ui_text_color(tb.x + 4, tb.y + 2, info, ui_theme.text_dim);
     }
 
     /* Cell size in pixels */
     int cell = 8 * zoom;
 
-    /* Content area minus scrollbars */
-    int canvas_w = c.w - SCROLLBAR_W;
-    int canvas_h = c.h - SCROLLBAR_W;
+    /* Full canvas (scrollbars overlay, no space reserved) */
+    int canvas_w = c.w;
+    int canvas_h = c.h;
 
     /* Visible tiles */
     int vis_w = canvas_w / cell;
@@ -171,60 +171,11 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
         }
     }
 
-    /* ── Scrollbars ── */
-    {
-        /* Vertical scrollbar (right edge) */
-        int sb_x = c.x + canvas_w;
-        int sb_y = c.y;
-        int sb_h = canvas_h;
-        SDL_Rect sb_bg = {sb_x, sb_y, SCROLLBAR_W, sb_h};
-        SDL_SetRenderDrawColor(app->renderer, 30, 30, 35, 255);
-        SDL_RenderFillRect(app->renderer, &sb_bg);
-
-        if (lvl->height > vis_h) {
-            int thumb_h = (vis_h * sb_h) / lvl->height;
-            if (thumb_h < 16) thumb_h = 16;
-            int thumb_y = sb_y + (app->scroll_y * (sb_h - thumb_h)) / (max_sy > 0 ? max_sy : 1);
-            SDL_Rect thumb = {sb_x + 2, thumb_y, SCROLLBAR_W - 4, thumb_h};
-            SDL_SetRenderDrawColor(app->renderer, 80, 80, 100, 255);
-            SDL_RenderFillRect(app->renderer, &thumb);
-
-            /* Drag vertical scrollbar */
-            if (ui_mouse_in_rect(sb_x, sb_y, SCROLLBAR_W, sb_h) && ui_mouse_down()) {
-                int mx, my; ui_mouse_pos(&mx, &my);
-                int new_sy = ((my - sb_y - thumb_h / 2) * (max_sy > 0 ? max_sy : 1)) / (sb_h - thumb_h);
-                if (new_sy < 0) new_sy = 0;
-                if (new_sy > max_sy) new_sy = max_sy;
-                app->scroll_y = new_sy;
-            }
-        }
-
-        /* Horizontal scrollbar (bottom edge) */
-        int hb_x = c.x;
-        int hb_y = c.y + canvas_h;
-        int hb_w = canvas_w;
-        SDL_Rect hb_bg = {hb_x, hb_y, hb_w, SCROLLBAR_W};
-        SDL_SetRenderDrawColor(app->renderer, 30, 30, 35, 255);
-        SDL_RenderFillRect(app->renderer, &hb_bg);
-
-        if (lvl->width > vis_w) {
-            int thumb_w = (vis_w * hb_w) / lvl->width;
-            if (thumb_w < 16) thumb_w = 16;
-            int thumb_x = hb_x + (app->scroll_x * (hb_w - thumb_w)) / (max_sx > 0 ? max_sx : 1);
-            SDL_Rect thumb = {thumb_x, hb_y + 2, thumb_w, SCROLLBAR_W - 4};
-            SDL_SetRenderDrawColor(app->renderer, 80, 80, 100, 255);
-            SDL_RenderFillRect(app->renderer, &thumb);
-
-            /* Drag horizontal scrollbar */
-            if (ui_mouse_in_rect(hb_x, hb_y, hb_w, SCROLLBAR_W) && ui_mouse_down()) {
-                int mx, my; ui_mouse_pos(&mx, &my);
-                int new_sx = ((mx - hb_x - thumb_w / 2) * (max_sx > 0 ? max_sx : 1)) / (hb_w - thumb_w);
-                if (new_sx < 0) new_sx = 0;
-                if (new_sx > max_sx) new_sx = max_sx;
-                app->scroll_x = new_sx;
-            }
-        }
-    }
+    /* ── Thin overlay scrollbars ── */
+    app->scroll_y = ui_scrollbar_v(c.x + canvas_w - STYLE_SCROLLBAR_W, c.y, canvas_h,
+                                    lvl->height, vis_h, app->scroll_y);
+    app->scroll_x = ui_scrollbar_h(c.x, c.y + canvas_h - STYLE_SCROLLBAR_W, canvas_w,
+                                    lvl->width, vis_w, app->scroll_x);
 
     /* Mouse interaction on canvas */
     if (ui_mouse_in_rect(ox, oy, draw_w, draw_h)) {

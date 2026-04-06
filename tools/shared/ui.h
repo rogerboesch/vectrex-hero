@@ -52,6 +52,16 @@ typedef struct {
     /* Misc */
     SDL_Color tab_active;     /* active tab indicator */
     SDL_Color tooltip_bg;     /* tooltip background */
+    /* Activity bar */
+    SDL_Color activity_bg;    /* activity bar background */
+    SDL_Color activity_active;/* active icon indicator */
+    /* Status bar */
+    SDL_Color status_bg;      /* status bar background */
+    SDL_Color status_text;    /* status bar text */
+    /* Scrollbar */
+    SDL_Color scrollbar_bg;   /* scrollbar track */
+    SDL_Color scrollbar_thumb;/* scrollbar thumb */
+    SDL_Color scrollbar_hover;/* scrollbar thumb hover */
 } UITheme;
 
 extern UITheme ui_theme;
@@ -122,6 +132,15 @@ void ui_icon_centered(int x, int y, int w, int h, uint16_t codepoint, SDL_Color 
 #define ICON_ERASER     0xEC5D
 #define ICON_MIRROR     0xEA69
 #define ICON_CLEAR_ALL  0xEABF
+#define ICON_LAYERS     0xEA99
+#define ICON_SYMBOL_COLOR 0xEB5C
+#define ICON_DEBUG      0xEA87
+#define ICON_CHEVRON_SEP 0xEAB6  /* > separator for breadcrumbs */
+#define ICON_VM_RUNNING 0xEB7B
+#define ICON_LAYOUT     0xEBEB
+#define ICON_HOME       0xEB06
+#define ICON_EYE        0xEA70
+#define ICON_GAME       0xEC17
 
 /* Button. Returns true on click. */
 bool ui_button(int x, int y, int w, int h, const char *label);
@@ -175,6 +194,37 @@ bool ui_key_pressed(SDL_Keycode key);
 /* Is a modifier held? */
 bool ui_key_mod_cmd(void);     /* Cmd on macOS */
 bool ui_key_mod_shift(void);
+
+/* ── Activity bar ─────────────────────────────────────────── */
+
+/* Draw a vertical activity bar icon. Returns true on click.
+   active: whether this view is currently selected. */
+bool ui_activity_icon(int x, int y, int w, int h, uint16_t icon, bool active);
+
+/* ── Status bar ───────────────────────────────────────────── */
+
+/* Draw status bar background. Returns content rect. */
+SDL_Rect ui_status_bar(int x, int y, int w, int h);
+
+/* Draw a status bar item. Returns width used. */
+int ui_status_item(int x, int y, const char *text);
+int ui_status_icon_item(int x, int y, uint16_t icon, const char *text);
+
+/* ── Breadcrumb ───────────────────────────────────────────── */
+
+/* Draw breadcrumb bar background. Returns content rect. */
+SDL_Rect ui_breadcrumb_bar(int x, int y, int w, int h);
+
+/* Draw breadcrumb segments. segs is array of strings, count is number. */
+void ui_breadcrumb(int x, int y, const char **segs, int count);
+
+/* ── Thin scrollbar (overlay style) ───────────────────────── */
+
+/* Draw a thin vertical scrollbar. Returns new scroll position if dragged. */
+int ui_scrollbar_v(int x, int y, int h, int content_h, int visible_h, int scroll_pos);
+
+/* Draw a thin horizontal scrollbar. Returns new scroll position if dragged. */
+int ui_scrollbar_h(int x, int y, int w, int content_w, int visible_w, int scroll_pos);
 
 #ifdef __cplusplus
 }

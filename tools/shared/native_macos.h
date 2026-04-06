@@ -38,6 +38,9 @@ typedef enum {
 void native_menu_init_ex(const char *app_name);
 void native_menu_init(void);  /* defaults to "Workbench" */
 
+/* Set the dock icon from an .icns file path. */
+void native_set_dock_icon(const char *icns_path);
+
 /* Poll for menu action. Returns MENU_NONE if nothing selected.
    Resets after reading (only returns each action once). */
 MenuAction native_menu_poll(void);

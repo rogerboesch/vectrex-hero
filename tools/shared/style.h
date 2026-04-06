@@ -1,5 +1,5 @@
 /*
- * style.h — Layout and font constants for QL Studio 2
+ * style.h — Layout and font constants for GBC Workbench
  *
  * All colors are in UITheme (ui.h / ui.c).
  * This file holds layout sizes and font configuration.
@@ -15,8 +15,10 @@
 
 /* ── Layout ───────────────────────────────────────────────── */
 
+#define STYLE_ACTIVITY_BAR_W   48
 #define STYLE_LEFT_PANEL_W    300
 #define STYLE_RIGHT_PANEL_W   300
 #define STYLE_CONSOLE_H       120
-#define STYLE_TAB_BAR_H        36
-#define STYLE_TAB_W           140
+#define STYLE_STATUS_BAR_H     22
+#define STYLE_BREADCRUMB_H     26
+#define STYLE_SCROLLBAR_W       6

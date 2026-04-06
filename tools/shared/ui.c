@@ -42,6 +42,16 @@ UITheme ui_theme = {
     /* Misc */
     .tab_active      = { 80, 140, 200, 255},
     .tooltip_bg      = { 20,  20,  20, 240},
+    /* Activity bar */
+    .activity_bg     = { 33,  33,  33, 255},
+    .activity_active = { 80, 140, 200, 255},
+    /* Status bar */
+    .status_bg       = { 0,  122, 204, 255},
+    .status_text     = {255, 255, 255, 255},
+    /* Scrollbar */
+    .scrollbar_bg    = {  0,   0,   0,   0},
+    .scrollbar_thumb = { 90,  90,  90, 140},
+    .scrollbar_hover = {120, 120, 120, 180},
 };
 
 /* ── State ────────────────────────────────────────────────── */
@@ -51,6 +61,7 @@ static TTF_Font *g_font = NULL;
 static TTF_Font *g_font_small = NULL;
 static TTF_Font *g_font_mono = NULL;
 static TTF_Font *g_font_icon = NULL;
+static TTF_Font *g_font_icon_lg = NULL;
 
 /* Input state */
 static int g_mouse_x, g_mouse_y;
@@ -141,6 +152,7 @@ bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size,
         const char *base = SDL_GetBasePath();
         snprintf(icon_path, sizeof(icon_path), "%s/../../shared/codicon.ttf", base ? base : ".");
         g_font_icon = TTF_OpenFont(icon_path, font_size);
+        g_font_icon_lg = TTF_OpenFont(icon_path, font_size + 10);
         /* Not fatal if missing */
     }
 
@@ -154,6 +166,7 @@ bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size,
 }
 
 void ui_shutdown(void) {
+    if (g_font_icon_lg) TTF_CloseFont(g_font_icon_lg);
     if (g_font_icon) TTF_CloseFont(g_font_icon);
     if (g_font_mono && g_font_mono != g_font) TTF_CloseFont(g_font_mono);
     if (g_font_small && g_font_small != g_font) TTF_CloseFont(g_font_small);
@@ -592,3 +605,148 @@ bool ui_key_pressed(SDL_Keycode key) {
 
 bool ui_key_mod_cmd(void)   { return (g_key_mod & KMOD_GUI) != 0; }
 bool ui_key_mod_shift(void) { return (g_key_mod & KMOD_SHIFT) != 0; }
+
+/* ── Activity bar ─────────────────────────────────────────── */
+
+bool ui_activity_icon(int x, int y, int w, int h, uint16_t icon, bool active) {
+    bool hover = ui_mouse_in_rect(x, y, w, h);
+    bool clicked = hover && g_mouse_left_clicked;
+
+    /* Active indicator — 2px left bar */
+    if (active) {
+        fill_rect(x, y, 2, h, ui_theme.activity_active);
+    }
+
+    /* Icon color: bright if active, dim if inactive, slightly brighter on hover */
+    SDL_Color ic = active ? ui_theme.text : hover ? ui_theme.text_dim : ui_theme.text_dark;
+
+    /* Use large icon font */
+    TTF_Font *font = g_font_icon_lg ? g_font_icon_lg : g_font_icon;
+    if (font) {
+        char buf[4];
+        buf[0] = (char)(0xE0 | ((icon >> 12) & 0x0F));
+        buf[1] = (char)(0x80 | ((icon >> 6) & 0x3F));
+        buf[2] = (char)(0x80 | (icon & 0x3F));
+        buf[3] = 0;
+        int tw = 0, th = 0;
+        TTF_SizeUTF8(font, buf, &tw, &th);
+        int ix = x + (w - tw) / 2;
+        int iy = y + (h - th) / 2;
+        render_text(font, ix, iy, buf, ic);
+    }
+
+    return clicked;
+}
+
+/* ── Status bar ───────────────────────────────────────────── */
+
+SDL_Rect ui_status_bar(int x, int y, int w, int h) {
+    fill_rect(x, y, w, h, ui_theme.status_bg);
+    return (SDL_Rect){x + 8, y, w - 16, h};
+}
+
+int ui_status_item(int x, int y, const char *text) {
+    return render_text(g_font_small, x, y + 3, text, ui_theme.status_text);
+}
+
+int ui_status_icon_item(int x, int y, uint16_t icon, const char *text) {
+    int iw = ui_icon_color(x, y + 3, icon, ui_theme.status_text);
+    int tw = render_text(g_font_small, x + iw + 4, y + 3, text, ui_theme.status_text);
+    return iw + 4 + tw;
+}
+
+/* ── Breadcrumb ───────────────────────────────────────────── */
+
+SDL_Rect ui_breadcrumb_bar(int x, int y, int w, int h) {
+    fill_rect(x, y, w, h, ui_theme.panel_bg);
+    /* Bottom border */
+    fill_rect(x, y + h - 1, w, 1, ui_theme.border);
+    return (SDL_Rect){x + 8, y, w - 16, h};
+}
+
+void ui_breadcrumb(int x, int y, const char **segs, int count) {
+    int cx = x;
+    for (int i = 0; i < count; i++) {
+        if (i > 0) {
+            /* Separator icon */
+            int sw = ui_icon_color(cx + 2, y + 5, ICON_CHEVRON_R, ui_theme.text_dark);
+            cx += sw + 6;
+        }
+        SDL_Color col = (i == count - 1) ? ui_theme.text : ui_theme.text_dim;
+        cx += render_text(g_font_small, cx, y + 5, segs[i], col);
+    }
+}
+
+/* ── Thin scrollbar (overlay) ─────────────────────────────── */
+
+int ui_scrollbar_v(int x, int y, int h, int content_h, int visible_h, int scroll_pos) {
+    if (content_h <= visible_h) return scroll_pos;
+
+    int max_scroll = content_h - visible_h;
+    if (scroll_pos > max_scroll) scroll_pos = max_scroll;
+    if (scroll_pos < 0) scroll_pos = 0;
+
+    bool hover = ui_mouse_in_rect(x - 4, y, 10, h);
+
+    /* Only show on hover or drag */
+    int bar_w = hover ? 8 : 6;
+    int bar_x = x + (6 - bar_w);  /* right-align */
+
+    int thumb_h = (visible_h * h) / content_h;
+    if (thumb_h < 20) thumb_h = 20;
+    int track = h - thumb_h;
+    int thumb_y = y + (track > 0 ? (scroll_pos * track) / max_scroll : 0);
+
+    SDL_Color tc = hover ? ui_theme.scrollbar_hover : ui_theme.scrollbar_thumb;
+    /* Draw with alpha blending */
+    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+    SDL_Rect r = {bar_x, thumb_y, bar_w, thumb_h};
+    SDL_SetRenderDrawColor(g_renderer, tc.r, tc.g, tc.b, tc.a);
+    SDL_RenderFillRect(g_renderer, &r);
+    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
+
+    /* Drag */
+    if (hover && g_mouse_left_down) {
+        int mx, my; ui_mouse_pos(&mx, &my);
+        int new_pos = ((my - y - thumb_h / 2) * max_scroll) / (track > 0 ? track : 1);
+        if (new_pos < 0) new_pos = 0;
+        if (new_pos > max_scroll) new_pos = max_scroll;
+        return new_pos;
+    }
+    return scroll_pos;
+}
+
+int ui_scrollbar_h(int x, int y, int w, int content_w, int visible_w, int scroll_pos) {
+    if (content_w <= visible_w) return scroll_pos;
+
+    int max_scroll = content_w - visible_w;
+    if (scroll_pos > max_scroll) scroll_pos = max_scroll;
+    if (scroll_pos < 0) scroll_pos = 0;
+
+    bool hover = ui_mouse_in_rect(x, y - 4, w, 10);
+
+    int bar_h = hover ? 8 : 6;
+    int bar_y = y + (6 - bar_h);  /* bottom-align */
+
+    int thumb_w = (visible_w * w) / content_w;
+    if (thumb_w < 20) thumb_w = 20;
+    int track = w - thumb_w;
+    int thumb_x = x + (track > 0 ? (scroll_pos * track) / max_scroll : 0);
+
+    SDL_Color tc = hover ? ui_theme.scrollbar_hover : ui_theme.scrollbar_thumb;
+    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+    SDL_Rect r = {thumb_x, bar_y, thumb_w, bar_h};
+    SDL_SetRenderDrawColor(g_renderer, tc.r, tc.g, tc.b, tc.a);
+    SDL_RenderFillRect(g_renderer, &r);
+    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
+
+    /* Drag */
+    if (hover && g_mouse_left_down) {
+        int mx, my; ui_mouse_pos(&mx, &my);
+        int new_pos = ((mx - x - thumb_w / 2) * max_scroll) / (track > 0 ? track : 1);
+        if (new_pos < 0) new_pos = 0;
+        if (new_pos > max_scroll) new_pos = max_scroll;
+        return new_pos;
+    }
+    return scroll_pos;
+}

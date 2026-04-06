@@ -21,7 +21,7 @@
   ],
   "levels": [
     {
-      "name": "START",
+      "name": "Level 1",
       "width": 20,
       "height": 32,
       "tiles": [
