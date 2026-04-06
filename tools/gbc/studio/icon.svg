@@ -1,0 +1,52 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- White rounded background -->
+  <rect width="512" height="512" rx="110" fill="white"/>
+
+  <!-- GBC body -->
+  <rect x="136" y="60" width="240" height="360" rx="24" fill="#7EB8DA" stroke="#2D3436" stroke-width="8"/>
+
+  <!-- Screen bezel -->
+  <rect x="166" y="90" width="180" height="150" rx="8" fill="#2D3436"/>
+
+  <!-- Screen (green LCD) -->
+  <rect x="176" y="100" width="160" height="130" rx="4" fill="#8BAC0F"/>
+
+  <!-- Tile grid on screen (4x4) -->
+  <rect x="176" y="100" width="40" height="32" fill="#9BBC0F"/>
+  <rect x="256" y="100" width="40" height="32" fill="#9BBC0F"/>
+  <rect x="216" y="132" width="40" height="33" fill="#9BBC0F"/>
+  <rect x="296" y="132" width="40" height="33" fill="#9BBC0F"/>
+  <rect x="176" y="165" width="40" height="32" fill="#9BBC0F"/>
+  <rect x="256" y="165" width="40" height="32" fill="#9BBC0F"/>
+  <rect x="216" y="197" width="40" height="33" fill="#9BBC0F"/>
+  <rect x="296" y="197" width="40" height="33" fill="#9BBC0F"/>
+
+  <!-- Grid lines -->
+  <line x1="216" y1="100" x2="216" y2="230" stroke="#306230" stroke-width="1.5"/>
+  <line x1="256" y1="100" x2="256" y2="230" stroke="#306230" stroke-width="1.5"/>
+  <line x1="296" y1="100" x2="296" y2="230" stroke="#306230" stroke-width="1.5"/>
+  <line x1="176" y1="132" x2="336" y2="132" stroke="#306230" stroke-width="1.5"/>
+  <line x1="176" y1="165" x2="336" y2="165" stroke="#306230" stroke-width="1.5"/>
+  <line x1="176" y1="197" x2="336" y2="197" stroke="#306230" stroke-width="1.5"/>
+
+  <!-- Cursor highlight on one tile -->
+  <rect x="216" y="132" width="40" height="33" stroke="#E74C3C" stroke-width="3" fill="none"/>
+
+  <!-- D-pad -->
+  <rect x="172" y="280" width="18" height="54" rx="3" fill="#2D3436"/>
+  <rect x="154" y="298" width="54" height="18" rx="3" fill="#2D3436"/>
+
+  <!-- A B buttons -->
+  <circle cx="320" cy="295" r="16" fill="#E74C3C" stroke="#2D3436" stroke-width="3"/>
+  <circle cx="354" cy="275" r="16" fill="#E74C3C" stroke="#2D3436" stroke-width="3"/>
+  <text x="315" y="301" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="bold" fill="white">A</text>
+  <text x="349" y="281" font-family="Helvetica,Arial,sans-serif" font-size="18" font-weight="bold" fill="white">B</text>
+
+  <!-- Speaker dots -->
+  <circle cx="330" cy="370" r="3" fill="#2D3436"/>
+  <circle cx="345" cy="370" r="3" fill="#2D3436"/>
+  <circle cx="360" cy="370" r="3" fill="#2D3436"/>
+  <circle cx="337" cy="383" r="3" fill="#2D3436"/>
+  <circle cx="352" cy="383" r="3" fill="#2D3436"/>
+
+</svg>

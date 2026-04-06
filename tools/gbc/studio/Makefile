@@ -60,7 +60,26 @@ $(BUILD)/native_macos.o: $(SHARED)/native_macos.m
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-clean:
-	rm -rf $(BUILD) $(TARGET)
+APP = GBCWorkbench.app
 
-.PHONY: all clean
+app: $(TARGET) icon.icns
+	@mkdir -p $(APP)/Contents/MacOS $(APP)/Contents/Resources
+	@ln -sf ../../../$(TARGET) $(APP)/Contents/MacOS/$(TARGET)
+	@cp icon.icns $(APP)/Contents/Resources/
+	@echo '<?xml version="1.0" encoding="UTF-8"?>' > $(APP)/Contents/Info.plist
+	@echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> $(APP)/Contents/Info.plist
+	@echo '<plist version="1.0"><dict>' >> $(APP)/Contents/Info.plist
+	@echo '<key>CFBundleName</key><string>GBC Workbench</string>' >> $(APP)/Contents/Info.plist
+	@echo '<key>CFBundleDisplayName</key><string>GBC Workbench</string>' >> $(APP)/Contents/Info.plist
+	@echo '<key>CFBundleIdentifier</key><string>com.vectrex-hero.gbcworkbench</string>' >> $(APP)/Contents/Info.plist
+	@echo '<key>CFBundleExecutable</key><string>GBCWorkbench</string>' >> $(APP)/Contents/Info.plist
+	@echo '<key>CFBundleIconFile</key><string>icon</string>' >> $(APP)/Contents/Info.plist
+	@echo '<key>CFBundlePackageType</key><string>APPL</string>' >> $(APP)/Contents/Info.plist
+	@echo '<key>NSHighResolutionCapable</key><true/>' >> $(APP)/Contents/Info.plist
+	@echo '</dict></plist>' >> $(APP)/Contents/Info.plist
+	@echo "Built $(APP)"
+
+clean:
+	rm -rf $(BUILD) $(TARGET) $(APP)
+
+.PHONY: all clean app

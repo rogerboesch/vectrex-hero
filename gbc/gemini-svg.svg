@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="110" fill="white"/>
+  
+  <rect x="156" y="100" width="200" height="312" rx="20" fill="#74B9FF" stroke="#2D3436" stroke-width="8"/>
+  
+  <rect x="181" y="125" width="150" height="130" rx="5" fill="#CAD3C8" stroke="#2D3436" stroke-width="4"/>
+  
+  <path d="M210 320h15v-15h10v15h15v10h-15v15h-10v-15h-15z" fill="#2D3436"/>
+  
+  <g transform="translate(290, 310) scale(1.2)">
+    <path d="M12 2L2 12l3 3 7-7 7 7 3-3L12 2z" fill="#0984E3"/>
+    <rect x="10" y="14" width="4" height="20" rx="1" fill="#0984E3"/>
+  </g>
+  
+  <text x="256" y="460" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="32" fill="#2D3436">GBC WORKBENCH</text>
+</svg>

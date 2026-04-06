@@ -10,14 +10,18 @@
 #   make stats    Show binary size
 
 # --- Toolchain ---
-CC65_DIR ?= $(HOME)/retro-tools/cc65
-CC  = $(CC65_DIR)/bin/cc65
-CA  = $(CC65_DIR)/bin/ca65
-LD  = $(CC65_DIR)/bin/ld65
-AR  = $(CC65_DIR)/bin/ar65
+# Try system cc65 first, fall back to retro-tools
+CC65_DIR ?= $(shell dirname $$(which cc65 2>/dev/null || echo $(HOME)/retro-tools/cc65/bin/cc65))/..
+CC  = cc65
+CA  = ca65
+LD  = ld65
 
-# AppleCommander for disk images
-AC ?= java -jar $(HOME)/retro-tools/AppleCommander-ac-1.8.0.jar
+# cc65 library path
+CC65_LIB = $(shell $(CC) --print-target-path 2>/dev/null || echo $(CC65_DIR)/share/cc65)/lib
+
+# AppleCommander for disk images (bundled in biplane project)
+AC_JAR ?= $(HOME)/projects/biplane/platform_apple2/tools/AppleCommander-ac.jar
+AC = java -jar $(AC_JAR)
 
 # --- Target ---
 TARGET   = apple2enh
@@ -50,11 +54,6 @@ CC_FLAGS  = -t $(TARGET) -O --add-source
 CA_FLAGS  = -t $(TARGET)
 LD_FLAGS  = -C $(CFG) -m $(BINDIR)/$(PROGRAM).map
 
-# --- Include paths ---
-# cc65 needs to find its own includes
-CC_FLAGS += -I $(CC65_DIR)/include
-CA_FLAGS += -I $(CC65_DIR)/asminc
-
 # --- Rules ---
 
 .PHONY: all clean disk stats
@@ -72,7 +71,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.s | $(OBJDIR)
 
 # Link
 $(BINDIR)/$(PROGRAM).bin: $(OBJS) $(CFG) | $(BINDIR)
-	$(LD) $(LD_FLAGS) -o $@ $(OBJS) $(CC65_DIR)/lib/$(TARGET).lib
+	$(LD) $(LD_FLAGS) -o $@ $(OBJS) $(CC65_LIB)/$(TARGET).lib
 
 # Create directories
 $(OBJDIR):
@@ -81,11 +80,33 @@ $(OBJDIR):
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
-# Disk image (ProDOS)
+# Disk image (ProDOS .po format for Virtual ][ and other emulators)
+# Creates a ProDOS disk with RESCUE.SYSTEM as SYS file.
+# To boot: insert a ProDOS system disk first, then swap to this disk,
+# or provide PRODOS file via: make disk PRODOS=/path/to/PRODOS
 disk: $(BINDIR)/$(PROGRAM).bin
-	cp $(HOME)/retro-tools/prodos/PRODOS.dsk $(BINDIR)/$(PROGRAM).dsk 2>/dev/null || \
-	$(AC) -pro140 $(BINDIR)/$(PROGRAM).dsk RESCUE
-	$(AC) -p $(BINDIR)/$(PROGRAM).dsk RESCUE.SYSTEM SYS < $(BINDIR)/$(PROGRAM).bin
+	rm -f $(BINDIR)/$(PROGRAM).po
+	$(AC) -pro140 $(BINDIR)/$(PROGRAM).po RESCUE
+	$(AC) -p $(BINDIR)/$(PROGRAM).po RESCUE.SYSTEM SYS '$$0803' < $(BINDIR)/$(PROGRAM).bin
+ifdef PRODOS
+	@echo "Adding ProDOS from $(PRODOS)..."
+	$(AC) -p $(BINDIR)/$(PROGRAM).po PRODOS SYS '$$2000' < $(PRODOS)
+endif
+	@echo ""
+	@echo "Disk image: $(BINDIR)/$(PROGRAM).po"
+	$(AC) -ll $(BINDIR)/$(PROGRAM).po
+	@echo ""
+ifndef PRODOS
+	@echo "NOTE: No PRODOS file on disk -- not self-booting."
+	@echo "To make bootable: make disk PRODOS=/path/to/PRODOS"
+	@echo "Or in Virtual ][: boot a ProDOS disk, then:"
+	@echo "  1. Swap rescue.po into Slot 6 Drive 1"
+	@echo "  2. Type: PREFIX /RESCUE"
+	@echo "  3. Type: -RESCUE.SYSTEM"
+else
+	@echo "Bootable ProDOS disk ready!"
+	@echo "In Virtual ][: insert rescue.po in Slot 6 Drive 1, reset."
+endif
 
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
