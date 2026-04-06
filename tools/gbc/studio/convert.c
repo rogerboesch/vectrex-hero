@@ -185,6 +185,25 @@ static void convert_levels(const char *hero_json, TilemapProject *tmap) {
                 }
             }
 
+            /* Overlay destroyable walls (raw tile type 3) */
+            for (int wi = 0; wi < room->wall_count; wi++) {
+                if (!room->walls[wi].destroyable) continue;
+                Wall *w = &room->walls[wi];
+                /* Wall coords: y=center, x=left, h=half-height, w=width */
+                int wr1 = tr(w->y + w->h);
+                int wr2 = tr(w->y - w->h);
+                int wc1 = tc(w->x);
+                int wc2 = tc(w->x + w->w);
+                if (wr1 > wr2) { int tmp = wr1; wr1 = wr2; wr2 = tmp; }
+                for (int r = wr1; r <= wr2 && r < GRID_H; r++) {
+                    for (int c2 = wc1; c2 <= wc2 && c2 < GRID_W; c2++) {
+                        int tx2 = ox + c2, ty2 = oy + r;
+                        if (tx2 < tm->width && ty2 < tm->height)
+                            tm->tiles[ty2][tx2] = 3; /* destroyable wall */
+                    }
+                }
+            }
+
             /* Extract entities from room data */
             if (room->has_player_start) {
                 int etx = ox + tc(room->player_start.x);
@@ -289,19 +308,31 @@ static void save_project(TilemapProject *tmap, const char *path) {
 
 /* ── C Export: auto-tile + RLE ────────────────────────────── */
 
-/* Auto-tile: convert raw tile index (0=empty, 1=solid, 2=border) to
-   GBDK tile indices matching tiles.h:
+/* Auto-tile: convert raw tile index to GBDK tile indices (tiles.h):
    0 = TILE_EMPTY
-   1-16 = TILE_WALL + neighbor mask (auto-tiled)
-   Border tiles also use the wall auto-tile range since they look the same. */
+   1-16 = TILE_WALL + neighbor mask (auto-tiled solid/border)
+   3 (raw) → 17 or 18 = TILE_DWALL / TILE_DWALL_EDGE */
+#define RAW_DWALL 3
+#define OUT_DWALL 17       /* TILE_DWALL */
+#define OUT_DWALL_EDGE 18  /* TILE_DWALL_EDGE */
+
 static void autotile_level(TilemapLevel *lvl, uint8_t out[256][256]) {
     for (int y = 0; y < lvl->height; y++) {
         for (int x = 0; x < lvl->width; x++) {
             uint8_t t = lvl->tiles[y][x];
             if (t == 0) {
                 out[y][x] = 0; /* TILE_EMPTY */
+            } else if (t == RAW_DWALL) {
+                /* Destroyable wall: edge if on boundary of the wall region */
+                uint8_t up    = (y > 0)               ? lvl->tiles[y-1][x] : 0;
+                uint8_t right = (x < lvl->width - 1)  ? lvl->tiles[y][x+1] : 0;
+                uint8_t down  = (y < lvl->height - 1) ? lvl->tiles[y+1][x] : 0;
+                uint8_t left  = (x > 0)               ? lvl->tiles[y][x-1] : 0;
+                uint8_t is_edge = (up != RAW_DWALL || right != RAW_DWALL ||
+                                   down != RAW_DWALL || left != RAW_DWALL);
+                out[y][x] = is_edge ? OUT_DWALL_EDGE : OUT_DWALL;
             } else {
-                /* Compute 4-bit neighbor mask */
+                /* Solid/border: auto-tile with neighbor mask */
                 uint8_t mask = 0;
                 uint8_t up    = (y > 0)               ? lvl->tiles[y-1][x] : 1;
                 uint8_t right = (x < lvl->width - 1)  ? lvl->tiles[y][x+1] : 1;

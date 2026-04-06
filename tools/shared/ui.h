@@ -94,6 +94,35 @@ int ui_text_small(int x, int y, const char *text);
 int ui_text_mono(int x, int y, const char *text);
 int ui_text_mono_color(int x, int y, const char *text, SDL_Color color);
 
+/* Icon (Codicon font). Renders a single icon glyph. Returns width. */
+int ui_icon(int x, int y, uint16_t codepoint);
+int ui_icon_color(int x, int y, uint16_t codepoint, SDL_Color color);
+void ui_icon_centered(int x, int y, int w, int h, uint16_t codepoint, SDL_Color color);
+
+/* Codicon codepoints (verified from codicon.ttf) */
+#define ICON_ADD        0xEA60
+#define ICON_EDIT       0xEA73
+#define ICON_CLOSE      0xEA76
+#define ICON_NEW_FILE   0xEA7F
+#define ICON_TRASH      0xEA81
+#define ICON_CHEVRON_L  0xEAB5
+#define ICON_CHEVRON_R  0xEAB6
+#define ICON_PAUSE      0xEAD1
+#define ICON_FILES      0xEAF0
+#define ICON_FOLDER     0xEAF7
+#define ICON_PLAY       0xEB2C
+#define ICON_REFRESH    0xEB37
+#define ICON_SAVE       0xEB4B
+#define ICON_TRI_LEFT   0xEB6F
+#define ICON_TRI_RIGHT  0xEB70
+#define ICON_ZOOM_IN    0xEB81
+#define ICON_ZOOM_OUT   0xEB82
+#define ICON_EXPORT     0xEBAC
+#define ICON_COPY       0xEBCC
+#define ICON_ERASER     0xEC5D
+#define ICON_MIRROR     0xEA69
+#define ICON_CLEAR_ALL  0xEABF
+
 /* Button. Returns true on click. */
 bool ui_button(int x, int y, int w, int h, const char *label);
 
@@ -120,6 +149,7 @@ bool ui_checkbox(int x, int y, const char *label, bool *value);
 
 /* Section header — full-width toolbar-colored title bar. Returns y after it. */
 int ui_section(int x, int y, int w, const char *label);
+SDL_Rect ui_section_bar(int x, int y, int w, const char *label);
 
 /* Tooltip — call after the widget it describes. Appears near mouse. */
 void ui_tooltip(const char *text);
@@ -137,6 +167,7 @@ bool ui_mouse_clicked(void);    /* left button just pressed this frame */
 bool ui_mouse_down(void);       /* left button held down */
 bool ui_mouse_right_clicked(void); /* right button just pressed */
 void ui_mouse_pos(int *x, int *y);
+void ui_mouse_wheel(int *x, int *y); /* scroll wheel delta this frame */
 
 /* Was a key pressed this frame? */
 bool ui_key_pressed(SDL_Keycode key);

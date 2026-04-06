@@ -16,14 +16,11 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
     Tileset *ts = &app->tmap.tileset;
     GBCPalette *pal = &app->tmap.bg_pals[0];
 
-    /* ── Tiles section ── */
-    y = ui_section(c.x - 4, y, c.w + 8, "Tiles");
-
-    /* Tile management buttons */
+    /* ── Tiles section with toolbar buttons ── */
     {
-        int bx = c.x;
-        int bw = 24, bh = 20, gap = 2;
-        if (ui_button(bx, y, bw, bh, "+")) {
+        SDL_Rect tb = ui_section_bar(c.x - 4, y, c.w + 8, "Tiles");
+        int bw = tb.h, bx = tb.x + tb.w - 3 * (bw + 2);
+        if (ui_button(bx, tb.y, bw, tb.h, "")) {
             if (ts->used_count < TSET_COUNT) {
                 memset(&ts->entries[ts->used_count], 0, sizeof(TilesetEntry));
                 app->cur_tset_tile = ts->used_count;
@@ -32,10 +29,10 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
                 app->modified = true;
             }
         }
-        bx += bw + gap;
-        if (ui_button(bx, y, bw, bh, "D")) {
+        ui_icon_centered(bx, tb.y, bw, tb.h, ICON_ADD, (SDL_Color){255,255,255,255});
+        bx += bw + 2;
+        if (ui_button(bx, tb.y, bw, tb.h, "")) {
             if (ts->used_count > 1 && app->cur_tset_tile < ts->used_count) {
-                /* Copy selected tile as new entry */
                 if (ts->used_count < TSET_COUNT) {
                     ts->entries[ts->used_count] = ts->entries[app->cur_tset_tile];
                     app->cur_tset_tile = ts->used_count;
@@ -45,8 +42,9 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
                 }
             }
         }
-        bx += bw + gap;
-        if (ui_button(bx, y, bw, bh, "X")) {
+        ui_icon_centered(bx, tb.y, bw, tb.h, ICON_COPY, (SDL_Color){255,255,255,255});
+        bx += bw + 2;
+        if (ui_button(bx, tb.y, bw, tb.h, "")) {
             if (ts->used_count > 1 && app->cur_tset_tile < ts->used_count) {
                 for (int j = app->cur_tset_tile; j < ts->used_count - 1; j++)
                     ts->entries[j] = ts->entries[j + 1];
@@ -56,7 +54,8 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
                 app->modified = true;
             }
         }
-        y += bh + 4;
+        ui_icon_centered(bx, tb.y, bw, tb.h, ICON_TRASH, (SDL_Color){255,255,255,255});
+        y = tb.y + tb.h + 10;
     }
 
     int scale = 2;
@@ -93,16 +92,12 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
         }
     }
 
-    /* ── Sprites section ── */
-    int sprite_y = c.y + c.h / 2;
-    y = sprite_y;
-    y = ui_section(c.x - 4, y, c.w + 8, "Sprites");
-
-    /* Sprite management buttons */
+    /* ── Sprites section with toolbar buttons ── */
+    y = c.y + c.h / 2;
     {
-        int bx = c.x;
-        int bw = 24, bh = 20, gap = 2;
-        if (ui_button(bx, y, bw, bh, "+")) {
+        SDL_Rect tb = ui_section_bar(c.x - 4, y, c.w + 8, "Sprites");
+        int bw = tb.h, bx = tb.x + tb.w - 3 * (bw + 2);
+        if (ui_button(bx, tb.y, bw, tb.h, "")) {
             if (app->sprite_count < MAX_TILES) {
                 GBCTile *t = &app->sprites[app->sprite_count];
                 memset(t, 0, sizeof(GBCTile));
@@ -113,8 +108,9 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
                 app->modified = true;
             }
         }
-        bx += bw + gap;
-        if (ui_button(bx, y, bw, bh, "D")) {
+        ui_icon_centered(bx, tb.y, bw, tb.h, ICON_ADD, (SDL_Color){255,255,255,255});
+        bx += bw + 2;
+        if (ui_button(bx, tb.y, bw, tb.h, "")) {
             if (app->sprite_count > 0 && app->cur_sprite < app->sprite_count) {
                 if (app->sprite_count < MAX_TILES) {
                     app->sprites[app->sprite_count] = app->sprites[app->cur_sprite];
@@ -127,8 +123,9 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
                 }
             }
         }
-        bx += bw + gap;
-        if (ui_button(bx, y, bw, bh, "X")) {
+        ui_icon_centered(bx, tb.y, bw, tb.h, ICON_COPY, (SDL_Color){255,255,255,255});
+        bx += bw + 2;
+        if (ui_button(bx, tb.y, bw, tb.h, "")) {
             if (app->sprite_count > 1 && app->cur_sprite < app->sprite_count) {
                 for (int j = app->cur_sprite; j < app->sprite_count - 1; j++)
                     app->sprites[j] = app->sprites[j + 1];
@@ -138,7 +135,8 @@ void draw_asset_list(App *app, int px, int py, int pw, int ph) {
                 app->modified = true;
             }
         }
-        y += bh + 4;
+        ui_icon_centered(bx, tb.y, bw, tb.h, ICON_TRASH, (SDL_Color){255,255,255,255});
+        y = tb.y + tb.h + 10;
     }
 
     int sscale = 2;

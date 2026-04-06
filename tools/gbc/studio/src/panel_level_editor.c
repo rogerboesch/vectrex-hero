@@ -2,13 +2,15 @@
  * panel_level_editor.c — Scrollable tilemap canvas
  *
  * Shows the tilemap for the current level. Left-click paints selected tile.
- * Right-click picks tile. Arrow keys or WASD to scroll.
+ * Right-click picks tile. Arrow keys, WASD, PgUp/PgDn, mouse wheel to scroll.
  */
 #include "app.h"
 #include "ui.h"
 #include <stdio.h>
 
 static int zoom = 2;  /* 1=8px, 2=16px, 3=24px per tile */
+
+#define SCROLLBAR_W 12
 
 void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     SDL_Rect tb = ui_panel_begin_toolbar(px, py, pw, ph);
@@ -19,24 +21,31 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     Tileset *ts = &app->tmap.tileset;
     GBCPalette *pal = &app->tmap.bg_pals[0];
 
-    /* Toolbar */
-    char info[64];
-    const char *layer = (app->sel_type == SEL_SPRITE) ? "Sprite Layer" : "Tile Layer";
-    snprintf(info, sizeof(info), "%s  %s  Zoom:%d", lvl->name, layer, zoom);
-    ui_text_color(tb.x, tb.y + 2, info, ui_theme.text_dim);
+    /* Toolbar: title + zoom icons */
+    {
+        char info[64];
+        snprintf(info, sizeof(info), "Level %d - Zoom %d", app->cur_level + 1, zoom);
+        ui_text_color(tb.x + 4, tb.y + 2, info, ui_theme.text);
 
-    /* Zoom buttons */
-    int zbx = tb.x + tb.w - 100;
-    if (ui_button(zbx, tb.y, 30, tb.h, "-")) { if (zoom > 1) zoom--; }
-    zbx += 34;
-    if (ui_button(zbx, tb.y, 30, tb.h, "+")) { if (zoom < 4) zoom++; }
+        int bw = tb.h;
+        int zbx = tb.x + tb.w - 2 * (bw + 2);
+        if (ui_button(zbx, tb.y, bw, tb.h, "")) { if (zoom > 1) zoom--; }
+        ui_icon_centered(zbx, tb.y, bw, tb.h, ICON_ZOOM_OUT, ui_theme.text);
+        zbx += bw + 2;
+        if (ui_button(zbx, tb.y, bw, tb.h, "")) { if (zoom < 4) zoom++; }
+        ui_icon_centered(zbx, tb.y, bw, tb.h, ICON_ZOOM_IN, ui_theme.text);
+    }
 
     /* Cell size in pixels */
     int cell = 8 * zoom;
 
+    /* Content area minus scrollbars */
+    int canvas_w = c.w - SCROLLBAR_W;
+    int canvas_h = c.h - SCROLLBAR_W;
+
     /* Visible tiles */
-    int vis_w = c.w / cell;
-    int vis_h = c.h / cell;
+    int vis_w = canvas_w / cell;
+    int vis_h = canvas_h / cell;
     if (vis_w > lvl->width) vis_w = lvl->width;
     if (vis_h > lvl->height) vis_h = lvl->height;
     if (vis_w < 1) vis_w = 1;
@@ -48,6 +57,21 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     if (ui_key_pressed(SDLK_RIGHT) || ui_key_pressed(SDLK_d)) app->scroll_x += scroll_speed;
     if (ui_key_pressed(SDLK_UP)    || ui_key_pressed(SDLK_w)) app->scroll_y -= scroll_speed;
     if (ui_key_pressed(SDLK_DOWN)  || ui_key_pressed(SDLK_s)) app->scroll_y += scroll_speed;
+
+    /* PgUp / PgDn */
+    int page_size = vis_h > 2 ? vis_h - 2 : 1;
+    if (ui_key_pressed(SDLK_PAGEUP))   app->scroll_y -= page_size;
+    if (ui_key_pressed(SDLK_PAGEDOWN)) app->scroll_y += page_size;
+    if (ui_key_pressed(SDLK_HOME))     { app->scroll_x = 0; app->scroll_y = 0; }
+    if (ui_key_pressed(SDLK_END))      app->scroll_y = lvl->height;
+
+    /* Mouse wheel (when hovering canvas) */
+    if (ui_mouse_in_rect(c.x, c.y, canvas_w, canvas_h)) {
+        int wx, wy;
+        ui_mouse_wheel(&wx, &wy);
+        app->scroll_y -= wy * 3;
+        app->scroll_x -= wx * 3;
+    }
 
     /* Clamp scroll */
     int max_sx = lvl->width - vis_w;
@@ -61,8 +85,8 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
 
     /* Draw position */
     int draw_w = vis_w * cell, draw_h = vis_h * cell;
-    int ox = c.x + (c.w - draw_w) / 2;
-    int oy = c.y + (c.h - draw_h) / 2;
+    int ox = c.x;
+    int oy = c.y;
 
     /* Black background behind map */
     SDL_Rect bg = {ox, oy, draw_w, draw_h};
@@ -136,7 +160,62 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
         }
     }
 
-    /* Mouse interaction */
+    /* ── Scrollbars ── */
+    {
+        /* Vertical scrollbar (right edge) */
+        int sb_x = c.x + canvas_w;
+        int sb_y = c.y;
+        int sb_h = canvas_h;
+        SDL_Rect sb_bg = {sb_x, sb_y, SCROLLBAR_W, sb_h};
+        SDL_SetRenderDrawColor(app->renderer, 30, 30, 35, 255);
+        SDL_RenderFillRect(app->renderer, &sb_bg);
+
+        if (lvl->height > vis_h) {
+            int thumb_h = (vis_h * sb_h) / lvl->height;
+            if (thumb_h < 16) thumb_h = 16;
+            int thumb_y = sb_y + (app->scroll_y * (sb_h - thumb_h)) / (max_sy > 0 ? max_sy : 1);
+            SDL_Rect thumb = {sb_x + 2, thumb_y, SCROLLBAR_W - 4, thumb_h};
+            SDL_SetRenderDrawColor(app->renderer, 80, 80, 100, 255);
+            SDL_RenderFillRect(app->renderer, &thumb);
+
+            /* Drag vertical scrollbar */
+            if (ui_mouse_in_rect(sb_x, sb_y, SCROLLBAR_W, sb_h) && ui_mouse_down()) {
+                int mx, my; ui_mouse_pos(&mx, &my);
+                int new_sy = ((my - sb_y - thumb_h / 2) * (max_sy > 0 ? max_sy : 1)) / (sb_h - thumb_h);
+                if (new_sy < 0) new_sy = 0;
+                if (new_sy > max_sy) new_sy = max_sy;
+                app->scroll_y = new_sy;
+            }
+        }
+
+        /* Horizontal scrollbar (bottom edge) */
+        int hb_x = c.x;
+        int hb_y = c.y + canvas_h;
+        int hb_w = canvas_w;
+        SDL_Rect hb_bg = {hb_x, hb_y, hb_w, SCROLLBAR_W};
+        SDL_SetRenderDrawColor(app->renderer, 30, 30, 35, 255);
+        SDL_RenderFillRect(app->renderer, &hb_bg);
+
+        if (lvl->width > vis_w) {
+            int thumb_w = (vis_w * hb_w) / lvl->width;
+            if (thumb_w < 16) thumb_w = 16;
+            int thumb_x = hb_x + (app->scroll_x * (hb_w - thumb_w)) / (max_sx > 0 ? max_sx : 1);
+            SDL_Rect thumb = {thumb_x, hb_y + 2, thumb_w, SCROLLBAR_W - 4};
+            SDL_SetRenderDrawColor(app->renderer, 80, 80, 100, 255);
+            SDL_RenderFillRect(app->renderer, &thumb);
+
+            /* Drag horizontal scrollbar */
+            if (ui_mouse_in_rect(hb_x, hb_y, hb_w, SCROLLBAR_W) && ui_mouse_down()) {
+                int mx, my; ui_mouse_pos(&mx, &my);
+                int new_sx = ((mx - hb_x - thumb_w / 2) * (max_sx > 0 ? max_sx : 1)) / (hb_w - thumb_w);
+                if (new_sx < 0) new_sx = 0;
+                if (new_sx > max_sx) new_sx = max_sx;
+                app->scroll_x = new_sx;
+            }
+        }
+    }
+
+    /* Mouse interaction on canvas */
     if (ui_mouse_in_rect(ox, oy, draw_w, draw_h)) {
         int mx, my; ui_mouse_pos(&mx, &my);
         int tx = (mx - ox) / cell + app->scroll_x;
@@ -150,7 +229,6 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
             if ((app->sel_type == SEL_SPRITE)) {
                 /* Sprite layer: click to place entity, right-click to select/delete */
                 if (ui_mouse_clicked()) {
-                    /* Check if clicking existing entity */
                     int hit = -1;
                     for (int i = 0; i < lvl->entity_count; i++) {
                         if (lvl->entities[i].x == tx && lvl->entities[i].y == ty) { hit = i; break; }
@@ -164,7 +242,6 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                     }
                 }
                 if (ui_mouse_right_clicked()) {
-                    /* Delete entity at this position */
                     for (int i = 0; i < lvl->entity_count; i++) {
                         if (lvl->entities[i].x == tx && lvl->entities[i].y == ty) {
                             for (int j = i; j < lvl->entity_count - 1; j++)
@@ -176,7 +253,6 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                         }
                     }
                 }
-                /* Drag selected entity */
                 if (app->sel_entity >= 0 && ui_mouse_down()) {
                     lvl->entities[app->sel_entity].x = tx;
                     lvl->entities[app->sel_entity].y = ty;
@@ -203,13 +279,6 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
         lvl->entity_count--;
         app->sel_entity = -1;
         app->modified = true;
-    }
-
-    /* Scroll bar indicator */
-    if (lvl->width > vis_w || lvl->height > vis_h) {
-        char scroll_info[32];
-        snprintf(scroll_info, sizeof(scroll_info), "Scroll: %d,%d", app->scroll_x, app->scroll_y);
-        ui_text_small(c.x + 4, c.y + c.h - ui_line_height(), scroll_info);
     }
 
     ui_panel_end();

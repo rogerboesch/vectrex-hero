@@ -50,6 +50,7 @@ static SDL_Renderer *g_renderer = NULL;
 static TTF_Font *g_font = NULL;
 static TTF_Font *g_font_small = NULL;
 static TTF_Font *g_font_mono = NULL;
+static TTF_Font *g_font_icon = NULL;
 
 /* Input state */
 static int g_mouse_x, g_mouse_y;
@@ -57,6 +58,7 @@ static bool g_mouse_left_down;
 static bool g_mouse_left_clicked;   /* just pressed this frame */
 static bool g_mouse_right_clicked;
 static bool g_mouse_left_released;
+static int g_mouse_wheel_x, g_mouse_wheel_y;
 
 /* Keyboard */
 static SDL_Keycode g_keys_pressed[16];
@@ -132,6 +134,16 @@ bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size,
     g_font_mono = TTF_OpenFont(mono_font_path, mono_font_size);
     if (!g_font_mono) g_font_mono = g_font;
 
+    /* Try loading codicon icon font from same directory as the shared headers */
+    {
+        /* Build path: replace font filename with codicon.ttf using SDL_GetBasePath */
+        char icon_path[512];
+        const char *base = SDL_GetBasePath();
+        snprintf(icon_path, sizeof(icon_path), "%s/../../shared/codicon.ttf", base ? base : ".");
+        g_font_icon = TTF_OpenFont(icon_path, font_size);
+        /* Not fatal if missing */
+    }
+
     g_line_height = TTF_FontLineSkip(g_font) + 2;
     /* Measure a char for monospace width */
     int adv = 0;
@@ -142,6 +154,7 @@ bool ui_init(SDL_Renderer *renderer, const char *font_path, int font_size,
 }
 
 void ui_shutdown(void) {
+    if (g_font_icon) TTF_CloseFont(g_font_icon);
     if (g_font_mono && g_font_mono != g_font) TTF_CloseFont(g_font_mono);
     if (g_font_small && g_font_small != g_font) TTF_CloseFont(g_font_small);
     if (g_font) TTF_CloseFont(g_font);
@@ -156,6 +169,8 @@ void ui_begin_frame(void) {
     g_mouse_left_clicked = false;
     g_mouse_right_clicked = false;
     g_mouse_left_released = false;
+    g_mouse_wheel_x = 0;
+    g_mouse_wheel_y = 0;
     g_keys_count = 0;
     g_has_text_input = false;
     g_text_input[0] = 0;
@@ -183,6 +198,10 @@ void ui_process_event(const SDL_Event *event) {
             g_mouse_left_down = false;
             g_mouse_left_released = true;
         }
+        break;
+    case SDL_MOUSEWHEEL:
+        g_mouse_wheel_x += event->wheel.x;
+        g_mouse_wheel_y += event->wheel.y;
         break;
     case SDL_KEYDOWN:
         if (g_keys_count < 16) {
@@ -275,6 +294,37 @@ int ui_text_mono(int x, int y, const char *text) {
 
 int ui_text_mono_color(int x, int y, const char *text, SDL_Color color) {
     return render_text(g_font_mono, x, y, text, color);
+}
+
+/* ── Icon (Codicon font) ──────────────────────────────────── */
+
+int ui_icon(int x, int y, uint16_t codepoint) {
+    return ui_icon_color(x, y, codepoint, ui_theme.text);
+}
+
+int ui_icon_color(int x, int y, uint16_t codepoint, SDL_Color color) {
+    if (!g_font_icon) return 0;
+    char buf[4];
+    buf[0] = (char)(0xE0 | ((codepoint >> 12) & 0x0F));
+    buf[1] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+    buf[2] = (char)(0x80 | (codepoint & 0x3F));
+    buf[3] = 0;
+    return render_text(g_font_icon, x, y, buf, color);
+}
+
+void ui_icon_centered(int x, int y, int w, int h, uint16_t codepoint, SDL_Color color) {
+    if (!g_font_icon) return;
+    char buf[4];
+    buf[0] = (char)(0xE0 | ((codepoint >> 12) & 0x0F));
+    buf[1] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+    buf[2] = (char)(0x80 | (codepoint & 0x3F));
+    buf[3] = 0;
+    /* Measure glyph size then center */
+    int tw = 0, th = 0;
+    TTF_SizeUTF8(g_font_icon, buf, &tw, &th);
+    int ix = x + (w - tw) / 2;
+    int iy = y + (h - th) / 2;
+    render_text(g_font_icon, ix, iy, buf, color);
 }
 
 /* ── Button ───────────────────────────────────────────────── */
@@ -479,6 +529,14 @@ int ui_section(int x, int y, int w, const char *label) {
     return y + h + 10;
 }
 
+SDL_Rect ui_section_bar(int x, int y, int w, const char *label) {
+    int h = g_line_height + 4;
+    fill_rect(x, y, w, h, ui_theme.toolbar_bg);
+    SDL_Color white = {255, 255, 255, 255};
+    render_text(g_font, x + 8, y + 2, label, white);
+    return (SDL_Rect){x, y, w, h};
+}
+
 /* ── Tooltip ──────────────────────────────────────────────── */
 
 void ui_tooltip(const char *text) {
@@ -519,6 +577,10 @@ bool ui_mouse_right_clicked(void) { return g_mouse_right_clicked; }
 void ui_mouse_pos(int *x, int *y) {
     *x = g_mouse_x;
     *y = g_mouse_y;
+}
+void ui_mouse_wheel(int *x, int *y) {
+    *x = g_mouse_wheel_x;
+    *y = g_mouse_wheel_y;
 }
 
 bool ui_key_pressed(SDL_Keycode key) {

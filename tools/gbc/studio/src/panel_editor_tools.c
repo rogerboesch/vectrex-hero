@@ -23,14 +23,30 @@ void draw_editor_tools(App *app, int px, int py, int pw, int ph) {
     /* Color picker */
     y = ui_section(c.x - 4, y, c.w + 8, "Color");
     for (int i = 0; i < COLORS_PER_PAL; i++) {
-        RGB5 rgb = pal->colors[i];
-        uint8_t r, g, b; rgb5_to_rgb8(rgb, &r, &g, &b);
-        SDL_Color sc = {r, g, b, 255};
+        RGB5 rgb5 = pal->colors[i];
+        uint8_t r8, g8, b8; rgb5_to_rgb8(rgb5, &r8, &g8, &b8);
+        SDL_Color sc = {r8, g8, b8, 255};
         int sw = 28;
         if (ui_color_swatch(c.x, y, sw, sc, app->cur_color == i))
             app->cur_color = i;
-        char lbl[8]; snprintf(lbl, sizeof(lbl), "%d", i);
-        ui_text(c.x + sw + 6, y + 4, lbl);
+
+        /* Color index + name + hex + rgb */
+        char lbl[64];
+        const char *name = "";
+        if (r8 == 0 && g8 == 0 && b8 == 0) name = "Black";
+        else if (r8 >= 240 && g8 >= 240 && b8 >= 240) name = "White";
+        else if (r8 > g8 + b8) name = (r8 > 160) ? "Red" : "DkRed";
+        else if (g8 > r8 + b8) name = (g8 > 160) ? "Green" : "DkGreen";
+        else if (b8 > r8 + g8) name = (b8 > 160) ? "Blue" : "DkBlue";
+        else if (r8 > 100 && g8 > 100 && b8 < 60) name = "Yellow";
+        else if (r8 > 100 && b8 > 100 && g8 < 60) name = "Magenta";
+        else if (g8 > 100 && b8 > 100 && r8 < 60) name = "Cyan";
+        else if (r8 > 100 && g8 > 60 && b8 < 60) name = "Orange";
+        else if (r8 > 60 && g8 > 60 && b8 > 60) name = "Gray";
+        else name = "Custom";
+
+        snprintf(lbl, sizeof(lbl), "%d  #%02X%02X%02X (%s)", i, r8, g8, b8, name);
+        ui_text_color(c.x + sw + 6, y + 4, lbl, (app->cur_color == i) ? ui_theme.text : ui_theme.text_dim);
         y += sw + 4;
     }
 
@@ -51,7 +67,7 @@ void draw_editor_tools(App *app, int px, int py, int pw, int ph) {
         y += ui_line_height() + 2;
     }
 
-    y += 4;
+    y += 12;
 
     /* Properties */
     if (app->sel_type == SEL_TILE) {

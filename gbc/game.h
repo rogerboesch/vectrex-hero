@@ -105,9 +105,9 @@
 // =========================================================================
 
 // 8 and 16 are GBC hardware sprite offsets
-// HUD is at bottom (window layer), so no Y offset needed
+// -8 centers 8x16 sprites vertically on the hitbox center
 #define SPR_SCR_X(wpx) ((uint8_t)(8 + (int16_t)(wpx) - cam_x))
-#define SPR_SCR_Y(wpy) ((uint8_t)(16 + (int16_t)(wpy) - cam_y))
+#define SPR_SCR_Y(wpy) ((uint8_t)(16 - 8 + (int16_t)(wpy) - cam_y))
 
 // =========================================================================
 // Types

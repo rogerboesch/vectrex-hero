@@ -11,7 +11,7 @@ void draw_pixel_editor(App *app, int px, int py, int pw, int ph) {
     SDL_Rect tb = ui_panel_begin_toolbar(px, py, pw, ph);
     SDL_Rect c = ui_panel_content();
 
-    int bx = tb.x, bh = tb.h, bw = 50, gap = 4;
+    int bh = tb.h, ibw = bh;
 
     if (app->sel_type == SEL_TILE) {
         /* Editing a tileset entry (8x8) */
@@ -19,12 +19,13 @@ void draw_pixel_editor(App *app, int px, int py, int pw, int ph) {
         TilesetEntry *te = &app->tmap.tileset.entries[app->cur_tset_tile];
         GBCPalette *pal = &app->tmap.bg_pals[te->palette < MAX_BG_PALS ? te->palette : 0];
 
-        char info[32]; snprintf(info, sizeof(info), "Tile %d  (8x8)", app->cur_tset_tile);
-        ui_text_color(bx, tb.y + 2, info, ui_theme.text_dim);
+        char info[32]; snprintf(info, sizeof(info), "Tile %d (8x8)", app->cur_tset_tile);
+        ui_text_color(tb.x + 4, tb.y + 2, info, ui_theme.text);
 
-        /* Toolbar buttons */
-        bx = tb.x + tb.w - 110;
-        if (ui_button(bx, tb.y, bw, bh, "Clear")) { memset(te->data, 0, 16); app->modified = true; }
+        /* Clear button */
+        int bx = tb.x + tb.w - (ibw + 2);
+        if (ui_button(bx, tb.y, ibw, bh, "")) { memset(te->data, 0, 16); app->modified = true; }
+        ui_icon_centered(bx, tb.y, ibw, bh, ICON_ERASER, ui_theme.text);
 
         int tile_w = 8, tile_h = 8;
         int cell = c.h / tile_h;
@@ -61,15 +62,17 @@ void draw_pixel_editor(App *app, int px, int py, int pw, int ph) {
         GBCTile *spr = &app->sprites[app->cur_sprite];
         GBCPalette *pal = &app->tmap.spr_pals[spr->palette < MAX_SPR_PALS ? spr->palette : 0];
 
-        char info[32]; snprintf(info, sizeof(info), "Sprite: %s  (8x16)", spr->name);
-        ui_text_color(bx, tb.y + 2, info, ui_theme.text_dim);
+        char info[32]; snprintf(info, sizeof(info), "%s (8x16)", spr->name);
+        ui_text_color(tb.x + 4, tb.y + 2, info, ui_theme.text);
 
-        bx = tb.x + tb.w - 160;
-        if (ui_button(bx, tb.y, bw, bh, "Clear")) { tile_clear(spr); app->modified = true; }
-        bx += bw + gap;
-        if (ui_button(bx, tb.y, bw, bh, "FlpH")) { tile_flip_h(spr); app->modified = true; }
-        bx += bw + gap;
-        if (ui_button(bx, tb.y, bw, bh, "FlpV")) { tile_flip_v(spr); app->modified = true; }
+        /* Buttons: flip-h, flip-v, clear — right-aligned */
+        int bx = tb.x + tb.w - 3 * (ibw + 2);
+        if (ui_button(bx, tb.y, ibw, bh, "H")) { tile_flip_h(spr); app->modified = true; }
+        bx += ibw + 2;
+        if (ui_button(bx, tb.y, ibw, bh, "V")) { tile_flip_v(spr); app->modified = true; }
+        bx += ibw + 2;
+        if (ui_button(bx, tb.y, ibw, bh, "")) { tile_clear(spr); app->modified = true; }
+        ui_icon_centered(bx, tb.y, ibw, bh, ICON_ERASER, ui_theme.text);
 
         int tile_w = 8, tile_h = 16;
         int cell = c.h / tile_h;

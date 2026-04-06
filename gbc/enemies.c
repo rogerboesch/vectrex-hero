@@ -3,6 +3,7 @@
 //
 
 #include "game.h"
+#include "tiles.h"
 
 // =========================================================================
 // Laser
@@ -94,7 +95,7 @@ void update_dynamite(void) {
         dyn_expl_timer--;
 
         if (dyn_expl_timer == EXPLOSION_TIME - 1) {
-            // Destroy tiles in explosion radius
+            // Destroy only destroyable wall tiles in explosion radius
             {
                 uint8_t ctx = (uint8_t)(dyn_px >> 3);
                 uint8_t cty = (uint8_t)(dyn_py >> 3);
@@ -106,12 +107,10 @@ void update_dynamite(void) {
                         uint8_t tty = cty + dy2;
                         if (ttx < level_w && tty < level_h) {
                             uint8_t t = tile_at(ttx, tty);
-                            // Destroy non-empty tiles near explosion
-                            if (t != 0) {
-                                // Update decode cache
+                            if (t == TILE_DWALL || t == TILE_DWALL_EDGE) {
                                 decode_cache[tty & (DECODE_ROWS - 1)][ttx] = 0;
                                 render_clear_tile(ttx, tty);
-                                score += 10;
+                                score += 75;
                             }
                         }
                     }
