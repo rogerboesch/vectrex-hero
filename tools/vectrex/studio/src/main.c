@@ -35,7 +35,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    native_menu_init();
+    native_menu_init_ex("Vectrex Studio");
+    {
+        char icon_path[512];
+        const char *base = SDL_GetBasePath();
+        snprintf(icon_path, sizeof(icon_path), "%s/../icon.icns", base ? base : ".");
+        native_set_dock_icon(icon_path);
+    }
 
     App app;
     app_init(&app, window, renderer);

@@ -1,5 +1,5 @@
 /*
- * app.c — QL Studio 2 core: init, tab bar, main layout, keyboard shortcuts
+ * app.c — QL Studio 2 core (Activity bar + Status bar layout)
  */
 
 #include "app.h"
@@ -77,43 +77,111 @@ void app_cleanup(App *app) {
     if (app->image_tex) SDL_DestroyTexture(app->image_tex);
 }
 
-/* ── Tab bar ──────────────────────────────────────────────── */
+/* ── Activity bar ─────────────────────────────────────────── */
 
-static void draw_tab_bar(App *app) {
-    SDL_Rect bar = {0, 0, app->win_w, STYLE_TAB_BAR_H};
-    SDL_SetRenderDrawColor(app->renderer, ui_theme.panel_title.r, ui_theme.panel_title.g,
-                           ui_theme.panel_title.b, ui_theme.panel_title.a);
+static void draw_activity_bar(App *app) {
+    int ab_w = STYLE_ACTIVITY_BAR_W;
+    int ab_h = app->win_h - STYLE_STATUS_BAR_H;
+
+    /* Background */
+    SDL_Rect bar = {0, 0, ab_w, ab_h};
+    SDL_SetRenderDrawColor(app->renderer, ui_theme.activity_bg.r, ui_theme.activity_bg.g,
+                           ui_theme.activity_bg.b, 255);
     SDL_RenderFillRect(app->renderer, &bar);
 
-    const char *tabs[] = {"Sprites", "Images", "Emulator"};
-    ViewMode modes[] = {VIEW_SPRITES, VIEW_IMAGES, VIEW_EMULATOR};
-    int tab_w = STYLE_TAB_W;
-    int pad = 4;
+    /* Right border */
+    SDL_SetRenderDrawColor(app->renderer, ui_theme.border.r, ui_theme.border.g, ui_theme.border.b, 255);
+    SDL_RenderDrawLine(app->renderer, ab_w - 1, 0, ab_w - 1, ab_h);
 
+    /* Icons */
+    int icon_h = ab_w;
+    struct { uint16_t icon; ViewMode mode; } items[] = {
+        { ICON_SYMBOL_COLOR, VIEW_SPRITES },
+        { ICON_FILE_MEDIA,   VIEW_IMAGES },
+        { ICON_VM_RUNNING,   VIEW_EMULATOR },
+    };
     for (int i = 0; i < 3; i++) {
-        int tx = pad + i * (tab_w + pad);
-        int ty = 3;
-        int th = STYLE_TAB_BAR_H - 6;
-        bool active = (app->view == modes[i]);
-        bool hover = ui_mouse_in_rect(tx, ty, tab_w, th);
-
-        SDL_Color bg = active ? ui_theme.panel_bg : hover ? ui_theme.btn_hover : ui_theme.panel_title;
-        SDL_Rect r = {tx, ty, tab_w, th};
-        SDL_SetRenderDrawColor(app->renderer, bg.r, bg.g, bg.b, bg.a);
-        SDL_RenderFillRect(app->renderer, &r);
-
-        int tw = ui_text_width(tabs[i]);
-        ui_text_color(tx + (tab_w - tw) / 2, ty + (th - ui_line_height()) / 2,
-                      tabs[i], active ? ui_theme.text : ui_theme.text_dim);
-
-        if (hover && ui_mouse_clicked()) app->view = modes[i];
-
-        if (active) {
-            SDL_Rect hl = {tx, STYLE_TAB_BAR_H - 3, tab_w, 3};
-            SDL_SetRenderDrawColor(app->renderer, ui_theme.tab_active.r, ui_theme.tab_active.g, ui_theme.tab_active.b, 255);
-            SDL_RenderFillRect(app->renderer, &hl);
-        }
+        int iy = i * icon_h;
+        if (ui_activity_icon(0, iy, ab_w, icon_h, items[i].icon, app->view == items[i].mode))
+            app->view = items[i].mode;
     }
+}
+
+/* ── Status bar ───────────────────────────────────────────── */
+
+static void draw_status_bar(App *app) {
+    int sb_h = STYLE_STATUS_BAR_H;
+    int sb_y = app->win_h - sb_h;
+    SDL_Rect r = ui_status_bar(0, sb_y, app->win_w, sb_h);
+
+    int x = r.x;
+
+    /* Project name */
+    const char *proj = app->project_path[0] ? app->project_path : "No project";
+    const char *slash = strrchr(proj, '/');
+    const char *name = slash ? slash + 1 : proj;
+    x += ui_status_item(x, r.y, name) + 16;
+
+    /* Sprite/image count */
+    if (app->view == VIEW_SPRITES) {
+        char buf[48];
+        snprintf(buf, sizeof(buf), "Sprites: %d", app->sprite_count);
+        x += ui_status_item(x, r.y, buf) + 16;
+    } else if (app->view == VIEW_IMAGES) {
+        char buf[48];
+        snprintf(buf, sizeof(buf), "Images: %d", app->image_count);
+        x += ui_status_item(x, r.y, buf) + 16;
+    }
+
+    /* Modified */
+    if (app->modified) {
+        x += ui_status_item(x, r.y, "Modified") + 16;
+    }
+
+    /* Right-aligned: view name */
+    const char *views[] = {"Sprites", "Images", "Emulator"};
+    const char *vn = views[app->view];
+    int vw = ui_text_width(vn);
+    ui_status_item(r.x + r.w - vw, r.y, vn);
+}
+
+/* ── Breadcrumb bar ───────────────────────────────────────── */
+
+static void draw_breadcrumb(App *app, int x, int y, int w) {
+    int h = STYLE_BREADCRUMB_H;
+    SDL_Rect br = ui_breadcrumb_bar(x, y, w, h);
+
+    const char *segs[4];
+    int count = 0;
+
+    /* Project file */
+    const char *proj = app->project_path[0] ? app->project_path : "untitled";
+    const char *slash = strrchr(proj, '/');
+    segs[count++] = slash ? slash + 1 : proj;
+
+    /* Context */
+    static char ctx_buf[64];
+    switch (app->view) {
+    case VIEW_SPRITES:
+        if (app->current_sprite < app->sprite_count) {
+            snprintf(ctx_buf, sizeof(ctx_buf), "%s", app->sprites[app->current_sprite].name);
+            segs[count++] = ctx_buf;
+        }
+        segs[count++] = "Sprite Editor";
+        break;
+    case VIEW_IMAGES:
+        if (app->current_image < app->image_count) {
+            snprintf(ctx_buf, sizeof(ctx_buf), "%s", app->images[app->current_image].name);
+            segs[count++] = ctx_buf;
+        }
+        segs[count++] = "Image Editor";
+        break;
+    case VIEW_EMULATOR:
+        segs[count++] = "Emulator";
+        break;
+    }
+
+    ui_breadcrumb(br.x, br.y, segs, count);
 }
 
 /* ── Tools panel (combines palette + properties + preview) ── */
@@ -153,39 +221,55 @@ void app_draw(App *app) {
                            ui_theme.bg.b, ui_theme.bg.a);
     SDL_RenderClear(app->renderer);
 
-    /* Tab bar at top */
-    draw_tab_bar(app);
+    /* Activity bar (left) */
+    draw_activity_bar(app);
 
-    /* Content below tab bar, above console */
-    int top = STYLE_TAB_BAR_H;
-    int con_y = app->win_h - STYLE_CONSOLE_H;
-    int ch = con_y - top;
+    /* Status bar (bottom) */
+    draw_status_bar(app);
 
-    /* Left panel */
-    draw_left_panel(app, 0, top, STYLE_LEFT_PANEL_W, ch);
-
-    /* Console at bottom, full width */
-    draw_console(app, 0, con_y, app->win_w, STYLE_CONSOLE_H);
-
-    /* Center + right panels depend on view */
-    int cx = STYLE_LEFT_PANEL_W;
-    int cw = app->win_w - STYLE_LEFT_PANEL_W - STYLE_RIGHT_PANEL_W;
+    /* Layout regions */
+    int ab = STYLE_ACTIVITY_BAR_W;
+    int sb = STYLE_STATUS_BAR_H;
+    int bc = STYLE_BREADCRUMB_H;
+    int con_h = STYLE_CONSOLE_H;
+    int lw = STYLE_LEFT_PANEL_W;
     int rw = STYLE_RIGHT_PANEL_W;
+
+    int top = 0;
+    int total_h = app->win_h - sb;
+    int con_y = total_h - con_h;
+    int panel_h = con_y - top;
+
+    int cx = ab + lw;
+    int cw = app->win_w - ab - lw - rw;
     int rx = app->win_w - rw;
 
+    /* Left panel */
+    draw_left_panel(app, ab, top, lw, panel_h);
+
+    /* Console (above status bar) */
+    draw_console(app, ab, con_y, app->win_w - ab, con_h);
+
+    /* Breadcrumb bar (top of center panel) */
+    draw_breadcrumb(app, cx, top, cw);
+
+    int center_y = top + bc;
+    int center_h = panel_h - bc;
+
+    /* Center + right panels depend on view */
     if (app->view == VIEW_SPRITES) {
-        draw_sprite_canvas(app, cx, top, cw, ch);
-        draw_tools_panel(app, rx, top, rw, ch);
+        draw_sprite_canvas(app, cx, center_y, cw, center_h);
+        draw_tools_panel(app, rx, top, rw, panel_h);
     } else if (app->view == VIEW_IMAGES) {
-        draw_image_canvas(app, cx, top, cw, ch);
-        draw_image_tools(app, rx, top, rw, ch);
+        draw_image_canvas(app, cx, center_y, cw, center_h);
+        draw_image_tools(app, rx, top, rw, panel_h);
     } else if (app->view == VIEW_EMULATOR) {
-        draw_emulator(app, cx, top, cw, ch);
+        draw_emulator(app, cx, center_y, cw, center_h);
         /* Right panel: CPU / Disassembly / Memory (thirds) */
-        int rh3 = ch / 3;
+        int rh3 = panel_h / 3;
         draw_cpu_state(app, rx, top, rw, rh3);
         draw_disasm(app, rx, top + rh3, rw, rh3);
-        draw_memory(app, rx, top + rh3 * 2, rw, ch - rh3 * 2);
+        draw_memory(app, rx, top + rh3 * 2, rw, panel_h - rh3 * 2);
     }
 
     /* Keyboard shortcuts */
