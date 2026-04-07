@@ -106,6 +106,50 @@ void app_load_project(App *app, const char *path) {
         }
     }
 
+    /* Parse sprites */
+    p = strstr(json, "\"sprites\"");
+    if (p) {
+        p = strchr(p, '['); if (p) p++;
+        app->sprite_count = 0;
+        while (p && *p && app->sprite_count < MAX_TILES) {
+            p = json_skip_ws(p);
+            if (*p == ']') break;
+            if (*p == ',') { p++; continue; }
+            if (*p != '{') break;
+            p++;
+            GBCTile *spr = &app->sprites[app->sprite_count];
+            memset(spr, 0, sizeof(*spr));
+            for (;;) {
+                p = json_skip_ws(p);
+                if (!*p || *p == '}') break;
+                if (*p == ',') { p++; continue; }
+                if (*p != '"') break;
+                char key[32] = {};
+                p = json_parse_str(p, key, sizeof(key));
+                p = json_skip_ws(p); if (*p == ':') p++;
+                if (strcmp(key, "name") == 0) {
+                    p = json_parse_str(p, spr->name, sizeof(spr->name));
+                } else if (strcmp(key, "palette") == 0) {
+                    int v = 0; p = json_parse_int(p, &v);
+                    spr->palette = v;
+                } else if (strcmp(key, "data") == 0) {
+                    p = json_skip_ws(p); if (*p == '[') p++;
+                    for (int j = 0; j < TILE_BYTES && *p && *p != ']'; j++) {
+                        p = json_skip_ws(p);
+                        if (*p == ',') { p++; p = json_skip_ws(p); }
+                        int v = 0; p = json_parse_int(p, &v);
+                        spr->data[j] = (uint8_t)v;
+                    }
+                    if (*p == ']') p++;
+                } else {
+                    p = json_skip_value(p);
+                }
+            }
+            if (*p == '}') p++;
+            app->sprite_count++;
+        }
+    }
+
     /* Parse levels */
     p = strstr(json, "\"levels\"");
     if (p) {
@@ -152,6 +196,27 @@ void app_load_project(App *app, const char *path) {
                             if (*p == ']') break;
                             int v = 0; p = json_parse_int(p, &v);
                             lvl->tiles[row][col++] = (uint8_t)v;
+                        }
+                        if (*p == ']') p++;
+                        row++;
+                    }
+                    if (*p == ']') p++;
+                } else if (strcmp(key, "palettes") == 0) {
+                    p = json_skip_ws(p); if (*p == '[') p++;
+                    int row = 0;
+                    while (*p && *p != ']' && row < TMAP_MAX_H) {
+                        p = json_skip_ws(p);
+                        if (*p == ',') { p++; continue; }
+                        if (*p == ']') break;
+                        if (*p != '[') break;
+                        p++;
+                        int col = 0;
+                        while (*p && *p != ']' && col < TMAP_MAX_W) {
+                            p = json_skip_ws(p);
+                            if (*p == ',') { p++; continue; }
+                            if (*p == ']') break;
+                            int v = 0; p = json_parse_int(p, &v);
+                            lvl->palettes[row][col++] = (uint8_t)v;
                         }
                         if (*p == ']') p++;
                         row++;
@@ -243,6 +308,17 @@ void app_save_project(App *app, const char *path) {
     }
     fprintf(f, "  ],\n");
 
+    /* Sprites */
+    fprintf(f, "  \"sprites\": [\n");
+    for (int i = 0; i < app->sprite_count; i++) {
+        GBCTile *spr = &app->sprites[i];
+        fprintf(f, "    {\"name\":\"%s\",\"palette\":%d,\"data\":[", spr->name, spr->palette);
+        for (int j = 0; j < TILE_BYTES; j++)
+            fprintf(f, "%d%s", spr->data[j], j < TILE_BYTES - 1 ? "," : "");
+        fprintf(f, "]}%s\n", i < app->sprite_count - 1 ? "," : "");
+    }
+    fprintf(f, "  ],\n");
+
     /* Levels */
     fprintf(f, "  \"levels\": [\n");
     for (int li = 0; li < app->tmap.level_count; li++) {
@@ -257,6 +333,15 @@ void app_save_project(App *app, const char *path) {
             fprintf(f, "        [");
             for (int x = 0; x < lvl->width; x++)
                 fprintf(f, "%d%s", lvl->tiles[y][x], x < lvl->width - 1 ? "," : "");
+            fprintf(f, "]%s\n", y < lvl->height - 1 ? "," : "");
+        }
+        fprintf(f, "      ],\n");
+        /* Per-tile palette attributes */
+        fprintf(f, "      \"palettes\": [\n");
+        for (int y = 0; y < lvl->height; y++) {
+            fprintf(f, "        [");
+            for (int x = 0; x < lvl->width; x++)
+                fprintf(f, "%d%s", lvl->palettes[y][x], x < lvl->width - 1 ? "," : "");
             fprintf(f, "]%s\n", y < lvl->height - 1 ? "," : "");
         }
         fprintf(f, "      ],\n");

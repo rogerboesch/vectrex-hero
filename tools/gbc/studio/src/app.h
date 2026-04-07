@@ -11,6 +11,7 @@
 typedef enum {
     VIEW_LEVELS,
     VIEW_EDITOR,
+    VIEW_SPRITES,
     VIEW_EMULATOR,
 } ViewMode;
 
@@ -44,6 +45,7 @@ typedef struct {
     int cur_sprite;        /* selected sprite index */
     SelectionType sel_type;/* what's currently selected */
     int scroll_x, scroll_y;
+    int cur_palette;       /* current BG palette for painting (0-7) */
     int sel_entity;        /* selected entity index in level, -1=none */
 
     /* Project */
@@ -81,7 +83,8 @@ void app_save_project(App *app, const char *path);
 void app_save_project_as(App *app);
 void app_export_c(App *app);
 /* Panels */
-void draw_asset_list(App *app, int x, int y, int w, int h);  /* tiles + sprites */
+void draw_asset_list(App *app, int x, int y, int w, int h);  /* tiles + palettes */
+void draw_sprite_list(App *app, int x, int y, int w, int h); /* sprites */
 void draw_level_editor(App *app, int x, int y, int w, int h);
 void draw_level_tools(App *app, int x, int y, int w, int h);
 void draw_pixel_editor(App *app, int x, int y, int w, int h);

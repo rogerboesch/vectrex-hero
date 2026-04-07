@@ -78,11 +78,40 @@ void draw_editor_tools(App *app, int px, int py, int pw, int ph) {
         y += ui_line_height() + 8;
 
         TilesetEntry *te = &app->tmap.tileset.entries[app->cur_tset_tile];
-        int p = (int)te->palette;
-        if (ui_input_int_ex(c.x, y, c.w, "Pal:", ui_text_width("Pal:"), &p, 1, 0, MAX_BG_PALS - 1)) {
-            te->palette = (uint8_t)p;
-            app->modified = true;
+        int cur_p = (int)te->palette;
+
+        /* Palette swatches */
+        int sw = 28, gap = 4;
+        int cols = (c.w + gap) / (sw + gap);
+        if (cols < 1) cols = 1;
+        for (int i = 0; i < MAX_BG_PALS; i++) {
+            int col = i % cols, row = i / cols;
+            int sx = c.x + col * (sw + gap);
+            int sy = y + row * (sw + gap);
+            int stripe_h = sw / 4;
+            for (int ci = 0; ci < 4; ci++) {
+                RGB5 rgb = app->tmap.bg_pals[i].colors[ci];
+                uint8_t r, g, b; rgb5_to_rgb8(rgb, &r, &g, &b);
+                SDL_Rect sr = {sx, sy + ci * stripe_h, sw, stripe_h};
+                SDL_SetRenderDrawColor(app->renderer, r, g, b, 255);
+                SDL_RenderFillRect(app->renderer, &sr);
+            }
+            bool selected = (cur_p == i);
+            SDL_Color border = selected ? ui_theme.swatch_sel : ui_theme.border;
+            SDL_Rect br = {sx, sy, sw, sw};
+            SDL_SetRenderDrawColor(app->renderer, border.r, border.g, border.b, 255);
+            SDL_RenderDrawRect(app->renderer, &br);
+            if (selected) {
+                SDL_Rect br2 = {sx + 1, sy + 1, sw - 2, sw - 2};
+                SDL_RenderDrawRect(app->renderer, &br2);
+            }
+            if (ui_mouse_in_rect(sx, sy, sw, sw) && ui_mouse_clicked()) {
+                te->palette = (uint8_t)i;
+                app->modified = true;
+            }
         }
+        int pal_rows = (MAX_BG_PALS + cols - 1) / cols;
+        y += pal_rows * (sw + gap) + 4;
     } else {
         y = ui_section(c.x - 4, y, c.w + 8, "Sprite Properties");
         if (app->cur_sprite < app->sprite_count) {
@@ -96,16 +125,44 @@ void draw_editor_tools(App *app, int px, int py, int pw, int ph) {
                 strncpy(spr->name, name_buf, sizeof(spr->name) - 1);
             y += ui_line_height() + 8;
 
-            int p = spr->palette;
-            if (ui_input_int_ex(c.x, y, c.w, "Pal:", ui_text_width("Pal:"), &p, 1, 0, MAX_SPR_PALS - 1)) {
-                spr->palette = p;
-                app->modified = true;
-            }
-            y += ui_line_height() + 8;
+            int cur_p = spr->palette;
 
-            char info[32];
-            snprintf(info, sizeof(info), "8x16, %d bytes", TILE_BYTES);
-            ui_text_color(c.x, y, info, ui_theme.text_dark);
+            /* Sprite palette swatches */
+            int sw = 28, gap = 4;
+            int cols = (c.w + gap) / (sw + gap);
+            if (cols < 1) cols = 1;
+            for (int i = 0; i < MAX_SPR_PALS; i++) {
+                int col = i % cols, row = i / cols;
+                int sx = c.x + col * (sw + gap);
+                int sy = y + row * (sw + gap);
+                int stripe_h = sw / 4;
+                for (int ci = 0; ci < 4; ci++) {
+                    RGB5 rgb = app->tmap.spr_pals[i].colors[ci];
+                    uint8_t r, g, b; rgb5_to_rgb8(rgb, &r, &g, &b);
+                    SDL_Rect sr = {sx, sy + ci * stripe_h, sw, stripe_h};
+                    SDL_SetRenderDrawColor(app->renderer, r, g, b, 255);
+                    SDL_RenderFillRect(app->renderer, &sr);
+                }
+                bool selected = (cur_p == i);
+                SDL_Color border = selected ? ui_theme.swatch_sel : ui_theme.border;
+                SDL_Rect br = {sx, sy, sw, sw};
+                SDL_SetRenderDrawColor(app->renderer, border.r, border.g, border.b, 255);
+                SDL_RenderDrawRect(app->renderer, &br);
+                if (selected) {
+                    SDL_Rect br2 = {sx + 1, sy + 1, sw - 2, sw - 2};
+                    SDL_RenderDrawRect(app->renderer, &br2);
+                }
+                if (ui_mouse_in_rect(sx, sy, sw, sw) && ui_mouse_clicked()) {
+                    spr->palette = i;
+                    app->modified = true;
+                }
+            }
+            int pal_rows = (MAX_SPR_PALS + cols - 1) / cols;
+            y += pal_rows * (sw + gap) + 4;
+
+            char info2[32];
+            snprintf(info2, sizeof(info2), "8x16, %d bytes", TILE_BYTES);
+            ui_text_color(c.x, y, info2, ui_theme.text_dark);
         }
     }
 

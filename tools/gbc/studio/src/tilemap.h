@@ -55,7 +55,8 @@ typedef struct {
 typedef struct {
     char name[32];
     int width, height;  /* actual used size (up to 256x256) */
-    uint8_t tiles[TMAP_MAX_H][TMAP_MAX_W];  /* tile indices into tileset */
+    uint8_t tiles[TMAP_MAX_H][TMAP_MAX_W];     /* tile indices into tileset */
+    uint8_t palettes[TMAP_MAX_H][TMAP_MAX_W];   /* per-tile palette index (0-7) */
     TilemapEntity entities[MAX_ENTITIES];
     int entity_count;
 } TilemapLevel;

@@ -101,12 +101,16 @@ static void draw_activity_bar(App *app) {
     struct { uint16_t icon; ViewMode mode; } items[] = {
         { ICON_LAYOUT,       VIEW_LEVELS },
         { ICON_SYMBOL_COLOR, VIEW_EDITOR },
+        { ICON_PERSON,       VIEW_SPRITES },
         { ICON_VM_RUNNING,   VIEW_EMULATOR },
     };
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
         int iy = i * icon_h;
-        if (ui_activity_icon(0, iy, ab_w, icon_h, items[i].icon, app->view == items[i].mode))
+        if (ui_activity_icon(0, iy, ab_w, icon_h, items[i].icon, app->view == items[i].mode)) {
             app->view = items[i].mode;
+            if (items[i].mode == VIEW_EDITOR)  app->sel_type = SEL_TILE;
+            if (items[i].mode == VIEW_SPRITES) app->sel_type = SEL_SPRITE;
+        }
     }
 }
 
@@ -139,7 +143,7 @@ static void draw_status_bar(App *app) {
     }
 
     /* Right-aligned: view name */
-    const char *views[] = {"Levels", "Editor", "Emulator"};
+    const char *views[] = {"Levels", "Editor", "Sprites", "Emulator"};
     const char *vn = views[app->view];
     int vw = ui_text_width(vn);
     ui_status_item(r.x + r.w - vw, r.y, vn);
@@ -168,7 +172,11 @@ static void draw_breadcrumb(App *app, int x, int y, int w) {
     if (app->view == VIEW_LEVELS) {
         segs[count++] = (app->sel_type == SEL_SPRITE) ? "Sprite Layer" : "Tile Layer";
     } else if (app->view == VIEW_EDITOR) {
-        segs[count++] = (app->sel_type == SEL_SPRITE) ? "Sprite" : "Tile";
+        segs[count++] = "Tile Editor";
+    } else if (app->view == VIEW_SPRITES) {
+        if (app->cur_sprite < app->sprite_count)
+            segs[count++] = app->sprites[app->cur_sprite].name;
+        segs[count++] = "Sprite Editor";
     }
 
     ui_breadcrumb(br.x, br.y, segs, count);
@@ -222,6 +230,11 @@ void app_draw(App *app) {
         break;
     case VIEW_EDITOR:
         draw_asset_list(app, ab, top, lw, panel_h);
+        draw_pixel_editor(app, cx, center_y, cw, center_h);
+        draw_editor_tools(app, app->win_w - rw, top, rw, panel_h);
+        break;
+    case VIEW_SPRITES:
+        draw_sprite_list(app, ab, top, lw, panel_h);
         draw_pixel_editor(app, cx, center_y, cw, center_h);
         draw_editor_tools(app, app->win_w - rw, top, rw, panel_h);
         break;

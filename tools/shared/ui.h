@@ -142,6 +142,7 @@ void ui_icon_centered(int x, int y, int w, int h, uint16_t codepoint, SDL_Color 
 #define ICON_EYE        0xEA70
 #define ICON_GAME       0xEC17
 #define ICON_FILE_MEDIA 0xEAEA
+#define ICON_PERSON     0xEA67
 
 /* Button. Returns true on click. */
 bool ui_button(int x, int y, int w, int h, const char *label);

@@ -19,7 +19,6 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     if (app->cur_level < 0 || app->cur_level >= app->tmap.level_count) { ui_panel_end(); return; }
     TilemapLevel *lvl = &app->tmap.levels[app->cur_level];
     Tileset *ts = &app->tmap.tileset;
-    GBCPalette *pal = &app->tmap.bg_pals[0];
 
     /* Toolbar: clear + zoom icons */
     {
@@ -41,9 +40,9 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
         if (ui_button(zbx, tb.y, bw, tb.h, "")) { if (zoom < 4) zoom++; }
         ui_icon_centered(zbx, tb.y, bw, tb.h, ICON_ZOOM_IN, ui_theme.text);
 
-        /* Zoom label in toolbar */
-        char info[32];
-        snprintf(info, sizeof(info), "Zoom %d", zoom);
+        /* Zoom + scroll info in toolbar */
+        char info[64];
+        snprintf(info, sizeof(info), "Zoom %d  Scroll %d,%d", zoom, app->scroll_x, app->scroll_y);
         ui_text_color(tb.x + 4, tb.y + 2, info, ui_theme.text_dim);
     }
 
@@ -115,10 +114,13 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
 
             if (tile_idx < ts->used_count) {
                 TilesetEntry *te = &ts->entries[tile_idx];
+                uint8_t pal_idx = lvl->palettes[map_y][map_x];
+                if (pal_idx >= MAX_BG_PALS) pal_idx = 0;
+                GBCPalette *tp = &app->tmap.bg_pals[pal_idx];
                 for (int py2 = 0; py2 < 8; py2++) {
                     for (int px2 = 0; px2 < 8; px2++) {
                         uint8_t ci = tset_get_pixel(te, px2, py2);
-                        RGB5 rgb = pal->colors[ci];
+                        RGB5 rgb = tp->colors[ci];
                         uint8_t r, g, b;
                         rgb5_to_rgb8(rgb, &r, &g, &b);
                         SDL_Rect pr = {dx + px2 * zoom, dy + py2 * zoom, zoom, zoom};
@@ -224,10 +226,12 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                 /* Tile layer */
                 if (ui_mouse_down()) {
                     lvl->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
+                    lvl->palettes[ty][tx] = (uint8_t)app->cur_palette;
                     app->modified = true;
                 }
                 if (ui_mouse_right_clicked()) {
                     app->cur_tset_tile = lvl->tiles[ty][tx];
+                    app->cur_palette = lvl->palettes[ty][tx];
                 }
             }
         }

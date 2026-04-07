@@ -17,7 +17,7 @@
 #define TILE_BYTES    32    /* 2 bytes/row * 16 rows */
 #define MAX_TILES     32
 #define COLORS_PER_PAL 4
-#define MAX_BG_PALS    6
+#define MAX_BG_PALS    8
 #define MAX_SPR_PALS   5
 
 typedef struct {
