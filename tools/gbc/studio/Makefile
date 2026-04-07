@@ -20,7 +20,7 @@ LDFLAGS = $(SDL_STATIC)
 TARGET = GBCWorkbench
 BUILD  = build
 
-APP_SRCS = src/main.c src/app.c src/file_io.c src/gbc_emu.c \
+APP_SRCS = src/main.c src/app.c src/file_io.c src/export.c src/gbc_emu.c \
            src/panel_asset_list.c src/panel_level_editor.c src/panel_level_tools.c \
            src/panel_pixel_editor.c src/panel_editor_tools.c src/panel_sprite_list.c \
            src/panel_emulator.c \

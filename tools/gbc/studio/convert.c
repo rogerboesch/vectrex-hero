@@ -401,15 +401,15 @@ static void export_c(TilemapProject *tmap, const char *c_path, const char *h_pat
 
     for (int li = 0; li < tmap->level_count; li++) {
         TilemapLevel *lvl = &tmap->levels[li];
-        autotile_level(lvl, autotiled);
+        /* Use raw tile indices directly (no auto-tiling) */
         int rle_pos = 0;
         for (int y = 0; y < lvl->height; y++) {
             row_offs_bufs[li][y] = (uint16_t)rle_pos;
             int x = 0;
             while (x < lvl->width) {
-                uint8_t t = autotiled[y][x];
+                uint8_t t = lvl->tiles[y][x];
                 int run = 1;
-                while (x + run < lvl->width && autotiled[y][x + run] == t && run < 255) run++;
+                while (x + run < lvl->width && lvl->tiles[y][x + run] == t && run < 255) run++;
                 rle_bufs[li][rle_pos++] = (uint8_t)run;
                 rle_bufs[li][rle_pos++] = t;
                 x += run;

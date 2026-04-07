@@ -20,8 +20,8 @@ void decode_row(uint8_t row) {
     if (row >= level_h) return;
     if (decode_valid[row & (DECODE_ROWS - 1)] == row + 1) return; // already decoded
 
-    SWITCH_ROM(1);
     const LevelInfo *li = &levels[current_level];
+    SWITCH_ROM(li->bank);
 
     uint16_t offset = li->row_offsets[row];
     const uint8_t *rle = li->rle + offset;
@@ -65,8 +65,8 @@ static void decode_rows_range(uint8_t from, uint8_t to) {
 // =========================================================================
 
 static void load_entities(void) {
-    SWITCH_ROM(1);
     const LevelInfo *li = &levels[current_level];
+    SWITCH_ROM(li->bank);
 
     level_entity_count = li->entity_count;
     if (level_entity_count > MAX_LEVEL_ENTITIES)
@@ -87,8 +87,8 @@ static void load_entities(void) {
 // =========================================================================
 
 void init_level(void) {
-    SWITCH_ROM(1);
     const LevelInfo *li = &levels[current_level];
+    SWITCH_ROM(li->bank);
     level_w = li->width;
     level_h = li->height;
 

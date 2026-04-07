@@ -9,42 +9,45 @@
 // Background tile indices
 // =========================================================================
 
+// Tiles 0..188 are the Workbench tileset (loaded from tileset_export.c)
 #define TILE_EMPTY       0
-#define TILE_WALL        1     // 1..16: auto-tiled wall (base + 4-bit neighbor mask)
-#define TILE_WALL_END    16
-#define TILE_DWALL       17    // destroyable wall
+#define TILE_WALL        1     // main wall tile (for title screen decorations)
+#define TILE_DWALL       17    // destroyable wall (collision check)
 #define TILE_DWALL_EDGE  18    // destroyable wall edge
-#define TILE_LAVA0       19    // lava frame 0
+#define TILE_LAVA0       19    // lava frame 0 (collision check)
 #define TILE_LAVA1       20    // lava frame 1
-#define TILE_HUD_FILL    21    // fuel bar filled
-#define TILE_HUD_EMPTY   22    // fuel bar empty
-#define TILE_HEART       23    // life heart
-#define TILE_HEART_OFF   24    // lost life
-#define TILE_DYN_ICON    25    // dynamite icon
-#define TILE_DYN_OFF     26    // spent dynamite
-#define TILE_DIGIT_0     27    // 27..36: digits 0-9
-#define TILE_LETTER_L    37
-#define TILE_LETTER_V    38
-#define TILE_LETTER_S    39
-#define TILE_LETTER_C    40
-#define TILE_LETTER_R    41
-#define TILE_LETTER_E    42
-#define TILE_LETTER_DASH 43
-#define TILE_COLON       44
-#define TILE_LETTER_H    45
-#define TILE_LETTER_O    46
-#define TILE_LETTER_G    47
-#define TILE_LETTER_B    48
-#define TILE_LETTER_A    49
-#define TILE_LETTER_T    50
-#define TILE_LETTER_N    51
-#define TILE_LETTER_U    52
-#define TILE_LETTER_D    53
-#define TILE_LETTER_F    54
-#define TILE_LETTER_I    55
-#define TILE_LETTER_P    56
-#define TILE_DOT         57
-// tiles up to ~58 used
+
+// HUD and font tiles start after the Workbench tileset
+#define HUD_TILE_BASE    189U
+#define TILE_HUD_FILL    (HUD_TILE_BASE + 0)   // fuel bar filled
+#define TILE_HUD_EMPTY   (HUD_TILE_BASE + 1)   // fuel bar empty
+#define TILE_HEART       (HUD_TILE_BASE + 2)   // life heart
+#define TILE_HEART_OFF   (HUD_TILE_BASE + 3)   // lost life
+#define TILE_DYN_ICON    (HUD_TILE_BASE + 4)   // dynamite icon
+#define TILE_DYN_OFF     (HUD_TILE_BASE + 5)   // spent dynamite
+#define TILE_DIGIT_0     (HUD_TILE_BASE + 6)   // 6..15: digits 0-9
+#define TILE_LETTER_L    (HUD_TILE_BASE + 16)
+#define TILE_LETTER_V    (HUD_TILE_BASE + 17)
+#define TILE_LETTER_S    (HUD_TILE_BASE + 18)
+#define TILE_LETTER_C    (HUD_TILE_BASE + 19)
+#define TILE_LETTER_R    (HUD_TILE_BASE + 20)
+#define TILE_LETTER_E    (HUD_TILE_BASE + 21)
+#define TILE_LETTER_DASH (HUD_TILE_BASE + 22)
+#define TILE_COLON       (HUD_TILE_BASE + 23)
+#define TILE_LETTER_H    (HUD_TILE_BASE + 24)
+#define TILE_LETTER_O    (HUD_TILE_BASE + 25)
+#define TILE_LETTER_G    (HUD_TILE_BASE + 26)
+#define TILE_LETTER_B    (HUD_TILE_BASE + 27)
+#define TILE_LETTER_A    (HUD_TILE_BASE + 28)
+#define TILE_LETTER_T    (HUD_TILE_BASE + 29)
+#define TILE_LETTER_N    (HUD_TILE_BASE + 30)
+#define TILE_LETTER_U    (HUD_TILE_BASE + 31)
+#define TILE_LETTER_D    (HUD_TILE_BASE + 32)
+#define TILE_LETTER_F    (HUD_TILE_BASE + 33)
+#define TILE_LETTER_I    (HUD_TILE_BASE + 34)
+#define TILE_LETTER_P    (HUD_TILE_BASE + 35)
+#define TILE_DOT         (HUD_TILE_BASE + 36)
+// tiles up to 225 used (189 tileset + 37 HUD/font)
 
 // =========================================================================
 // Sprite tile indices (8x16 mode: each sprite = 2 consecutive tiles)
