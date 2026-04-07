@@ -9,10 +9,21 @@
 #include <stdio.h>
 #include <string.h>
 
-#define EMU_TIMER 20
+/* Vectrex runs at 1.5 MHz. At 60fps display, that's 25000 cycles per frame.
+ * The vec2x internal frame (phosphor decay) is every 50000 cycles (30 Hz).
+ * We render from the completed buffer (vectors_erse), not the in-progress one. */
+#define EMU_CYCLES_PER_FRAME (VECTREX_MHZ / 60)
 
-/* Stub — ivec.c calls this but we render ourselves */
-void vec2x_platform_render(void) {}
+/* Snapshot buffer: copy vectors when vec2x signals a frame is complete */
+static vector_t g_snap_vectors[VECTREX_MHZ / 30];  /* same size as vec2x internal buffer */
+static long g_snap_count = 0;
+
+void vec2x_platform_render(void) {
+    /* Called by vec2x_emu right before buffer swap — vectors_draw is complete */
+    g_snap_count = vector_draw_cnt;
+    if (g_snap_count > 0)
+        memcpy(g_snap_vectors, vectors_draw, g_snap_count * sizeof(vector_t));
+}
 
 static bool g_running = false;
 static bool g_paused = false;
@@ -57,7 +68,7 @@ void vemu_reset(void) {
 
 void vemu_step(void) {
     if (!g_running || g_paused) return;
-    vec2x_emu((VECTREX_MHZ / 1000) * EMU_TIMER);
+    vec2x_emu(EMU_CYCLES_PER_FRAME);
 
     /* Check breakpoints */
     if (g_bp_enabled && g_bp_count > 0 && !g_bp_skip_once) {
@@ -102,16 +113,17 @@ void vemu_render(SDL_Renderer *renderer, int x, int y, int w, int h) {
     int off_x = x + (int)((w - ALG_MAX_X * scl) / 2);
     int off_y = y + (int)((h - ALG_MAX_Y * scl) / 2);
 
-    for (long v = 0; v < vector_draw_cnt; v++) {
-        unsigned char c = vectors_draw[v].color;
+    /* Render from snapshot taken at frame completion by vec2x_platform_render() */
+    for (long v = 0; v < g_snap_count; v++) {
+        unsigned char c = g_snap_vectors[v].color;
         if (c >= VECTREX_COLORS) continue;
         Uint8 intensity = (Uint8)(c * 255 / VECTREX_COLORS);
         SDL_SetRenderDrawColor(renderer, intensity, intensity, intensity, 255);
 
-        int x0 = off_x + (int)(vectors_draw[v].x0 * scl);
-        int y0 = off_y + (int)(vectors_draw[v].y0 * scl);
-        int x1 = off_x + (int)(vectors_draw[v].x1 * scl);
-        int y1 = off_y + (int)(vectors_draw[v].y1 * scl);
+        int x0 = off_x + (int)(g_snap_vectors[v].x0 * scl);
+        int y0 = off_y + (int)(g_snap_vectors[v].y0 * scl);
+        int x1 = off_x + (int)(g_snap_vectors[v].x1 * scl);
+        int y1 = off_y + (int)(g_snap_vectors[v].y1 * scl);
         SDL_RenderDrawLine(renderer, x0, y0, x1, y1);
     }
 }

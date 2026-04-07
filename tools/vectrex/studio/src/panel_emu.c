@@ -113,7 +113,7 @@ void draw_emu_panel(App *app, int x, int y, int w, int h) {
     }
 
     /* Keyboard forwarding when emulator view is active and running */
-    emu_keys_active = vemu_is_running() && !vemu_is_paused() && app->view == VIEW_EMULATOR;
+    emu_keys_active = vemu_is_running() && app->view == VIEW_EMULATOR;
 
     ui_panel_end();
 }
