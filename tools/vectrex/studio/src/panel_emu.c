@@ -112,8 +112,8 @@ void draw_emu_panel(App *app, int x, int y, int w, int h) {
         ui_text_color(scr_x + (pw - tw) / 2, scr_y + ph / 2, msg, ui_theme.emu_text);
     }
 
-    /* Keyboard forwarding when hovering emulator */
-    emu_keys_active = vemu_is_running() && ui_mouse_in_rect(scr_x, scr_y, pw, ph);
+    /* Keyboard forwarding when emulator view is active and running */
+    emu_keys_active = vemu_is_running() && app->view == VIEW_EMULATOR;
 
     ui_panel_end();
 }
