@@ -110,6 +110,7 @@ static void draw_activity_bar(App *app) {
         if (ui_activity_icon(0, iy, ab_w, icon_h, items[i].icon, app->view == items[i].mode)) {
             app->view = items[i].mode;
             if (items[i].mode == VIEW_EDITOR)  app->sel_type = SEL_TILE;
+            if (items[i].mode == VIEW_SCREENS) app->sel_type = SEL_TILE;
             if (items[i].mode == VIEW_SPRITES) app->sel_type = SEL_SPRITE;
         }
     }
@@ -246,6 +247,7 @@ void app_draw(App *app) {
     case VIEW_SCREENS:
         draw_asset_list(app, ab, top, lw, panel_h);
         draw_screen_editor(app, cx, center_y, cw, center_h);
+        draw_editor_tools(app, app->win_w - rw, top, rw, panel_h);
         break;
     case VIEW_EMULATOR:
         draw_gbp(app, ab, top, lw, panel_h / 2);
