@@ -24,6 +24,20 @@ static uint8_t tile_palette(uint8_t tile_idx) {
 }
 
 // =========================================================================
+// Fog of war: tiles outside a radius from the player are blacked out
+// =========================================================================
+
+#define FOG_RADIUS_SQ  64  /* radius ~8 tiles (8*8=64) */
+
+static uint8_t fog_visible(uint8_t tx, uint8_t ty) {
+    int16_t ptx = player_px >> 3;
+    int16_t pty = player_py >> 3;
+    int16_t dx = (int16_t)tx - ptx;
+    int16_t dy = (int16_t)ty - pty;
+    return (dx * dx + dy * dy) <= FOG_RADIUS_SQ;
+}
+
+// =========================================================================
 // Stream a single row into the VRAM ring buffer
 // =========================================================================
 
@@ -33,7 +47,7 @@ static void stream_row(uint8_t level_row) {
     uint8_t buf_attr[VRAM_MAP_W];
     uint8_t x;
 
-    // Fill full 32-tile row (level tiles + solid padding)
+    // Fill full 32-tile row (level tiles + fog)
     for (x = 0; x < VRAM_MAP_W; x++) {
         uint8_t lx = cam_tx + x;
         uint8_t t;
@@ -41,6 +55,8 @@ static void stream_row(uint8_t level_row) {
             t = tile_at(lx, level_row);
         else
             t = 1;
+        if (!fog_visible(lx, level_row))
+            t = TILE_EMPTY;
         buf_tile[x] = t;
         buf_attr[x] = tile_palette(t);
     }
@@ -67,6 +83,8 @@ static void stream_column(uint8_t level_col) {
             t = tile_at(level_col, ly);
         else
             t = 1;
+        if (!fog_visible(level_col, ly))
+            t = TILE_EMPTY;
         VBK_REG = 0;
         set_bkg_tiles(vc, vr, 1, 1, &t);
         uint8_t a = tile_palette(t);
@@ -112,6 +130,8 @@ void render_init_level(void) {
                     t = tile_at(lx, ly);
                 else
                     t = 1;
+                if (!fog_visible(lx, ly))
+                    t = TILE_EMPTY;
                 buf_tile[x] = t;
                 buf_attr[x] = tile_palette(t);
             }
@@ -178,6 +198,18 @@ void render_update_camera(void) {
         } else {
             cam_tx--;
             stream_column(cam_tx);  // new col left of viewport
+        }
+    }
+
+    // Refresh fog: re-stream 2 rows per frame (round-robin)
+    {
+        static uint8_t fog_row = 0;
+        uint8_t r;
+        for (r = 0; r < 2; r++) {
+            stream_row(cam_ty + fog_row);
+            fog_row++;
+            if (fog_row >= PLAY_ROWS + 2)
+                fog_row = 0;
         }
     }
 
