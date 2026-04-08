@@ -54,11 +54,21 @@ void update_player_physics(void) {
     if (new_px < PLAYER_HW) new_px = PLAYER_HW;
     if (new_px > (int16_t)level_w * 8 - PLAYER_HW - 1) new_px = (int16_t)level_w * 8 - PLAYER_HW - 1;
 
-    // Check tile collision
+    // Check tile collision — snap to tile edge on hit
     if (collides_x(new_px, player_py)) {
-        // Push back to previous position
+        if (player_vx > 0) {
+            // Moving right: snap left edge of wall
+            uint8_t wall_tx = (uint8_t)((new_px + PLAYER_HW) >> 3);
+            player_px = (int16_t)wall_tx * 8 - PLAYER_HW - 1;
+        }
+        else if (player_vx < 0) {
+            // Moving left: snap right edge of wall
+            uint8_t wall_tx = (uint8_t)((new_px - PLAYER_HW) >> 3);
+            player_px = (int16_t)(wall_tx + 1) * 8 + PLAYER_HW;
+        }
         player_vx = 0;
-    } else {
+    }
+    else {
         player_px = new_px;
     }
 
