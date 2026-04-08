@@ -17,8 +17,8 @@
 #define TILE_LAVA0       19    // lava frame 0 (collision check)
 #define TILE_LAVA1       20    // lava frame 1
 
-// HUD and font tiles start after the Workbench tileset
-#define HUD_TILE_BASE    189U
+// HUD and font tiles appended to Workbench tileset (indices 104-140)
+#define HUD_TILE_BASE    104U
 #define TILE_HUD_FILL    (HUD_TILE_BASE + 0)   // fuel bar filled
 #define TILE_HUD_EMPTY   (HUD_TILE_BASE + 1)   // fuel bar empty
 #define TILE_HEART       (HUD_TILE_BASE + 2)   // life heart
