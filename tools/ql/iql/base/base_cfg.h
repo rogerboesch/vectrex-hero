@@ -40,6 +40,7 @@ typedef struct {
 	char ser3[64];
 	char ser4[64];
 	char prtcmd[64];
+	char rootdir[512];
 	char bootdev[5];
 	char bdi1[64];
 	short cpu_hog;

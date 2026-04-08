@@ -32,11 +32,12 @@ char* rb_get_resource_path(void);
 char* rb_get_system_path(void);
 
 QMDATA QMD = {
-	.config_file = "ql.ini",
+	.config_file = ".qlprofile",
 	.config_file_opt = 0,
 	.qdev = qdevs, /* ddvlist */
 	.romim = "", /* romlist */
 	.ramtop = 4096, /* RAM top */
+	.rootdir = "", /* root dir (from ROOT= in config) */
 	.romdir = "roms/", /* rom dir */
 	.sysrom = "ql_jm.rom", /* system ROM */
 	.ser1 = "", /* ser1 */
@@ -345,6 +346,7 @@ static PARSELIST pl[] = {
 	{ "SKIP_BOOT", (PVFV)pInt2, offsetof(QMDATA, skip_boot) },
 	{ "STRICT_LOCK", (PVFV)pInt2, offsetof(QMDATA, strict_lock) },
 	{ "NO_PATCH", (PVFV)pInt2, offsetof(QMDATA, no_patch) },
+	{ "ROOT", (PVFV)pString, offsetof(QMDATA, rootdir), 511 },
 	{ "BOOT_DEV", (PVFV)pString, offsetof(QMDATA, bootdev), 4 },
 	{ "BDI1", (PVFV)pString, offsetof(QMDATA, bdi1), 63 },
 	{ NULL, NULL },
@@ -395,13 +397,18 @@ void QMParams(void) {
 	QMDATA *p;
 
     char path[256];
-    sprintf(path, "%s%s", rb_get_system_path(), QMD.config_file);
+    const char *home = getenv("HOME");
+    if (home) {
+        sprintf(path, "%s/%s", home, QMD.config_file);
+    } else {
+        sprintf(path, "%s%s", rb_get_system_path(), QMD.config_file);
+    }
     
 	if (!(fp = fopen(path, "r"))) {
-        rb_log_error("ERROR: did not locate config file %s", QMD.config_file);
+        rb_log_error("ERROR: did not locate config file %s", path);
 	}
 
-	rb_log_info("Using Config: %s", QMD.config_file);
+	rb_log_info("Using Config: %s", path);
 
 	p = &QMD;
 

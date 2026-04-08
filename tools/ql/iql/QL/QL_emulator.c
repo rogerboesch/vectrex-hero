@@ -34,6 +34,7 @@
 #include "rb_logger.h"
 
 extern char* rb_get_system_path(void);
+extern void iql_set_system_path(const char *path);
 extern char* rb_get_system_rom(void);
 extern char* rb_get_toolkit_rom(void);
 extern char* rb_get_device_win_path(void);
@@ -429,7 +430,11 @@ int load_rom(char *name, w32 addr)
 	int fd;
 
     char path[256];
-    sprintf(path, "%s%s", rb_get_system_path(), name);
+    if (name[0] == '/') {
+        sprintf(path, "%s", name);
+    } else {
+        sprintf(path, "%s%s", rb_get_system_path(), name);
+    }
 	fd = impopen(path, O_RDONLY, 0);
     
 	if (fd < 0) {
@@ -521,6 +526,22 @@ static void QLSetParams(void) {
 
     //QLApplyParam();
     QMParams();
+
+    /* Apply ROOT from config as the system path */
+    if (QMD.rootdir[0]) {
+        /* Ensure trailing slash */
+        int len = strlen(QMD.rootdir);
+        if (len > 0 && QMD.rootdir[len - 1] != '/') {
+            if (len < (int)sizeof(QMD.rootdir) - 1) {
+                QMD.rootdir[len] = '/';
+                QMD.rootdir[len + 1] = '\0';
+            }
+        }
+        iql_set_system_path(QMD.rootdir);
+        rb_log_info("Root path set to: %s", QMD.rootdir);
+    } else {
+        rb_log_info("No ROOT in config, system path: %s", rb_get_system_path());
+    }
 
 	if (mem > 0 && mem < 17)
 		mem = mem * 1024;

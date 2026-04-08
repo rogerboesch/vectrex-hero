@@ -100,9 +100,7 @@ void draw_emulator(App *app, int px, int py, int pw, int ph) {
 
     if (!emu_is_running()) {
         if (ui_button(bx, tb.y, 40, bh, "Run")) {
-            char sys_path[512];
-            snprintf(sys_path, sizeof(sys_path), "%s/Documents/iQLmac/", getenv("HOME"));
-            if (emu_start(app->renderer, sys_path)) {
+            if (emu_start(app->renderer, "")) {
                 app_log_info(app, "Emulator started");
                 app->emu_start_ticks = SDL_GetTicks();
                 app->soft_bp_armed = false;
