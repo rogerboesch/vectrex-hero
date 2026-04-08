@@ -400,30 +400,11 @@ void render_hide_sprites(void) {
 
 static uint8_t char_to_tile(char ch) {
     if (ch >= '0' && ch <= '9') return TILE_DIGIT_0 + (ch - '0');
-    switch (ch) {
-        case 'A': return TILE_LETTER_A;
-        case 'B': return TILE_LETTER_B;
-        case 'C': return TILE_LETTER_C;
-        case 'D': return TILE_LETTER_D;
-        case 'E': return TILE_LETTER_E;
-        case 'F': return TILE_LETTER_F;
-        case 'G': return TILE_LETTER_G;
-        case 'H': return TILE_LETTER_H;
-        case 'I': return TILE_LETTER_I;
-        case 'L': return TILE_LETTER_L;
-        case 'N': return TILE_LETTER_N;
-        case 'O': return TILE_LETTER_O;
-        case 'P': return TILE_LETTER_P;
-        case 'R': return TILE_LETTER_R;
-        case 'S': return TILE_LETTER_S;
-        case 'T': return TILE_LETTER_T;
-        case 'U': return TILE_LETTER_U;
-        case 'V': return TILE_LETTER_V;
-        case '-': return TILE_LETTER_DASH;
-        case ':': return TILE_COLON;
-        case '.': return TILE_DOT;
-        default:  return TILE_EMPTY;
-    }
+    if (ch >= 'A' && ch <= 'Z') return TILE_LETTER_A + (ch - 'A');
+    if (ch == '-') return TILE_LETTER_DASH;
+    if (ch == ':') return TILE_COLON;
+    if (ch == '.') return TILE_DOT;
+    return TILE_EMPTY;
 }
 
 // Screen buffers for title/message screens (20 wide, 18 rows)
