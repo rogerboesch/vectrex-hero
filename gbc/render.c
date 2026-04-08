@@ -192,7 +192,7 @@ void render_clear_tile(uint8_t tx, uint8_t ty) {
     uint8_t vx = tx & (VRAM_MAP_W - 1);
     uint8_t vy = ty & (VRAM_MAP_H - 1);
     uint8_t empty = TILE_EMPTY;
-    uint8_t attr = PAL_BG_EMPTY;
+    uint8_t attr = 0;
     VBK_REG = 0;
     set_bkg_tiles(vx, vy, 1, 1, &empty);
     VBK_REG = 1;
@@ -210,8 +210,8 @@ void render_update_hud(void) {
     for (c = 0; c < 20; c++) {
         hud_tiles[0][c] = TILE_EMPTY;
         hud_tiles[1][c] = TILE_EMPTY;
-        hud_attrs[0][c] = PAL_BG_HUD;
-        hud_attrs[1][c] = PAL_BG_HUD;
+        hud_attrs[0][c] = 0;
+        hud_attrs[1][c] = 0;
     }
 
     // Level number
@@ -223,17 +223,17 @@ void render_update_hud(void) {
     hud_tiles[0][4] = (player_lives >= 1) ? TILE_HEART : TILE_HEART_OFF;
     hud_tiles[0][5] = (player_lives >= 2) ? TILE_HEART : TILE_HEART_OFF;
     hud_tiles[0][6] = (player_lives >= 3) ? TILE_HEART : TILE_HEART_OFF;
-    hud_attrs[0][4] = PAL_BG_HUD2;
-    hud_attrs[0][5] = PAL_BG_HUD2;
-    hud_attrs[0][6] = PAL_BG_HUD2;
+    hud_attrs[0][4] = 0;
+    hud_attrs[0][5] = 0;
+    hud_attrs[0][6] = 0;
 
     // Dynamite icons
     hud_tiles[0][8]  = (player_dynamite >= 1) ? TILE_DYN_ICON : TILE_DYN_OFF;
     hud_tiles[0][9]  = (player_dynamite >= 2) ? TILE_DYN_ICON : TILE_DYN_OFF;
     hud_tiles[0][10] = (player_dynamite >= 3) ? TILE_DYN_ICON : TILE_DYN_OFF;
-    hud_attrs[0][8]  = PAL_BG_DWALL;
-    hud_attrs[0][9]  = PAL_BG_DWALL;
-    hud_attrs[0][10] = PAL_BG_DWALL;
+    hud_attrs[0][8]  = 0;
+    hud_attrs[0][9]  = 0;
+    hud_attrs[0][10] = 0;
 
     // Score
     {
@@ -253,7 +253,7 @@ void render_update_hud(void) {
         uint8_t filled = (uint8_t)((uint16_t)player_fuel * 20 / START_FUEL);
         for (c = 0; c < 20; c++) {
             hud_tiles[1][c] = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
-            hud_attrs[1][c] = PAL_BG_HUD;
+            hud_attrs[1][c] = 0;
         }
     }
 
@@ -449,7 +449,7 @@ static void clear_screen_tiles(void) {
     for (r = 0; r < 18; r++)
         for (c = 0; c < 20; c++) {
             scr_tiles[r][c] = TILE_EMPTY;
-            scr_attrs[r][c] = PAL_BG_EMPTY;
+            scr_attrs[r][c] = 0;
         }
 }
 
@@ -482,12 +482,12 @@ void render_title(void) {
     for (c = 0; c < 20; c++) {
         scr_tiles[3][c] = TILE_WALL + 0x0F;
         scr_tiles[14][c] = TILE_WALL + 0x0F;
-        scr_attrs[3][c] = PAL_BG_CAVE;
-        scr_attrs[14][c] = PAL_BG_CAVE;
+        scr_attrs[3][c] = 0;
+        scr_attrs[14][c] = 0;
     }
 
-    draw_text_row(7, "R.E.S.C.U.E.", PAL_BG_DWALL);
-    draw_text_row(11, "PRESS START", PAL_BG_HUD2);
+    draw_text_row(7, "R.E.S.C.U.E.", 0);
+    draw_text_row(11, "PRESS START", 0);
 
     upload_full_screen();
 }
@@ -507,13 +507,13 @@ void render_msg(const char *line1, const char *line2) {
     for (c = 0; c < 20; c++) {
         scr_tiles[5][c] = TILE_WALL + 0x0A;
         scr_tiles[12][c] = TILE_WALL + 0x0A;
-        scr_attrs[5][c] = PAL_BG_CAVE;
-        scr_attrs[12][c] = PAL_BG_CAVE;
+        scr_attrs[5][c] = 0;
+        scr_attrs[12][c] = 0;
     }
 
-    draw_text_row(8, line1, PAL_BG_DWALL);
+    draw_text_row(8, line1, 0);
     if (line2 != 0)
-        draw_text_row(9, line2, PAL_BG_HUD);
+        draw_text_row(9, line2, 0);
 
     upload_full_screen();
 }
