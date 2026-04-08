@@ -242,11 +242,13 @@ void render_update_hud(void) {
         }
     }
 
-    // Fuel bar
+    // Fuel bar (14 tiles wide, centered)
     {
-        uint8_t filled = (uint8_t)((uint16_t)player_fuel * 20 / START_FUEL);
-        for (c = 0; c < 20; c++)
-            hud_tiles[1][c] = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
+        #define FUEL_BAR_W   14
+        #define FUEL_BAR_X    3  /* (20 - 14) / 2 */
+        uint8_t filled = (uint8_t)((uint16_t)player_fuel * FUEL_BAR_W / START_FUEL);
+        for (c = 0; c < FUEL_BAR_W; c++)
+            hud_tiles[1][FUEL_BAR_X + c] = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
     }
 
     // Set palette attrs from per-tile palette table
