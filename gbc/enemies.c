@@ -227,22 +227,23 @@ void update_active_enemies(void) {
         if (!ae->alive) continue;
 
         if (ae->type == ENEMY_SPIDER) {
-            // Vertical patrol: start at home_py, move down SPIDER_PATROL px
-            // Half speed: move every other frame
-            if (anim_tick & 1) ae->py += ae->vx;
-            if (ae->py < ae->home_py) {
-                ae->py = ae->home_py;
-                ae->vx = -ae->vx;
-            }
-            else if (ae->py >= ae->home_py + SPIDER_PATROL) {
-                ae->py = ae->home_py + SPIDER_PATROL;
-                ae->vx = -ae->vx;
-            }
-            // Tile collision (vertical)
-            if (tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py - SPIDER_HH) >> 3)) ||
-                tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py + SPIDER_HH) >> 3))) {
-                ae->vx = -ae->vx;
+            // Vertical patrol: half speed, move every other frame
+            if (anim_tick & 1) {
                 ae->py += ae->vx;
+                if (ae->py < ae->home_py) {
+                    ae->py = ae->home_py;
+                    ae->vx = -ae->vx;
+                }
+                else if (ae->py >= ae->home_py + SPIDER_PATROL) {
+                    ae->py = ae->home_py + SPIDER_PATROL;
+                    ae->vx = -ae->vx;
+                }
+                // Tile collision (vertical)
+                if (tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py - SPIDER_HH) >> 3)) ||
+                    tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py + SPIDER_HH) >> 3))) {
+                    ae->vx = -ae->vx;
+                    ae->py += ae->vx;
+                }
             }
             ehw = SPIDER_HW; ehh = SPIDER_HH;
 
