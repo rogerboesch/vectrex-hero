@@ -145,6 +145,17 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
             SDL_RenderDrawLine(app->renderer, ox, oy + ty * cell, ox + draw_w, oy + ty * cell);
     }
 
+    /* Draw marker row (for shift operations) */
+    if (app->marker_row >= 0) {
+        int mrow = app->marker_row - app->scroll_y;
+        if (mrow >= 0 && mrow < vis_h) {
+            int my = oy + mrow * cell;
+            SDL_SetRenderDrawColor(app->renderer, 255, 255, 0, 255);
+            SDL_RenderDrawLine(app->renderer, ox, my, ox + draw_w, my);
+            SDL_RenderDrawLine(app->renderer, ox, my + cell - 1, ox + draw_w, my + cell - 1);
+        }
+    }
+
     /* Draw entities (sprite layer) on top */
     {
         static const SDL_Color ent_colors[] = {
@@ -230,8 +241,8 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                     app->modified = true;
                 }
                 if (ui_mouse_right_clicked()) {
-                    app->cur_tset_tile = lvl->tiles[ty][tx];
-                    app->cur_palette = lvl->palettes[ty][tx];
+                    /* Right-click: set marker row for shift operations */
+                    app->marker_row = ty;
                 }
             }
         }

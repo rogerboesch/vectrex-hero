@@ -48,6 +48,7 @@ typedef struct {
     int scroll_x, scroll_y;
     int cur_palette;       /* current BG palette for painting (0-7) */
     int sel_entity;        /* selected entity index in level, -1=none */
+    int marker_row;        /* row marker for shift operations, -1=none */
     int cur_screen;        /* selected screen index for screen editor */
 
     /* Project */

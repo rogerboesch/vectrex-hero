@@ -104,5 +104,50 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
         }
     }
 
+    /* Row shift tools — requires marker row set by right-click */
+    y = ui_section(c.x - 4, y, c.w + 8, "Row Shift");
+    if (app->marker_row >= 0 && lvl) {
+        snprintf(label, sizeof(label), "Marker: row %d", app->marker_row);
+        ui_text_color(c.x, y, label, ui_theme.text);
+        y += ui_line_height() + 6;
+
+        int sbw = (c.w - 4) / 2;
+
+        /* Shift Down: insert empty row at marker, push everything below down */
+        if (ui_button(c.x, y, sbw, bh, "Shift Down")) {
+            if (lvl->height > 0) {
+                for (int r = lvl->height - 1; r > app->marker_row; r--) {
+                    memcpy(lvl->tiles[r], lvl->tiles[r - 1], lvl->width);
+                    memcpy(lvl->palettes[r], lvl->palettes[r - 1], lvl->width);
+                }
+                memset(lvl->tiles[app->marker_row], 0, lvl->width);
+                memset(lvl->palettes[app->marker_row], 0, lvl->width);
+                app->modified = true;
+            }
+        }
+
+        /* Shift Up: delete marker row, push everything below up */
+        if (ui_button(c.x + sbw + 4, y, sbw, bh, "Shift Up")) {
+            if (lvl->height > 0) {
+                for (int r = app->marker_row; r < lvl->height - 1; r++) {
+                    memcpy(lvl->tiles[r], lvl->tiles[r + 1], lvl->width);
+                    memcpy(lvl->palettes[r], lvl->palettes[r + 1], lvl->width);
+                }
+                memset(lvl->tiles[lvl->height - 1], 0, lvl->width);
+                memset(lvl->palettes[lvl->height - 1], 0, lvl->width);
+                app->modified = true;
+            }
+        }
+        y += bh + 6;
+
+        /* Clear marker */
+        if (ui_button(c.x, y, c.w, bh, "Clear Marker")) {
+            app->marker_row = -1;
+        }
+    }
+    else {
+        ui_text_color(c.x, y, "Right-click to set marker", ui_theme.text_dim);
+    }
+
     ui_panel_end();
 }

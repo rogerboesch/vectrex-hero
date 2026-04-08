@@ -39,6 +39,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->view = VIEW_LEVELS;
     app->cur_color = 3;
     app->sel_entity = -1;
+    app->marker_row = -1;
     app->sel_type = SEL_TILE;
 
     tilemap_project_init(&app->tmap);
