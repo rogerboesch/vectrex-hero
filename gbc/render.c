@@ -214,28 +214,24 @@ void render_update_hud(void) {
         hud_tiles[1][c] = TILE_EMPTY;
     }
 
-    // Level number
-    hud_tiles[0][0] = TILE_LETTER_L;
-    hud_tiles[0][1] = TILE_DIGIT_0 + ((current_level + 1) / 10);
-    hud_tiles[0][2] = TILE_DIGIT_0 + ((current_level + 1) % 10);
+    // Level number (positions 0-1)
+    hud_tiles[0][0] = TILE_DIGIT_0 + ((current_level + 1) / 10);
+    hud_tiles[0][1] = TILE_DIGIT_0 + ((current_level + 1) % 10);
 
-    // Hearts
-    hud_tiles[0][4] = (player_lives >= 1) ? TILE_HEART : TILE_HEART_OFF;
-    hud_tiles[0][5] = (player_lives >= 2) ? TILE_HEART : TILE_HEART_OFF;
-    hud_tiles[0][6] = (player_lives >= 3) ? TILE_HEART : TILE_HEART_OFF;
+    // Hearts (positions 3-5)
+    hud_tiles[0][3] = (player_lives >= 1) ? TILE_HEART : TILE_HEART_OFF;
+    hud_tiles[0][4] = (player_lives >= 2) ? TILE_HEART : TILE_HEART_OFF;
+    hud_tiles[0][5] = (player_lives >= 3) ? TILE_HEART : TILE_HEART_OFF;
 
-    // Dynamite icons
-    hud_tiles[0][8]  = (player_dynamite >= 1) ? TILE_DYN_ICON : TILE_DYN_OFF;
-    hud_tiles[0][9]  = (player_dynamite >= 2) ? TILE_DYN_ICON : TILE_DYN_OFF;
-    hud_tiles[0][10] = (player_dynamite >= 3) ? TILE_DYN_ICON : TILE_DYN_OFF;
+    // Dynamite icons (positions 7-9)
+    hud_tiles[0][7]  = (player_dynamite >= 1) ? TILE_DYN_ICON : TILE_DYN_OFF;
+    hud_tiles[0][8]  = (player_dynamite >= 2) ? TILE_DYN_ICON : TILE_DYN_OFF;
+    hud_tiles[0][9]  = (player_dynamite >= 3) ? TILE_DYN_ICON : TILE_DYN_OFF;
 
-    // Score
+    // Score (positions 16-19, right-aligned)
     {
         int16_t s = score;
         uint8_t d;
-        hud_tiles[0][13] = TILE_LETTER_S;
-        hud_tiles[0][14] = TILE_LETTER_C;
-        hud_tiles[0][15] = TILE_COLON;
         for (d = 0; d < 4; d++) {
             hud_tiles[0][19 - d] = TILE_DIGIT_0 + (s % 10);
             s /= 10;
