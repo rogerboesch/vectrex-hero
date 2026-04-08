@@ -1,6 +1,7 @@
-# H.E.R.O. for Vectrex
+# R.E.S.C.U.E
+## Remote Exploration & Sub-surface Cavern Utility Expert
 
-A Vectrex conversion of Activision's H.E.R.O. (1984), built with the VectreC toolchain and CMOC.
+A conversion of Activision's H.E.R.O. (1984), built with the VectreC toolchain and CMOC.
 
 ## Build
 

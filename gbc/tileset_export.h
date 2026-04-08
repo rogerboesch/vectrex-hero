@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#define TILESET_COUNT 189
-extern const uint8_t tileset_data[189][16];
+#define TILESET_COUNT 104
+extern const uint8_t tileset_data[104][16];
 
 #endif

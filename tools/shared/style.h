@@ -18,7 +18,7 @@
 #define STYLE_ACTIVITY_BAR_W   48
 #define STYLE_LEFT_PANEL_W    300
 #define STYLE_RIGHT_PANEL_W   300
-#define STYLE_CONSOLE_H       120
+#define STYLE_CONSOLE_H       162
 #define STYLE_STATUS_BAR_H     22
 #define STYLE_BREADCRUMB_H     26
 #define STYLE_SCROLLBAR_W       6

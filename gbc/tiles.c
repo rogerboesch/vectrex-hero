@@ -167,20 +167,14 @@ static void gen_font_tiles(void) {
 // =========================================================================
 
 void tiles_init(void) {
-    uint8_t saved_bank = _current_bank;
-
-    // Load palettes (in bank 0)
+    // Load palettes
     set_bkg_palette(0, EXPORT_BG_PAL_COUNT, exported_bg_palettes);
     set_sprite_palette(0, EXPORT_SPR_PAL_COUNT, exported_spr_palettes);
 
-    // Load tileset from Workbench export (in bank 0)
-    // Load in two batches to avoid any uint8_t issues
-    set_bkg_data(0, 128, (const uint8_t *)tileset_data);
-    set_bkg_data(128, TILESET_COUNT - 128, (const uint8_t *)tileset_data[128]);
+    // Load tileset from Workbench export
+    set_bkg_data(0, TILESET_COUNT, (const uint8_t *)tileset_data);
 
-    // Switch to bank 3 for sprite data
-    SWITCH_ROM(5);
-
+    // Load sprites from Workbench export
     set_sprite_data(SPR_BAT0,        2, spr_bat_0);
     set_sprite_data(SPR_BAT1,        2, spr_bat_1);
     set_sprite_data(SPR_DYNAMITE,    2, spr_dynamite_0);
@@ -194,9 +188,7 @@ void tiles_init(void) {
     set_sprite_data(SPR_SNAKE_R,     2, spr_snake_0);
     set_sprite_data(SPR_SPIDER,      2, spr_spider_0);
 
-    SWITCH_ROM(saved_bank);
-
-    // Overwrite HUD + font tile slots with generated tiles (in bank 0)
+    // Generate HUD + font tiles after tileset (indices 189+)
     gen_hud_tiles();
     gen_font_tiles();
 
