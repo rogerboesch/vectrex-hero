@@ -104,9 +104,10 @@
 // Sprite screen positioning (world px -> screen sprite pos)
 // =========================================================================
 
-// 8 and 16 are GBC hardware sprite offsets
-// -8 centers 8x16 sprites vertically on the hitbox center
-#define SPR_SCR_X(wpx) ((uint8_t)(8 + (int16_t)(wpx) - cam_x))
+// GBC hardware sprite offsets: X+8, Y+16 from top-left corner
+// -4 centers 8px wide sprite on hitbox center
+// -8 centers 8x16 sprite vertically on hitbox center
+#define SPR_SCR_X(wpx) ((uint8_t)(8 - 4 + (int16_t)(wpx) - cam_x))
 #define SPR_SCR_Y(wpy) ((uint8_t)(16 - 8 + (int16_t)(wpy) - cam_y))
 
 // =========================================================================
