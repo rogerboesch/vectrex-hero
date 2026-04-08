@@ -157,7 +157,8 @@ void gbc_emu_key_down(SDL_Keycode key) {
     case SDLK_LEFT:  gb_input_set(g_gb, GB_INPUT_LEFT, true); break;
     case SDLK_UP:    gb_input_set(g_gb, GB_INPUT_UP, true); break;
     case SDLK_DOWN:  gb_input_set(g_gb, GB_INPUT_DOWN, true); break;
-    case SDLK_a:     gb_input_set(g_gb, GB_INPUT_A, true); break;
+    case SDLK_a:
+    case SDLK_SPACE: gb_input_set(g_gb, GB_INPUT_A, true); break;
     case SDLK_s:     gb_input_set(g_gb, GB_INPUT_B, true); break;
     case SDLK_RETURN: gb_input_set(g_gb, GB_INPUT_START, true); break;
     case SDLK_BACKSPACE: gb_input_set(g_gb, GB_INPUT_SELECT, true); break;
@@ -172,7 +173,8 @@ void gbc_emu_key_up(SDL_Keycode key) {
     case SDLK_LEFT:  gb_input_set(g_gb, GB_INPUT_LEFT, false); break;
     case SDLK_UP:    gb_input_set(g_gb, GB_INPUT_UP, false); break;
     case SDLK_DOWN:  gb_input_set(g_gb, GB_INPUT_DOWN, false); break;
-    case SDLK_a:     gb_input_set(g_gb, GB_INPUT_A, false); break;
+    case SDLK_a:
+    case SDLK_SPACE: gb_input_set(g_gb, GB_INPUT_A, false); break;
     case SDLK_s:     gb_input_set(g_gb, GB_INPUT_B, false); break;
     case SDLK_RETURN: gb_input_set(g_gb, GB_INPUT_START, false); break;
     case SDLK_BACKSPACE: gb_input_set(g_gb, GB_INPUT_SELECT, false); break;
