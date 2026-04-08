@@ -79,11 +79,12 @@
 //
 // GBC: 160x144 px = 20x18 tiles
 // Window layer: rows 0-1 = HUD (16px)
-// Background: scrolling playfield (128px visible below HUD)
+// Background: scrolling playfield with HUD top + power bar bottom
 //
 #define SCREEN_W     160
 #define SCREEN_H     144
-#define HUD_H         16   // 2 tile rows for HUD in background
+#define HUD_TOP_H      8   // 1 tile row at top
+#define HUD_BOT_H      8   // 1 tile row at bottom
 #define PLAY_H       128   // 16 tile rows visible
 #define PLAY_COLS     20
 #define PLAY_ROWS     16
@@ -106,8 +107,9 @@
 
 // 8 and 16 are GBC hardware sprite offsets
 // -8 centers 8x16 sprites vertically on the hitbox center
+// +HUD_TOP_H accounts for top HUD row
 #define SPR_SCR_X(wpx) ((uint8_t)(8 + (int16_t)(wpx) - cam_x))
-#define SPR_SCR_Y(wpy) ((uint8_t)(16 - 8 + (int16_t)(wpy) - cam_y))
+#define SPR_SCR_Y(wpy) ((uint8_t)(16 - 8 + HUD_TOP_H + (int16_t)(wpy) - cam_y))
 
 // =========================================================================
 // Types
