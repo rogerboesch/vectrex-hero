@@ -99,19 +99,27 @@ void update_dynamite(void) {
             {
                 uint8_t ctx = (uint8_t)(dyn_px >> 3);
                 uint8_t cty = (uint8_t)(dyn_py >> 3);
-                int8_t radius_tiles = 1;
-                int8_t dy2, dx2;
-                for (dy2 = -radius_tiles; dy2 <= radius_tiles; dy2++) {
-                    for (dx2 = -radius_tiles; dx2 <= radius_tiles; dx2++) {
-                        uint8_t ttx = ctx + dx2;
-                        uint8_t tty = cty + dy2;
-                        if (ttx < level_w && tty < level_h) {
+                int8_t dx2;
+                for (dx2 = -1; dx2 <= 1; dx2++) {
+                    uint8_t ttx = ctx + dx2;
+                    if (ttx >= level_w) continue;
+                    /* Scan full column up and down for destroyable tiles */
+                    uint8_t tty;
+                    for (tty = cty; tty < level_h; tty++) {
+                        uint8_t t = tile_at(ttx, tty);
+                        if (t < TILE_DWALL_FIRST || t > TILE_DWALL_LAST) break;
+                        decode_cache[tty & (DECODE_ROWS - 1)][ttx] = 0;
+                        render_clear_tile(ttx, tty);
+                        score += 75;
+                    }
+                    if (cty > 0) {
+                        for (tty = cty - 1; tty < level_h; tty--) {
                             uint8_t t = tile_at(ttx, tty);
-                            if (t >= TILE_DWALL_FIRST && t <= TILE_DWALL_LAST) {
-                                decode_cache[tty & (DECODE_ROWS - 1)][ttx] = 0;
-                                render_clear_tile(ttx, tty);
-                                score += 75;
-                            }
+                            if (t < TILE_DWALL_FIRST || t > TILE_DWALL_LAST) break;
+                            decode_cache[tty & (DECODE_ROWS - 1)][ttx] = 0;
+                            render_clear_tile(ttx, tty);
+                            score += 75;
+                            if (tty == 0) break;
                         }
                     }
                 }
