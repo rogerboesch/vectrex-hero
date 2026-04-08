@@ -4,6 +4,7 @@
 
 #include "game.h"
 #include "tiles.h"
+#include "tileset_export.h"
 
 // Window layer at bottom (WY=128) for HUD.
 // Background uses full 32x32 VRAM as scrolling ring buffer via SCX/SCY.
@@ -13,11 +14,12 @@ static uint8_t hud_tiles[2][20];
 static uint8_t hud_attrs[2][20];
 
 // =========================================================================
-// Tile-to-palette mapping
+// Tile-to-palette mapping (from Workbench per-tile palette)
 // =========================================================================
 
 static uint8_t tile_palette(uint8_t tile_idx) {
-    (void)tile_idx;
+    if (tile_idx < TILESET_COUNT)
+        return tile_palettes[tile_idx];
     return 0;
 }
 
@@ -210,8 +212,6 @@ void render_update_hud(void) {
     for (c = 0; c < 20; c++) {
         hud_tiles[0][c] = TILE_EMPTY;
         hud_tiles[1][c] = TILE_EMPTY;
-        hud_attrs[0][c] = 0;
-        hud_attrs[1][c] = 0;
     }
 
     // Level number
@@ -223,17 +223,11 @@ void render_update_hud(void) {
     hud_tiles[0][4] = (player_lives >= 1) ? TILE_HEART : TILE_HEART_OFF;
     hud_tiles[0][5] = (player_lives >= 2) ? TILE_HEART : TILE_HEART_OFF;
     hud_tiles[0][6] = (player_lives >= 3) ? TILE_HEART : TILE_HEART_OFF;
-    hud_attrs[0][4] = 0;
-    hud_attrs[0][5] = 0;
-    hud_attrs[0][6] = 0;
 
     // Dynamite icons
     hud_tiles[0][8]  = (player_dynamite >= 1) ? TILE_DYN_ICON : TILE_DYN_OFF;
     hud_tiles[0][9]  = (player_dynamite >= 2) ? TILE_DYN_ICON : TILE_DYN_OFF;
     hud_tiles[0][10] = (player_dynamite >= 3) ? TILE_DYN_ICON : TILE_DYN_OFF;
-    hud_attrs[0][8]  = 0;
-    hud_attrs[0][9]  = 0;
-    hud_attrs[0][10] = 0;
 
     // Score
     {
@@ -251,10 +245,14 @@ void render_update_hud(void) {
     // Fuel bar
     {
         uint8_t filled = (uint8_t)((uint16_t)player_fuel * 20 / START_FUEL);
-        for (c = 0; c < 20; c++) {
+        for (c = 0; c < 20; c++)
             hud_tiles[1][c] = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
-            hud_attrs[1][c] = 0;
-        }
+    }
+
+    // Set palette attrs from per-tile palette table
+    for (c = 0; c < 20; c++) {
+        hud_attrs[0][c] = tile_palette(hud_tiles[0][c]);
+        hud_attrs[1][c] = tile_palette(hud_tiles[1][c]);
     }
 
     // Upload to window layer (bottom of screen)
@@ -434,13 +432,14 @@ static uint8_t char_to_tile(char ch) {
 static uint8_t scr_tiles[18][20];
 static uint8_t scr_attrs[18][20];
 
-static void draw_text_row(uint8_t row, const char *text, uint8_t pal) {
+static void draw_text_row(uint8_t row, const char *text) {
     uint8_t i = 0, c;
     while (text[i]) i++;
     c = (20 - i) / 2;
     for (i = 0; text[i] && c < 20; i++, c++) {
-        scr_tiles[row][c] = char_to_tile(text[i]);
-        scr_attrs[row][c] = pal;
+        uint8_t t = char_to_tile(text[i]);
+        scr_tiles[row][c] = t;
+        scr_attrs[row][c] = tile_palette(t);
     }
 }
 
@@ -449,7 +448,7 @@ static void clear_screen_tiles(void) {
     for (r = 0; r < 18; r++)
         for (c = 0; c < 20; c++) {
             scr_tiles[r][c] = TILE_EMPTY;
-            scr_attrs[r][c] = 0;
+            scr_attrs[r][c] = tile_palette(TILE_EMPTY);
         }
 }
 
@@ -482,12 +481,12 @@ void render_title(void) {
     for (c = 0; c < 20; c++) {
         scr_tiles[3][c] = TILE_WALL + 0x0F;
         scr_tiles[14][c] = TILE_WALL + 0x0F;
-        scr_attrs[3][c] = 0;
-        scr_attrs[14][c] = 0;
+        scr_attrs[3][c] = tile_palette(TILE_WALL + 0x0F);
+        scr_attrs[14][c] = tile_palette(TILE_WALL + 0x0F);
     }
 
-    draw_text_row(7, "R.E.S.C.U.E.", 0);
-    draw_text_row(11, "PRESS START", 0);
+    draw_text_row(7, "R.E.S.C.U.E.");
+    draw_text_row(11, "PRESS START");
 
     upload_full_screen();
 }
@@ -507,13 +506,13 @@ void render_msg(const char *line1, const char *line2) {
     for (c = 0; c < 20; c++) {
         scr_tiles[5][c] = TILE_WALL + 0x0A;
         scr_tiles[12][c] = TILE_WALL + 0x0A;
-        scr_attrs[5][c] = 0;
-        scr_attrs[12][c] = 0;
+        scr_attrs[5][c] = tile_palette(TILE_WALL + 0x0A);
+        scr_attrs[12][c] = tile_palette(TILE_WALL + 0x0A);
     }
 
-    draw_text_row(8, line1, 0);
+    draw_text_row(8, line1);
     if (line2 != 0)
-        draw_text_row(9, line2, 0);
+        draw_text_row(9, line2);
 
     upload_full_screen();
 }

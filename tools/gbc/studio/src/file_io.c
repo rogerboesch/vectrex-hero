@@ -49,6 +49,21 @@ void app_load_project(App *app, const char *path) {
         app->tmap.tileset.used_count = idx;
     }
 
+    /* Parse tileset_palettes (per-tile palette index) */
+    p = strstr(json, "\"tileset_palettes\"");
+    if (p) {
+        p = strchr(p, '['); if (p) p++;
+        int idx = 0;
+        while (p && *p && idx < TSET_COUNT) {
+            p = json_skip_ws(p);
+            if (*p == ']') break;
+            if (*p == ',') { p++; continue; }
+            int v = 0; p = json_parse_int(p, &v);
+            app->tmap.tileset.entries[idx].palette = (uint8_t)v;
+            idx++;
+        }
+    }
+
     /* Parse palettes */
     const char *pal_sec;
     pal_sec = strstr(json, "\"bg_palettes\"");
@@ -286,6 +301,13 @@ void app_save_project(App *app, const char *path) {
     }
     fprintf(f, "  ],\n");
 
+    /* Per-tile palette index */
+    fprintf(f, "  \"tileset_palettes\": [");
+    for (int i = 0; i < app->tmap.tileset.used_count; i++)
+        fprintf(f, "%d%s", app->tmap.tileset.entries[i].palette,
+                i < app->tmap.tileset.used_count - 1 ? "," : "");
+    fprintf(f, "],\n");
+
     /* Palettes */
     fprintf(f, "  \"bg_palettes\": [\n");
     for (int i = 0; i < MAX_BG_PALS; i++) {
@@ -398,7 +420,8 @@ void app_export_c(App *app) {
     fprintf(fh, "#ifndef TILESET_EXPORT_H\n#define TILESET_EXPORT_H\n\n");
     fprintf(fh, "#include <stdint.h>\n\n");
     fprintf(fh, "#define TILESET_COUNT %d\n", app->tmap.tileset.used_count);
-    fprintf(fh, "extern const uint8_t tileset_data[%d][16];\n\n", app->tmap.tileset.used_count);
+    fprintf(fh, "extern const uint8_t tileset_data[%d][16];\n", app->tmap.tileset.used_count);
+    fprintf(fh, "extern const uint8_t tile_palettes[%d];\n\n", app->tmap.tileset.used_count);
     fprintf(fh, "#endif\n");
 
     fprintf(fc, "const uint8_t tileset_data[%d][16] = {\n", app->tmap.tileset.used_count);
@@ -408,7 +431,15 @@ void app_export_c(App *app) {
             fprintf(fc, "0x%02X%s", app->tmap.tileset.entries[i].data[j], j < 15 ? "," : "");
         fprintf(fc, "},\n");
     }
-    fprintf(fc, "};\n");
+    fprintf(fc, "};\n\n");
+
+    fprintf(fc, "const uint8_t tile_palettes[%d] = {\n    ", app->tmap.tileset.used_count);
+    for (int i = 0; i < app->tmap.tileset.used_count; i++) {
+        fprintf(fc, "%d%s", app->tmap.tileset.entries[i].palette,
+                i < app->tmap.tileset.used_count - 1 ? "," : "");
+        if ((i & 15) == 15) fprintf(fc, "\n    ");
+    }
+    fprintf(fc, "\n};\n");
     fclose(fc); fclose(fh);
     app_log_info(app, "Exported %d tiles to %s", app->tmap.tileset.used_count, c_path);
 
