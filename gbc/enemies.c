@@ -107,7 +107,7 @@ void update_dynamite(void) {
                         uint8_t tty = cty + dy2;
                         if (ttx < level_w && tty < level_h) {
                             uint8_t t = tile_at(ttx, tty);
-                            if (t == TILE_DWALL || t == TILE_DWALL_EDGE) {
+                            if (t >= TILE_DWALL_FIRST && t <= TILE_DWALL_LAST) {
                                 decode_cache[tty & (DECODE_ROWS - 1)][ttx] = 0;
                                 render_clear_tile(ttx, tty);
                                 score += 75;

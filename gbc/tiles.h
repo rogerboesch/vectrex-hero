@@ -12,8 +12,8 @@
 // Tiles 0..188 are the Workbench tileset (loaded from tileset_export.c)
 #define TILE_EMPTY       0
 #define TILE_WALL        1     // main wall tile (for title screen decorations)
-#define TILE_DWALL       17    // destroyable wall (collision check)
-#define TILE_DWALL_EDGE  18    // destroyable wall edge
+#define TILE_DWALL_FIRST  4    // destroyable wall range start
+#define TILE_DWALL_LAST   6    // destroyable wall range end
 #define TILE_LAVA0       19    // lava frame 0 (collision check)
 #define TILE_LAVA1       20    // lava frame 1
 
