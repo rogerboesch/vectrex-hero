@@ -163,6 +163,7 @@ void main(void) {
                     player_fuel = START_FUEL;
                     player_dynamite = START_DYNAMITE;
                     game_state = STATE_LEVEL_FAILED;
+                    level_msg_timer = LEVEL_INTRO_TIME;
                     render_msg("LEVEL FAILED", score_str());
                 }
             }
@@ -171,12 +172,14 @@ void main(void) {
             level_msg_timer--;
             if (level_msg_timer == 0) {
                 game_state = STATE_RESCUED;
+                level_msg_timer = LEVEL_INTRO_TIME;
                 render_hide_sprites();
                 render_msg("MINER RESCUED", score_str());
             }
 
         } else if (game_state == STATE_RESCUED) {
-            if (joy_pressed & (J_START | J_A | J_B)) {
+            level_msg_timer--;
+            if (level_msg_timer == 0) {
                 current_level++;
                 if (current_level >= NUM_LEVELS) current_level = 0;
                 init_level();
@@ -193,7 +196,8 @@ void main(void) {
             }
 
         } else if (game_state == STATE_LEVEL_FAILED) {
-            if (joy_pressed & (J_START | J_A | J_B)) {
+            level_msg_timer--;
+            if (level_msg_timer == 0) {
                 init_level();
                 game_state = STATE_LEVEL_INTRO;
                 level_msg_timer = LEVEL_INTRO_TIME;
