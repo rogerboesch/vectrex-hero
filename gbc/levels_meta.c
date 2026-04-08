@@ -2,7 +2,7 @@
 #include "level_data.h"
 
 const LevelInfo levels[NUM_LEVELS] = {
-    {20, 21, 1, level_0_rle, level_0_row_offsets, 3, level_0_entities},
+    {20, 23, 1, level_0_rle, level_0_row_offsets, 4, level_0_entities},
     {20, 64, 1, level_1_rle, level_1_row_offsets, 6, level_1_entities},
     {20, 96, 1, level_2_rle, level_2_row_offsets, 9, level_2_entities},
     {20, 128, 1, level_3_rle, level_3_row_offsets, 11, level_3_entities},
