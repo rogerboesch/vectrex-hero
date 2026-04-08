@@ -117,11 +117,7 @@ void main(void) {
             anim_tick++;
             if (joy_pressed & (J_START | J_A | J_B)) {
                 start_new_game();
-                DISPLAY_OFF;
-                render_init_level();
-                DISPLAY_ON;
-                SHOW_BKG;
-                SHOW_SPRITES;
+                render_msg("LEVEL 01", 0);
             }
 
         } else if (game_state == STATE_LEVEL_INTRO) {
