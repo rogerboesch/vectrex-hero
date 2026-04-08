@@ -99,7 +99,7 @@ void update_dynamite(void) {
             {
                 uint8_t ctx = (uint8_t)(dyn_px >> 3);
                 uint8_t cty = (uint8_t)(dyn_py >> 3);
-                int8_t radius_tiles = (EXPLOSION_RADIUS >> 3) + 1;
+                int8_t radius_tiles = 1;
                 int8_t dy2, dx2;
                 for (dy2 = -radius_tiles; dy2 <= radius_tiles; dy2++) {
                     for (dx2 = -radius_tiles; dx2 <= radius_tiles; dx2++) {
