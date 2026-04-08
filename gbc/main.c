@@ -77,17 +77,20 @@ static void read_input(void) {
 // Score to string
 // =========================================================================
 
-static char score_buf[10];
+static char score_buf[16];
 
 static const char *score_str(void) {
     int16_t s = score;
     uint8_t i = 0;
     char tmp[6];
     uint8_t j;
-    if (s == 0) { score_buf[0] = '0'; score_buf[1] = '\0'; return score_buf; }
+    score_buf[0] = 'S'; score_buf[1] = 'C'; score_buf[2] = 'O';
+    score_buf[3] = 'R'; score_buf[4] = 'E'; score_buf[5] = ':';
+    score_buf[6] = ' ';
+    if (s == 0) { score_buf[7] = '0'; score_buf[8] = '\0'; return score_buf; }
     while (s > 0 && i < 6) { tmp[i++] = '0' + (s % 10); s /= 10; }
-    for (j = 0; j < i; j++) score_buf[j] = tmp[i - 1 - j];
-    score_buf[i] = '\0';
+    for (j = 0; j < i; j++) score_buf[7 + j] = tmp[i - 1 - j];
+    score_buf[7 + i] = '\0';
     return score_buf;
 }
 
@@ -169,7 +172,7 @@ void main(void) {
             if (level_msg_timer == 0) {
                 game_state = STATE_RESCUED;
                 render_hide_sprites();
-                render_msg("RESCUED", score_str());
+                render_msg("MINER RESCUED", score_str());
             }
 
         } else if (game_state == STATE_RESCUED) {

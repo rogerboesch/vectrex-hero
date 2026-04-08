@@ -489,7 +489,7 @@ void render_msg(const char *line1, const char *line2) {
         scr_attrs[12][c] = tile_palette(TILE_WALL + 0x0A);
     }
 
-    draw_text_row(8, line1);
+    draw_text_row(7, line1);
     if (line2 != 0)
         draw_text_row(9, line2);
 
