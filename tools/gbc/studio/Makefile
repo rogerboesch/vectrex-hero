@@ -15,7 +15,7 @@ SDL_STATIC  = $(shell sdl2-config --static-libs) \
 
 CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function $(SDL_CFLAGS) -I$(SHARED) -I../igb
 GB_CFLAGS = -std=c11 -O2 -w $(SDL_CFLAGS) -I../igb
-LDFLAGS = $(SDL_STATIC)
+LDFLAGS = -Wl,-stack_size,0x800000 $(SDL_STATIC)
 
 TARGET = GBCWorkbench
 BUILD  = build

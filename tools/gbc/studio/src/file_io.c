@@ -328,9 +328,9 @@ void app_load_project(App *app, const char *path) {
     app->cur_level = 0;
     app->cur_screen = 0;
     app->modified = false;
-    app_log_info(app, "Loaded: %s (%d tiles, %d levels, %d screens)", path,
-                 app->tmap.tileset.used_count, app->tmap.level_count,
-                 app->tmap.screen_count);
+    app_log_info(app, "Loaded: %s (%d tiles, %d sprites, %d levels, %d screens)", path,
+                 app->tmap.tileset.used_count, app->sprite_count,
+                 app->tmap.level_count, app->tmap.screen_count);
 }
 
 void app_save_project(App *app, const char *path) {
