@@ -34,6 +34,17 @@ void tiles_init(void) {
     set_sprite_data(SPR_SNAKE_R,     2, spr_snake_0);
     set_sprite_data(SPR_SPIDER,      2, spr_spider_0);
 
+    // Laser: horizontal beam (4 rows, color 3)
+    {
+        static const uint8_t laser_tile[32] = {
+            0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00,
+            0x00,0x00, 0x00,0x00, 0xFF,0xFF, 0xFF,0xFF,
+            0xFF,0xFF, 0xFF,0xFF, 0x00,0x00, 0x00,0x00,
+            0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00,
+        };
+        set_sprite_data(SPR_LASER, 2, laser_tile);
+    }
+
     // Spider thread: thin vertical line (1px wide, color 1)
     {
         static const uint8_t thread_tile[32] = {
