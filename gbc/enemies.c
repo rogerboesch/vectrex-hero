@@ -228,7 +228,8 @@ void update_active_enemies(void) {
 
         if (ae->type == ENEMY_SPIDER) {
             // Vertical patrol: start at home_py, move down SPIDER_PATROL px
-            ae->py += ae->vx;
+            // Half speed: move every other frame
+            if (anim_tick & 1) ae->py += ae->vx;
             if (ae->py < ae->home_py) {
                 ae->py = ae->home_py;
                 ae->vx = -ae->vx;

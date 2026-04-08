@@ -89,10 +89,8 @@
 #define OAM_LASER0       7
 #define OAM_LASER1       8
 #define OAM_LASER2       9
-#define OAM_THREAD0      10   // spider thread segments
-#define OAM_THREAD1      11
-#define OAM_THREAD2      12
-#define OAM_COUNT        13
+#define OAM_THREAD0      10   // spider thread
+#define OAM_COUNT        11
 
 // =========================================================================
 // CGB palette indices

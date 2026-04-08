@@ -337,30 +337,26 @@ void render_update_sprites(void) {
         }
     }
 
-    // --- Spider thread ---
+    // --- Spider thread (1 sprite, positioned above spider) ---
     {
-        uint8_t thread_slot = 0;
+        uint8_t thread_drawn = 0;
         for (i = 0; i < active_enemy_count && i < MAX_ACTIVE_ENEMIES; i++) {
             ActiveEnemy *ae = &active_enemies[i];
             if (!ae->alive || ae->type != ENEMY_SPIDER) continue;
+            if (ae->py <= ae->home_py) continue;
             if (!sprite_visible(ae->px, ae->home_py)) continue;
 
-            int16_t thread_len = ae->py - ae->home_py;
-            int16_t y;
-            for (y = ae->home_py; y < ae->py && thread_slot < 3; y += 16) {
-                uint8_t tx = SPR_SCR_X(ae->px);
-                uint8_t ty = SPR_SCR_Y(y);
-                set_sprite_tile(OAM_THREAD0 + thread_slot, SPR_THREAD);
-                set_sprite_prop(OAM_THREAD0 + thread_slot, PAL_SP_SPIDER);
-                move_sprite(OAM_THREAD0 + thread_slot, tx, ty);
-                thread_slot++;
-            }
+            // Place thread sprite at home position (above spider)
+            uint8_t tx = SPR_SCR_X(ae->px);
+            uint8_t ty = SPR_SCR_Y(ae->home_py);
+            set_sprite_tile(OAM_THREAD0, SPR_THREAD);
+            set_sprite_prop(OAM_THREAD0, PAL_SP_SPIDER);
+            move_sprite(OAM_THREAD0, tx, ty);
+            thread_drawn = 1;
+            break;  // only first spider gets thread
         }
-        /* Hide unused thread slots */
-        while (thread_slot < 3) {
-            move_sprite(OAM_THREAD0 + thread_slot, 0, 0);
-            thread_slot++;
-        }
+        if (!thread_drawn)
+            move_sprite(OAM_THREAD0, 0, 0);
     }
 
     // --- Miner ---
