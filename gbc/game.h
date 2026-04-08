@@ -44,7 +44,7 @@
 #define ENEMY_SPIDER    2
 #define ENEMY_SNAKE     3
 
-#define SPIDER_PATROL   20  // pixels
+#define SPIDER_PATROL   16  // pixels (2 tiles down from start)
 
 // Collision boxes (pixels, half-widths/heights)
 #define PLAYER_HW  3

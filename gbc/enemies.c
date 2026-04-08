@@ -227,13 +227,14 @@ void update_active_enemies(void) {
         if (!ae->alive) continue;
 
         if (ae->type == ENEMY_SPIDER) {
-            // Vertical patrol
+            // Vertical patrol: start at home_py, move down SPIDER_PATROL px
             ae->py += ae->vx;
-            if (ae->home_py - ae->py >= SPIDER_PATROL) {
-                ae->py = ae->home_py - SPIDER_PATROL;
-                ae->vx = -ae->vx;
-            } else if (ae->py > ae->home_py) {
+            if (ae->py < ae->home_py) {
                 ae->py = ae->home_py;
+                ae->vx = -ae->vx;
+            }
+            else if (ae->py >= ae->home_py + SPIDER_PATROL) {
+                ae->py = ae->home_py + SPIDER_PATROL;
                 ae->vx = -ae->vx;
             }
             // Tile collision (vertical)
