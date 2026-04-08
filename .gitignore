@@ -14,3 +14,6 @@ build/
 test_level/
 test_sprite/
 *.egg-info/
+GBCWorkbench
+qlstudio2
+tos2ql
