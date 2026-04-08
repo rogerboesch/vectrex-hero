@@ -30,6 +30,7 @@
 
 char* rb_get_resource_path(void);
 char* rb_get_system_path(void);
+void iql_set_system_path(const char *path);
 
 QMDATA QMD = {
 	.config_file = ".qlprofile",
@@ -417,6 +418,31 @@ void QMParams(void) {
 		char *ptr;
 		ptr = (char *)p;
 
+		/* First pass: find ROOT and apply it before parsing devices */
+		while (fgets(buff, 256, fp) == buff) {
+			strim(buff);
+			if (strncasecmp(buff, "ROOT", 4) == 0) {
+				char *s = strchr(buff, '=');
+				if (s) {
+					s++;
+					s += strspn(s, " \t");
+					strncpy(QMD.rootdir, s, sizeof(QMD.rootdir) - 1);
+					int len = strlen(QMD.rootdir);
+					if (len > 0 && QMD.rootdir[len - 1] != '/') {
+						if (len < (int)sizeof(QMD.rootdir) - 1) {
+							QMD.rootdir[len] = '/';
+							QMD.rootdir[len + 1] = '\0';
+						}
+					}
+					iql_set_system_path(QMD.rootdir);
+					rb_log_info("Root path set to: %s", QMD.rootdir);
+					break;
+				}
+			}
+		}
+		rewind(fp);
+
+		/* Second pass: parse all config keys */
 		while (fgets(buff, 256, fp) == buff) {
 			char *s;
 			PARSELIST *ppl;
@@ -439,7 +465,7 @@ void QMParams(void) {
 				}
 			}
 		}
-        
+
 		fclose(fp);
 	}
     else {
