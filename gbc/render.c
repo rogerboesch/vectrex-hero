@@ -126,8 +126,8 @@ void render_init_level(void) {
     SCX_REG = (cam_tx * 8) & 0xFF;
     SCY_REG = (cam_ty * 8) & 0xFF;
 
-    // Window at top for HUD (2 rows = 16 pixels)
-    move_win(7, 0);  // WY = 0, WX = 7
+    // Window at bottom for HUD (2 rows = 16 pixels)
+    move_win(7, PLAY_H);  // WY = 128, WX = 7
     SHOW_WIN;
 
     render_update_hud();
