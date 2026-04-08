@@ -73,6 +73,7 @@
 #define SPR_DYNAMITE     20   // dynamite (tiles 20-21)
 #define SPR_LASER        22   // laser segment (tiles 22-23)
 #define SPR_EXPLODE      24   // explosion (tiles 24-25)
+#define SPR_THREAD       26   // spider thread (tiles 26-27)
 
 // =========================================================================
 // OAM sprite slots
@@ -88,7 +89,10 @@
 #define OAM_LASER0       7
 #define OAM_LASER1       8
 #define OAM_LASER2       9
-#define OAM_COUNT        10
+#define OAM_THREAD0      10   // spider thread segments
+#define OAM_THREAD1      11
+#define OAM_THREAD2      12
+#define OAM_COUNT        13
 
 // =========================================================================
 // CGB palette indices
