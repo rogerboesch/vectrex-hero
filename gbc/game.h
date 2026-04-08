@@ -59,7 +59,7 @@
 #define MINER_HH   5
 
 // Timing
-#define LEVEL_INTRO_TIME    120
+#define LEVEL_INTRO_TIME     60
 #define RESCUE_ANIM_TIME     60
 #define DEATH_ANIM_TIME      30
 
