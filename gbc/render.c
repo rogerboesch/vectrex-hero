@@ -17,11 +17,8 @@ static uint8_t hud_attrs[2][20];
 // =========================================================================
 
 static uint8_t tile_palette(uint8_t tile_idx) {
-    if (tile_idx == 0) return PAL_BG_EMPTY;
-    if (tile_idx >= 1 && tile_idx <= 16) return PAL_BG_CAVE;
-    if (tile_idx == TILE_DWALL || tile_idx == TILE_DWALL_EDGE) return PAL_BG_DWALL;
-    if (tile_idx == TILE_LAVA0 || tile_idx == TILE_LAVA1) return PAL_BG_LAVA;
-    return PAL_BG_CAVE;
+    (void)tile_idx;
+    return 0;
 }
 
 // =========================================================================
