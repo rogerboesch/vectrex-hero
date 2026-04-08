@@ -5,16 +5,12 @@
 #include "game.h"
 #include "tiles.h"
 
-// Window at top (WY=0) for 2-row HUD.
-// LYC interrupt hides window after HUD rows so background is visible.
+// Window layer at bottom (WY=128) for HUD.
 // Background uses full 32x32 VRAM as scrolling ring buffer via SCX/SCY.
+// Only 1 new row/column written per tile scroll step.
 
 static uint8_t hud_tiles[2][20];
 static uint8_t hud_attrs[2][20];
-
-static void hud_lyc_isr(void) {
-    HIDE_WIN;
-}
 
 // =========================================================================
 // Tile-to-palette mapping
@@ -134,14 +130,6 @@ void render_init_level(void) {
     move_win(7, 0);  // WY = 0, WX = 7
     SHOW_WIN;
 
-    // LYC interrupt hides window after HUD rows
-    STAT_REG |= 0x40;         // enable LYC=LY interrupt
-    LYC_REG = HUD_H - 1;      // fire at last HUD scanline
-    disable_interrupts();
-    add_LCD(hud_lyc_isr);
-    set_interrupts(VBL_IFLAG | LCD_IFLAG);
-    enable_interrupts();
-
     render_update_hud();
 }
 
@@ -150,9 +138,6 @@ void render_init_level(void) {
 // =========================================================================
 
 void render_update_camera(void) {
-    // Re-show window for next frame's HUD (hidden by LYC ISR last frame)
-    SHOW_WIN;
-
     // Track player
     int16_t target_x = player_px - (SCREEN_W / 2);
     int16_t target_y = player_py - (PLAY_H / 2);
@@ -470,7 +455,6 @@ static void clear_screen_tiles(void) {
 
 static void upload_full_screen(void) {
     uint8_t r;
-    remove_LCD(hud_lyc_isr);
     HIDE_WIN;
     SCX_REG = 0;
     SCY_REG = 0;
