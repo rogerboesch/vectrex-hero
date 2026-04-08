@@ -270,7 +270,7 @@ void render_update_hud(void) {
 static uint8_t sprite_visible(int16_t wx, int16_t wy) {
     int16_t sx = wx - cam_x;
     int16_t sy = wy - cam_y;
-    return (sx > -16 && sx < SCREEN_W + 16 && sy > -16 && sy < PLAY_H + 16);
+    return (sx > -16 && sx < SCREEN_W + 16 && sy > -16 && sy < PLAY_H);
 }
 
 void render_update_sprites(void) {
