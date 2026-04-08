@@ -5,28 +5,12 @@
 #include "game.h"
 #include "tiles.h"
 
-// Window layer used for both HUD (top, 1 row) and power bar (bottom, 1 row).
-// LYC interrupt switches window position mid-frame.
+// Window layer at bottom (WY=128) for HUD.
 // Background uses full 32x32 VRAM as scrolling ring buffer via SCX/SCY.
+// Only 1 new row/column written per tile scroll step.
 
 static uint8_t hud_tiles[2][20];
 static uint8_t hud_attrs[2][20];
-
-// LYC interrupt: split window between top HUD and bottom power bar.
-// The window's internal line counter continues from where it left off,
-// so row 0 = top HUD, row 1 = bottom power bar (drawn when re-shown).
-static void lcd_isr(void) {
-    if (LYC_REG < SCREEN_H / 2) {
-        // Just finished top HUD row: hide window for play area
-        HIDE_WIN;
-        LYC_REG = SCREEN_H - HUD_BOT_H - 1;  // next: bottom bar
-    }
-    else {
-        // About to draw bottom power bar: show window
-        SHOW_WIN;
-        LYC_REG = HUD_TOP_H - 1;  // next: end of top HUD
-    }
-}
 
 // =========================================================================
 // Tile-to-palette mapping
@@ -142,18 +126,9 @@ void render_init_level(void) {
     SCX_REG = (cam_tx * 8) & 0xFF;
     SCY_REG = (cam_ty * 8) & 0xFF;
 
-    // Window at top for HUD line 1 (1 row = 8px)
-    move_win(7, 0);
+    // Window at bottom for HUD (2 rows = 16 pixels)
+    move_win(7, PLAY_H);  // WY = 128, WX = 7
     SHOW_WIN;
-
-    // Set up LYC interrupt for split HUD
-    STAT_REG |= 0x40;         // enable LYC=LY interrupt
-    LYC_REG = HUD_TOP_H - 1;  // fire at end of top HUD row
-
-    disable_interrupts();
-    add_LCD(lcd_isr);
-    set_interrupts(VBL_IFLAG | LCD_IFLAG);
-    enable_interrupts();
 
     render_update_hud();
 }
@@ -282,16 +257,12 @@ void render_update_hud(void) {
         }
     }
 
-    // Upload HUD line 1 to window row 0 (shown at top)
+    // Upload to window layer (bottom of screen)
     VBK_REG = 0;
     set_win_tiles(0, 0, 20, 1, &hud_tiles[0][0]);
-    VBK_REG = 1;
-    set_win_tiles(0, 0, 20, 1, &hud_attrs[0][0]);
-
-    // Upload power bar to window row 1 (shown at bottom via LYC)
-    VBK_REG = 0;
     set_win_tiles(0, 1, 20, 1, &hud_tiles[1][0]);
     VBK_REG = 1;
+    set_win_tiles(0, 0, 20, 1, &hud_attrs[0][0]);
     set_win_tiles(0, 1, 20, 1, &hud_attrs[1][0]);
     VBK_REG = 0;
 }
@@ -482,14 +453,9 @@ static void clear_screen_tiles(void) {
         }
 }
 
-static void disable_split_hud(void) {
-    remove_LCD(lcd_isr);
-    HIDE_WIN;
-}
-
 static void upload_full_screen(void) {
     uint8_t r;
-    disable_split_hud();
+    HIDE_WIN;
     SCX_REG = 0;
     SCY_REG = 0;
     for (r = 0; r < 18; r++) {
