@@ -12,6 +12,7 @@ typedef enum {
     VIEW_LEVELS,
     VIEW_EDITOR,
     VIEW_SPRITES,
+    VIEW_SCREENS,
     VIEW_EMULATOR,
 } ViewMode;
 
@@ -47,6 +48,7 @@ typedef struct {
     int scroll_x, scroll_y;
     int cur_palette;       /* current BG palette for painting (0-7) */
     int sel_entity;        /* selected entity index in level, -1=none */
+    int cur_screen;        /* selected screen index for screen editor */
 
     /* Project */
     char project_path[512];
@@ -89,6 +91,7 @@ void draw_level_editor(App *app, int x, int y, int w, int h);
 void draw_level_tools(App *app, int x, int y, int w, int h);
 void draw_pixel_editor(App *app, int x, int y, int w, int h);
 void draw_editor_tools(App *app, int x, int y, int w, int h);
+void draw_screen_editor(App *app, int x, int y, int w, int h);
 void draw_gbc_emulator(App *app, int x, int y, int w, int h);
 void draw_gcpu(App *app, int x, int y, int w, int h);
 void draw_gmem(App *app, int x, int y, int w, int h);

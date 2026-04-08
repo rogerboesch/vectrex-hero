@@ -274,12 +274,63 @@ void app_load_project(App *app, const char *path) {
         }
     }
 
+    /* Parse screens */
+    p = strstr(json, "\"screens\"");
+    if (p) {
+        p = strchr(p, '['); if (p) p++;
+        app->tmap.screen_count = 0;
+        while (p && *p && app->tmap.screen_count < MAX_SCREENS) {
+            p = json_skip_ws(p);
+            if (*p == ']') break;
+            if (*p == ',') { p++; continue; }
+            if (*p != '{') break;
+            p++;
+            GameScreen *scr = &app->tmap.screens[app->tmap.screen_count];
+            memset(scr, 0, sizeof(*scr));
+            for (;;) {
+                p = json_skip_ws(p);
+                if (!*p || *p == '}') break;
+                if (*p == ',') { p++; continue; }
+                if (*p != '"') break;
+                char key[32] = {};
+                p = json_parse_str(p, key, sizeof(key));
+                p = json_skip_ws(p); if (*p == ':') p++;
+                if (strcmp(key, "name") == 0) {
+                    p = json_parse_str(p, scr->name, sizeof(scr->name));
+                }
+                else if (strcmp(key, "tiles") == 0) {
+                    p = json_skip_ws(p); if (*p == '[') p++;
+                    for (int r = 0; r < SCREEN_H; r++) {
+                        p = json_skip_ws(p);
+                        if (*p == ',') { p++; p = json_skip_ws(p); }
+                        if (*p == '[') p++;
+                        for (int c = 0; c < SCREEN_W; c++) {
+                            p = json_skip_ws(p);
+                            if (*p == ',') { p++; p = json_skip_ws(p); }
+                            int v = 0; p = json_parse_int(p, &v);
+                            scr->tiles[r][c] = (uint8_t)v;
+                        }
+                        p = json_skip_ws(p); if (*p == ']') p++;
+                    }
+                    p = json_skip_ws(p); if (*p == ']') p++;
+                }
+                else {
+                    p = json_skip_value(p);
+                }
+            }
+            if (*p == '}') p++;
+            app->tmap.screen_count++;
+        }
+    }
+
     free(json);
     strncpy(app->project_path, path, sizeof(app->project_path) - 1);
     app->cur_level = 0;
+    app->cur_screen = 0;
     app->modified = false;
-    app_log_info(app, "Loaded: %s (%d tiles, %d levels)", path,
-                 app->tmap.tileset.used_count, app->tmap.level_count);
+    app_log_info(app, "Loaded: %s (%d tiles, %d levels, %d screens)", path,
+                 app->tmap.tileset.used_count, app->tmap.level_count,
+                 app->tmap.screen_count);
 }
 
 void app_save_project(App *app, const char *path) {
@@ -377,12 +428,31 @@ void app_save_project(App *app, const char *path) {
         fprintf(f, "      ]\n");
         fprintf(f, "    }%s\n", li < app->tmap.level_count - 1 ? "," : "");
     }
+    fprintf(f, "  ],\n");
+
+    /* Screens */
+    fprintf(f, "  \"screens\": [\n");
+    for (int si = 0; si < app->tmap.screen_count; si++) {
+        GameScreen *scr = &app->tmap.screens[si];
+        fprintf(f, "    {\n");
+        fprintf(f, "      \"name\": \"%s\",\n", scr->name);
+        fprintf(f, "      \"tiles\": [\n");
+        for (int y = 0; y < SCREEN_H; y++) {
+            fprintf(f, "        [");
+            for (int x = 0; x < SCREEN_W; x++)
+                fprintf(f, "%d%s", scr->tiles[y][x], x < SCREEN_W - 1 ? "," : "");
+            fprintf(f, "]%s\n", y < SCREEN_H - 1 ? "," : "");
+        }
+        fprintf(f, "      ]\n");
+        fprintf(f, "    }%s\n", si < app->tmap.screen_count - 1 ? "," : "");
+    }
     fprintf(f, "  ]\n");
 
     fprintf(f, "}\n");
     fclose(f);
     app->modified = false;
-    app_log_info(app, "Saved: %s (%d levels)", app->project_path, app->tmap.level_count);
+    app_log_info(app, "Saved: %s (%d levels, %d screens)",
+                 app->project_path, app->tmap.level_count, app->tmap.screen_count);
 }
 
 void app_open_project(App *app) {
@@ -399,6 +469,7 @@ void app_save_project_as(App *app) {
 void export_sprites(App *app, const char *dir);
 void export_palettes(App *app, const char *dir);
 void export_levels(App *app, const char *dir);
+void export_screens(App *app, const char *dir);
 
 void app_export_c(App *app) {
     char *dir = dialog_open_folder("Export to directory");
@@ -451,6 +522,9 @@ void app_export_c(App *app) {
 
     /* Export palettes */
     export_palettes(app, dir);
+
+    /* Export screens */
+    export_screens(app, dir);
 
     free(dir);
 }

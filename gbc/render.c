@@ -5,6 +5,7 @@
 #include "game.h"
 #include "tiles.h"
 #include "tileset_export.h"
+#include "screens_export.h"
 
 // Window layer at bottom (WY=128) for HUD.
 // Background uses full 32x32 VRAM as scrolling ring buffer via SCX/SCY.
@@ -471,25 +472,39 @@ static void upload_full_screen(void) {
 // Title screen
 // =========================================================================
 
-void render_title(void) {
-    uint8_t c;
-
+static void render_screen(uint8_t screen_id) {
+    uint8_t r;
+    uint8_t saved_bank = _current_bank;
     render_hide_sprites();
-
-    clear_screen_tiles();
-
-    // Decorative bars
-    for (c = 0; c < 20; c++) {
-        scr_tiles[3][c] = TILE_WALL + 0x0F;
-        scr_tiles[14][c] = TILE_WALL + 0x0F;
-        scr_attrs[3][c] = tile_palette(TILE_WALL + 0x0F);
-        scr_attrs[14][c] = tile_palette(TILE_WALL + 0x0F);
+    HIDE_WIN;
+    SCX_REG = 0;
+    SCY_REG = 0;
+    if (screen_id < NUM_SCREENS) {
+        SWITCH_ROM(5);
+        const ExportedScreen *scr = &exported_screens[screen_id];
+        for (r = 0; r < 18; r++) {
+            VBK_REG = 0;
+            set_bkg_tiles(0, r, 20, 1, &scr->tiles[r][0]);
+            VBK_REG = 1;
+            set_bkg_tiles(0, r, 20, 1, &scr->attrs[r][0]);
+        }
+        VBK_REG = 0;
+        SWITCH_ROM(saved_bank);
     }
+}
 
-    draw_text_row(7, "R.E.S.C.U.E.");
-    draw_text_row(11, "PRESS START");
-
-    upload_full_screen();
+void render_title(void) {
+    if (NUM_SCREENS > 0) {
+        render_screen(SCREEN_0);
+    }
+    else {
+        // Fallback if no screens exported
+        render_hide_sprites();
+        clear_screen_tiles();
+        draw_text_row(7, "R.E.S.C.U.E.");
+        draw_text_row(11, "PRESS START");
+        upload_full_screen();
+    }
 }
 
 // =========================================================================

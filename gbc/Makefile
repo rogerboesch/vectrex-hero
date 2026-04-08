@@ -19,7 +19,7 @@ LCC     = $(GBDK)/bin/lcc
 LCCFLAGS = -Wa-l -Wl-m -Wl-j -Wm-yC -Wm-yn"HERO" -Wl-yt0x19 -Wl-yo8
 
 SRCS = main.c player.c enemies.c levels.c render.c tiles.c level_data.c levels_meta.c \
-       tileset_export.c sprites_export.c palettes_export.c
+       tileset_export.c sprites_export.c palettes_export.c screens_export.c
 TARGET = hero.gbc
 
 $(TARGET): $(SRCS) game.h tiles.h level_data.h

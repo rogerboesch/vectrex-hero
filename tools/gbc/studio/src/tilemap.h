@@ -67,11 +67,24 @@ typedef struct {
     int used_count;  /* how many tiles are defined */
 } Tileset;
 
+/* A fixed 20x18 screen (title, game over, etc.) */
+#define SCREEN_W       20
+#define SCREEN_H       18
+#define MAX_SCREENS     8
+
+typedef struct {
+    char name[32];
+    uint8_t tiles[SCREEN_H][SCREEN_W];
+    uint8_t palettes[SCREEN_H][SCREEN_W];
+} GameScreen;
+
 /* Full tilemap project */
 typedef struct {
     Tileset tileset;
     TilemapLevel levels[TMAP_MAX_LEVELS];
     int level_count;
+    GameScreen screens[MAX_SCREENS];
+    int screen_count;
     GBCPalette bg_pals[MAX_BG_PALS];
     GBCPalette spr_pals[MAX_SPR_PALS];
 } TilemapProject;
