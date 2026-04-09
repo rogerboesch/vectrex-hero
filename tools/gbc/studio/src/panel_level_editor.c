@@ -261,11 +261,26 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                     app->modified = true;
                 }
             } else {
-                /* Tile layer */
+                /* Tile layer — also allow selecting/deleting entities */
                 uint32_t mods = SDL_GetModState();
                 bool shift_held = (mods & KMOD_SHIFT) != 0;
                 bool ctrl_held = (mods & (KMOD_CTRL | KMOD_GUI)) != 0;
-                if (ui_mouse_clicked() && ctrl_held) {
+
+                /* Check if clicking on an entity */
+                int entity_hit = -1;
+                if (ui_mouse_clicked() && !shift_held && !ctrl_held) {
+                    for (int i = 0; i < lvl->entity_count; i++) {
+                        if (lvl->entities[i].x == tx && lvl->entities[i].y == ty) {
+                            entity_hit = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (entity_hit >= 0) {
+                    app->sel_entity = entity_hit;
+                }
+                else if (ui_mouse_clicked() && ctrl_held) {
                     /* Ctrl/Cmd+click: flood fill */
                     flood_fill_level(lvl, tx, ty,
                                      (uint8_t)app->cur_tset_tile,
@@ -276,6 +291,7 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                     lvl->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
                     lvl->palettes[ty][tx] = (uint8_t)app->cur_palette;
                     app->modified = true;
+                    app->sel_entity = -1;
                 }
                 /* Shift+click or right-click: set marker row */
                 if (ui_mouse_right_clicked() ||
@@ -286,8 +302,8 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
         }
     }
 
-    /* Delete selected entity with Delete key */
-    if ((app->sel_type == SEL_SPRITE) && app->sel_entity >= 0 &&
+    /* Delete selected entity with Delete key (works in any layer mode) */
+    if (app->sel_entity >= 0 &&
         (ui_key_pressed(SDLK_DELETE) || ui_key_pressed(SDLK_BACKSPACE))) {
         for (int j = app->sel_entity; j < lvl->entity_count - 1; j++)
             lvl->entities[j] = lvl->entities[j + 1];
