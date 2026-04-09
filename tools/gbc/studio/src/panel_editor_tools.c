@@ -69,6 +69,35 @@ void draw_editor_tools(App *app, int px, int py, int pw, int ph) {
 
     y += 12;
 
+    /* Transform buttons */
+    y = ui_section(c.x - 4, y, c.w + 8, "Transform");
+    {
+        int bw = (c.w - 8) / 3;
+        int bh = ui_line_height() + 4;
+        if (app->sel_type == SEL_TILE) {
+            TilesetEntry *te = &app->tmap.tileset.entries[app->cur_tset_tile];
+            if (ui_button(c.x, y, bw, bh, "Flip H")) {
+                tset_flip_h(te); app->modified = true;
+            }
+            if (ui_button(c.x + bw + 4, y, bw, bh, "Flip V")) {
+                tset_flip_v(te); app->modified = true;
+            }
+            if (ui_button(c.x + 2 * (bw + 4), y, bw, bh, "Rot 90")) {
+                tset_rotate_cw(te); app->modified = true;
+            }
+        }
+        else if (app->cur_sprite < app->sprite_count) {
+            GBCTile *spr = &app->sprites[app->cur_sprite];
+            if (ui_button(c.x, y, bw, bh, "Flip H")) {
+                tile_flip_h(spr); app->modified = true;
+            }
+            if (ui_button(c.x + bw + 4, y, bw, bh, "Flip V")) {
+                tile_flip_v(spr); app->modified = true;
+            }
+        }
+        y += bh + 12;
+    }
+
     /* Properties */
     if (app->sel_type == SEL_TILE) {
         y = ui_section(c.x - 4, y, c.w + 8, "Tile Properties");

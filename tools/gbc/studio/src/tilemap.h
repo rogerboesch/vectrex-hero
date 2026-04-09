@@ -35,6 +35,43 @@ static inline void tset_set_pixel(TilesetEntry *t, int x, int y, uint8_t color) 
     t->data[y * 2 + 1] = (t->data[y * 2 + 1] & mask) | (((color >> 1) & 1) << bit);
 }
 
+/* Flip tileset entry horizontally */
+static inline void tset_flip_h(TilesetEntry *t) {
+    for (int y = 0; y < 8; y++) {
+        uint8_t lo = 0, hi = 0;
+        for (int x = 0; x < 8; x++) {
+            uint8_t c = tset_get_pixel(t, x, y);
+            lo |= ((c >> 0) & 1) << x;
+            hi |= ((c >> 1) & 1) << x;
+        }
+        t->data[y * 2] = lo;
+        t->data[y * 2 + 1] = hi;
+    }
+}
+
+/* Flip tileset entry vertically */
+static inline void tset_flip_v(TilesetEntry *t) {
+    for (int y = 0; y < 4; y++) {
+        int y2 = 7 - y;
+        uint8_t tlo = t->data[y * 2], thi = t->data[y * 2 + 1];
+        t->data[y * 2] = t->data[y2 * 2];
+        t->data[y * 2 + 1] = t->data[y2 * 2 + 1];
+        t->data[y2 * 2] = tlo;
+        t->data[y2 * 2 + 1] = thi;
+    }
+}
+
+/* Rotate tileset entry 90° clockwise */
+static inline void tset_rotate_cw(TilesetEntry *t) {
+    uint8_t tmp[8][8];
+    for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+            tmp[x][7 - y] = tset_get_pixel(t, x, y);
+    for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+            tset_set_pixel(t, x, y, tmp[y][x]);
+}
+
 /* Entity types for sprite layer */
 #define ENT_PLAYER_START 0
 #define ENT_BAT          1
