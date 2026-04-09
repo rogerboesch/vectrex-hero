@@ -83,6 +83,17 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
         y += ui_line_height() + 12;
     }
 
+    /* Layer toggle */
+    y = ui_section(c.x - 4, y, c.w + 8, "Layer");
+    {
+        int lbw = (c.w - 4) / 2;
+        if (ui_button(c.x, y, lbw, bh, "Tiles"))
+            app->sel_type = SEL_TILE;
+        if (ui_button(c.x + lbw + 4, y, lbw, bh, "Entities"))
+            app->sel_type = SEL_SPRITE;
+        y += bh + 8;
+    }
+
     /* Entity type selector (always visible) */
     y = ui_section(c.x - 4, y, c.w + 8, "Entity Type");
     {
@@ -92,8 +103,10 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
             int col = i % 2, row = i / 2;
             int ex = c.x + col * (ebw + 4);
             int ey = y + row * (ui_line_height() + 6);
-            if (ui_button(ex, ey, ebw, ui_line_height() + 4, ent_names[i]))
+            if (ui_button(ex, ey, ebw, ui_line_height() + 4, ent_names[i])) {
                 app->cur_sprite = i;
+                app->sel_type = SEL_SPRITE;
+            }
         }
         y += ((ENT_TYPE_COUNT + 1) / 2) * (ui_line_height() + 6) + 4;
 
