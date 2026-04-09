@@ -235,13 +235,15 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                 }
             } else {
                 /* Tile layer */
-                if (ui_mouse_down()) {
+                bool shift_held = (SDL_GetModState() & KMOD_SHIFT) != 0;
+                if (ui_mouse_down() && !shift_held) {
                     lvl->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
                     lvl->palettes[ty][tx] = (uint8_t)app->cur_palette;
                     app->modified = true;
                 }
-                if (ui_mouse_right_clicked()) {
-                    /* Right-click: set marker row for shift operations */
+                /* Shift+click or right-click: set marker row */
+                if (ui_mouse_right_clicked() ||
+                    (ui_mouse_clicked() && shift_held)) {
                     app->marker_row = ty;
                 }
             }
