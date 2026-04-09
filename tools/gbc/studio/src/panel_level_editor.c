@@ -11,6 +11,7 @@
 #include <string.h>
 
 static int zoom = 2;  /* 1=8px, 2=16px, 3=24px per tile */
+static bool painting = false;  /* true while drag-painting tiles */
 
 /* Stack-based flood fill for tilemap */
 static void flood_fill_level(TilemapLevel *lvl, int sx, int sy,
@@ -290,8 +291,12 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                 else if (ui_mouse_clicked() && !shift_held && !ctrl_held) {
                     app->sel_entity = -1;
                 }
-                if (ui_mouse_down() && !shift_held && !ctrl_held &&
-                    app->sel_entity < 0) {
+                /* Start painting only on click inside canvas */
+                if (ui_mouse_clicked() && !shift_held && !ctrl_held &&
+                    app->sel_entity < 0 && entity_hit < 0) {
+                    painting = true;
+                }
+                if (painting && ui_mouse_down()) {
                     lvl->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
                     lvl->palettes[ty][tx] = (uint8_t)app->cur_palette;
                     app->modified = true;
@@ -308,6 +313,9 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
             }
         }
     }
+
+    /* Stop painting when mouse released */
+    if (!ui_mouse_down()) painting = false;
 
     /* Delete selected entity with Delete key (works in any layer mode) */
     if (app->sel_entity >= 0 &&
