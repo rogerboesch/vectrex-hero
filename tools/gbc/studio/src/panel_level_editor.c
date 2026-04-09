@@ -293,9 +293,13 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                     app->modified = true;
                     app->sel_entity = -1;
                 }
-                /* Shift+click or right-click: set marker row */
-                if (ui_mouse_right_clicked() ||
-                    (ui_mouse_clicked() && shift_held)) {
+                /* Right-click: pick tile */
+                if (ui_mouse_right_clicked()) {
+                    app->cur_tset_tile = lvl->tiles[ty][tx];
+                    app->cur_palette = lvl->palettes[ty][tx];
+                }
+                /* Shift+click: set marker row */
+                if (ui_mouse_clicked() && shift_held) {
                     app->marker_row = ty;
                 }
             }
