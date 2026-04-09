@@ -7,6 +7,52 @@
 #include "ui.h"
 #include <stdio.h>
 
+/* Flood fill for 8x8 tileset entry */
+static void flood_fill_tset(TilesetEntry *te, int sx, int sy,
+                             uint8_t new_color) {
+    uint8_t old_color = tset_get_pixel(te, sx, sy);
+    if (old_color == new_color) return;
+    int16_t stk[128][2];
+    int sp = 0;
+    stk[sp][0] = sx; stk[sp][1] = sy; sp++;
+    while (sp > 0) {
+        sp--;
+        int x = stk[sp][0], y = stk[sp][1];
+        if (x < 0 || x >= 8 || y < 0 || y >= 8) continue;
+        if (tset_get_pixel(te, x, y) != old_color) continue;
+        tset_set_pixel(te, x, y, new_color);
+        if (sp + 4 < 128) {
+            stk[sp][0]=x+1; stk[sp][1]=y; sp++;
+            stk[sp][0]=x-1; stk[sp][1]=y; sp++;
+            stk[sp][0]=x; stk[sp][1]=y+1; sp++;
+            stk[sp][0]=x; stk[sp][1]=y-1; sp++;
+        }
+    }
+}
+
+/* Flood fill for 8x16 sprite */
+static void flood_fill_sprite(GBCTile *spr, int sx, int sy,
+                               uint8_t new_color) {
+    uint8_t old_color = tile_get_pixel(spr, sx, sy);
+    if (old_color == new_color) return;
+    int16_t stk[256][2];
+    int sp = 0;
+    stk[sp][0] = sx; stk[sp][1] = sy; sp++;
+    while (sp > 0) {
+        sp--;
+        int x = stk[sp][0], y = stk[sp][1];
+        if (x < 0 || x >= TILE_W || y < 0 || y >= TILE_H) continue;
+        if (tile_get_pixel(spr, x, y) != old_color) continue;
+        tile_set_pixel(spr, x, y, new_color);
+        if (sp + 4 < 256) {
+            stk[sp][0]=x+1; stk[sp][1]=y; sp++;
+            stk[sp][0]=x-1; stk[sp][1]=y; sp++;
+            stk[sp][0]=x; stk[sp][1]=y+1; sp++;
+            stk[sp][0]=x; stk[sp][1]=y-1; sp++;
+        }
+    }
+}
+
 void draw_pixel_editor(App *app, int px, int py, int pw, int ph) {
     SDL_Rect tb = ui_panel_begin_toolbar(px, py, pw, ph);
     SDL_Rect c = ui_panel_content();
@@ -50,7 +96,15 @@ void draw_pixel_editor(App *app, int px, int py, int pw, int ph) {
             int mx, my; ui_mouse_pos(&mx, &my);
             int tx = (mx - ox) / cell, ty = (my - oy) / cell;
             if (tx >= 0 && tx < tile_w && ty >= 0 && ty < tile_h) {
-                if (ui_mouse_down()) { tset_set_pixel(te, tx, ty, app->cur_color); app->modified = true; }
+                bool ctrl = (SDL_GetModState() & (KMOD_CTRL | KMOD_GUI)) != 0;
+                if (ui_mouse_clicked() && ctrl) {
+                    flood_fill_tset(te, tx, ty, app->cur_color);
+                    app->modified = true;
+                }
+                else if (ui_mouse_down() && !ctrl) {
+                    tset_set_pixel(te, tx, ty, app->cur_color);
+                    app->modified = true;
+                }
                 if (ui_mouse_right_clicked()) app->cur_color = tset_get_pixel(te, tx, ty);
                 char tip[16]; snprintf(tip, sizeof(tip), "(%d,%d) c:%d", tx, ty, tset_get_pixel(te, tx, ty));
                 ui_tooltip(tip);
@@ -101,7 +155,15 @@ void draw_pixel_editor(App *app, int px, int py, int pw, int ph) {
             int mx, my; ui_mouse_pos(&mx, &my);
             int tx = (mx - ox) / cell, ty = (my - oy) / cell;
             if (tx >= 0 && tx < tile_w && ty >= 0 && ty < tile_h) {
-                if (ui_mouse_down()) { tile_set_pixel(spr, tx, ty, app->cur_color); app->modified = true; }
+                bool ctrl = (SDL_GetModState() & (KMOD_CTRL | KMOD_GUI)) != 0;
+                if (ui_mouse_clicked() && ctrl) {
+                    flood_fill_sprite(spr, tx, ty, app->cur_color);
+                    app->modified = true;
+                }
+                else if (ui_mouse_down() && !ctrl) {
+                    tile_set_pixel(spr, tx, ty, app->cur_color);
+                    app->modified = true;
+                }
                 if (ui_mouse_right_clicked()) app->cur_color = tile_get_pixel(spr, tx, ty);
                 char tip[16]; snprintf(tip, sizeof(tip), "(%d,%d) c:%d", tx, ty, tile_get_pixel(spr, tx, ty));
                 ui_tooltip(tip);

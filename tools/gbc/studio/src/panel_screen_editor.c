@@ -92,14 +92,38 @@ void draw_screen_editor(App *app, int x, int y, int w, int h) {
         SDL_RenderDrawLine(app->renderer, ox, ly, ox + grid_w, ly);
     }
 
-    /* Mouse interaction: paint tiles */
-    int mx, my;
-    uint32_t mb = SDL_GetMouseState(&mx, &my);
-    if (mb & SDL_BUTTON(1)) {
+    /* Mouse interaction: paint tiles or flood fill */
+    if (ui_mouse_in_rect(ox, oy, grid_w, grid_h)) {
+        int mx, my; ui_mouse_pos(&mx, &my);
         int tx = (mx - ox) / (TILE_SIZE * ZOOM);
         int ty = (my - oy) / (TILE_SIZE * ZOOM);
         if (tx >= 0 && tx < SCREEN_W && ty >= 0 && ty < SCREEN_H) {
-            if (mx >= ox && my >= oy) {
+            bool ctrl = (SDL_GetModState() & (KMOD_CTRL | KMOD_GUI)) != 0;
+            if (ui_mouse_clicked() && ctrl) {
+                /* Ctrl/Cmd+click: flood fill */
+                uint8_t old_tile = scr->tiles[ty][tx];
+                uint8_t new_tile = (uint8_t)app->cur_tset_tile;
+                if (old_tile != new_tile) {
+                    static int16_t stk[1024][2];
+                    int sp = 0;
+                    stk[sp][0] = tx; stk[sp][1] = ty; sp++;
+                    while (sp > 0) {
+                        sp--;
+                        int fx = stk[sp][0], fy = stk[sp][1];
+                        if (fx < 0 || fx >= SCREEN_W || fy < 0 || fy >= SCREEN_H) continue;
+                        if (scr->tiles[fy][fx] != old_tile) continue;
+                        scr->tiles[fy][fx] = new_tile;
+                        if (sp + 4 < 1024) {
+                            stk[sp][0]=fx+1; stk[sp][1]=fy; sp++;
+                            stk[sp][0]=fx-1; stk[sp][1]=fy; sp++;
+                            stk[sp][0]=fx; stk[sp][1]=fy+1; sp++;
+                            stk[sp][0]=fx; stk[sp][1]=fy-1; sp++;
+                        }
+                    }
+                    app->modified = true;
+                }
+            }
+            else if (ui_mouse_down() && !ctrl) {
                 scr->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
                 app->modified = true;
             }

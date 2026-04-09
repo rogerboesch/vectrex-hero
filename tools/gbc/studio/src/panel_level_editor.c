@@ -12,6 +12,33 @@
 
 static int zoom = 2;  /* 1=8px, 2=16px, 3=24px per tile */
 
+/* Stack-based flood fill for tilemap */
+static void flood_fill_level(TilemapLevel *lvl, int sx, int sy,
+                              uint8_t new_tile, uint8_t new_pal) {
+    if (sx < 0 || sx >= lvl->width || sy < 0 || sy >= lvl->height) return;
+    uint8_t old_tile = lvl->tiles[sy][sx];
+    if (old_tile == new_tile) return;
+
+    static int16_t stack[4096][2];
+    int sp = 0;
+    stack[sp][0] = sx; stack[sp][1] = sy; sp++;
+
+    while (sp > 0) {
+        sp--;
+        int x = stack[sp][0], y = stack[sp][1];
+        if (x < 0 || x >= lvl->width || y < 0 || y >= lvl->height) continue;
+        if (lvl->tiles[y][x] != old_tile) continue;
+        lvl->tiles[y][x] = new_tile;
+        lvl->palettes[y][x] = new_pal;
+        if (sp + 4 < 4096) {
+            stack[sp][0] = x+1; stack[sp][1] = y; sp++;
+            stack[sp][0] = x-1; stack[sp][1] = y; sp++;
+            stack[sp][0] = x; stack[sp][1] = y+1; sp++;
+            stack[sp][0] = x; stack[sp][1] = y-1; sp++;
+        }
+    }
+}
+
 void draw_level_editor(App *app, int px, int py, int pw, int ph) {
     SDL_Rect tb = ui_panel_begin_toolbar(px, py, pw, ph);
     SDL_Rect c = ui_panel_content();
@@ -235,8 +262,17 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                 }
             } else {
                 /* Tile layer */
-                bool shift_held = (SDL_GetModState() & KMOD_SHIFT) != 0;
-                if (ui_mouse_down() && !shift_held) {
+                uint32_t mods = SDL_GetModState();
+                bool shift_held = (mods & KMOD_SHIFT) != 0;
+                bool ctrl_held = (mods & (KMOD_CTRL | KMOD_GUI)) != 0;
+                if (ui_mouse_clicked() && ctrl_held) {
+                    /* Ctrl/Cmd+click: flood fill */
+                    flood_fill_level(lvl, tx, ty,
+                                     (uint8_t)app->cur_tset_tile,
+                                     (uint8_t)app->cur_palette);
+                    app->modified = true;
+                }
+                else if (ui_mouse_down() && !shift_held && !ctrl_held) {
                     lvl->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
                     lvl->palettes[ty][tx] = (uint8_t)app->cur_palette;
                     app->modified = true;
