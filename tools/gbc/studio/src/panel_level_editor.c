@@ -281,17 +281,20 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                     app->sel_entity = entity_hit;
                 }
                 else if (ui_mouse_clicked() && ctrl_held) {
-                    /* Ctrl/Cmd+click: flood fill */
                     flood_fill_level(lvl, tx, ty,
                                      (uint8_t)app->cur_tset_tile,
                                      (uint8_t)app->cur_palette);
                     app->modified = true;
+                    app->sel_entity = -1;
                 }
-                else if (ui_mouse_down() && !shift_held && !ctrl_held) {
+                else if (ui_mouse_clicked() && !shift_held && !ctrl_held) {
+                    app->sel_entity = -1;
+                }
+                if (ui_mouse_down() && !shift_held && !ctrl_held &&
+                    app->sel_entity < 0) {
                     lvl->tiles[ty][tx] = (uint8_t)app->cur_tset_tile;
                     lvl->palettes[ty][tx] = (uint8_t)app->cur_palette;
                     app->modified = true;
-                    app->sel_entity = -1;
                 }
                 /* Right-click: pick tile */
                 if (ui_mouse_right_clicked()) {
