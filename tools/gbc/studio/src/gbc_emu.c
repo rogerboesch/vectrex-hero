@@ -84,6 +84,11 @@ bool gbc_emu_load(SDL_Renderer *renderer, const char *rom_path) {
 
     /* Load ROM */
     gb_cart_load(g_gb, rom_path);
+    if (g_gb->cart.rom == NULL) {
+        free(g_gb);
+        g_gb = NULL;
+        return false;
+    }
 
     /* Reset all subsystems */
     gb_sync_reset(g_gb);

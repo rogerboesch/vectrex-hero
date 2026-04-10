@@ -46,7 +46,7 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
             if (gbc_emu_load(app->renderer, rom))
                 app_log_info(app, "Emulator: %s", rom);
             else
-                app_log_err(app, "Failed to load %s", rom);
+                app_log_err(app, "ROM not found: %s", rom);
         }
     } else {
         if (ui_button(bx, tb.y, 55, bh, gbc_emu_is_paused() ? "Resume" : "Pause")) {
@@ -60,7 +60,7 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
             if (gbc_emu_load(app->renderer, rom))
                 app_log_info(app, "Reloaded: %s", rom);
             else
-                app_log_err(app, "Failed to reload ROM");
+                app_log_err(app, "ROM not found: %s", rom);
         }
         bx += 59;
         /* Status */

@@ -342,6 +342,16 @@ void app_load_project(App *app, const char *path) {
 
     free(json);
     strncpy(app->project_path, path, sizeof(app->project_path) - 1);
+
+    /* Derive build_dir from project path if not set */
+    if (app->build_dir[0] == '\0') {
+        strncpy(app->build_dir, path, sizeof(app->build_dir) - 1);
+        char *slash = strrchr(app->build_dir, '/');
+        if (slash) *slash = '\0';
+        else
+            app->build_dir[0] = '\0';
+    }
+
     app->cur_level = 0;
     app->cur_screen = 0;
     app->modified = false;
