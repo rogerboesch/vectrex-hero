@@ -528,4 +528,4 @@ DEF _level_18_entities 0x54A1A
 DEF _level_19_rle 0x54A82
 DEF _level_19_row_offsets 0x55300
 DEF _level_19_entities 0x55460
-LOAD hero.ihx
+LOAD rescue.ihx
