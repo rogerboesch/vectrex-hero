@@ -17,13 +17,9 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
     int bx = tb.x, bh = tb.h;
 
     /* Build */
-    if (!app_build_is_active(app)) {
-        if (ui_button_accent(bx, tb.y, 50, bh, "Build")) {
-            app_build_start(app, false);
-        }
-    }
-    else {
-        ui_button(bx, tb.y, 50, bh, "...");
+    if (ui_button_accent(bx, tb.y, 50, bh, "Build")) {
+        app_log_info(app, "Build button clicked");
+        app_build_start(app, false);
     }
     bx += 62;
 
