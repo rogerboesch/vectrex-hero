@@ -17,7 +17,7 @@ void draw_console(App *app, int px, int py, int pw, int ph) {
         time_t now = time(NULL);
         struct tm *t = localtime(&now);
         char fn[128];
-        snprintf(fn, sizeof(fn), "gbc-studio-%04d%02d%02d-%02d%02d%02d.log",
+        snprintf(fn, sizeof(fn), "gbc-workbench-%04d%02d%02d-%02d%02d%02d.log",
                  t->tm_year+1900, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
         FILE *f = fopen(fn, "w");
         if (f) { for (int i = 0; i < app->console_count; i++) fprintf(f, "%s\n", app->console_lines[i]); fclose(f); app_log_info(app, "Log saved: %s", fn); }
@@ -30,7 +30,6 @@ void draw_console(App *app, int px, int py, int pw, int ph) {
     SDL_RenderFillRect(app->renderer, &bg);
 
     int y = c.y, max_lines = c.h / (ui_line_height() + 1);
-    if (max_lines > 10) max_lines = 10;
     int start = app->console_count - max_lines;
     if (start < 0) start = 0;
     for (int i = start; i < app->console_count; i++) {
