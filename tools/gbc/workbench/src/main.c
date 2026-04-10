@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
         app_load_project(&app, argv[1]);
     } else {
         char project_path[512];
-        snprintf(project_path, sizeof(project_path), "%s/../../../gbc/project.json", SDL_GetBasePath());
+        snprintf(project_path, sizeof(project_path), "%s/../../../gbc/game-rescue.json", SDL_GetBasePath());
         app_load_project(&app, project_path);
     }
 

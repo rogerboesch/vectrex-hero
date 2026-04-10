@@ -302,7 +302,7 @@ void app_open_project(App *app) {
 }
 
 void app_save_project_as(App *app) {
-    char *path = dialog_save_file("Save Project", "sprites.json");
+    char *path = dialog_save_file("Save Project", "game-rescue.json");
     if (path) { app_save_project(app, path); free(path); }
 }
 

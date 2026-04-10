@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 zx_to_gbc.py — Extract 8x8 tiles from a ZX Spectrum screenshot
-and output a GBC Workbench project.json.
+and output a GBC Workbench game-rescue.json.
 
 Usage: python3 zx_to_gbc.py <screenshot.png> [output.json]
 
@@ -203,7 +203,7 @@ def build_palettes(tile_data, tilemap, cell_attrs):
 
 
 def build_project(tile_data, tilemap, palettes, tile_palettes, name="ZX Import"):
-    """Build a GBC Workbench project.json dict."""
+    """Build a GBC Workbench game-rescue.json dict."""
     # Tileset: just the raw 16-byte tile data
     tileset = [td[0] for td in tile_data]
 

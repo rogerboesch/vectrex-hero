@@ -42,7 +42,7 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
     if (!gbc_emu_is_running()) {
         if (ui_button(bx, tb.y, 40, bh, "Run")) {
             if (!app->build_dir[0] || !app->rom_name[0]) {
-                app_log_err(app, "Set build_dir and rom_name in project.json");
+                app_log_err(app, "Set build_dir and rom_name in game-rescue.json");
             }
             else {
                 char rom[512];
