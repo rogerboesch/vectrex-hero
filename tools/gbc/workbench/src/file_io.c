@@ -620,13 +620,14 @@ void app_build_start(App *app, bool run_after) {
     }
 
     if (pid == 0) {
-        /* Child: redirect stdout+stderr to pipe, exec make */
+        /* Child: redirect stdout+stderr to pipe, run make via shell */
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         dup2(pipefd[1], STDERR_FILENO);
         close(pipefd[1]);
-        if (chdir(app->build_dir) != 0) _exit(1);
-        execlp("make", "make", NULL);
+        char cmd[1024];
+        snprintf(cmd, sizeof(cmd), "cd \"%s\" && make 2>&1", app->build_dir);
+        execl("/bin/sh", "sh", "-c", cmd, NULL);
         _exit(127);
     }
 
