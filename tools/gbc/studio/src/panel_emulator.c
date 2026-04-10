@@ -18,10 +18,9 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
 
     /* Build */
     if (ui_button(bx, tb.y, 50, bh, "Build")) {
-        if (app->build_dir[0] && app->gbdk_path[0]) {
+        if (app->build_dir[0]) {
             char cmd[1024];
-            snprintf(cmd, sizeof(cmd), "export PATH=\"%s/bin:$PATH\" && cd \"%s\" && make 2>&1",
-                     app->gbdk_path, app->build_dir);
+            snprintf(cmd, sizeof(cmd), "cd \"%s\" && make 2>&1", app->build_dir);
             FILE *fp = popen(cmd, "r");
             if (fp) {
                 char buf[256];
@@ -33,8 +32,9 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
                 if (pclose(fp) == 0) app_log_info(app, "Build OK");
                 else app_log_err(app, "Build FAILED");
             }
-        } else {
-            app_log_err(app, "Set build_dir and gbdk_path in project");
+        }
+        else {
+            app_log_err(app, "No build_dir set (save project first)");
         }
     }
     bx += 62;
