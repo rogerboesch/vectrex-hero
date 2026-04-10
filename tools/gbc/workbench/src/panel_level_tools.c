@@ -73,7 +73,7 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
 
     /* Test level */
     if (lvl) {
-        if (ui_button(c.x, y, c.w, bh, "Test Level")) {
+        if (ui_button_accent(c.x, y, c.w, bh, "Test Level")) {
             app_test_level(app);
         }
         y += bh + 8;

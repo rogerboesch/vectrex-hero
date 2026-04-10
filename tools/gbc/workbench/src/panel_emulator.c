@@ -17,7 +17,7 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
     int bx = tb.x, bh = tb.h;
 
     /* Build */
-    if (ui_button(bx, tb.y, 50, bh, "Build")) {
+    if (ui_button_accent(bx, tb.y, 50, bh, "Build")) {
         if (app->build_dir[0]) {
             char cmd[1024];
             snprintf(cmd, sizeof(cmd), "cd \"%s\" && make 2>&1", app->build_dir);

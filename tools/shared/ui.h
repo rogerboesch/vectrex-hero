@@ -147,6 +147,9 @@ void ui_icon_centered(int x, int y, int w, int h, uint16_t codepoint, SDL_Color 
 /* Button. Returns true on click. */
 bool ui_button(int x, int y, int w, int h, const char *label);
 
+/* Accent button (status bar color). Returns true on click. */
+bool ui_button_accent(int x, int y, int w, int h, const char *label);
+
 /* Small button (auto-sized to text). Returns true on click. */
 bool ui_button_auto(int x, int y, const char *label);
 

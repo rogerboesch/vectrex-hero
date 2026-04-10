@@ -362,6 +362,24 @@ bool ui_button(int x, int y, int w, int h, const char *label) {
     return clicked;
 }
 
+bool ui_button_accent(int x, int y, int w, int h, const char *label) {
+    bool hover = ui_mouse_in_rect(x, y, w, h);
+    bool pressed = hover && g_mouse_left_down;
+    bool clicked = hover && g_mouse_left_clicked;
+
+    SDL_Color bg = ui_theme.status_bg;
+    if (pressed) { bg.r = bg.r * 3 / 4; bg.g = bg.g * 3 / 4; bg.b = bg.b * 3 / 4; }
+    else if (hover) { bg.r = (bg.r + 255) / 2; bg.g = (bg.g + 255) / 2; bg.b = (bg.b + 255) / 2; }
+    fill_rect(x, y, w, h, bg);
+
+    int tw = ui_text_width(label);
+    int tx = x + (w - tw) / 2;
+    int ty = y + (h - g_line_height) / 2;
+    render_text(g_font, tx, ty, label, (SDL_Color){255,255,255,255});
+
+    return clicked;
+}
+
 bool ui_button_auto(int x, int y, const char *label) {
     int tw = ui_text_width(label);
     int w = tw + 16;
