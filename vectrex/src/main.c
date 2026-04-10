@@ -12,7 +12,7 @@
 #pragma vx_copyright "2026"
 #pragma vx_title_pos 0,-80
 #pragma vx_title_size -8, 80
-#pragma vx_title "g HERO"
+#pragma vx_title "g RESCUE"
 #pragma vx_music vx_music_1
 #else
 #pragma vx_copyright "2026"
