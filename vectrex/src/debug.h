@@ -1,5 +1,5 @@
 /*
- * debug.h — Software breakpoint macros for Vectrex Studio
+ * debug.h — Software breakpoint macros for Vectrex Workbench
  *
  * The emulator checks address $CFFF each frame.
  * If non-zero, it pauses and reports the marker value.

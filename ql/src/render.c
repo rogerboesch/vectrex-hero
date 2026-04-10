@@ -58,9 +58,9 @@
  *
  * COLOR REMAP:
  *
- *   QL Studio palette indices 5 (cyan) and 6 (yellow) are swapped vs
+ *   QL Workbench palette indices 5 (cyan) and 6 (yellow) are swapped vs
  *   Mode 8 hardware encoding. col_remap[] table handles this so sprite
- *   data from QL Studio renders with correct colors.
+ *   data from QL Workbench renders with correct colors.
  */
 
 #include "game.h"
@@ -132,7 +132,7 @@ static uint8_t slot_drawn[MAX_SLOTS];
  * =================================================================== */
 
 /*
- * Color index remap: swap indices 5 and 6 so that QL Studio's
+ * Color index remap: swap indices 5 and 6 so that QL Workbench's
  * palette (5=cyan, 6=yellow) matches Mode 8 hardware output.
  * Hardware: index 5 = green+bit0 = yellow, index 6 = green+bit1 = cyan.
  * We want: index 5 → cyan (hw 6), index 6 → yellow (hw 5).

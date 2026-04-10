@@ -133,9 +133,9 @@ typedef unsigned long  uint32_t;
  *   4 pixels per byte pair, 2 bits per pixel per plane.
  *
  * NOTE: Colors 5 and 6 are swapped in our software palette vs hardware.
- * QL Studio uses index 5=cyan, 6=yellow, but Mode 8 hardware maps
+ * QL Workbench uses index 5=cyan, 6=yellow, but Mode 8 hardware maps
  * index 5=yellow, 6=cyan. The col_remap[] table in render.c handles
- * this swap so sprite data matches what QL Studio shows.
+ * this swap so sprite data matches what QL Workbench shows.
  */
 #define COL_BLACK   0
 #define COL_RED     1

@@ -114,10 +114,10 @@ void native_menu_init(void) {
 
         NSMenu *menuBar = [[NSMenu alloc] init];
 
-        /* App menu (QL Studio 2) */
+        /* App menu (QL Workbench) */
         NSMenuItem *appMenuItem = [[NSMenuItem alloc] init];
-        NSMenu *appMenu = [[NSMenu alloc] initWithTitle:@"QL Studio 2"];
-        [appMenu addItem:make_item(@"Quit QL Studio 2", @selector(menuQuit:), @"q", NSEventModifierFlagCommand)];
+        NSMenu *appMenu = [[NSMenu alloc] initWithTitle:@"QL Workbench"];
+        [appMenu addItem:make_item(@"Quit QL Workbench", @selector(menuQuit:), @"q", NSEventModifierFlagCommand)];
         [appMenuItem setSubmenu:appMenu];
         [menuBar addItem:appMenuItem];
 

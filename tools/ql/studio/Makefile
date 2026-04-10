@@ -1,7 +1,7 @@
-# QL Studio 2 — SDL2-only sprite editor + emulator
+# QL Workbench — SDL2-only sprite editor + emulator
 #
 # Build: make
-# Run:   ./qlstudio2 [sprites.json]
+# Run:   ./qlworkbench [sprites.json]
 
 CC = cc
 IQL_DIR = ../iql
@@ -30,7 +30,7 @@ IQL_CFLAGS = -O2 -std=gnu89 -w -Wno-error \
 
 LDFLAGS = $(SDL_STATIC) -lpthread
 
-TARGET = qlstudio2
+TARGET = qlworkbench
 BUILD  = build
 
 # Shared UI sources

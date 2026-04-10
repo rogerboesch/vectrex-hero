@@ -1,5 +1,5 @@
 /*
- * QL Studio 2 — SDL2-only sprite editor + emulator
+ * QL Workbench — SDL2-only sprite editor + emulator
  *
  * No third-party UI libraries. Custom UI built on SDL2 + SDL_ttf.
  * Native macOS menus and file dialogs.
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
     }
 
     SDL_Window *window = SDL_CreateWindow(
-        "QL Studio 2",
+        "QL Workbench",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         1280, 800,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    native_menu_init_ex("QL Studio 2");
+    native_menu_init_ex("QL Workbench");
     {
         char icon_path[512];
         const char *base = SDL_GetBasePath();

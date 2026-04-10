@@ -1,5 +1,5 @@
 /*
- * app.c — Vectrex Studio core (Activity bar + Status bar layout)
+ * app.c — Vectrex Workbench core (Activity bar + Status bar layout)
  */
 
 #include "app.h"
@@ -48,7 +48,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->drag_idx = -1;
     app->room_tool = TOOL_SELECT;
     project_init(&app->project);
-    app_log_info(app, "Vectrex Studio ready");
+    app_log_info(app, "Vectrex Workbench ready");
 }
 
 void app_cleanup(App *app) {

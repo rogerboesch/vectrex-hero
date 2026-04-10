@@ -1,7 +1,7 @@
 /*
  * project_io.h — Shared JSON parser for hero.json level/room/sprite data
  *
- * Header-only. Both Vectrex Studio and GBC Studio include this.
+ * Header-only. Both Vectrex Workbench and GBC Workbench include this.
  * Requires: project.h, json.h, <stdio.h>, <stdlib.h>, <string.h>
  */
 #pragma once

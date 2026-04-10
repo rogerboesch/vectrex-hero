@@ -1,5 +1,5 @@
 /*
- * app.h — Vectrex Studio application state
+ * app.h — Vectrex Workbench application state
  */
 #pragma once
 

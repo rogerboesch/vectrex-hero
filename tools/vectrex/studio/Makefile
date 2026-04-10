@@ -1,7 +1,7 @@
-# Vectrex Studio — Level, sprite editor + emulator
+# Vectrex Workbench — Level, sprite editor + emulator
 #
 # Build: make
-# Run:   ./vectrex-studio [hero.json]
+# Run:   ./vectrex-workbench [hero.json]
 
 CC = cc
 SHARED = ../../shared
@@ -17,7 +17,7 @@ CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function $(SDL_CFLAGS) -I$(SHARED) -I../
 VEC2X_CFLAGS = -std=c99 -O2 -w $(SDL_CFLAGS) -I../ivec
 LDFLAGS = $(SDL_STATIC)
 
-TARGET = vectrex-studio
+TARGET = vectrex-workbench
 BUILD  = build
 
 APP_SRCS = src/main.c src/app.c src/file_io.c src/vectrex_emu.c \

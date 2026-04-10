@@ -1,5 +1,5 @@
 /*
- * Vectrex Studio — Level, sprite, and emulator tool
+ * Vectrex Workbench — Level, sprite, and emulator tool
  */
 
 #include <SDL.h>
@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     }
 
     SDL_Window *window = SDL_CreateWindow(
-        "Vectrex Studio",
+        "Vectrex Workbench",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         1400, 900,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    native_menu_init_ex("Vectrex Studio");
+    native_menu_init_ex("Vectrex Workbench");
     {
         char icon_path[512];
         const char *base = SDL_GetBasePath();

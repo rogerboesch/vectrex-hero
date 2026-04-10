@@ -1,5 +1,5 @@
 /*
- * app.c — QL Studio 2 core (Activity bar + Status bar layout)
+ * app.c — QL Workbench core (Activity bar + Status bar layout)
  */
 
 #include "app.h"
@@ -68,7 +68,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     sprite_init(&app->sprites[0], "sprite_0", 10, 20);
     app->sprite_count = 1;
 
-    app_log_info(app, "QL Studio 2 ready");
+    app_log_info(app, "QL Workbench ready");
 }
 
 void app_cleanup(App *app) {

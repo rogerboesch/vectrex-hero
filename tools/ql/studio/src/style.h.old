@@ -1,5 +1,5 @@
 /*
- * style.h — Layout and font constants for QL Studio 2
+ * style.h — Layout and font constants for QL Workbench
  *
  * All colors are in UITheme (ui.h / ui.c).
  * This file holds layout sizes and font configuration.

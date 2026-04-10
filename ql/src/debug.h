@@ -1,5 +1,5 @@
 /*
- * debug.h — Software breakpoints for QL Studio emulator
+ * debug.h — Software breakpoints for QL Workbench emulator
  *
  * Write a marker byte (1-255) to address 0x3FFFE.
  * The emulator detects it, pauses, and shows which breakpoint hit.

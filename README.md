@@ -44,9 +44,9 @@ Each platform has a dedicated SDL2-based editor with a built-in emulator:
 
 | Tool | Platform | Features |
 |------|----------|----------|
-| **Vectrex Studio** | Vectrex | Vector sprite editor, room editor, 6809 debugger |
+| **Vectrex Workbench** | Vectrex | Vector sprite editor, room editor, 6809 debugger |
 | **GBC Workbench** | Game Boy Color | Tile/sprite/screen editor, level editor, Z80 debugger |
-| **QL Studio 2** | Sinclair QL | Sprite editor, M68K debugger, QDOS emulation |
+| **QL Workbench** | Sinclair QL | Sprite editor, M68K debugger, QDOS emulation |
 
 All tools share a common UI framework (`tools/shared/`) built on SDL2 with native macOS integration.
 
@@ -59,9 +59,9 @@ ql/               Sinclair QL port (68K, QDOS executable)
 apple2/           Apple IIe port (6502, Hi-Res graphics)
 tools/
   shared/         Common SDL2 UI framework
-  vectrex/studio/ Vectrex Studio editor + vec2x emulator
+  vectrex/studio/ Vectrex Workbench editor + vec2x emulator
   gbc/studio/     GBC Workbench editor + iGB emulator
-  ql/studio/      QL Studio 2 editor + iQL emulator
+  ql/studio/      QL Workbench editor + iQL emulator
 assets/           Reference images and original project files
 ```
 

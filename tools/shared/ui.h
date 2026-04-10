@@ -1,5 +1,5 @@
 /*
- * ui.h — Minimal SDL2 UI library for QL Studio 2
+ * ui.h — Minimal SDL2 UI library for QL Workbench
  *
  * Provides: Button, Text, Panel, ColorSwatch, InputText
  * All rendering via SDL_Renderer. Text via SDL_ttf.

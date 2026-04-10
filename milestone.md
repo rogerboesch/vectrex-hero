@@ -17,8 +17,8 @@ The original and primary implementation. 6809 CPU, vector display.
 - Enemies: bat (bouncing), spider (descending thread), snake (patrol)
 - Weapons: laser beam, dynamite with expanding explosion
 - HUD: power bar, lives, score, dynamite count
-- Vectrex Studio (SDL2): room/row/sprite editors + integrated emulator
-- Vectrex Studio: CPU state, memory viewer, 6809 disassembler, breakpoints
+- Vectrex Workbench (SDL2): room/row/sprite editors + integrated emulator
+- Vectrex Workbench: CPU state, memory viewer, 6809 disassembler, breakpoints
 - VS Code-style UI: activity bar, status bar, breadcrumb, thin scrollbars
 
 ## Sinclair QL
@@ -37,9 +37,9 @@ Full port renamed R.E.S.C.U.E. 68008 CPU, Mode 8 display (256x256, 8 colors).
 - Player animation: walk cycle (2 frames), fly cycle (3 frames)
 - QDOS keyboard input via IO.FBYTE and KEYROW matrix scan
 - SuperBASIC launcher with screen clear/restore
-- QL Studio (SDL2): sprite/image editors + integrated iQL emulator
-- QL Studio: breakpoints, CPU state, memory viewer, 68000 disassembler
-- QL Studio: image editor (256x256, Mode 8 export)
+- QL Workbench (SDL2): sprite/image editors + integrated iQL emulator
+- QL Workbench: breakpoints, CPU state, memory viewer, 68000 disassembler
+- QL Workbench: image editor (256x256, Mode 8 export)
 - VS Code-style UI: activity bar, status bar, breadcrumb
 - Detailed article documenting the entire porting process
 

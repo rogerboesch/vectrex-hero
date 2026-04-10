@@ -1,5 +1,5 @@
 /*
- * app.h — QL Studio 2 application state
+ * app.h — QL Workbench application state
  */
 #pragma once
 

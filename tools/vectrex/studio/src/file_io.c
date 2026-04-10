@@ -1,5 +1,5 @@
 /*
- * file_io.c — JSON project load/save for Vectrex Studio
+ * file_io.c — JSON project load/save for Vectrex Workbench
  *
  * Uses shared project_io.h for parsing hero.json.
  */
