@@ -64,7 +64,7 @@ Room-based layout shared with the Vectrex version via `../vectrex/src/levels.h`.
 
 ## Development Tool
 
-**QL Workbench** (`tools/ql/studio/`) provides:
+**QL Workbench** (`tools/ql/workbench/`) provides:
 - Sprite editor with QL palette
 - Built-in iQL emulator (full 68008 + QDOS emulation)
 - M68K disassembler and debugger

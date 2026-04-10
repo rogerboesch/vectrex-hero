@@ -57,7 +57,7 @@ Room-based layout. Each room contains:
 
 ## Development Tool
 
-**Vectrex Workbench** (`tools/vectrex/studio/`) provides:
+**Vectrex Workbench** (`tools/vectrex/workbench/`) provides:
 - Level editor with cave polyline drawing
 - VLC sprite editor with vector line preview
 - Built-in vec2x emulator with CPU register display
