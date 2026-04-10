@@ -4,7 +4,7 @@
 // Built with VectreC toolchain + CMOC
 //
 
-#include "hero.h"
+#include "rescue.h"
 #include "sprites.h"
 #include "debug.h"
 

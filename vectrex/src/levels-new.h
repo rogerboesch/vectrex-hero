@@ -3,7 +3,7 @@
 
 #ifndef LEVELS_H
 #define LEVELS_H
-#include "hero.h"
+#include "rescue.h"
 
 // ============================================================
 // START (2 room(s))

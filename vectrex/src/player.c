@@ -2,7 +2,7 @@
 // player.c — Player physics, input, and drawing
 //
 
-#include "hero.h"
+#include "rescue.h"
 #include "sprites.h"
 
 void update_player_physics(void) {

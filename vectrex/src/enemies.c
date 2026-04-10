@@ -2,7 +2,7 @@
 // enemies.c — Enemy update, laser, dynamite, miner rescue
 //
 
-#include "hero.h"
+#include "rescue.h"
 #include "sprites.h"
 
 void fire_laser(void) {

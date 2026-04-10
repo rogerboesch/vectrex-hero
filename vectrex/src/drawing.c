@@ -2,7 +2,7 @@
 // drawing.c — All draw functions, HUD, screens
 //
 
-#include "hero.h"
+#include "rescue.h"
 #include "sprites.h"
 #include "font.h"
 

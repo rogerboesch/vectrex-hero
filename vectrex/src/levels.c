@@ -2,7 +2,7 @@
 // levels.c — Level management
 //
 
-#include "hero.h"
+#include "rescue.h"
 #include "levels.h"
 
 // Room table pointers (set by set_level_data based on current_level)

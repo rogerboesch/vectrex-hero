@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Prevent levels.h from pulling in the Vectrex hero.h
+// Prevent levels.h from pulling in the Vectrex rescue.h
 #ifndef RESCUE_H
 #define RESCUE_H
 #endif

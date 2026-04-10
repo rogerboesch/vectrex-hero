@@ -3,7 +3,7 @@
 
 #ifndef LEVELS_H
 #define LEVELS_H
-#include "hero.h"
+#include "rescue.h"
 
 // Row combo [6, 0, 5]
 static const int8_t cave_r6_0_5[] = {
