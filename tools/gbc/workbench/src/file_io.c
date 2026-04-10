@@ -498,10 +498,7 @@ void export_palettes(App *app, const char *dir);
 void export_levels(App *app, const char *dir);
 void export_screens(App *app, const char *dir);
 
-void app_export_c(App *app) {
-    char *dir = dialog_open_folder("Export to directory");
-    if (!dir) return;
-
+static void app_export_to_dir(App *app, const char *dir) {
     char c_path[512], h_path[512];
     FILE *fc, *fh;
 
@@ -552,7 +549,12 @@ void app_export_c(App *app) {
 
     /* Export screens */
     export_screens(app, dir);
+}
 
+void app_export_c(App *app) {
+    char *dir = dialog_open_folder("Export to directory");
+    if (!dir) return;
+    app_export_to_dir(app, dir);
     free(dir);
 }
 
@@ -576,8 +578,8 @@ void app_test_level(App *app) {
         fclose(f);
     }
 
-    /* 2. Export all assets */
-    app_export_c(app);
+    /* 2. Export all assets (no dialog) */
+    app_export_to_dir(app, app->build_dir);
 
     /* 3. Build */
     {
