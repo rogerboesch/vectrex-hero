@@ -1,5 +1,5 @@
 //
-// hero.h — R.E.S.C.U.E. for Vectrex
+// rescue.h — R.E.S.C.U.E. for Vectrex
 // Shared defines, types, externs, and prototypes
 //
 
