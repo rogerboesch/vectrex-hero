@@ -56,7 +56,7 @@ typedef struct {
     SDL_Color activity_bg;    /* activity bar background */
     SDL_Color activity_active;/* active icon indicator */
     /* Status bar */
-    SDL_Color status_bg;      /* status bar background */
+    SDL_Color accent;         /* accent color (status bar, special buttons) */
     SDL_Color status_text;    /* status bar text */
     /* Scrollbar */
     SDL_Color scrollbar_bg;   /* scrollbar track */

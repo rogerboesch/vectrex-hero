@@ -46,7 +46,7 @@ UITheme ui_theme = {
     .activity_bg     = { 33,  33,  33, 255},
     .activity_active = { 80, 140, 200, 255},
     /* Status bar */
-    .status_bg       = { 0,  122, 204, 255},
+    .accent       = { 0,  122, 204, 255},
     .status_text     = {255, 255, 255, 255},
     /* Scrollbar */
     .scrollbar_bg    = {  0,   0,   0,   0},
@@ -367,7 +367,7 @@ bool ui_button_accent(int x, int y, int w, int h, const char *label) {
     bool pressed = hover && g_mouse_left_down;
     bool clicked = hover && g_mouse_left_clicked;
 
-    SDL_Color bg = ui_theme.status_bg;
+    SDL_Color bg = ui_theme.accent;
     if (pressed) { bg.r = bg.r * 3 / 4; bg.g = bg.g * 3 / 4; bg.b = bg.b * 3 / 4; }
     else if (hover) { bg.r = (bg.r + 255) / 2; bg.g = (bg.g + 255) / 2; bg.b = (bg.b + 255) / 2; }
     fill_rect(x, y, w, h, bg);
@@ -659,7 +659,7 @@ bool ui_activity_icon(int x, int y, int w, int h, uint16_t icon, bool active) {
 /* ── Status bar ───────────────────────────────────────────── */
 
 SDL_Rect ui_status_bar(int x, int y, int w, int h) {
-    fill_rect(x, y, w, h, ui_theme.status_bg);
+    fill_rect(x, y, w, h, ui_theme.accent);
     return (SDL_Rect){x + 8, y, w - 16, h};
 }
 
