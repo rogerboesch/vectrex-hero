@@ -41,12 +41,17 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
 
     if (!gbc_emu_is_running()) {
         if (ui_button(bx, tb.y, 40, bh, "Run")) {
-            char rom[512];
-            snprintf(rom, sizeof(rom), "%s/%s", app->build_dir, app->rom_name);
-            if (gbc_emu_load(app->renderer, rom))
-                app_log_info(app, "Emulator: %s", rom);
-            else
-                app_log_err(app, "ROM not found: %s", rom);
+            if (!app->build_dir[0] || !app->rom_name[0]) {
+                app_log_err(app, "Set build_dir and rom_name in project.json");
+            }
+            else {
+                char rom[512];
+                snprintf(rom, sizeof(rom), "%s/%s", app->build_dir, app->rom_name);
+                if (gbc_emu_load(app->renderer, rom))
+                    app_log_info(app, "Emulator: %s", rom);
+                else
+                    app_log_err(app, "ROM not found: %s", rom);
+            }
         }
     } else {
         if (ui_button(bx, tb.y, 55, bh, gbc_emu_is_paused() ? "Resume" : "Pause")) {

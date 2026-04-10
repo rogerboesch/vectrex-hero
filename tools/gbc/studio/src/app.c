@@ -42,7 +42,7 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->marker_row = -1;
     app->sel_type = SEL_TILE;
 
-    strncpy(app->rom_name, "rescue.gbc", sizeof(app->rom_name) - 1);
+    app->rom_name[0] = '\0';
 
     tilemap_project_init(&app->tmap);
     load_default_sprites(app);
