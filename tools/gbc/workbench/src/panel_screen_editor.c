@@ -47,6 +47,12 @@ void draw_screen_editor(App *app, int x, int y, int w, int h) {
                 app->modified = true;
             }
         }
+
+        /* DMG toggle */
+        int dbx = ox + grid_w - 24;
+        if (ui_button(dbx, oy - 24, 24, 20, "")) { app->dmg_preview = !app->dmg_preview; }
+        ui_icon_centered(dbx, oy - 24, 24, 20, ICON_EYE,
+                         app->dmg_preview ? (SDL_Color){0,200,0,255} : ui_theme.text);
     }
 
     /* Draw the 20x18 grid with tiles */
@@ -63,9 +69,13 @@ void draw_screen_editor(App *app, int x, int y, int w, int h) {
                 for (int py2 = 0; py2 < 8; py2++) {
                     for (int px2 = 0; px2 < 8; px2++) {
                         uint8_t ci = tset_get_pixel(te, px2, py2);
-                        RGB5 rgb = pal->colors[ci];
                         uint8_t r8, g8, b8;
-                        rgb5_to_rgb8(rgb, &r8, &g8, &b8);
+                        if (app->dmg_preview)
+                            dmg_color(ci, &r8, &g8, &b8);
+                        else {
+                            RGB5 rgb = pal->colors[ci];
+                            rgb5_to_rgb8(rgb, &r8, &g8, &b8);
+                        }
                         SDL_Rect rc = { px + px2 * ZOOM, py + py2 * ZOOM, ZOOM, ZOOM };
                         SDL_SetRenderDrawColor(app->renderer, r8, g8, b8, 255);
                         SDL_RenderFillRect(app->renderer, &rc);

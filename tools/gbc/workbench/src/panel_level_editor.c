@@ -53,6 +53,11 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
         int bw = tb.h;
         int zbx = tb.x + tb.w - 2 * (bw + 2);
 
+        /* DMG toggle before clear */
+        int dbx = zbx - 2 * (bw + 10);
+        if (ui_button(dbx, tb.y, bw, tb.h, "")) { app->dmg_preview = !app->dmg_preview; }
+        ui_icon_centered(dbx, tb.y, bw, tb.h, ICON_EYE, app->dmg_preview ? (SDL_Color){0,200,0,255} : ui_theme.text);
+
         /* Clear button before zoom, with gap */
         int cbx = zbx - bw - 10;
         if (ui_button(cbx, tb.y, bw, tb.h, "")) {
@@ -148,9 +153,13 @@ void draw_level_editor(App *app, int px, int py, int pw, int ph) {
                 for (int py2 = 0; py2 < 8; py2++) {
                     for (int px2 = 0; px2 < 8; px2++) {
                         uint8_t ci = tset_get_pixel(te, px2, py2);
-                        RGB5 rgb = tp->colors[ci];
                         uint8_t r, g, b;
-                        rgb5_to_rgb8(rgb, &r, &g, &b);
+                        if (app->dmg_preview)
+                            dmg_color(ci, &r, &g, &b);
+                        else {
+                            RGB5 rgb = tp->colors[ci];
+                            rgb5_to_rgb8(rgb, &r, &g, &b);
+                        }
                         SDL_Rect pr = {dx + px2 * zoom, dy + py2 * zoom, zoom, zoom};
                         SDL_SetRenderDrawColor(app->renderer, r, g, b, 255);
                         SDL_RenderFillRect(app->renderer, &pr);

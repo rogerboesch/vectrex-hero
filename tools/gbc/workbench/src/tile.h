@@ -89,3 +89,16 @@ static inline void rgb5_to_rgb8(RGB5 c, uint8_t *r, uint8_t *g, uint8_t *b) {
     *g = (c.g * 255) / 31;
     *b = (c.b * 255) / 31;
 }
+
+/* DMG green palette: map color index 0-3 to classic Game Boy shades */
+static inline void dmg_color(uint8_t ci, uint8_t *r, uint8_t *g, uint8_t *b) {
+    static const uint8_t dmg[4][3] = {
+        { 8, 33,  8},  /* 0: darkest */
+        {41, 99, 25},  /* 1: dark */
+        {99,148, 49},  /* 2: light */
+        {123,189, 66},  /* 3: lightest */
+    };
+    *r = dmg[ci & 3][0];
+    *g = dmg[ci & 3][1];
+    *b = dmg[ci & 3][2];
+}

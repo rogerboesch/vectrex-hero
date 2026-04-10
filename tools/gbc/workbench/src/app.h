@@ -50,6 +50,7 @@ typedef struct {
     int sel_entity;        /* selected entity index in level, -1=none */
     int marker_row;        /* row marker for shift operations, -1=none */
     int cur_screen;        /* selected screen index for screen editor */
+    bool dmg_preview;      /* show tiles in DMG green palette */
 
     /* Project */
     char project_path[512];
