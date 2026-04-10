@@ -136,6 +136,10 @@ void main(void) {
         wait_vbl_done();
         read_input();
 
+        // Select button toggles DMG palette
+        if (joy_pressed & J_SELECT)
+            tiles_toggle_dmg();
+
         if (game_state == STATE_TITLE) {
             anim_tick++;
             if (joy_pressed & (J_START | J_A | J_B)) {

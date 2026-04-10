@@ -221,6 +221,7 @@ uint8_t tile_solid(uint8_t tx, uint8_t ty);
 
 // tiles.c
 void tiles_init(void);
+void tiles_toggle_dmg(void);
 
 // render.c
 void render_init_level(void);

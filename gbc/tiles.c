@@ -9,6 +9,49 @@
 #include "palettes_export.h"
 
 // =========================================================================
+// DMG (classic green) palette for retro mode
+// =========================================================================
+
+// Classic Game Boy green shades: lightest to darkest
+#define DMG_WHITE  RGB(15, 23, 8)
+#define DMG_LIGHT  RGB(12, 18, 6)
+#define DMG_DARK   RGB( 5, 12, 3)
+#define DMG_BLACK  RGB( 1,  4, 1)
+
+static const uint16_t dmg_bg_palettes[] = {
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+};
+
+static const uint16_t dmg_spr_palettes[] = {
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+    DMG_BLACK, DMG_DARK, DMG_LIGHT, DMG_WHITE,
+};
+
+static uint8_t dmg_mode;
+
+void tiles_toggle_dmg(void) {
+    dmg_mode = !dmg_mode;
+    if (dmg_mode) {
+        set_bkg_palette(0, 8, dmg_bg_palettes);
+        set_sprite_palette(0, 5, dmg_spr_palettes);
+    }
+    else {
+        set_bkg_palette(0, EXPORT_BG_PAL_COUNT, exported_bg_palettes);
+        set_sprite_palette(0, EXPORT_SPR_PAL_COUNT, exported_spr_palettes);
+    }
+}
+
+// =========================================================================
 // Initialize all tiles, sprites, and palettes
 // =========================================================================
 
