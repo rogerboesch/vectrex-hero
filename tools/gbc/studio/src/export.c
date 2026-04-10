@@ -262,7 +262,7 @@ void export_screens(App *app, const char *dir) {
     fprintf(fc, "#include \"screens_export.h\"\n");
     fprintf(fc, "#include \"tileset_export.h\"\n");
     fprintf(fc, "#include <gb/gb.h>\n\n");
-    fprintf(fc, "#pragma bank 5\n\n");
+    fprintf(fc, "#pragma bank 6\n\n");
     fprintf(fc, "BANKREF(exported_screens)\n");
     fprintf(fc, "const ExportedScreen exported_screens[%d] = {\n", sc);
     for (int si = 0; si < sc; si++) {

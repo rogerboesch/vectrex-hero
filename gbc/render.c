@@ -480,7 +480,7 @@ static void render_screen(uint8_t screen_id) {
     SCX_REG = 0;
     SCY_REG = 0;
     if (screen_id < NUM_SCREENS) {
-        SWITCH_ROM(5);
+        SWITCH_ROM(6);
         const ExportedScreen *scr = &exported_screens[screen_id];
         for (r = 0; r < 18; r++) {
             VBK_REG = 0;
@@ -494,9 +494,10 @@ static void render_screen(uint8_t screen_id) {
 }
 
 void render_title(void) {
-    if (NUM_SCREENS > 0 && exported_screens[0].tiles[0][0] != 0) {
+    if (NUM_SCREENS > 0) {
         render_screen(SCREEN_0);
-    } else {
+    }
+    else {
         // Fallback if no screens exported
         render_hide_sprites();
         clear_screen_tiles();

@@ -3,7 +3,7 @@
 #include "tileset_export.h"
 #include <gb/gb.h>
 
-#pragma bank 5
+#pragma bank 6
 
 BANKREF(exported_screens)
 const ExportedScreen exported_screens[1] = {
