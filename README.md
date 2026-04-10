@@ -1,119 +1,70 @@
-# R.E.S.C.U.E
+# R.E.S.C.U.E.
 ## Remote Exploration & Sub-surface Cavern Utility Expert
 
-A conversion of Activision's H.E.R.O. (1984), built with the VectreC toolchain and CMOC.
+A multi-platform retro game inspired by Activision's H.E.R.O. (1984). Navigate underground caverns, rescue trapped miners, and fight your way through enemies using a propeller backpack, laser, and dynamite.
 
-## Build
+Each platform port is built from scratch in C, targeting the original hardware constraints. All platforms share the same game design but adapt the rendering, physics, and controls to each system's capabilities.
 
-```bash
-make        # Compile to bin/main.bin
-make run    # Launch level editor with emulator
-make clean  # Remove build artifacts
-```
+## Platforms
 
-Requires the VectreC toolchain at `$HOME/retro-tools/vectrec/`.
+| Platform | CPU | Display | Toolchain | Status |
+|----------|-----|---------|-----------|--------|
+| [Vectrex](vectrex/) | 6809 @ 1.5MHz | Vector CRT | CMOC | Playable |
+| [Game Boy Color](gbc/) | SM83 @ 8MHz | 160x144 LCD | GBDK-2020 | Playable |
+| [Sinclair QL](ql/) | 68008 @ 7.5MHz | 256x256, 8 colors | VBCC | Playable |
+| [Apple IIe](apple2/) | 6502 @ 1MHz | 280x192 Hi-Res | cc65 | Playable |
 
-## Level & Sprite Editor
+## Gameplay
 
-A Python/Tkinter editor for designing levels and sprites.
+You control a rescue worker equipped with:
+- **Propeller backpack** -- fly through caverns (drains fuel)
+- **Laser** -- horizontal beam to destroy enemies
+- **Dynamite** -- destroys walls blocking your path
 
-```bash
-python3 tools/level_editor.py                          # Open editor
-python3 tools/level_editor.py --project assets/hero.json  # Load project at startup
-python3 tools/level_editor.py --rom <rom> --cart <cart> # Open with emulator tab active
-```
+Each level has a miner trapped deep underground. Navigate through enemies (bats, spiders, snakes) and destructible walls to reach them.
 
-### Editor Features
+### Controls
 
-- **Level editor** — Place player start, enemies (bats), walls, miner, and draw cave lines as polylines
-- **Sprite editor** — Draw VLC sprites with vector lines, preview and export
-- **Emulator tab** — Built-in vec2x emulator with CPU register display and pause/resume
-- **Test level** — Run a single level directly from the editor; builds to `test_level/` using cave lines for both visuals and physics
-- **Test sprite** — Preview a sprite in the emulator; builds to `test_sprite/`
-- **Export** — Export `hero.h`, `levels.h`, and `sprites.h` to `src/`
+| Action | Vectrex | GBC | QL / Apple II |
+|--------|---------|-----|---------------|
+| Move left/right | Joystick | D-pad | Arrow keys |
+| Thrust up | Joystick up | Up | Up arrow |
+| Fire laser | Button 1 | A / Space | Space |
+| Place dynamite | Joystick down | B / S | S |
 
-### Test Level Build
+### Scoring
 
-The level test compiles `src/` game code via wrapper `.c` files that override key functions using a `#define` rename trick:
-
-- **Cave line physics** — Horizontal segments act as floor/ceiling, vertical segments as side walls
-- **Bat bouncing** — Bats bounce off vertical cave segments
-- **All walls destroyable** — Editor-placed walls can all be destroyed by dynamite
-- **Custom cave drawing** — Cave lines from the editor replace the hardcoded cave shape
-
-## Controls
-
-| Input | Action |
-|---|---|
-| Joystick left/right | Walk (on ground) or fly horizontally |
-| Joystick up | Activate prop-pack (thrust upward, drains fuel) |
-| Joystick down (on ground) | Place dynamite |
-| Button 1 | Fire laser in facing direction |
-
-## Features
-
-| Feature | Description |
-|---|---|
-| Player movement | Gravity, thrust, horizontal walk/fly |
-| Propeller animation | 2-frame alternating prop blade rotation |
-| Fuel system | 255 starting fuel, drains while thrusting |
-| Laser | Horizontal beam in facing direction, kills bats |
-| Dynamite | Timed fuse, explosion with flash effect, destroys walls and enemies |
-| Bats | Horizontal patrol, bounce off walls, 2-frame wing flap, kill player on contact |
-| Wall collision | AABB collision with landing, side push-out, ceiling push-out |
-| Miner rescue | Touch miner for 1000 pts + fuel/dynamite bonus, advance level |
-| HUD | Score, lives, fuel display |
-| Death/respawn | Bat contact or explosion kills player, respawn at level start |
-
-### Intensity Levels
-
-| Level | Value | Usage |
-|---|---|---|
-| `INTENSITY_DIM` | 0x3F | Cave lines and walls |
-| `INTENSITY_NORMAL` | 0x5F | Player, enemies, HUD, general elements |
-| `INTENSITY_HI` | 0x6F | Laser, dynamite fuse, miner blink, title text |
-| `INTENSITY_BRIGHT` | 0x7F | Explosions only (+ cave flash during explosion) |
-
-## Scoring
-
-- 50 pts per bat killed
+- 50 pts per enemy killed
 - 75 pts per wall destroyed
-- 1000 pts per miner rescued + remaining fuel + 50 per remaining dynamite
+- 1000 pts per miner rescued + fuel bonus
 
-## Game Flow
+## Development Tools
 
-```
-TITLE -> PLAYING -> GAME_OVER -> TITLE
-              |-> LEVEL_COMPLETE -> PLAYING (next level)
-              |-> DYING -> PLAYING (respawn) or GAME_OVER
-```
+Each platform has a dedicated SDL2-based editor with a built-in emulator:
+
+| Tool | Platform | Features |
+|------|----------|----------|
+| **Vectrex Studio** | Vectrex | Vector sprite editor, room editor, 6809 debugger |
+| **GBC Workbench** | Game Boy Color | Tile/sprite/screen editor, level editor, Z80 debugger |
+| **QL Studio 2** | Sinclair QL | Sprite editor, M68K debugger, QDOS emulation |
+
+All tools share a common UI framework (`tools/shared/`) built on SDL2 with native macOS integration.
 
 ## Project Structure
 
 ```
-src/
-  main.c        Game loop, initialization, collision helpers
-  player.c      Player physics, input handling, drawing
-  enemies.c     Enemy AI, laser, dynamite, miner rescue
-  drawing.c     Cave, sprites, HUD, title/game-over screens
-  levels.c      Level data management, enemy loading
-  hero.h        Constants, types, externs, prototypes
-  sprites.h     VLC sprite data arrays
-  levels.h      Level wall and enemy data arrays
+vectrex/          Vectrex port (vector graphics, 6809 assembly)
+gbc/              Game Boy Color port (tile-based, ROM banking)
+ql/               Sinclair QL port (68K, QDOS executable)
+apple2/           Apple IIe port (6502, Hi-Res graphics)
 tools/
-  level_editor.py   Level & sprite editor with built-in emulator
-  vec2x_py/         Python bindings for vec2x emulator
-assets/
-  hero.json     Main project file
-  hero.png      Reference image
+  shared/         Common SDL2 UI framework
+  vectrex/studio/ Vectrex Studio editor + vec2x emulator
+  gbc/studio/     GBC Workbench editor + iGB emulator
+  ql/studio/      QL Studio 2 editor + iQL emulator
+assets/           Reference images and original project files
 ```
 
-## Architecture
+## Building
 
-- **Toolchain**: CMOC cross-compiler targeting Motorola 6809, lwasm assembler, lwlink linker
-- **Coordinate system**: -128 to 127 in both axes, `moveto_d(y, x)` (Y first)
-- **Walls**: Rectangular blocks defined as (center_y, left_x, half_height, width) with AABB collision
-- **Sprites**: VLC (Vector List Count) format — move count followed by (dy, dx) pairs
-- **Intensity**: 4-level beam intensity system for visual depth
-- **ROM size**: ~8.3KB
-- **RAM usage**: ~182 bytes of 896 available
+Each platform has its own `Makefile` in its directory. See the platform-specific README for build instructions and toolchain requirements.
