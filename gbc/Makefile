@@ -1,4 +1,4 @@
-# GBC H.E.R.O. — Makefile for GBDK-2020
+# GBC R.E.S.C.U.E. — Makefile for GBDK-2020
 #
 # Set GBDK to your GBDK-2020 install path:
 #   export GBDK=/opt/gbdk

@@ -1,5 +1,5 @@
 //
-// font.c — Custom VLC font glyph data for H.E.R.O.
+// font.c — Custom VLC font glyph data for R.E.S.C.U.E.
 //
 // Each glyph: {oy, ox, count-1, dy1, dx1, dy2, dx2, ...}
 // Cell size: ~6 wide x 8 tall (at font scale)

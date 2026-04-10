@@ -1,5 +1,5 @@
 /*
- * project.h — Vectrex H.E.R.O. project data structures
+ * project.h — Vectrex R.E.S.C.U.E. project data structures
  *
  * Mirrors the JSON format used by the Python level_editor.py.
  */

@@ -1,5 +1,5 @@
 //
-// main.c — Console H.E.R.O. entry point and game loop
+// main.c — Console R.E.S.C.U.E. entry point and game loop
 //
 
 #include "game.h"

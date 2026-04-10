@@ -1,5 +1,5 @@
 //
-// font.h — Custom VLC font for H.E.R.O.
+// font.h — Custom VLC font for R.E.S.C.U.E.
 //
 
 #ifndef FONT_H

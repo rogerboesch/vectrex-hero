@@ -1,5 +1,5 @@
 //
-// H.E.R.O. for Vectrex
+// R.E.S.C.U.E. for Vectrex
 // A conversion of Activision's H.E.R.O. (1984)
 // Built with VectreC toolchain + CMOC
 //

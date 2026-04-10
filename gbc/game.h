@@ -1,5 +1,5 @@
 //
-// game.h — GBC H.E.R.O. shared defines, types, externs
+// game.h — GBC R.E.S.C.U.E. shared defines, types, externs
 //
 // Tilemap scrolling version: pixel coordinates, tile-based collision
 //

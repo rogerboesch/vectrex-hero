@@ -1,5 +1,5 @@
 //
-// hero.h — H.E.R.O. for Vectrex
+// hero.h — R.E.S.C.U.E. for Vectrex
 // Shared defines, types, externs, and prototypes
 //
 

@@ -332,7 +332,7 @@ void draw_title_screen(void) {
         zero_beam();
         set_scale(0x7F);
         intensity_a(inten);
-        draw_text(50, (int8_t)(-advance * 2), "HERO", scale, advance);
+        draw_text(50, (int8_t)(-advance * 2), "RESCUE", scale, advance);
     }
     intensity_a(INTENSITY_NORMAL);
     zero_beam();

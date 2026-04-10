@@ -1,5 +1,5 @@
 //
-// game.h — Console H.E.R.O. shared defines, types, externs
+// game.h — Console R.E.S.C.U.E. shared defines, types, externs
 //
 
 #ifndef GAME_H

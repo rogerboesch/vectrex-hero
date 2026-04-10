@@ -5,7 +5,7 @@
  * Format: 2 bytes per row — lo plane, hi plane.
  * Pixel = (hi_bit << 1) | lo_bit → color 0-3.
  *
- * Sprites in H.E.R.O. are 8x16 (32 bytes each).
+ * Sprites in R.E.S.C.U.E. are 8x16 (32 bytes each).
  */
 #pragma once
 

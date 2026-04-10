@@ -1,5 +1,5 @@
 //
-// main.c — GBC H.E.R.O. entry point and game loop (tilemap scrolling version)
+// main.c — GBC R.E.S.C.U.E. entry point and game loop (tilemap scrolling version)
 //
 
 #include "game.h"
