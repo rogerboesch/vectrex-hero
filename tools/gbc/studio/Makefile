@@ -1,7 +1,7 @@
 # GBC Workbench — Tile/sprite editor for Game Boy Color
 #
 # Build: make
-# Run:   ./GBCWorkbench
+# Run:   ./gbc-workbench
 
 CC = cc
 SHARED = ../../shared
@@ -17,7 +17,7 @@ CFLAGS = -std=c11 -O2 -Wall -Wno-unused-function $(SDL_CFLAGS) -I$(SHARED) -I../
 GB_CFLAGS = -std=c11 -O2 -w $(SDL_CFLAGS) -I../igb
 LDFLAGS = -Wl,-stack_size,0x800000 $(SDL_STATIC)
 
-TARGET = GBCWorkbench
+TARGET = gbc-workbench
 BUILD  = build
 
 APP_SRCS = src/main.c src/app.c src/file_io.c src/export.c src/gbc_emu.c \
@@ -61,7 +61,7 @@ $(BUILD)/native_macos.o: $(SHARED)/native_macos.m
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-APP = GBCWorkbench.app
+APP = gbc-workbench.app
 
 app: $(TARGET) icon.icns
 	@mkdir -p $(APP)/Contents/MacOS $(APP)/Contents/Resources
@@ -73,7 +73,7 @@ app: $(TARGET) icon.icns
 	@echo '<key>CFBundleName</key><string>GBC Workbench</string>' >> $(APP)/Contents/Info.plist
 	@echo '<key>CFBundleDisplayName</key><string>GBC Workbench</string>' >> $(APP)/Contents/Info.plist
 	@echo '<key>CFBundleIdentifier</key><string>com.vectrex-hero.gbcworkbench</string>' >> $(APP)/Contents/Info.plist
-	@echo '<key>CFBundleExecutable</key><string>GBCWorkbench</string>' >> $(APP)/Contents/Info.plist
+	@echo '<key>CFBundleExecutable</key><string>gbc-workbench</string>' >> $(APP)/Contents/Info.plist
 	@echo '<key>CFBundleIconFile</key><string>icon</string>' >> $(APP)/Contents/Info.plist
 	@echo '<key>CFBundlePackageType</key><string>APPL</string>' >> $(APP)/Contents/Info.plist
 	@echo '<key>NSHighResolutionCapable</key><true/>' >> $(APP)/Contents/Info.plist
