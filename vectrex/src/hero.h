@@ -3,8 +3,8 @@
 // Shared defines, types, externs, and prototypes
 //
 
-#ifndef HERO_H
-#define HERO_H
+#ifndef RESCUE_H
+#define RESCUE_H
 
 #include <vectrex.h>
 #include <vectrex/stdlib.h>

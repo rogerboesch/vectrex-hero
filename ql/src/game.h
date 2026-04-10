@@ -30,9 +30,9 @@ typedef signed long    int32_t;
 typedef unsigned long  uint32_t;
 
 /* Guard to prevent levels.h (shared with Vectrex) from pulling in
- * the Vectrex-specific hero.h header. levels.h checks for HERO_H. */
-#ifndef HERO_H
-#define HERO_H
+ * the Vectrex-specific hero.h header. levels.h checks for RESCUE_H. */
+#ifndef RESCUE_H
+#define RESCUE_H
 #endif
 
 #define TRUE  1

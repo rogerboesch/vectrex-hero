@@ -10,8 +10,8 @@
 #include <string.h>
 
 // Prevent levels.h from pulling in the Vectrex hero.h
-#ifndef HERO_H
-#define HERO_H
+#ifndef RESCUE_H
+#define RESCUE_H
 #endif
 
 #define TRUE 1
