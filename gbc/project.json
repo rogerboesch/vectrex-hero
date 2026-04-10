@@ -6983,7 +6983,6 @@
       ]
     }
   ],
-  "gbdk_path": "Users/roger/retro-tools/gbdk",
-  "build_dir": "/Users/roger/projects/rescue/gbc",
-  "rom_name": "levels, 0 screens)"
+  "build_dir": "/Users/roger/projects/vectrex-hero/gbc",
+  "rom_name": "rescue.gbc"
 }
