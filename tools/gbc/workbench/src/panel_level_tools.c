@@ -71,6 +71,14 @@ void draw_level_tools(App *app, int px, int py, int pw, int ph) {
         y = tb.y + bh + 8;
     }
 
+    /* Test level */
+    if (lvl) {
+        if (ui_button(c.x, y, c.w, bh, "Test Level")) {
+            app_test_level(app);
+        }
+        y += bh + 8;
+    }
+
     /* Size */
     if (lvl) {
         y = ui_section(c.x - 4, y, c.w + 8, "Size");

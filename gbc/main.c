@@ -50,6 +50,9 @@ uint8_t joy;
 uint8_t joy_pressed;
 static uint8_t joy_prev;
 
+// Set by test_config.c to skip title and jump to a level (0 = normal)
+extern uint8_t start_level;
+
 // =========================================================================
 // Helpers
 // =========================================================================
@@ -109,8 +112,25 @@ void main(void) {
     SHOW_BKG;
     SHOW_SPRITES;
 
-    game_state = STATE_TITLE;
-    render_title();
+    if (start_level > 0) {
+        // Test mode: skip title and level intro, jump straight to gameplay
+        score = 0;
+        player_lives = START_LIVES;
+        player_fuel = START_FUEL;
+        player_dynamite = START_DYNAMITE;
+        current_level = start_level - 1;
+        init_level();
+        game_state = STATE_PLAYING;
+        DISPLAY_OFF;
+        render_init_level();
+        DISPLAY_ON;
+        SHOW_BKG;
+        SHOW_SPRITES;
+    }
+    else {
+        game_state = STATE_TITLE;
+        render_title();
+    }
 
     while (1) {
         wait_vbl_done();

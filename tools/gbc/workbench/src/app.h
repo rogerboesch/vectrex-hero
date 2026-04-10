@@ -87,6 +87,7 @@ void app_load_project(App *app, const char *path);
 void app_save_project(App *app, const char *path);
 void app_save_project_as(App *app);
 void app_export_c(App *app);
+void app_test_level(App *app);
 /* Panels */
 void draw_asset_list(App *app, int x, int y, int w, int h);  /* tiles + palettes */
 void draw_sprite_list(App *app, int x, int y, int w, int h); /* sprites */

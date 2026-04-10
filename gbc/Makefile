@@ -19,7 +19,7 @@ LCC     = $(GBDK)/bin/lcc
 LCCFLAGS = -Wa-l -Wl-m -Wl-j -Wm-yC -Wm-yn"RESCUE" -Wl-yt0x19 -Wl-yo8
 
 LEVEL_BANK_SRCS = $(wildcard level_data_*.c)
-SRCS = main.c player.c enemies.c levels.c render.c tiles.c levels_meta.c \
+SRCS = main.c player.c enemies.c levels.c render.c tiles.c levels_meta.c test_config.c \
        tileset_export.c sprites_export.c palettes_export.c screens_export.c \
        $(LEVEL_BANK_SRCS)
 TARGET = rescue.gbc
