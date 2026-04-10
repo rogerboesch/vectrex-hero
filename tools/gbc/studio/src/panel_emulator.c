@@ -18,18 +18,23 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
 
     /* Build */
     if (ui_button(bx, tb.y, 50, bh, "Build")) {
-        char cmd[512];
-        snprintf(cmd, sizeof(cmd), "cd \"%s/../../../gbc\" && make 2>&1", SDL_GetBasePath());
-        FILE *fp = popen(cmd, "r");
-        if (fp) {
-            char buf[256];
-            while (fgets(buf, sizeof(buf), fp)) {
-                int len = (int)strlen(buf);
-                if (len > 0 && buf[len-1] == '\n') buf[len-1] = 0;
-                app_log_dbg(app, "%s", buf);
+        if (app->build_dir[0] && app->gbdk_path[0]) {
+            char cmd[1024];
+            snprintf(cmd, sizeof(cmd), "export PATH=\"%s/bin:$PATH\" && cd \"%s\" && make 2>&1",
+                     app->gbdk_path, app->build_dir);
+            FILE *fp = popen(cmd, "r");
+            if (fp) {
+                char buf[256];
+                while (fgets(buf, sizeof(buf), fp)) {
+                    int len = (int)strlen(buf);
+                    if (len > 0 && buf[len-1] == '\n') buf[len-1] = 0;
+                    app_log_dbg(app, "%s", buf);
+                }
+                if (pclose(fp) == 0) app_log_info(app, "Build OK");
+                else app_log_err(app, "Build FAILED");
             }
-            if (pclose(fp) == 0) app_log_info(app, "Build OK");
-            else app_log_err(app, "Build FAILED");
+        } else {
+            app_log_err(app, "Set build_dir and gbdk_path in project");
         }
     }
     bx += 62;
@@ -37,11 +42,11 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
     if (!gbc_emu_is_running()) {
         if (ui_button(bx, tb.y, 40, bh, "Run")) {
             char rom[512];
-            snprintf(rom, sizeof(rom), "%s/../../../gbc/hero.gbc", SDL_GetBasePath());
+            snprintf(rom, sizeof(rom), "%s/%s", app->build_dir, app->rom_name);
             if (gbc_emu_load(app->renderer, rom))
-                app_log_info(app, "GBC emulator started");
+                app_log_info(app, "Emulator: %s", rom);
             else
-                app_log_err(app, "Failed to load ROM");
+                app_log_err(app, "Failed to load %s", rom);
         }
     } else {
         if (ui_button(bx, tb.y, 55, bh, gbc_emu_is_paused() ? "Resume" : "Pause")) {
@@ -51,9 +56,9 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
         if (ui_button(bx, tb.y, 55, bh, "Reload")) {
             gbc_emu_stop();
             char rom[512];
-            snprintf(rom, sizeof(rom), "%s/../../../gbc/hero.gbc", SDL_GetBasePath());
+            snprintf(rom, sizeof(rom), "%s/%s", app->build_dir, app->rom_name);
             if (gbc_emu_load(app->renderer, rom))
-                app_log_info(app, "GBC emulator reloaded");
+                app_log_info(app, "Reloaded: %s", rom);
             else
                 app_log_err(app, "Failed to reload ROM");
         }

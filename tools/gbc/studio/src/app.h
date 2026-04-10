@@ -53,6 +53,9 @@ typedef struct {
 
     /* Project */
     char project_path[512];
+    char gbdk_path[512];       /* GBDK install path (for build) */
+    char build_dir[512];       /* Directory containing the Makefile */
+    char rom_name[64];         /* ROM output filename (e.g. "hero.gbc") */
     bool modified;
 
     /* Clipboard */

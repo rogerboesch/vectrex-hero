@@ -42,6 +42,9 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->marker_row = -1;
     app->sel_type = SEL_TILE;
 
+    strncpy(app->gbdk_path, "/Users/roger/retro-tools/gbdk", sizeof(app->gbdk_path) - 1);
+    strncpy(app->rom_name, "hero.gbc", sizeof(app->rom_name) - 1);
+
     tilemap_project_init(&app->tmap);
     load_default_sprites(app);
     app_log_info(app, "GBC Workbench ready");

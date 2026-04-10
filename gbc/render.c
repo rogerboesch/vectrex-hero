@@ -494,10 +494,9 @@ static void render_screen(uint8_t screen_id) {
 }
 
 void render_title(void) {
-    if (NUM_SCREENS > 0) {
+    if (NUM_SCREENS > 0 && exported_screens[0].tiles[0][0] != 0) {
         render_screen(SCREEN_0);
-    }
-    else {
+    } else {
         // Fallback if no screens exported
         render_hide_sprites();
         clear_screen_tiles();

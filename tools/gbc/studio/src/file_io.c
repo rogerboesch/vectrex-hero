@@ -323,6 +323,23 @@ void app_load_project(App *app, const char *path) {
         }
     }
 
+    /* Parse build config */
+    p = strstr(json, "\"gbdk_path\"");
+    if (p) {
+        p = json_skip_ws(p); p = strchr(p, ':'); if (p) { p++; p = json_skip_ws(p); }
+        if (p) json_parse_str(p, app->gbdk_path, sizeof(app->gbdk_path));
+    }
+    p = strstr(json, "\"build_dir\"");
+    if (p) {
+        p = json_skip_ws(p); p = strchr(p, ':'); if (p) { p++; p = json_skip_ws(p); }
+        if (p) json_parse_str(p, app->build_dir, sizeof(app->build_dir));
+    }
+    p = strstr(json, "\"rom_name\"");
+    if (p) {
+        p = json_skip_ws(p); p = strchr(p, ':'); if (p) { p++; p = json_skip_ws(p); }
+        if (p) json_parse_str(p, app->rom_name, sizeof(app->rom_name));
+    }
+
     free(json);
     strncpy(app->project_path, path, sizeof(app->project_path) - 1);
     app->cur_level = 0;
@@ -446,7 +463,12 @@ void app_save_project(App *app, const char *path) {
         fprintf(f, "      ]\n");
         fprintf(f, "    }%s\n", si < app->tmap.screen_count - 1 ? "," : "");
     }
-    fprintf(f, "  ]\n");
+    fprintf(f, "  ],\n");
+
+    /* Build config */
+    fprintf(f, "  \"gbdk_path\": \"%s\",\n", app->gbdk_path);
+    fprintf(f, "  \"build_dir\": \"%s\",\n", app->build_dir);
+    fprintf(f, "  \"rom_name\": \"%s\"\n", app->rom_name);
 
     fprintf(f, "}\n");
     fclose(f);
