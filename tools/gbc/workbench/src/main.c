@@ -56,6 +56,9 @@ int main(int argc, char *argv[]) {
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) running = 0;
         }
 
+        /* Poll async build */
+        app_build_poll(&app);
+
         MenuAction action = native_menu_poll();
         switch (action) {
             case MENU_NEW:     app_new_project(&app); break;

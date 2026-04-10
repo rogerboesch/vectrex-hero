@@ -17,25 +17,13 @@ void draw_gbc_emulator(App *app, int px, int py, int pw, int ph) {
     int bx = tb.x, bh = tb.h;
 
     /* Build */
-    if (ui_button_accent(bx, tb.y, 50, bh, "Build")) {
-        if (app->build_dir[0]) {
-            char cmd[1024];
-            snprintf(cmd, sizeof(cmd), "cd \"%s\" && make 2>&1", app->build_dir);
-            FILE *fp = popen(cmd, "r");
-            if (fp) {
-                char buf[256];
-                while (fgets(buf, sizeof(buf), fp)) {
-                    int len = (int)strlen(buf);
-                    if (len > 0 && buf[len-1] == '\n') buf[len-1] = 0;
-                    app_log_dbg(app, "%s", buf);
-                }
-                if (pclose(fp) == 0) app_log_info(app, "Build OK");
-                else app_log_err(app, "Build FAILED");
-            }
+    if (!app_build_is_active(app)) {
+        if (ui_button_accent(bx, tb.y, 50, bh, "Build")) {
+            app_build_start(app, false);
         }
-        else {
-            app_log_err(app, "No build_dir set (save project first)");
-        }
+    }
+    else {
+        ui_button(bx, tb.y, 50, bh, "...");
     }
     bx += 62;
 
