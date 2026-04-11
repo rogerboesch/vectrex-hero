@@ -16,6 +16,8 @@
 #define TILE_DWALL_LAST   6    // destroyable wall range end
 #define TILE_LAVA0       19    // lava frame 0 (collision check)
 #define TILE_LAVA1       20    // lava frame 1
+#define TILE_DECOR_FIRST 80    // decorative tiles (no collision)
+#define TILE_DECOR_LAST  95
 
 // HUD and font tiles appended to Workbench tileset (indices 104-148)
 #define HUD_TILE_BASE    104U

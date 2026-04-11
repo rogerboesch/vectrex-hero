@@ -3,6 +3,7 @@
 //
 
 #include "game.h"
+#include "tiles.h"
 
 uint8_t level_w, level_h;
 uint8_t decode_cache[DECODE_ROWS][DECODE_MAX_W];
@@ -48,7 +49,10 @@ uint8_t tile_at(uint8_t tx, uint8_t ty) {
 }
 
 uint8_t tile_solid(uint8_t tx, uint8_t ty) {
-    return tile_at(tx, ty) != 0;
+    uint8_t t = tile_at(tx, ty);
+    if (t == 0) return 0;
+    if (t >= TILE_DECOR_FIRST && t <= TILE_DECOR_LAST) return 0;
+    return 1;
 }
 
 // =========================================================================
