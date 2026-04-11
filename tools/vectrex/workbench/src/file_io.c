@@ -1,7 +1,7 @@
 /*
  * file_io.c — JSON project load/save for Vectrex Workbench
  *
- * Uses shared project_io.h for parsing project.json.
+ * Uses shared project_io.h for parsing game-rescue.json.
  */
 
 #include "app.h"
@@ -54,7 +54,7 @@ void app_save_project(App *app, const char *path) {
 }
 
 void app_save_project_as(App *app) {
-    char *path = dialog_save_file("Save Project", "project.json");
+    char *path = dialog_save_file("Save Project", "game-rescue.json");
     if (path) { app_save_project(app, path); free(path); }
 }
 

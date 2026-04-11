@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
 
 void app_new_project(App *app) {
     app->sprite_count = 0;
@@ -581,53 +584,125 @@ void app_test_level(App *app) {
     /* 2. Export all assets (no dialog) */
     app_export_to_dir(app, app->build_dir);
 
-    /* 3. Build */
-    {
+    /* 3. Async build + run in emulator when done */
+    app_log_info(app, "Testing level %d ...", app->cur_level + 1);
+    app_build_start(app, true);
+}
+
+// =========================================================================
+// Async build (non-blocking)
+// =========================================================================
+
+void app_build_start(App *app, bool run_after) {
+    if (app->build_pipe_fd >= 0) {
+        app_log_warn(app, "Build already in progress");
+        return;
+    }
+    if (!app->build_dir[0]) {
+        app_log_err(app, "No build_dir set (save project first)");
+        return;
+    }
+
+    app_log_info(app, "Starting build in %s ...", app->build_dir);
+    app->build_run_after = run_after;
+
+    int pipefd[2];
+    if (pipe(pipefd) < 0) {
+        app_log_err(app, "pipe() failed");
+        return;
+    }
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        app_log_err(app, "fork() failed");
+        close(pipefd[0]); close(pipefd[1]);
+        return;
+    }
+
+    if (pid == 0) {
+        /* Child: redirect stdout+stderr to pipe, run make via shell */
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        dup2(pipefd[1], STDERR_FILENO);
+        close(pipefd[1]);
         char cmd[1024];
         snprintf(cmd, sizeof(cmd), "cd \"%s\" && make 2>&1", app->build_dir);
-        FILE *fp = popen(cmd, "r");
-        if (fp) {
-            char buf[256];
-            while (fgets(buf, sizeof(buf), fp)) {
-                int len = (int)strlen(buf);
-                if (len > 0 && buf[len-1] == '\n') buf[len-1] = 0;
-                app_log_dbg(app, "%s", buf);
+        execl("/bin/sh", "sh", "-c", cmd, NULL);
+        _exit(127);
+    }
+
+    /* Parent: read end of pipe, non-blocking */
+    close(pipefd[1]);
+    fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
+    app->build_pipe_fd = pipefd[0];
+    app->build_pid = pid;
+}
+
+void app_build_poll(App *app) {
+    if (app->build_pipe_fd < 0) return;
+
+    /* Read available output */
+    char buf[256];
+    ssize_t n;
+    while ((n = read(app->build_pipe_fd, buf, sizeof(buf) - 1)) > 0) {
+        buf[n] = '\0';
+        /* Split by newlines and log each line */
+        char *line = buf;
+        for (char *p = buf; *p; p++) {
+            if (*p == '\n') {
+                *p = '\0';
+                if (p > line)
+                    app_log_dbg(app, "%s", line);
+                line = p + 1;
             }
-            if (pclose(fp) != 0) {
-                app_log_err(app, "Build FAILED");
-                return;
+        }
+        if (*line)
+            app_log_dbg(app, "%s", line);
+    }
+
+    /* Check if child exited */
+    int status;
+    pid_t r = waitpid(app->build_pid, &status, WNOHANG);
+    if (r <= 0) return;  /* still running */
+
+    close(app->build_pipe_fd);
+    app->build_pipe_fd = -1;
+    app->build_pid = 0;
+
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+        app_log_info(app, "Build OK");
+
+        if (app->build_run_after && app->rom_name[0]) {
+            char rom[512];
+            snprintf(rom, sizeof(rom), "%s/%s", app->build_dir, app->rom_name);
+            if (gbc_emu_is_running()) gbc_emu_stop();
+            if (gbc_emu_load(app->renderer, rom)) {
+                app_log_info(app, "Emulator: %s", rom);
+                app->view = VIEW_EMULATOR;
             }
-            app_log_info(app, "Build OK");
+            else {
+                app_log_err(app, "ROM not found: %s", rom);
+            }
+
+            /* Reset test_config.c */
+            char path[512];
+            snprintf(path, sizeof(path), "%s/test_config.c", app->build_dir);
+            FILE *f = fopen(path, "w");
+            if (f) {
+                fprintf(f, "// test_config.c — Test level configuration\n");
+                fprintf(f, "#include <stdint.h>\n\nuint8_t start_level = 0;\n");
+                fclose(f);
+            }
         }
     }
-
-    /* 4. Load ROM in emulator */
-    {
-        char rom[512];
-        snprintf(rom, sizeof(rom), "%s/%s", app->build_dir, app->rom_name);
-        if (gbc_emu_is_running()) gbc_emu_stop();
-        if (gbc_emu_load(app->renderer, rom))
-            app_log_info(app, "Testing level %d: %s", app->cur_level + 1, rom);
-        else {
-            app_log_err(app, "ROM not found: %s", rom);
-            return;
-        }
+    else {
+        app_log_err(app, "Build FAILED (exit %d)",
+                    WIFEXITED(status) ? WEXITSTATUS(status) : -1);
     }
+    app->build_run_after = false;
+}
 
-    /* 5. Switch to emulator view */
-    app->view = VIEW_EMULATOR;
-
-    /* 6. Reset test_config.c back to 0 for normal builds */
-    {
-        char path[512];
-        snprintf(path, sizeof(path), "%s/test_config.c", app->build_dir);
-        FILE *f = fopen(path, "w");
-        if (f) {
-            fprintf(f, "// test_config.c — Test level configuration\n");
-            fprintf(f, "#include <stdint.h>\n\n");
-            fprintf(f, "uint8_t start_level = 0;\n");
-            fclose(f);
-        }
-    }
+bool app_build_is_active(App *app) {
+    return app->build_pipe_fd >= 0;
 }
 

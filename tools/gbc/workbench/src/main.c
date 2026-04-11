@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
         app_load_project(&app, argv[1]);
     } else {
         char project_path[512];
-        snprintf(project_path, sizeof(project_path), "%s/../../../gbc/project.json", SDL_GetBasePath());
+        snprintf(project_path, sizeof(project_path), "%s/../../../gbc/game-rescue.json", SDL_GetBasePath());
         app_load_project(&app, project_path);
     }
 
@@ -55,6 +55,9 @@ int main(int argc, char *argv[]) {
             if (event.type == SDL_QUIT) running = 0;
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) running = 0;
         }
+
+        /* Poll async build */
+        app_build_poll(&app);
 
         MenuAction action = native_menu_poll();
         switch (action) {

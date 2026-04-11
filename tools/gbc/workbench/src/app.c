@@ -43,6 +43,8 @@ void app_init(App *app, SDL_Window *window, SDL_Renderer *renderer) {
     app->sel_type = SEL_TILE;
 
     app->rom_name[0] = '\0';
+    app->build_pipe_fd = -1;
+    app->build_pid = 0;
 
     tilemap_project_init(&app->tmap);
     load_default_sprites(app);

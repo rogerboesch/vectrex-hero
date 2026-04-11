@@ -1,5 +1,5 @@
 /*
- * project_io.h — Shared JSON parser for project.json level/room/sprite data
+ * project_io.h — Shared JSON parser for game-rescue.json level/room/sprite data
  *
  * Header-only. Both Vectrex Workbench and GBC Workbench include this.
  * Requires: project.h, json.h, <stdio.h>, <stdlib.h>, <string.h>
@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Parse row_types, levels, and sprites from a project.json string.
+/* Parse row_types, levels, and sprites from a game-rescue.json string.
    Returns number of levels parsed. */
 static inline int project_parse_json(const char *json, Project *proj) {
     const char *p;

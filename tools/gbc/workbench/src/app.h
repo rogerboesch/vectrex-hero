@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 #include <stdbool.h>
+#include <sys/types.h>
 #include "tile.h"
 #include "tilemap.h"
 
@@ -52,6 +53,11 @@ typedef struct {
     int cur_screen;        /* selected screen index for screen editor */
     bool dmg_preview;      /* show tiles in DMG green palette */
 
+    /* Async build */
+    int build_pipe_fd;     /* non-blocking pipe from make, -1 = idle */
+    pid_t build_pid;       /* child process id */
+    bool build_run_after;  /* load ROM in emulator after build */
+
     /* Project */
     char project_path[512];
     char build_dir[512];       /* Directory containing the Makefile */
@@ -89,6 +95,9 @@ void app_save_project(App *app, const char *path);
 void app_save_project_as(App *app);
 void app_export_c(App *app);
 void app_test_level(App *app);
+void app_build_start(App *app, bool run_after);
+void app_build_poll(App *app);
+bool app_build_is_active(App *app);
 /* Panels */
 void draw_asset_list(App *app, int x, int y, int w, int h);  /* tiles + palettes */
 void draw_sprite_list(App *app, int x, int y, int w, int h); /* sprites */

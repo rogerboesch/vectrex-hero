@@ -231,7 +231,7 @@ def extract_tiles_multipal(content, palettes_rgb):
 
 
 def build_project(tile_data, tilemap, palmap, palettes_rgb, name="ZX Color Import"):
-    """Build GBC Workbench project.json with per-tile palettes."""
+    """Build GBC Workbench game-rescue.json with per-tile palettes."""
     bg_palettes = []
     for pal in palettes_rgb[:8]:
         bg_palettes.append([rgb8_to_rgb5(*c) for c in pal])
