@@ -4,7 +4,23 @@ Platforms where H.E.R.O. does NOT already exist and R.E.S.C.U.E. would be worth 
 
 ---
 
-## Good choice
+## FAVORITES
+
+Best candidates based on existing code reuse (Vectrex/6809, GBC/Z80, QL/68000, Apple II/6502):
+
+| Priority | Platform | Reuses | Toolchain | Effort |
+|----------|----------|--------|-----------|--------|
+| 1 | Game Boy DMG | GBC code + tileset | GBDK (same) | Days |
+| 2 | Atari ST | QL code (same 68000 CPU) | VBCC (same) | 1 week |
+| 3 | Master System / Game Gear | GBC tileset, similar Z80 | devkitSMS | 1-2 weeks |
+| 4 | Dragon 32 | Vectrex code (same 6809 CPU) | CMOC (same) | 1-2 weeks |
+| 5 | Sega Genesis | QL code (68000) + GBC tileset | SGDK | 2-3 weeks |
+| 6 | SNES | GBC tileset concept, hw parallax | PVSnesLib | 2-3 weeks |
+| 7 | Spectrum Next | ZX tileset (already extracted) | z88dk | 2-3 weeks |
+| 8 | NES | GBC tileset concept | cc65 (same as Apple II) | 3-4 weeks |
+| 9 | Apple IIGS | Apple II code (65C816 superset) | cc65 | 2-3 weeks |
+
+---
 
 ## 🔥 HIGH Market Opportunity (26 platforms)
 
