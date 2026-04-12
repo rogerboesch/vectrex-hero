@@ -19,44 +19,47 @@
 #define TILE_DECOR_FIRST 80    // decorative tiles (no collision)
 #define TILE_DECOR_LAST  95
 
-// HUD and font tiles appended to Workbench tileset (indices 96-140)
+// HUD icons (indices 96-101)
 #define HUD_TILE_BASE    96U
-#define TILE_HUD_FILL    (HUD_TILE_BASE + 0)   // fuel bar filled
-#define TILE_HUD_EMPTY   (HUD_TILE_BASE + 1)   // fuel bar empty
-#define TILE_HEART       (HUD_TILE_BASE + 2)   // life heart
-#define TILE_HEART_OFF   (HUD_TILE_BASE + 3)   // lost life
-#define TILE_DYN_ICON    (HUD_TILE_BASE + 4)   // dynamite icon
-#define TILE_DYN_OFF     (HUD_TILE_BASE + 5)   // spent dynamite
-#define TILE_DIGIT_0     (HUD_TILE_BASE + 6)   // 110-119: digits 0-9
-#define TILE_LETTER_A    (HUD_TILE_BASE + 16)   // 120-145: A-Z
-#define TILE_LETTER_B    (HUD_TILE_BASE + 17)
-#define TILE_LETTER_C    (HUD_TILE_BASE + 18)
-#define TILE_LETTER_D    (HUD_TILE_BASE + 19)
-#define TILE_LETTER_E    (HUD_TILE_BASE + 20)
-#define TILE_LETTER_F    (HUD_TILE_BASE + 21)
-#define TILE_LETTER_G    (HUD_TILE_BASE + 22)
-#define TILE_LETTER_H    (HUD_TILE_BASE + 23)
-#define TILE_LETTER_I    (HUD_TILE_BASE + 24)
-#define TILE_LETTER_J    (HUD_TILE_BASE + 25)
-#define TILE_LETTER_K    (HUD_TILE_BASE + 26)
-#define TILE_LETTER_L    (HUD_TILE_BASE + 27)
-#define TILE_LETTER_M    (HUD_TILE_BASE + 28)
-#define TILE_LETTER_N    (HUD_TILE_BASE + 29)
-#define TILE_LETTER_O    (HUD_TILE_BASE + 30)
-#define TILE_LETTER_P    (HUD_TILE_BASE + 31)
-#define TILE_LETTER_Q    (HUD_TILE_BASE + 32)
-#define TILE_LETTER_R    (HUD_TILE_BASE + 33)
-#define TILE_LETTER_S    (HUD_TILE_BASE + 34)
-#define TILE_LETTER_T    (HUD_TILE_BASE + 35)
-#define TILE_LETTER_U    (HUD_TILE_BASE + 36)
-#define TILE_LETTER_V    (HUD_TILE_BASE + 37)
-#define TILE_LETTER_W    (HUD_TILE_BASE + 38)
-#define TILE_LETTER_X    (HUD_TILE_BASE + 39)
-#define TILE_LETTER_Y    (HUD_TILE_BASE + 40)
-#define TILE_LETTER_Z    (HUD_TILE_BASE + 41)
-#define TILE_LETTER_DASH (HUD_TILE_BASE + 42)  // 146
-#define TILE_COLON       (HUD_TILE_BASE + 43)  // 147
-#define TILE_DOT         (HUD_TILE_BASE + 44)  // 148
+#define TILE_HUD_FILL    (HUD_TILE_BASE + 0)   // 96: fuel bar filled
+#define TILE_HUD_EMPTY   (HUD_TILE_BASE + 1)   // 97: fuel bar empty
+#define TILE_HEART       (HUD_TILE_BASE + 2)   // 98: life heart
+#define TILE_HEART_OFF   (HUD_TILE_BASE + 3)   // 99: lost life
+#define TILE_DYN_ICON    (HUD_TILE_BASE + 4)   // 100: dynamite icon
+#define TILE_DYN_OFF     (HUD_TILE_BASE + 5)   // 101: spent dynamite
+
+// Character set (indices 112-150): digits, letters, symbols
+#define CHAR_TILE_BASE   112U
+#define TILE_DIGIT_0     (CHAR_TILE_BASE + 0)   // 112-121: digits 0-9
+#define TILE_LETTER_A    (CHAR_TILE_BASE + 10)  // 122-147: A-Z
+#define TILE_LETTER_B    (CHAR_TILE_BASE + 11)
+#define TILE_LETTER_C    (CHAR_TILE_BASE + 12)
+#define TILE_LETTER_D    (CHAR_TILE_BASE + 13)
+#define TILE_LETTER_E    (CHAR_TILE_BASE + 14)
+#define TILE_LETTER_F    (CHAR_TILE_BASE + 15)
+#define TILE_LETTER_G    (CHAR_TILE_BASE + 16)
+#define TILE_LETTER_H    (CHAR_TILE_BASE + 17)
+#define TILE_LETTER_I    (CHAR_TILE_BASE + 18)
+#define TILE_LETTER_J    (CHAR_TILE_BASE + 19)
+#define TILE_LETTER_K    (CHAR_TILE_BASE + 20)
+#define TILE_LETTER_L    (CHAR_TILE_BASE + 21)
+#define TILE_LETTER_M    (CHAR_TILE_BASE + 22)
+#define TILE_LETTER_N    (CHAR_TILE_BASE + 23)
+#define TILE_LETTER_O    (CHAR_TILE_BASE + 24)
+#define TILE_LETTER_P    (CHAR_TILE_BASE + 25)
+#define TILE_LETTER_Q    (CHAR_TILE_BASE + 26)
+#define TILE_LETTER_R    (CHAR_TILE_BASE + 27)
+#define TILE_LETTER_S    (CHAR_TILE_BASE + 28)
+#define TILE_LETTER_T    (CHAR_TILE_BASE + 29)
+#define TILE_LETTER_U    (CHAR_TILE_BASE + 30)
+#define TILE_LETTER_V    (CHAR_TILE_BASE + 31)
+#define TILE_LETTER_W    (CHAR_TILE_BASE + 32)
+#define TILE_LETTER_X    (CHAR_TILE_BASE + 33)
+#define TILE_LETTER_Y    (CHAR_TILE_BASE + 34)
+#define TILE_LETTER_Z    (CHAR_TILE_BASE + 35)
+#define TILE_LETTER_DASH (CHAR_TILE_BASE + 36)  // 148
+#define TILE_COLON       (CHAR_TILE_BASE + 37)  // 149
+#define TILE_DOT         (CHAR_TILE_BASE + 38)  // 150
 
 // =========================================================================
 // Sprite tile indices (8x16 mode: each sprite = 2 consecutive tiles)
