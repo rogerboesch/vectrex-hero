@@ -4,7 +4,7 @@ Platforms where H.E.R.O. does NOT already exist and R.E.S.C.U.E. would be worth 
 
 ---
 
-## FAVORITES
+## 🔥 FAVORITES, HIGH Market Opportunity
 
 Best candidates based on existing code reuse (Vectrex/6809, GBC/Z80, QL/68000, Apple II/6502):
 
@@ -15,39 +15,22 @@ Best candidates based on existing code reuse (Vectrex/6809, GBC/Z80, QL/68000, A
 | 3 | Master System / Game Gear | GBC tileset, similar Z80 | devkitSMS | 1-2 weeks |
 | 4 | Dragon 32 | Vectrex code (same 6809 CPU) | CMOC (same) | 1-2 weeks |
 | 5 | Classic Macintosh | QL code (same 68000), 1-bit B&W | Retro68 / VBCC | 2 weeks |
-| 6 | Sega Genesis | QL code (68000) + GBC tileset | SGDK | 2-3 weeks |
+| 6 | Sega Genesis, Nomad | QL code (68000) + GBC tileset | SGDK | 2-3 weeks |
 | 7 | SNES | GBC tileset concept, hw parallax | PVSnesLib | 2-3 weeks |
 | 8 | Spectrum Next | ZX tileset (already extracted) | z88dk | 2-3 weeks |
 | 9 | NES | GBC tileset concept | cc65 (same as Apple II) | 3-4 weeks |
-
----
-
-## 🔥 HIGH Market Opportunity (26 platforms)
-
-### Maybe
-
-| Platform | Notes | Dev Difficulty |
-|---|---|---|
-| SNES | Enhanced 16-bit graphics | Medium |
-| Sega Genesis | Two-player potential | Medium |
-| Master System | Close to Game Gear | Medium |
-| Game Gear | Handheld counterpart | Medium |
-| Atari Lynx | 16-bit handheld | High |
-| Lynx II | Improved Atari Lynx | High |
-| Game Boy | Original monochrome handheld | Low |
-| Game Boy Pocket | Improved Game Boy | Low |
-| Spectrum Next | Modern reimagining | Low |
-| Nintendo DS | Dual-screen handheld | Medium |
-| PlayStation Portable | 32-bit handheld | Medium |
-| Nintendo 3DS | 3D handheld | Medium |
-| ZX Spectrum 128 | Expanded memory version | Medium |
-| Switch (homebrew) | Modern handheld | Low |
-| Sega Nomad | Portable Genesis | Medium |
+| 10 | ZX Spectrum 128 | Expanded memory version | Medium | 2-3 weeks |
 
 ### Probably not
 
 | Platform | Notes | Dev Difficulty |
 |---|---|---|
+| Atari Lynx | 16-bit handheld | High |
+| Lynx II | Improved Atari Lynx | High |
+| Nintendo DS | Dual-screen handheld | Medium |
+| PlayStation Portable | 32-bit handheld | Medium |
+| Nintendo 3DS | 3D handheld | Medium |
+| Switch (homebrew) | Modern handheld | Low |
 | Neo Geo | Arcade-quality home version | High |
 | TurboGrafx-16 / PC Engine | 16-bit Japanese console | Medium |
 | Famicom | Japanese NES variant | Medium |
@@ -58,27 +41,9 @@ Best candidates based on existing code reuse (Vectrex/6809, GBC/Z80, QL/68000, A
 | 2600+ / ColecoVision Flash Back | Modern retro boards | Low |
 | MAME arcade builds | Running on PCs | Low |
 | WebGL/Emscripten | Browser-based port | Low |
-
----
-
-## 🟡 MEDIUM Market Opportunity (19 platforms)
-
-### Maybe
-
-| Platform | Notes | Dev Difficulty |
-|---|---|---|
 | Atari 7800 | Improved Atari 2600 hardware | High |
 | Sega Dreamcast | Final console innovation | Medium |
 | Virtual Boy | Novelty 3D handheld | High |
-| Dragon 32 | 6809-based (like Vectrex!) | Low |
-| Apple II GS | 16-bit Apple successor | Low |
-| Apple Macintosh Classic | Early Mac | Low |
-| Atari ST | Motorola 68000 computer | Low |
-
-### Probably not
-
-| Platform | Notes | Dev Difficulty |
-|---|---|---|
 | WonderSwan | Japanese handheld | Medium |
 | Intellivision | 1980s console | High |
 | Famicom Disk System | Nintendo disk-based variant | Medium |
@@ -91,24 +56,10 @@ Best candidates based on existing code reuse (Vectrex/6809, GBC/Z80, QL/68000, A
 | BeagleBone | ARM-based retro box | Low |
 | Odroid | Enhanced RPi variant | Low |
 | Unix/Linux terminals | Text-based roguelike adaptation | Low |
-
----
-
-## 📉 LOW Market Opportunity (41 platforms)
-
-### Maybe
-
-| Platform | Notes | Dev Difficulty |
-|---|---|---|
 | TI-99/4A | 16-bit home computer | High |
 | Commodore PET | Early home computer | High |
 | Acorn Archimedes | 32-bit Arm-based | Medium |
 | Oric-1/Oric Atmos | 6502-based competing line | Medium |
-
-### Probably not
-
-| Platform | Notes | Dev Difficulty |
-|---|---|---|
 | Arcade Systems (15 boards) | Galaxian, Pac-Man, Donkey Kong, Frogger, Williams, Capcom, SNK, Taito, Konami, Data East, Sega, Namco, Irem, Stern, Midway | High |
 | Sega Master System Arcade | Arcade version | High |
 | Sharp Twin Famicom | Home arcade machine | High |
@@ -166,4 +117,3 @@ Best candidates based on existing code reuse (Vectrex/6809, GBC/Z80, QL/68000, A
 - Game Boy Advance
 - iOS
 - Android
-
