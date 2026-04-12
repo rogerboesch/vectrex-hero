@@ -4,6 +4,8 @@ Platforms where H.E.R.O. does NOT already exist and R.E.S.C.U.E. would be worth 
 
 ---
 
+## Good choice
+
 ## 🔥 HIGH Market Opportunity (26 platforms)
 
 ### Maybe
