@@ -12,7 +12,6 @@ Each platform port is built from scratch in C, targeting the original hardware c
 | [Vectrex](vectrex/) | 6809 @ 1.5MHz | Vector CRT | CMOC | Playable |
 | [Game Boy Color](gbc/) | SM83 @ 8MHz | 160x144 LCD | GBDK-2020 | Playable |
 | [Sinclair QL](ql/) | 68008 @ 7.5MHz | 256x256, 8 colors | VBCC | Playable |
-| [Apple IIe](apple2/) | 6502 @ 1MHz | 280x192 Hi-Res | cc65 | Playable |
 
 ## Gameplay
 
