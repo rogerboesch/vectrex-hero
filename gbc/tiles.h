@@ -13,7 +13,7 @@
 #define TILE_EMPTY       0
 #define TILE_WALL        1     // main wall tile (for title screen decorations)
 #define TILE_DWALL_FIRST 64    // destroyable wall range start
-#define TILE_DWALL_LAST  66    // destroyable wall range end
+#define TILE_DWALL_LAST  79    // destroyable wall range end
 #define TILE_LAVA0       19    // lava frame 0 (collision check)
 #define TILE_LAVA1       20    // lava frame 1
 #define TILE_DECOR_FIRST 80    // decorative tiles (no collision)
