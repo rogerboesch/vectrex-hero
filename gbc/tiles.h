@@ -19,8 +19,8 @@
 #define TILE_DECOR_FIRST 80    // decorative tiles (no collision)
 #define TILE_DECOR_LAST  95
 
-// HUD and font tiles appended to Workbench tileset (indices 104-148)
-#define HUD_TILE_BASE    104U
+// HUD and font tiles appended to Workbench tileset (indices 96-140)
+#define HUD_TILE_BASE    96U
 #define TILE_HUD_FILL    (HUD_TILE_BASE + 0)   // fuel bar filled
 #define TILE_HUD_EMPTY   (HUD_TILE_BASE + 1)   // fuel bar empty
 #define TILE_HEART       (HUD_TILE_BASE + 2)   // life heart
