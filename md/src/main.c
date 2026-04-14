@@ -110,17 +110,7 @@ int main(void) {
         }
         else if (game_state == STATE_PLAYING) {
             anim_tick++;
-
-            handle_input();
-            update_player_physics();
-            update_laser();
-            update_dynamite();
-            activate_nearby_enemies();
-            update_active_enemies();
-            check_miner_rescue();
-
-            render_update_camera();
-            render_update_sprites();
+            /* Minimal game loop for testing — just update HUD */
             render_update_hud();
         }
         else if (game_state == STATE_DYING) {
