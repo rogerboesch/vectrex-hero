@@ -100,15 +100,7 @@ static void read_input(void) {
     joy_pressed = joy & ~joy_prev;
 }
 
-/* Common joy flags (matching GBC J_* layout) */
-#define J_RIGHT  0x01
-#define J_LEFT   0x02
-#define J_UP     0x04
-#define J_DOWN   0x08
-#define J_A      0x10  /* fire button */
-#define J_B      0x10  /* same button on C64 */
-#define J_START  0x10  /* fire also starts game */
-#define J_SELECT 0x00  /* no select on C64 */
+/* Joy flags defined in game.h */
 
 /* =========================================================================
  * Main

@@ -15,6 +15,16 @@
 #define FALSE 0
 #define NONE  255
 
+/* Joystick flags (shared across all source files) */
+#define J_RIGHT  0x01
+#define J_LEFT   0x02
+#define J_UP     0x04
+#define J_DOWN   0x08
+#define J_A      0x10
+#define J_B      0x10
+#define J_START  0x10
+#define J_SELECT 0x00
+
 /* =========================================================================
  * Game constants (tuned for C64 ~50fps PAL)
  * ========================================================================= */
