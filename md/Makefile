@@ -18,7 +18,7 @@ GDK_LIB  = $(SGDK)/lib
 
 INCS     = -I$(GDK_INC) -Isrc -Ires
 CFLAGS   = -m68000 -Wall -O2 -fno-builtin -ffunction-sections -fdata-sections $(INCS)
-LDFLAGS  = -m68000 -L$(GDK_LIB) -lmd -lgcc -lnosys -T $(SGDK)/md.ld \
+LDFLAGS  = -m68000 -L$(GDK_LIB) -lmd -lgcc -T $(SGDK)/md.ld \
            -Wl,--gc-sections -nostdlib
 
 SRCDIR   = src

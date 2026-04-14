@@ -11,9 +11,8 @@ Same level format as the GBC port, with enhanced graphics and parallax.
 # Install M68K cross-compiler (macOS)
 brew install m68k-elf-binutils m68k-elf-gcc
 
-# Install SGDK (headers + libs)
+# Install SGDK (headers + libs included in repo)
 git clone https://github.com/Stephane-D/SGDK.git ~/retro-tools/sgdk
-cd ~/retro-tools/sgdk && make lib
 ```
 
 ### Build

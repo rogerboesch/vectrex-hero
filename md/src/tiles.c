@@ -42,10 +42,10 @@ void tiles_init(void) {
     u16 i, row;
 
     /* Set palettes */
-    VDP_setPalette(PAL0, pal_bg);
-    VDP_setPalette(PAL1, pal_wall);
-    VDP_setPalette(PAL2, pal_special);
-    VDP_setPalette(PAL3, pal_hud);
+    PAL_setPalette(PAL0, pal_bg, DMA);
+    PAL_setPalette(PAL1, pal_wall, DMA);
+    PAL_setPalette(PAL2, pal_special, DMA);
+    PAL_setPalette(PAL3, pal_hud, DMA);
 
     /* Generate placeholder tiles in VDP VRAM */
     /* Tile 0: empty (all zero) */

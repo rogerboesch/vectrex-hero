@@ -159,7 +159,6 @@ void update_dynamite(void) {
 // Active enemy management
 // =========================================================================
 
-#define ACTIVATE_MARGIN 80  // pixels beyond viewport
 
 void activate_nearby_enemies(void) {
     u8 i;
