@@ -39,7 +39,7 @@
 #define PARALLAX_TILE_BASE 160
 #define PARALLAX_TILE_COUNT  4
 
-/* VDP tile index offset (SGDK loads tiles starting at an offset) */
-#define TILE_USER_BASE   256
+/* VDP tile index offset (SGDK reserves tiles 0-15 for system) */
+#define TILE_USER_BASE   TILE_USER_INDEX
 
 #endif
