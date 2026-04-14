@@ -5,12 +5,24 @@ Same level format as the GBC port, with enhanced graphics and parallax.
 
 ## Build
 
+### Prerequisites
+
 ```bash
-make        # Build out/rom.bin
-make clean  # Remove build artifacts
+# Install M68K cross-compiler (macOS)
+brew install m68k-elf-binutils m68k-elf-gcc
+
+# Install SGDK (headers + libs)
+git clone https://github.com/Stephane-D/SGDK.git ~/retro-tools/sgdk
+cd ~/retro-tools/sgdk && make lib
 ```
 
-Requires SGDK at `$SGDK` or `$HOME/retro-tools/sgdk/`.
+### Build
+
+```bash
+make export  # Generate assets from GBC project file
+make         # Build out/rom.bin
+make clean   # Remove build artifacts
+```
 
 ## Architecture
 
