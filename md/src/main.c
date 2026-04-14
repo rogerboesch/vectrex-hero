@@ -97,8 +97,9 @@ int main(void) {
         if (game_state == STATE_TITLE) {
             anim_tick++;
             if (joy_pressed & (J_START | J_A)) {
-                start_new_game();
                 render_msg("LEVEL 01", 0);
+                game_state = STATE_LEVEL_INTRO;
+                level_msg_timer = LEVEL_INTRO_TIME;
             }
         }
         else if (game_state == STATE_LEVEL_INTRO) {
