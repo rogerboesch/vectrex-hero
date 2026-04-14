@@ -95,44 +95,35 @@ static void fill_parallax(void) {
  * ========================================================================= */
 
 void render_init_level(void) {
-    u8 y;
-    s16 max_cx, max_cy;
+    cam_x = 0;
+    cam_y = 0;
+    cam_tx = 0;
+    cam_ty = 0;
 
-    cam_x = player_px - (SCREEN_W / 2);
-    cam_y = player_py - (PLAY_H / 2);
-
-    max_cx = (s16)level_w * 8 - SCREEN_W;
-    max_cy = (s16)level_h * 8 - PLAY_H;
-    if (max_cx < 0) max_cx = 0;
-    if (max_cy < 0) max_cy = 0;
-    if (cam_x < 0) cam_x = 0;
-    if (cam_y < 0) cam_y = 0;
-    if (cam_x > max_cx) cam_x = max_cx;
-    if (cam_y > max_cy) cam_y = max_cy;
-
-    cam_tx = (u8)(cam_x >> 3);
-    cam_ty = (u8)(cam_y >> 3);
-
-    /* Clear Plane A */
+    /* Just clear and show a test message */
     VDP_clearPlane(BG_A, TRUE);
+    VDP_clearPlane(BG_B, TRUE);
 
-    /* Fill visible rows on Plane A */
-    for (y = 0; y < PLAY_ROWS; y++) {
-        stream_row(cam_ty + y);
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
+    VDP_setHorizontalScroll(BG_B, 0);
+    VDP_setVerticalScroll(BG_B, 0);
+
+    /* Draw test pattern — no tile_at, just hardcoded tiles */
+    {
+        u16 attr;
+        u8 x, y;
+        for (y = 0; y < 16; y++) {
+            for (x = 0; x < 20; x++) {
+                u8 t = (x == 0 || x == 19 || y == 0 || y == 15) ? 1 : 0;
+                attr = TILE_ATTR_FULL(PAL1, 1, FALSE, FALSE,
+                                      TILE_USER_BASE + t);
+                VDP_setTileMapXY(BG_A, attr, x, y + HUD_ROWS);
+            }
+        }
     }
 
-    /* Fill Plane B with parallax texture */
-    fill_parallax();
-
-    /* Set scroll positions */
-    VDP_setHorizontalScroll(BG_A, -cam_x);
-    VDP_setVerticalScroll(BG_A, cam_y);
-
-    /* Parallax: Plane B at half speed */
-    VDP_setHorizontalScroll(BG_B, -(cam_x >> 1));
-    VDP_setVerticalScroll(BG_B, cam_y >> 1);
-
-    /* Window plane for HUD (top 2 rows) */
+    /* Window plane for HUD */
     VDP_setWindowHPos(FALSE, 0);
     VDP_setWindowVPos(TRUE, HUD_ROWS);
 
