@@ -68,11 +68,8 @@ uint8_t box_overlap(int16_t ax, int16_t ay, int8_t ahw, int8_t ahh,
  * ========================================================================= */
 
 static void wait_frame(void) {
-    /* Wait for raster line 251 (bottom of visible area) */
-    while ((*(uint8_t*)0xD012) != 251)
-        ;
-    /* Wait for it to pass */
-    while ((*(uint8_t*)0xD012) == 251)
+    /* Wait for raster line 255 (in vertical blank) */
+    while (*(volatile uint8_t*)0xD012 != 255)
         ;
 }
 

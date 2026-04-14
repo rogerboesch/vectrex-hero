@@ -14,10 +14,11 @@
 void tiles_init(void) {
     uint16_t i;
 
-    /* Point VIC-II to charset at $3000 (bits 1-3 of $D018) */
-    /* Screen at $0400 (bits 4-7): 0001 = $0400 */
-    /* Charset at $3000: 1100 = $3000 */
-    VIC_MEMPTR = 0x1C;  /* screen=$0400, charset=$3000 */
+    /* Point VIC-II to charset at $2000 */
+    /* $D018: bits 4-7 = screen offset, bits 1-3 = charset offset */
+    /* Screen at $0400: (0x0400/0x400)=1 -> bits 4-7 = 0001 */
+    /* Charset at $2000: (0x2000/0x800)=4 -> bits 1-3 = 100 */
+    VIC_MEMPTR = (1 << 4) | (4 << 1);  /* = 0x18 */
 
     /* Clear charset RAM */
     memset(CHARSET_RAM, 0, 2048);

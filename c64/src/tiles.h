@@ -49,7 +49,7 @@
 
 #define SCREEN_RAM       ((uint8_t*)0x0400)   /* default screen RAM */
 #define COLOR_RAM        ((uint8_t*)0xD800)   /* color RAM */
-#define CHARSET_RAM      ((uint8_t*)0x3000)   /* custom charset location */
+#define CHARSET_RAM      ((uint8_t*)0x2000)   /* custom charset location (VIC bank 0) */
 
 /* Sprite registers */
 #define SPR_ENABLE       (*(uint8_t*)0xD015)
