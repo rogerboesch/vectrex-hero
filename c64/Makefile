@@ -26,7 +26,7 @@ LDFLAGS  = -t c64 -C c64.cfg
 
 SRCS     = $(SRCDIR)/main.c $(SRCDIR)/player.c $(SRCDIR)/enemies.c \
            $(SRCDIR)/levels.c $(SRCDIR)/render.c $(SRCDIR)/tiles.c \
-           $(SRCDIR)/level_data.c
+           $(SRCDIR)/level_data.c $(SRCDIR)/charset.c
 OBJS     = $(SRCS:.c=.o)
 
 $(TARGET): $(OBJS)
