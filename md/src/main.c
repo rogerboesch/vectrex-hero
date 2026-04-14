@@ -109,9 +109,7 @@ int main(void) {
             }
         }
         else if (game_state == STATE_PLAYING) {
-            anim_tick++;
-            /* Minimal game loop for testing — just update HUD */
-            render_update_hud();
+            /* Do nothing — just hold the screen */
         }
         else if (game_state == STATE_DYING) {
             death_timer--;
