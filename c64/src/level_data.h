@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#define NUM_LEVELS 20
+#define NUM_LEVELS 5
 
 typedef struct {
     uint8_t width, height;
@@ -31,50 +31,5 @@ extern const uint8_t level_3_entities[];
 extern const uint8_t level_4_rle[];
 extern const uint16_t level_4_row_offsets[];
 extern const uint8_t level_4_entities[];
-extern const uint8_t level_5_rle[];
-extern const uint16_t level_5_row_offsets[];
-extern const uint8_t level_5_entities[];
-extern const uint8_t level_6_rle[];
-extern const uint16_t level_6_row_offsets[];
-extern const uint8_t level_6_entities[];
-extern const uint8_t level_7_rle[];
-extern const uint16_t level_7_row_offsets[];
-extern const uint8_t level_7_entities[];
-extern const uint8_t level_8_rle[];
-extern const uint16_t level_8_row_offsets[];
-extern const uint8_t level_8_entities[];
-extern const uint8_t level_9_rle[];
-extern const uint16_t level_9_row_offsets[];
-extern const uint8_t level_9_entities[];
-extern const uint8_t level_10_rle[];
-extern const uint16_t level_10_row_offsets[];
-extern const uint8_t level_10_entities[];
-extern const uint8_t level_11_rle[];
-extern const uint16_t level_11_row_offsets[];
-extern const uint8_t level_11_entities[];
-extern const uint8_t level_12_rle[];
-extern const uint16_t level_12_row_offsets[];
-extern const uint8_t level_12_entities[];
-extern const uint8_t level_13_rle[];
-extern const uint16_t level_13_row_offsets[];
-extern const uint8_t level_13_entities[];
-extern const uint8_t level_14_rle[];
-extern const uint16_t level_14_row_offsets[];
-extern const uint8_t level_14_entities[];
-extern const uint8_t level_15_rle[];
-extern const uint16_t level_15_row_offsets[];
-extern const uint8_t level_15_entities[];
-extern const uint8_t level_16_rle[];
-extern const uint16_t level_16_row_offsets[];
-extern const uint8_t level_16_entities[];
-extern const uint8_t level_17_rle[];
-extern const uint16_t level_17_row_offsets[];
-extern const uint8_t level_17_entities[];
-extern const uint8_t level_18_rle[];
-extern const uint16_t level_18_row_offsets[];
-extern const uint8_t level_18_entities[];
-extern const uint8_t level_19_rle[];
-extern const uint16_t level_19_row_offsets[];
-extern const uint8_t level_19_entities[];
 
 #endif

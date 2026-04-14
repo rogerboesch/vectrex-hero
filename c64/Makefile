@@ -22,7 +22,7 @@ SRCDIR   = src
 
 CFLAGS   = -t c64 -O --static-locals
 ASFLAGS  = -t c64
-LDFLAGS  = -t c64 -C c64.cfg
+LDFLAGS  = -C c64.cfg
 
 SRCS     = $(SRCDIR)/main.c $(SRCDIR)/player.c $(SRCDIR)/enemies.c \
            $(SRCDIR)/levels.c $(SRCDIR)/render.c $(SRCDIR)/tiles.c \

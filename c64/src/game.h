@@ -45,7 +45,11 @@
 #define EXPLOSION_RADIUS 24
 #define EXPLOSION_KILL   10
 #define EXPLOSION_TIME   20
+#define DYNAMITE_FUSE    60
 #define RESCUE_ANIM_TIME 50
+#define DEATH_ANIM_TIME  30
+#define MINER_HW          5
+#define MINER_HH          5
 #define DEATH_TIME       30
 
 #define SPIDER_PATROL    16
@@ -129,19 +133,10 @@ typedef struct {
  * Level data
  * ========================================================================= */
 
-#define NUM_LEVELS 20
+#include "level_data.h"
+
 #define DECODE_ROWS  32
 #define DECODE_MAX_W 128
-
-typedef struct {
-    uint8_t width, height;
-    const uint8_t *rle;
-    const uint16_t *row_offsets;
-    uint8_t entity_count;
-    const uint8_t *entities;
-} LevelInfo;
-
-extern const LevelInfo levels[NUM_LEVELS];
 
 /* =========================================================================
  * Globals

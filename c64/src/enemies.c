@@ -1,14 +1,13 @@
-//
-// enemies.c — Enemy AI, laser, dynamite, miner rescue (tilemap version)
-//
+/*
+ * enemies.c -- Enemy AI, laser, dynamite, miner rescue (tilemap version)
+ */
 
 #include "game.h"
 #include "tiles.h"
-#include "tiles.h"
 
-// =========================================================================
-// Laser
-// =========================================================================
+/* =========================================================================
+ * Laser
+ * ========================================================================= */
 
 void fire_laser(void) {
     if (laser_active) return;
@@ -23,6 +22,8 @@ void update_laser(void) {
     uint8_t i;
     int16_t lx_end, lx_min, lx_max;
     int8_t ehw, ehh;
+    ActiveEnemy *ae;
+
     if (!laser_active) return;
 
     laser_timer--;
@@ -32,7 +33,7 @@ void update_laser(void) {
     if (laser_dir > 0) { lx_min = laser_px; lx_max = lx_end; }
     else { lx_min = lx_end; lx_max = laser_px; }
 
-    // Check laser vs tile collision (stop at walls)
+    /* Check laser vs tile collision (stop at walls) */
     {
         int16_t check_x;
         int8_t step = (laser_dir > 0) ? 8 : -8;
@@ -40,7 +41,7 @@ void update_laser(void) {
             if (laser_dir > 0 && check_x > lx_max) break;
             if (laser_dir < 0 && check_x < lx_min) break;
             if (tile_solid((uint8_t)(check_x >> 3), (uint8_t)(laser_py >> 3))) {
-                // Hit a wall — shorten laser
+                /* Hit a wall -- shorten laser */
                 if (laser_dir > 0) lx_max = check_x;
                 else lx_min = check_x;
                 break;
@@ -50,7 +51,7 @@ void update_laser(void) {
 
     for (i = 0; i < active_enemy_count; i++) {
         if (!active_enemies[i].alive) continue;
-        ActiveEnemy *ae = &active_enemies[i];
+        ae = &active_enemies[i];
         if (ae->type == ENEMY_SPIDER) { ehw = SPIDER_HW; ehh = SPIDER_HH; }
         else if (ae->type == ENEMY_SNAKE) { ehw = SNAKE_HW; ehh = SNAKE_HH; }
         else { ehw = BAT_HW; ehh = BAT_HH; }
@@ -65,9 +66,9 @@ void update_laser(void) {
     }
 }
 
-// =========================================================================
-// Dynamite
-// =========================================================================
+/* =========================================================================
+ * Dynamite
+ * ========================================================================= */
 
 void place_dynamite(void) {
     if (dyn_active || dyn_exploding) return;
@@ -82,6 +83,7 @@ void place_dynamite(void) {
 void update_dynamite(void) {
     uint8_t i;
     int8_t ehw, ehh;
+    ActiveEnemy *ae;
 
     if (dyn_active && !dyn_exploding) {
         dyn_timer--;
@@ -96,18 +98,20 @@ void update_dynamite(void) {
         dyn_expl_timer--;
 
         if (dyn_expl_timer == EXPLOSION_TIME - 1) {
-            // Destroy only destroyable wall tiles in explosion radius
+            /* Destroy only destroyable wall tiles in explosion radius */
             {
                 uint8_t ctx = (uint8_t)(dyn_px >> 3);
                 uint8_t cty = (uint8_t)(dyn_py >> 3);
+                uint8_t ttx;
+                uint8_t tty;
+                uint8_t t;
                 int8_t dx2;
                 for (dx2 = -1; dx2 <= 1; dx2++) {
-                    uint8_t ttx = ctx + dx2;
+                    ttx = ctx + dx2;
                     if (ttx >= level_w) continue;
                     /* Scan full column up and down for destroyable tiles */
-                    uint8_t tty;
                     for (tty = cty; tty < level_h; tty++) {
-                        uint8_t t = tile_at(ttx, tty);
+                        t = tile_at(ttx, tty);
                         if (t < TILE_DWALL_FIRST || t > TILE_DWALL_LAST) break;
                         decode_cache[tty & (DECODE_ROWS - 1)][ttx] = 0;
                         render_clear_tile(ttx, tty);
@@ -115,7 +119,7 @@ void update_dynamite(void) {
                     }
                     if (cty > 0) {
                         for (tty = cty - 1; tty < level_h; tty--) {
-                            uint8_t t = tile_at(ttx, tty);
+                            t = tile_at(ttx, tty);
                             if (t < TILE_DWALL_FIRST || t > TILE_DWALL_LAST) break;
                             decode_cache[tty & (DECODE_ROWS - 1)][ttx] = 0;
                             render_clear_tile(ttx, tty);
@@ -126,10 +130,10 @@ void update_dynamite(void) {
                 }
             }
 
-            // Kill enemies in radius
+            /* Kill enemies in radius */
             for (i = 0; i < active_enemy_count; i++) {
                 if (!active_enemies[i].alive) continue;
-                ActiveEnemy *ae = &active_enemies[i];
+                ae = &active_enemies[i];
                 if (ae->type == ENEMY_SPIDER) { ehw = SPIDER_HW; ehh = SPIDER_HH; }
                 else if (ae->type == ENEMY_SNAKE) { ehw = SNAKE_HW; ehh = SNAKE_HH; }
                 else { ehw = BAT_HW; ehh = BAT_HH; }
@@ -141,7 +145,7 @@ void update_dynamite(void) {
                 }
             }
 
-            // Player damage
+            /* Player damage */
             if (box_overlap(dyn_px, dyn_py, EXPLOSION_KILL, EXPLOSION_KILL,
                             player_px, player_py, PLAYER_HW, PLAYER_HH)) {
                 game_state = STATE_DYING;
@@ -156,58 +160,63 @@ void update_dynamite(void) {
     }
 }
 
-// =========================================================================
-// Active enemy management
-// =========================================================================
+/* =========================================================================
+ * Active enemy management
+ * ========================================================================= */
 
-#define ACTIVATE_MARGIN 80  // pixels beyond viewport
+#define ACTIVATE_MARGIN 80  /* pixels beyond viewport */
 
 void activate_nearby_enemies(void) {
     uint8_t i;
+    uint8_t j;
+    uint8_t already;
     int16_t ax0 = cam_x - ACTIVATE_MARGIN;
     int16_t ax1 = cam_x + SCREEN_W + ACTIVATE_MARGIN;
     int16_t ay0 = cam_y - ACTIVATE_MARGIN;
     int16_t ay1 = cam_y + PLAY_H + ACTIVATE_MARGIN;
+    int16_t epx, epy;
+    ActiveEnemy *ae;
+    LevelEntity *le;
 
-    // Deactivate far enemies
+    /* Deactivate far enemies */
     for (i = 0; i < active_enemy_count; ) {
-        ActiveEnemy *ae = &active_enemies[i];
+        ae = &active_enemies[i];
         if (ae->px < ax0 - 64 || ae->px > ax1 + 64 ||
             ae->py < ay0 - 64 || ae->py > ay1 + 64) {
-            // Remove from active list
+            /* Remove from active list */
             active_enemies[i] = active_enemies[active_enemy_count - 1];
             active_enemy_count--;
-        } else {
+        }
+        else {
             i++;
         }
     }
 
-    // Activate nearby entities
+    /* Activate nearby entities */
     for (i = 0; i < level_entity_count && active_enemy_count < MAX_ACTIVE_ENEMIES; i++) {
-        LevelEntity *le = &level_entities[i];
+        le = &level_entities[i];
         if (!le->alive) continue;
-        if (le->type == 0 || le->type == 4) continue; // skip player_start and miner
+        if (le->type == 0 || le->type == 4) continue; /* skip player_start and miner */
 
-        int16_t epx = (int16_t)le->tx * 8 + 4;
-        int16_t epy = (int16_t)le->ty * 8 + 4;
+        epx = (int16_t)le->tx * 8 + 4;
+        epy = (int16_t)le->ty * 8 + 4;
 
         if (epx < ax0 || epx > ax1 || epy < ay0 || epy > ay1) continue;
 
-        // Check if already active
-        uint8_t already = 0;
-        uint8_t j;
+        /* Check if already active */
+        already = 0;
         for (j = 0; j < active_enemy_count; j++) {
             if (active_enemies[j].ent_idx == i) { already = 1; break; }
         }
         if (already) continue;
 
-        // Spawn active enemy
-        ActiveEnemy *ae = &active_enemies[active_enemy_count++];
+        /* Spawn active enemy */
+        ae = &active_enemies[active_enemy_count++];
         ae->px = epx;
         ae->py = epy;
         ae->home_py = epy;
         ae->vx = le->vx;
-        if (ae->vx == 0) ae->vx = 1; // default velocity
+        if (ae->vx == 0) ae->vx = 1; /* default velocity */
         ae->alive = 1;
         ae->anim = 0;
         ae->type = le->type;
@@ -215,20 +224,21 @@ void activate_nearby_enemies(void) {
     }
 }
 
-// =========================================================================
-// Enemy AI update
-// =========================================================================
+/* =========================================================================
+ * Enemy AI update
+ * ========================================================================= */
 
 void update_active_enemies(void) {
     uint8_t i;
     int8_t ehw, ehh;
+    ActiveEnemy *ae;
 
     for (i = 0; i < active_enemy_count; i++) {
-        ActiveEnemy *ae = &active_enemies[i];
+        ae = &active_enemies[i];
         if (!ae->alive) continue;
 
         if (ae->type == ENEMY_SPIDER) {
-            // Vertical patrol: half speed, move every other frame
+            /* Vertical patrol: half speed, move every other frame */
             if (anim_tick & 1) {
                 ae->py += ae->vx;
                 if (ae->py < ae->home_py) {
@@ -239,7 +249,7 @@ void update_active_enemies(void) {
                     ae->py = ae->home_py + SPIDER_PATROL;
                     ae->vx = -ae->vx;
                 }
-                // Tile collision (vertical)
+                /* Tile collision (vertical) */
                 if (tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py - SPIDER_HH) >> 3)) ||
                     tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py + SPIDER_HH) >> 3))) {
                     ae->vx = -ae->vx;
@@ -248,31 +258,35 @@ void update_active_enemies(void) {
             }
             ehw = SPIDER_HW; ehh = SPIDER_HH;
 
-        } else if (ae->type == ENEMY_SNAKE) {
+        }
+        else if (ae->type == ENEMY_SNAKE) {
             ae->px += ae->vx;
-            // Tile collision ahead
+            /* Tile collision ahead */
             if (ae->vx > 0) {
                 if (tile_solid((uint8_t)((ae->px + SNAKE_HW) >> 3), (uint8_t)(ae->py >> 3)))
                     ae->vx = -ae->vx;
-            } else {
+            }
+            else {
                 if (tile_solid((uint8_t)((ae->px - SNAKE_HW) >> 3), (uint8_t)(ae->py >> 3)))
                     ae->vx = -ae->vx;
             }
-            // Floor check: if no ground below, turn around
+            /* Floor check: if no ground below, turn around */
             if (!tile_solid((uint8_t)(ae->px >> 3), (uint8_t)((ae->py + SNAKE_HH + 1) >> 3))) {
                 ae->vx = -ae->vx;
                 ae->px += ae->vx;
             }
             ehw = SNAKE_HW; ehh = SNAKE_HH;
 
-        } else {
-            // Bat: horizontal patrol
+        }
+        else {
+            /* Bat: horizontal patrol */
             ae->px += ae->vx;
-            // Tile collision ahead
+            /* Tile collision ahead */
             if (ae->vx > 0) {
                 if (tile_solid((uint8_t)((ae->px + BAT_HW) >> 3), (uint8_t)(ae->py >> 3)))
                     ae->vx = -ae->vx;
-            } else {
+            }
+            else {
                 if (tile_solid((uint8_t)((ae->px - BAT_HW) >> 3), (uint8_t)(ae->py >> 3)))
                     ae->vx = -ae->vx;
             }
@@ -281,7 +295,7 @@ void update_active_enemies(void) {
 
         ae->anim++;
 
-        // Enemy-player collision
+        /* Enemy-player collision */
         if (box_overlap(player_px, player_py, PLAYER_HW, PLAYER_HH,
                         ae->px, ae->py, ehw, ehh)) {
             game_state = STATE_DYING;
@@ -290,9 +304,9 @@ void update_active_enemies(void) {
     }
 }
 
-// =========================================================================
-// Miner rescue
-// =========================================================================
+/* =========================================================================
+ * Miner rescue
+ * ========================================================================= */
 
 void check_miner_rescue(void) {
     if (!miner_active) return;

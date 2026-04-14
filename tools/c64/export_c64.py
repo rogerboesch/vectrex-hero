@@ -157,14 +157,22 @@ def export_levels(proj, out_dir):
 
 def main():
     if len(sys.argv) < 3:
-        print(f"Usage: {sys.argv[0]} <game-rescue.json> <output_dir>")
+        print(f"Usage: {sys.argv[0]} <game-rescue.json> <output_dir> [--max-levels N]")
         sys.exit(1)
 
     json_path = sys.argv[1]
     out_dir = sys.argv[2]
+    max_levels = None
+
+    if "--max-levels" in sys.argv:
+        idx = sys.argv.index("--max-levels")
+        max_levels = int(sys.argv[idx + 1])
 
     with open(json_path) as f:
         proj = json.load(f)
+
+    if max_levels:
+        proj["levels"] = proj["levels"][:max_levels]
 
     os.makedirs(out_dir, exist_ok=True)
 

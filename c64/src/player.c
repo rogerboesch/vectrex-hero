@@ -1,15 +1,15 @@
-//
-// player.c — Player physics and input (tilemap scrolling version)
-//
+/*
+ * player.c -- Player physics and input (tilemap scrolling version)
+ */
 
 #include "game.h"
 #include "tiles.h"
 
-// =========================================================================
-// Tile-based collision helpers
-// =========================================================================
+/* =========================================================================
+ * Tile-based collision helpers
+ * ========================================================================= */
 
-// Check if player bbox at (px, py) overlaps any solid tile
+/* Check if player bbox at (px, py) overlaps any solid tile */
 static uint8_t collides_x(int16_t px, int16_t py) {
     uint8_t left  = (uint8_t)((px - PLAYER_HW) >> 3);
     uint8_t right = (uint8_t)((px + PLAYER_HW) >> 3);
@@ -36,35 +36,38 @@ static uint8_t collides_y(int16_t px, int16_t py) {
     return 0;
 }
 
-// =========================================================================
-// Physics
-// =========================================================================
+/* =========================================================================
+ * Physics
+ * ========================================================================= */
 
 void update_player_physics(void) {
     int16_t new_px, new_py;
+    uint8_t wall_tx;
+    uint8_t land_ty;
+    uint8_t ceil_ty;
 
-    // Gravity (y-down: positive vy = falling)
+    /* Gravity (y-down: positive vy = falling) */
     player_vy += GRAVITY;
     if (player_vy > MAX_VEL_Y) player_vy = MAX_VEL_Y;
     if (player_vy < -MAX_VEL_Y) player_vy = -MAX_VEL_Y;
 
-    // --- Move X ---
+    /* --- Move X --- */
     new_px = player_px + player_vx;
 
-    // Clamp to level bounds
+    /* Clamp to level bounds */
     if (new_px < PLAYER_HW) new_px = PLAYER_HW;
     if (new_px > (int16_t)level_w * 8 - PLAYER_HW - 1) new_px = (int16_t)level_w * 8 - PLAYER_HW - 1;
 
-    // Check tile collision — snap to tile edge on hit
+    /* Check tile collision -- snap to tile edge on hit */
     if (collides_x(new_px, player_py)) {
         if (player_vx > 0) {
-            // Moving right: snap left edge of wall
-            uint8_t wall_tx = (uint8_t)((new_px + PLAYER_HW) >> 3);
+            /* Moving right: snap left edge of wall */
+            wall_tx = (uint8_t)((new_px + PLAYER_HW) >> 3);
             player_px = (int16_t)wall_tx * 8 - PLAYER_HW - 1;
         }
         else if (player_vx < 0) {
-            // Moving left: snap right edge of wall
-            uint8_t wall_tx = (uint8_t)((new_px - PLAYER_HW) >> 3);
+            /* Moving left: snap right edge of wall */
+            wall_tx = (uint8_t)((new_px - PLAYER_HW) >> 3);
             player_px = (int16_t)(wall_tx + 1) * 8 + PLAYER_HW;
         }
         player_vx = 0;
@@ -73,11 +76,11 @@ void update_player_physics(void) {
         player_px = new_px;
     }
 
-    // --- Move Y ---
+    /* --- Move Y --- */
     new_py = player_py + player_vy;
     player_on_ground = 0;
 
-    // Clamp to level bounds
+    /* Clamp to level bounds */
     if (new_py < PLAYER_HH) new_py = PLAYER_HH;
     if (new_py > (int16_t)level_h * 8 - PLAYER_HH - 1) {
         new_py = (int16_t)level_h * 8 - PLAYER_HH - 1;
@@ -85,33 +88,35 @@ void update_player_physics(void) {
         player_on_ground = 1;
     }
 
-    // Check tile collision
+    /* Check tile collision */
     if (collides_y(player_px, new_py)) {
         if (player_vy > 0) {
-            // Falling: land on top of solid tile
-            uint8_t land_ty = (uint8_t)((new_py + PLAYER_HH) >> 3);
+            /* Falling: land on top of solid tile */
+            land_ty = (uint8_t)((new_py + PLAYER_HH) >> 3);
             player_py = (int16_t)land_ty * 8 - PLAYER_HH - 1;
             player_on_ground = 1;
-        } else {
-            // Rising: hit ceiling
-            uint8_t ceil_ty = (uint8_t)((new_py - PLAYER_HH) >> 3);
+        }
+        else {
+            /* Rising: hit ceiling */
+            ceil_ty = (uint8_t)((new_py - PLAYER_HH) >> 3);
             player_py = (int16_t)(ceil_ty + 1) * 8 + PLAYER_HH;
         }
         player_vy = 0;
-    } else {
+    }
+    else {
         player_py = new_py;
     }
 
-    // Extra ground check: is there a solid tile just below feet?
+    /* Extra ground check: is there a solid tile just below feet? */
     if (!player_on_ground) {
         if (tile_solid((uint8_t)(player_px >> 3), (uint8_t)((player_py + PLAYER_HH + 1) >> 3)))
             player_on_ground = 1;
     }
 }
 
-// =========================================================================
-// Input handling
-// =========================================================================
+/* =========================================================================
+ * Input handling
+ * ========================================================================= */
 
 void handle_input(void) {
     player_thrusting = 0;

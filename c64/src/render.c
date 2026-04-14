@@ -127,11 +127,14 @@ void render_init_level(void) {
  * ========================================================================= */
 
 void render_update_camera(void) {
-    int16_t target_x = player_px - (SCREEN_W / 2);
-    int16_t target_y = player_py - (PLAY_H / 2);
+    int16_t target_x, target_y, max_cx, max_cy;
+    uint8_t new_tx, new_ty;
 
-    int16_t max_cx = (int16_t)level_w * 8 - SCREEN_W;
-    int16_t max_cy = (int16_t)level_h * 8 - PLAY_H;
+    target_x = player_px - (SCREEN_W / 2);
+    target_y = player_py - (PLAY_H / 2);
+
+    max_cx = (int16_t)level_w * 8 - SCREEN_W;
+    max_cy = (int16_t)level_h * 8 - PLAY_H;
     if (max_cx < 0) max_cx = 0;
     if (max_cy < 0) max_cy = 0;
     if (target_x < 0) target_x = 0;
@@ -142,8 +145,8 @@ void render_update_camera(void) {
     cam_x = target_x;
     cam_y = target_y;
 
-    uint8_t new_tx = (uint8_t)(cam_x >> 3);
-    uint8_t new_ty = (uint8_t)(cam_y >> 3);
+    new_tx = (uint8_t)(cam_x >> 3);
+    new_ty = (uint8_t)(cam_y >> 3);
 
     /* Stream new rows when camera moves vertically */
     while (cam_ty != new_ty) {
