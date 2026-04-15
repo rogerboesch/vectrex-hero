@@ -262,31 +262,116 @@ void render_update_hud(void) {
  * Sprite rendering
  * ========================================================================= */
 
-#define SPRITE_TILE_BASE (TILE_USER_BASE + 200)
+/* Sprite VRAM tile indices (must match tiles.c) */
+#define SPR_TILES_PLAYER      (TILE_USER_BASE + 200)
+#define SPR_TILES_PLAYER_FLY  (SPR_TILES_PLAYER + 4)
+#define SPR_TILES_PROP0       (SPR_TILES_PLAYER_FLY + 4)
+#define SPR_TILES_PROP1       (SPR_TILES_PROP0 + 4)
+#define SPR_TILES_BAT0        (SPR_TILES_PROP1 + 4)
+#define SPR_TILES_BAT1        (SPR_TILES_BAT0 + 4)
+#define SPR_TILES_SPIDER      (SPR_TILES_BAT1 + 4)
+#define SPR_TILES_SNAKE       (SPR_TILES_SPIDER + 4)
+#define SPR_TILES_MINER       (SPR_TILES_SNAKE + 4)
+#define SPR_TILES_DYNAMITE    (SPR_TILES_MINER + 4)
+#define SPR_TILES_EXPLODE     (SPR_TILES_DYNAMITE + 4)
+#define SPR_TILES_LASER       (SPR_TILES_EXPLODE + 4)
+
+#define PAL_PLAYER  PAL1
+#define PAL_ENEMY   PAL2
+#define PAL_MINER   PAL1
+#define PAL_LASER   PAL2
+
+static u8 sprite_count;
+
+static u8 spr_visible(s16 wx, s16 wy) {
+    s16 sx = wx - cam_x;
+    s16 sy = wy - cam_y;
+    return (sx > -16 && sx < SCREEN_W + 16 && sy > -16 && sy < PLAY_H);
+}
+
+static void spr_add(s16 wx, s16 wy, u16 tiles, u8 pal, u8 fliph) {
+    s16 sx = wx - cam_x - 8;
+    s16 sy = wy - cam_y - 8 + (HUD_ROWS * 8);
+    VDP_setSpriteFull(sprite_count,
+        sx, sy,
+        SPRITE_SIZE(2, 2),
+        TILE_ATTR_FULL(pal, 1, FALSE, fliph, tiles),
+        sprite_count + 1);
+    sprite_count++;
+}
 
 void render_update_sprites(void) {
-    s16 sx, sy;
+    u8 i;
+    u16 player_tiles;
 
-    /* Screen position: player world pos minus camera, offset by HUD height */
-    sx = player_px - cam_x - 8;              /* center 16px sprite on hitbox */
-    sy = player_py - cam_y - 8 + (HUD_ROWS * 8);
+    sprite_count = 0;
 
-    /* Hide if off-screen */
-    if (sx < -16 || sx > SCREEN_W || sy < 0 || sy > SCREEN_H) {
-        VDP_setSpriteFull(0, 0, 0, 0, 0, 0);
+    /* Player */
+    if (game_state == STATE_PLAYING || game_state == STATE_DYING) {
+        if (!player_on_ground || player_thrusting)
+            player_tiles = SPR_TILES_PLAYER_FLY;
+        else
+            player_tiles = SPR_TILES_PLAYER;
+
+        spr_add(player_px, player_py, player_tiles, PAL_PLAYER,
+                player_facing < 0 ? TRUE : FALSE);
+
+        /* Propeller when flying */
+        if (!player_on_ground || player_thrusting) {
+            u16 prop_tiles = (anim_tick & 4) ? SPR_TILES_PROP0 : SPR_TILES_PROP1;
+            spr_add(player_px, player_py - 16, prop_tiles, PAL_LASER, FALSE);
+        }
     }
-    else {
-        VDP_setSpriteFull(0,
-            sx,
-            sy,
-            SPRITE_SIZE(2, 2),
-            TILE_ATTR_FULL(PAL1, 1, FALSE, FALSE, SPRITE_TILE_BASE),
-            1);
+
+    /* Enemies */
+    for (i = 0; i < active_enemy_count && i < MAX_ACTIVE_ENEMIES; i++) {
+        ActiveEnemy *ae = &active_enemies[i];
+        if (!ae->alive) continue;
+        if (!spr_visible(ae->px, ae->py)) continue;
+
+        if (ae->type == ENEMY_SPIDER) {
+            spr_add(ae->px, ae->py, SPR_TILES_SPIDER, PAL_ENEMY, FALSE);
+        }
+        else if (ae->type == ENEMY_SNAKE) {
+            spr_add(ae->px, ae->py, SPR_TILES_SNAKE, PAL_ENEMY,
+                    ae->vx < 0 ? TRUE : FALSE);
+        }
+        else {
+            u16 bat_tiles = (ae->anim & 8) ? SPR_TILES_BAT0 : SPR_TILES_BAT1;
+            spr_add(ae->px, ae->py, bat_tiles, PAL_ENEMY, FALSE);
+        }
+    }
+
+    /* Miner */
+    if (miner_active && spr_visible(miner_px, miner_py)) {
+        spr_add(miner_px, miner_py, SPR_TILES_MINER, PAL_MINER, FALSE);
+    }
+
+    /* Dynamite / explosion */
+    if (dyn_active && spr_visible(dyn_px, dyn_py)) {
+        if (dyn_exploding)
+            spr_add(dyn_px, dyn_py, SPR_TILES_EXPLODE, PAL_LASER, FALSE);
+        else
+            spr_add(dyn_px, dyn_py, SPR_TILES_DYNAMITE, PAL_LASER, FALSE);
+    }
+
+    /* Laser */
+    if (laser_active) {
+        s16 step = LASER_LENGTH / 3;
+        for (i = 0; i < 3; i++) {
+            s16 lx = laser_px + (s16)laser_dir * step * (i + 1);
+            if (spr_visible(lx, laser_py))
+                spr_add(lx, laser_py, SPR_TILES_LASER, PAL_LASER, FALSE);
+        }
     }
 
     /* End sprite list */
-    VDP_setSpriteFull(1, 0, 0, 0, 0, 0);
-    VDP_updateSprites(2, DMA);
+    if (sprite_count > 0)
+        VDP_setSpriteFull(sprite_count - 1, 0, 0, 0, 0, 0); /* clear link on last */
+    if (sprite_count < 80)
+        VDP_setSpriteFull(sprite_count, 0, 0, 0, 0, 0);
+
+    VDP_updateSprites(sprite_count + 1, DMA);
 }
 
 void render_hide_sprites(void) {

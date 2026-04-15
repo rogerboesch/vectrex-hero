@@ -37,36 +37,131 @@ static const u16 pal_hud[16] = {
     0xAA0, 0x0AA, 0xA0A, 0x00A
 };
 
-/* Player sprite (16x16, 4bpp = 4 tiles of 8x8)
- * Tile order: top-left, bottom-left, top-right, bottom-right (VDP column order) */
-static const u32 player_sprite[4][8] = {
-    /* Tile 0: top-left */
-    {0x00077000,  /* ..OOO... */
-     0x007FF700,  /* .OXXO... */
-     0x006F6700,  /* .OX.XO.. */
-     0x007FF700,  /* .OXXXO.. */
-     0x000F0000,  /* ...X.... */
-     0x00FFF000,  /* .XXXO... */
-     0x00FFF000,  /* .XXXO... */
-     0x00FFF000}, /* .XXXO... */
-    /* Tile 1: bottom-left */
-    {0x00FFF000,  /* .XXXO... */
-     0x00FF0000,  /* .XXO.... */
-     0x000F0000,  /* ...X.... */
-     0x000FF000,  /* ..XX.... */
-     0x000F0000,  /* ...X.... */
-     0x000FF000,  /* ..XX.... */
-     0x00F00F00,  /* .X...X.. */
-     0x00F00F00}, /* .X...X.. */
-    /* Tile 2: top-right (empty) */
-    {0x00000000, 0x00000000, 0x00000000, 0x00000000,
-     0x00000000, 0x00000000, 0x00000000, 0x00000000},
-    /* Tile 3: bottom-right (empty) */
-    {0x00000000, 0x00000000, 0x00000000, 0x00000000,
-     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+/* =========================================================================
+ * Sprite data (16x16 each = 4 tiles in VDP column order)
+ * Nibble values = palette color index
+ * ========================================================================= */
+
+/* Player standing */
+static const u32 spr_player[4][8] = {
+    {0x00077000, 0x007FF700, 0x006F6700, 0x007FF700,
+     0x000F0000, 0x00FFF000, 0x00FFF000, 0x00FFF000},
+    {0x00FFF000, 0x00FF0000, 0x000FF000, 0x000F0000,
+     0x000FF000, 0x000F0000, 0x00F00F00, 0x00F00F00},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
 };
 
-#define SPRITE_TILE_BASE (TILE_USER_BASE + 200)
+/* Player flying */
+static const u32 spr_player_fly[4][8] = {
+    {0x00077000, 0x007FF700, 0x006F6700, 0x007FF700,
+     0x000F0000, 0x00FFF000, 0x00FFF000, 0x00FFF000},
+    {0x00FFF000, 0x000FF000, 0x000FF000, 0x000FF000,
+     0x000FF000, 0x00F00F00, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Propeller frame 0 */
+static const u32 spr_propeller0[4][8] = {
+    {0x00000000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x0FFFFFF0, 0x000FF000},
+    {0x000FF000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Propeller frame 1 */
+static const u32 spr_propeller1[4][8] = {
+    {0x00000000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x0F0000F0, 0x00F00F00, 0x000FF000},
+    {0x000FF000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Bat frame 0 (wings up) */
+static const u32 spr_bat0[4][8] = {
+    {0x0F0000F0, 0x0F0000F0, 0x0FF00FF0, 0x0FFFFFF0,
+     0x00FFFF00, 0x000FF000, 0x000FF000, 0x000F0000},
+    {0x00000000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Bat frame 1 (wings down) */
+static const u32 spr_bat1[4][8] = {
+    {0x000FF000, 0x00FFFF00, 0x0FFFFFF0, 0x0FF00FF0,
+     0x0F0000F0, 0x000FF000, 0x000FF000, 0x000F0000},
+    {0x00000000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Spider */
+static const u32 spr_spider[4][8] = {
+    {0x000F0000, 0x000F0000, 0x000F0000, 0x00FFF000,
+     0x0FFFFF00, 0x0FFFFF00, 0xF0F0F0F0, 0x0F000F00},
+    {0xF00000F0, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Snake */
+static const u32 spr_snake[4][8] = {
+    {0x00000000, 0x00000000, 0x00000000, 0x00FFF000,
+     0x0FFFFF00, 0x0FFFFFF0, 0x00FFFF00, 0x000FF000},
+    {0x0000F000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Miner */
+static const u32 spr_miner[4][8] = {
+    {0x000F0000, 0x00FFF000, 0x0FFFFF00, 0x006F6000,
+     0x00FFF000, 0x00FFF000, 0x00FFF000, 0x0FFFFF00},
+    {0x00F0F000, 0x00F0F000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Dynamite */
+static const u32 spr_dynamite[4][8] = {
+    {0x00000000, 0x000F0000, 0x00F00000, 0x00F00000,
+     0x00FFF000, 0x00FFF000, 0x00FFF000, 0x00FFF000},
+    {0x00FFF000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Explosion */
+static const u32 spr_explode[4][8] = {
+    {0x000F0000, 0x0F000F00, 0x00F0F000, 0x000F0000,
+     0xFFFFFFF0, 0x000F0000, 0x00F0F000, 0x0F000F00},
+    {0x000F0000, 0x00000000, 0x00000000, 0x00000000,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Laser segment */
+static const u32 spr_laser[4][8] = {
+    {0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF,
+     0x00000000, 0x00000000, 0x00000000, 0x00000000},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
+};
+
+/* Sprite VRAM tile indices */
+#define SPR_TILES_PLAYER      (TILE_USER_BASE + 200)
+#define SPR_TILES_PLAYER_FLY  (SPR_TILES_PLAYER + 4)
+#define SPR_TILES_PROP0       (SPR_TILES_PLAYER_FLY + 4)
+#define SPR_TILES_PROP1       (SPR_TILES_PROP0 + 4)
+#define SPR_TILES_BAT0        (SPR_TILES_PROP1 + 4)
+#define SPR_TILES_BAT1        (SPR_TILES_BAT0 + 4)
+#define SPR_TILES_SPIDER      (SPR_TILES_BAT1 + 4)
+#define SPR_TILES_SNAKE       (SPR_TILES_SPIDER + 4)
+#define SPR_TILES_MINER       (SPR_TILES_SNAKE + 4)
+#define SPR_TILES_DYNAMITE    (SPR_TILES_MINER + 4)
+#define SPR_TILES_EXPLODE     (SPR_TILES_DYNAMITE + 4)
+#define SPR_TILES_LASER       (SPR_TILES_EXPLODE + 4)
 
 void tiles_init(void) {
     /* Set palettes */
@@ -78,9 +173,17 @@ void tiles_init(void) {
     /* Load exported tileset into VDP VRAM */
     VDP_loadTileData((const u32*)md_tileset, TILE_USER_BASE, 160, DMA);
 
-    /* Load player sprite tiles */
-    VDP_loadTileData((const u32*)player_sprite, SPRITE_TILE_BASE, 4, CPU);
-
-    /* Init sprite engine */
-    SPR_init();
+    /* Load all sprite tiles into VRAM */
+    VDP_loadTileData((const u32*)spr_player,      SPR_TILES_PLAYER,     4, CPU);
+    VDP_loadTileData((const u32*)spr_player_fly,   SPR_TILES_PLAYER_FLY, 4, CPU);
+    VDP_loadTileData((const u32*)spr_propeller0,   SPR_TILES_PROP0,      4, CPU);
+    VDP_loadTileData((const u32*)spr_propeller1,   SPR_TILES_PROP1,      4, CPU);
+    VDP_loadTileData((const u32*)spr_bat0,         SPR_TILES_BAT0,       4, CPU);
+    VDP_loadTileData((const u32*)spr_bat1,         SPR_TILES_BAT1,       4, CPU);
+    VDP_loadTileData((const u32*)spr_spider,       SPR_TILES_SPIDER,     4, CPU);
+    VDP_loadTileData((const u32*)spr_snake,        SPR_TILES_SNAKE,      4, CPU);
+    VDP_loadTileData((const u32*)spr_miner,        SPR_TILES_MINER,      4, CPU);
+    VDP_loadTileData((const u32*)spr_dynamite,     SPR_TILES_DYNAMITE,   4, CPU);
+    VDP_loadTileData((const u32*)spr_explode,      SPR_TILES_EXPLODE,    4, CPU);
+    VDP_loadTileData((const u32*)spr_laser,        SPR_TILES_LASER,      4, CPU);
 }
