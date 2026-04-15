@@ -120,7 +120,10 @@ int main(void) {
             }
         }
         else if (game_state == STATE_PLAYING) {
-            /* Do nothing — just hold the screen */
+            anim_tick++;
+            handle_input();
+            update_player_physics();
+            render_update_hud();
         }
         else if (game_state == STATE_DYING) {
             death_timer--;
