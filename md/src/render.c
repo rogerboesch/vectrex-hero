@@ -42,7 +42,7 @@ static void stream_row(u8 level_row) {
         else
             t = 1;
 
-        attr = TILE_ATTR_FULL(tile_palette(t), 1, FALSE, FALSE,
+        attr = TILE_ATTR_FULL(tile_palette(t), 0, FALSE, FALSE,
                               TILE_USER_BASE + t);
         VDP_setTileMapXY(BG_A, attr, x, vr + HUD_ROWS);
     }
@@ -68,7 +68,7 @@ static void stream_column(u8 level_col) {
         else
             t = 1;
 
-        attr = TILE_ATTR_FULL(tile_palette(t), 1, FALSE, FALSE,
+        attr = TILE_ATTR_FULL(tile_palette(t), 0, FALSE, FALSE,
                               TILE_USER_BASE + t);
         VDP_setTileMapXY(BG_A, attr, scr_col, vr + HUD_ROWS);
     }
@@ -114,7 +114,7 @@ void render_init_level(void) {
     for (y = 0; y < level_h && y < PLAY_ROWS; y++) {
         for (x = 0; x < level_w && x < PLAY_COLS; x++) {
             u8 t = tile_at(x, y);
-            attr = TILE_ATTR_FULL(tile_palette(t), 1, FALSE, FALSE,
+            attr = TILE_ATTR_FULL(tile_palette(t), 0, FALSE, FALSE,
                                   TILE_USER_BASE + t);
             VDP_setTileMapXY(BG_A, attr, x, y + HUD_ROWS);
         }
