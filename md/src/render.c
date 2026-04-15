@@ -98,12 +98,27 @@ static void fill_parallax(void) {
  * ========================================================================= */
 
 void render_init_level(void) {
-    /* Absolute minimum — just show text on BG_A */
+    u16 attr;
+    u8 x, y;
+
+    cam_x = 0;
+    cam_y = 0;
+    cam_tx = 0;
+    cam_ty = 0;
+
     VDP_clearPlane(BG_A, TRUE);
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
 
-    draw_text_centered(14, "PLAYING");
+    /* Draw test pattern with actual VDP tiles */
+    for (y = 0; y < 16; y++) {
+        for (x = 0; x < 20; x++) {
+            u8 t = (x == 0 || x == 19 || y == 0 || y == 15) ? 1 : 0;
+            attr = TILE_ATTR_FULL(PAL1, 1, FALSE, FALSE,
+                                  TILE_USER_BASE + t);
+            VDP_setTileMapXY(BG_A, attr, x, y + 2);
+        }
+    }
 }
 
 /* =========================================================================
