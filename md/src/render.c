@@ -120,13 +120,47 @@ void render_init_level(void) {
         }
     }
 
-    /* Minimal HUD test */
-    VDP_setWindowHPos(FALSE, 0);
-    VDP_setWindowVPos(TRUE, HUD_ROWS);
+    /* Draw HUD on Plane A top rows (no window plane) */
     {
-        u16 hattr = TILE_ATTR_FULL(PAL3, 0, FALSE, FALSE,
-                                    TILE_USER_BASE + TILE_DIGIT_0 + 1);
-        VDP_setTileMapXY(WINDOW, hattr, 0, 0);
+        u16 hattr;
+        u8 c;
+
+        /* Row 0: level number */
+        hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
+                               TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) / 10));
+        VDP_setTileMapXY(BG_A, hattr, 0, 0);
+        hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
+                               TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) % 10));
+        VDP_setTileMapXY(BG_A, hattr, 1, 0);
+
+        /* Hearts */
+        for (c = 0; c < 3; c++) {
+            u8 t = (player_lives >= c + 1) ? TILE_HEART : TILE_HEART_OFF;
+            hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
+            VDP_setTileMapXY(BG_A, hattr, 6 + c, 0);
+        }
+
+        /* Score right-aligned */
+        {
+            s16 s = score;
+            u8 d;
+            for (d = 0; d < 4; d++) {
+                hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
+                                       TILE_USER_BASE + TILE_DIGIT_0 + (s % 10));
+                VDP_setTileMapXY(BG_A, hattr, 39 - d, 0);
+                s /= 10;
+            }
+        }
+
+        /* Row 1: fuel bar centered */
+        {
+            u8 filled = (u8)((u16)player_fuel * 20 / START_FUEL);
+            for (c = 0; c < 20; c++) {
+                u8 t = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
+                hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
+                VDP_setTileMapXY(BG_A, hattr, 10 + c, 1);
+            }
+        }
     }
 }
 
