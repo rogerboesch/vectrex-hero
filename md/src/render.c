@@ -365,13 +365,15 @@ void render_update_sprites(void) {
         }
     }
 
-    /* End sprite list */
-    if (sprite_count > 0)
-        VDP_setSpriteFull(sprite_count - 1, 0, 0, 0, 0, 0); /* clear link on last */
-    if (sprite_count < 80)
+    /* Terminate sprite list: set link=0 on last sprite */
+    if (sprite_count > 0) {
+        /* Re-write last sprite with link=0 to end the chain */
+        /* We can't easily re-read it, so just add a dummy off-screen sprite with link=0 */
         VDP_setSpriteFull(sprite_count, 0, 0, 0, 0, 0);
+        sprite_count++;
+    }
 
-    VDP_updateSprites(sprite_count + 1, DMA);
+    VDP_updateSprites(sprite_count, DMA);
 }
 
 void render_hide_sprites(void) {
