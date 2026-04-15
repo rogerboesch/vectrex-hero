@@ -120,7 +120,14 @@ void render_init_level(void) {
         }
     }
 
-    /* Skip HUD for now */
+    /* Minimal HUD test */
+    VDP_setWindowHPos(FALSE, 0);
+    VDP_setWindowVPos(TRUE, HUD_ROWS);
+    {
+        u16 hattr = TILE_ATTR_FULL(PAL3, 0, FALSE, FALSE,
+                                    TILE_USER_BASE + TILE_DIGIT_0 + 1);
+        VDP_setTileMapXY(WINDOW, hattr, 0, 0);
+    }
 }
 
 /* =========================================================================
