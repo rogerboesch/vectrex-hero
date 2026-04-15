@@ -97,12 +97,18 @@ int main(void) {
         if (game_state == STATE_TITLE) {
             anim_tick++;
             if (joy_pressed & (J_START | J_A)) {
-                /* Skip start_new_game — just test render_init_level */
                 current_level = 0;
                 level_w = 20;
                 level_h = 16;
-                game_state = STATE_PLAYING;
-                render_init_level();
+                player_px = 44;
+                player_py = 20;
+                player_lives = START_LIVES;
+                player_fuel = START_FUEL;
+                player_dynamite = START_DYNAMITE;
+                score = 0;
+                game_state = STATE_LEVEL_INTRO;
+                level_msg_timer = LEVEL_INTRO_TIME;
+                render_msg("LEVEL 01", 0);
             }
         }
         else if (game_state == STATE_LEVEL_INTRO) {
