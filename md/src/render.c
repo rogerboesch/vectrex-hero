@@ -119,6 +119,12 @@ void render_init_level(void) {
             VDP_setTileMapXY(BG_A, attr, x, y + HUD_ROWS);
         }
     }
+
+    /* Window plane for HUD (top 2 rows) */
+    VDP_setWindowHPos(FALSE, 0);
+    VDP_setWindowVPos(TRUE, HUD_ROWS);
+
+    render_update_hud();
 }
 
 /* =========================================================================
