@@ -81,9 +81,9 @@ fi
 
 # 3b: Replace Java sizebnd.jar with Python in common.mk
 COMMON_MK="$SGDK_PATH/common.mk"
-if grep -q "java.*sizebnd.jar" "$COMMON_MK"; then
+if grep -q 'sizebnd\.jar' "$COMMON_MK"; then
     echo "Replacing Java sizebnd.jar with Python..."
-    sed -i '' 's|SIZEBND := $(JAVA) -jar $(BIN)/sizebnd.jar|SIZEBND := python3 $(BIN)/sizebnd.py|' "$COMMON_MK"
+    sed -i '' 's|.*SIZEBND :=.*sizebnd\.jar.*|SIZEBND := python3 \$(BIN)/sizebnd.py|' "$COMMON_MK"
     echo "  Done: Java dependency removed"
 else
     echo "  common.mk already patched"
