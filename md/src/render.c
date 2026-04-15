@@ -110,13 +110,13 @@ void render_init_level(void) {
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
 
-    /* Draw test pattern with actual VDP tiles */
-    for (y = 0; y < 16; y++) {
-        for (x = 0; x < 20; x++) {
-            u8 t = (x == 0 || x == 19 || y == 0 || y == 15) ? 1 : 0;
-            attr = TILE_ATTR_FULL(PAL1, 1, FALSE, FALSE,
+    /* Draw level tiles from tile_at */
+    for (y = 0; y < level_h && y < PLAY_ROWS; y++) {
+        for (x = 0; x < level_w && x < PLAY_COLS; x++) {
+            u8 t = tile_at(x, y);
+            attr = TILE_ATTR_FULL(tile_palette(t), 1, FALSE, FALSE,
                                   TILE_USER_BASE + t);
-            VDP_setTileMapXY(BG_A, attr, x, y + 2);
+            VDP_setTileMapXY(BG_A, attr, x, y + HUD_ROWS);
         }
     }
 }
