@@ -120,48 +120,9 @@ void render_init_level(void) {
         }
     }
 
-    /* Draw HUD on Plane A top rows (no window plane) */
-    {
-        u16 hattr;
-        u8 c;
-
-        /* Row 0: level number */
-        hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
-                               TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) / 10));
-        VDP_setTileMapXY(BG_B, hattr, 0, 0);
-        hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
-                               TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) % 10));
-        VDP_setTileMapXY(BG_B, hattr, 1, 0);
-
-        /* Hearts */
-        for (c = 0; c < 3; c++) {
-            u8 t = (player_lives >= c + 1) ? TILE_HEART : TILE_HEART_OFF;
-            hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-            VDP_setTileMapXY(BG_B, hattr, 6 + c, 0);
-        }
-
-        /* Score right-aligned */
-        {
-            s16 s = score;
-            u8 d;
-            for (d = 0; d < 4; d++) {
-                hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
-                                       TILE_USER_BASE + TILE_DIGIT_0 + (s % 10));
-                VDP_setTileMapXY(BG_B, hattr, 39 - d, 0);
-                s /= 10;
-            }
-        }
-
-        /* Row 1: fuel bar centered */
-        {
-            u8 filled = (u8)((u16)player_fuel * 20 / START_FUEL);
-            for (c = 0; c < 20; c++) {
-                u8 t = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
-                hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-                VDP_setTileMapXY(BG_B, hattr, 10 + c, 1);
-            }
-        }
-    }
+    /* HUD via SGDK text on Plane B */
+    VDP_setTextPlane(BG_B);
+    render_update_hud();
 }
 
 /* =========================================================================
@@ -251,61 +212,50 @@ static u8 char_to_tile(char ch) {
 }
 
 void render_update_hud(void) {
-    u8 c;
-    u16 attr;
+    char buf[8];
+    u8 filled, c;
 
-    /* HUD on Plane A top 2 rows */
+    /* Use SGDK text system on Plane B (doesn't scroll) */
+    VDP_setTextPlane(BG_B);
 
-    /* Clear */
-    for (c = 0; c < PLAY_COLS; c++) {
-        attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + TILE_EMPTY);
-        VDP_setTileMapXY(BG_B, attr, c, 0);
-        VDP_setTileMapXY(BG_B, attr, c, 1);
-    }
+    /* Level number */
+    buf[0] = '0' + ((current_level + 1) / 10);
+    buf[1] = '0' + ((current_level + 1) % 10);
+    buf[2] = 0;
+    VDP_drawText(buf, 1, 0);
 
-    /* Row 0: level number */
-    attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
-                          TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) / 10));
-    VDP_setTileMapXY(BG_B, attr, 0, 0);
-    attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
-                          TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) % 10));
-    VDP_setTileMapXY(BG_B, attr, 1, 0);
-
-    /* Hearts */
-    for (c = 0; c < 3; c++) {
-        u8 t = (player_lives >= c + 1) ? TILE_HEART : TILE_HEART_OFF;
-        attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-        VDP_setTileMapXY(BG_B, attr, 6 + c, 0);
-    }
+    /* Lives */
+    buf[0] = '0' + player_lives;
+    buf[1] = 0;
+    VDP_drawText(buf, 8, 0);
 
     /* Dynamite */
-    for (c = 0; c < 3; c++) {
-        u8 t = (player_dynamite >= c + 1) ? TILE_DYN_ICON : TILE_DYN_OFF;
-        attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-        VDP_setTileMapXY(BG_B, attr, 11 + c, 0);
-    }
+    buf[0] = '0' + player_dynamite;
+    buf[1] = 0;
+    VDP_drawText(buf, 14, 0);
 
-    /* Score (right-aligned) */
+    /* Score */
     {
         s16 s = score;
         u8 d;
         for (d = 0; d < 4; d++) {
-            attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
-                                  TILE_USER_BASE + TILE_DIGIT_0 + (s % 10));
-            VDP_setTileMapXY(BG_B, attr, 39 - d, 0);
+            buf[3 - d] = '0' + (s % 10);
             s /= 10;
         }
+        buf[4] = 0;
+        VDP_drawText(buf, 35, 0);
     }
 
-    /* Row 1: fuel bar (centered, 20 tiles) */
-    {
-        u8 filled = (u8)((u16)player_fuel * 20 / START_FUEL);
-        for (c = 0; c < 20; c++) {
-            u8 t = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
-            attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-            VDP_setTileMapXY(BG_B, attr, 10 + c, 1);
-        }
-    }
+    /* Fuel bar as text for now */
+    filled = (u8)((u16)player_fuel * 20 / START_FUEL);
+    for (c = 0; c < 20; c++)
+        buf[0] = (c < filled) ? '=' : '-';
+    /* Just show fuel number */
+    buf[0] = '0' + (player_fuel / 100);
+    buf[1] = '0' + ((player_fuel / 10) % 10);
+    buf[2] = '0' + (player_fuel % 10);
+    buf[3] = 0;
+    VDP_drawText(buf, 18, 0);
 }
 
 /* =========================================================================
