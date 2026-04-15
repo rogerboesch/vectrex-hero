@@ -267,21 +267,25 @@ void render_update_hud(void) {
 void render_update_sprites(void) {
     s16 sx, sy;
 
-    sx = player_px - cam_x + 128;
-    sy = player_py - cam_y + 128 + (HUD_ROWS * 8);
+    /* Screen position: player world pos minus camera, offset by HUD height */
+    sx = player_px - cam_x - 8;              /* center 16px sprite on hitbox */
+    sy = player_py - cam_y - 8 + (HUD_ROWS * 8);
 
-    /* Direct VDP sprite table write (sprite 0 = player) */
-    /* Sprite table entry: Y pos, size/link, attr, X pos */
-    VDP_setSpriteFull(0,
-        sx,                                          /* x */
-        sy,                                          /* y */
-        SPRITE_SIZE(2, 2),                           /* 16x16 */
-        TILE_ATTR_FULL(PAL1, 1, FALSE, FALSE, SPRITE_TILE_BASE),
-        1);                                          /* link to next (0 = end) */
+    /* Hide if off-screen */
+    if (sx < -16 || sx > SCREEN_W || sy < 0 || sy > SCREEN_H) {
+        VDP_setSpriteFull(0, 0, 0, 0, 0, 0);
+    }
+    else {
+        VDP_setSpriteFull(0,
+            sx,
+            sy,
+            SPRITE_SIZE(2, 2),
+            TILE_ATTR_FULL(PAL1, 1, FALSE, FALSE, SPRITE_TILE_BASE),
+            1);
+    }
 
-    /* End of sprite list */
+    /* End sprite list */
     VDP_setSpriteFull(1, 0, 0, 0, 0, 0);
-
     VDP_updateSprites(2, DMA);
 }
 

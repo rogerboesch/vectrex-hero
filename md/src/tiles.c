@@ -37,18 +37,31 @@ static const u16 pal_hud[16] = {
     0xAA0, 0x0AA, 0xA0A, 0x00A
 };
 
-/* Simple player sprite (16x16, 4bpp) */
+/* Player sprite (16x16, 4bpp = 4 tiles of 8x8)
+ * Tile order: top-left, bottom-left, top-right, bottom-right (VDP column order) */
 static const u32 player_sprite[4][8] = {
-    /* Top-left 8x8 */
-    {0x00000000, 0x00111000, 0x01111100, 0x01100100,
-     0x01111100, 0x00010000, 0x01111100, 0x01111100},
-    /* Top-right 8x8 */
+    /* Tile 0: top-left */
+    {0x00077000,  /* ..OOO... */
+     0x007FF700,  /* .OXXO... */
+     0x006F6700,  /* .OX.XO.. */
+     0x007FF700,  /* .OXXXO.. */
+     0x000F0000,  /* ...X.... */
+     0x00FFF000,  /* .XXXO... */
+     0x00FFF000,  /* .XXXO... */
+     0x00FFF000}, /* .XXXO... */
+    /* Tile 1: bottom-left */
+    {0x00FFF000,  /* .XXXO... */
+     0x00FF0000,  /* .XXO.... */
+     0x000F0000,  /* ...X.... */
+     0x000FF000,  /* ..XX.... */
+     0x000F0000,  /* ...X.... */
+     0x000FF000,  /* ..XX.... */
+     0x00F00F00,  /* .X...X.. */
+     0x00F00F00}, /* .X...X.. */
+    /* Tile 2: top-right (empty) */
     {0x00000000, 0x00000000, 0x00000000, 0x00000000,
      0x00000000, 0x00000000, 0x00000000, 0x00000000},
-    /* Bottom-left 8x8 */
-    {0x01111100, 0x01111100, 0x00110000, 0x00110000,
-     0x00011000, 0x00011000, 0x00100100, 0x01100000},
-    /* Bottom-right 8x8 */
+    /* Tile 3: bottom-right (empty) */
     {0x00000000, 0x00000000, 0x00000000, 0x00000000,
      0x00000000, 0x00000000, 0x00000000, 0x00000000},
 };
