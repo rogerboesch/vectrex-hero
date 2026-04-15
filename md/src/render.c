@@ -128,16 +128,16 @@ void render_init_level(void) {
         /* Row 0: level number */
         hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
                                TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) / 10));
-        VDP_setTileMapXY(BG_A, hattr, 0, 0);
+        VDP_setTileMapXY(BG_B, hattr, 0, 0);
         hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
                                TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) % 10));
-        VDP_setTileMapXY(BG_A, hattr, 1, 0);
+        VDP_setTileMapXY(BG_B, hattr, 1, 0);
 
         /* Hearts */
         for (c = 0; c < 3; c++) {
             u8 t = (player_lives >= c + 1) ? TILE_HEART : TILE_HEART_OFF;
             hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-            VDP_setTileMapXY(BG_A, hattr, 6 + c, 0);
+            VDP_setTileMapXY(BG_B, hattr, 6 + c, 0);
         }
 
         /* Score right-aligned */
@@ -147,7 +147,7 @@ void render_init_level(void) {
             for (d = 0; d < 4; d++) {
                 hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
                                        TILE_USER_BASE + TILE_DIGIT_0 + (s % 10));
-                VDP_setTileMapXY(BG_A, hattr, 39 - d, 0);
+                VDP_setTileMapXY(BG_B, hattr, 39 - d, 0);
                 s /= 10;
             }
         }
@@ -158,7 +158,7 @@ void render_init_level(void) {
             for (c = 0; c < 20; c++) {
                 u8 t = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
                 hattr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-                VDP_setTileMapXY(BG_A, hattr, 10 + c, 1);
+                VDP_setTileMapXY(BG_B, hattr, 10 + c, 1);
             }
         }
     }
@@ -218,9 +218,9 @@ void render_update_camera(void) {
     VDP_setHorizontalScroll(BG_A, -cam_x);
     VDP_setVerticalScroll(BG_A, cam_y);
 
-    /* Scroll Plane B (parallax) at half speed */
-    VDP_setHorizontalScroll(BG_B, -(cam_x >> 1));
-    VDP_setVerticalScroll(BG_B, cam_y >> 1);
+    /* Plane B: fixed (used for HUD) */
+    VDP_setHorizontalScroll(BG_B, 0);
+    VDP_setVerticalScroll(BG_B, 0);
 }
 
 /* =========================================================================
@@ -259,30 +259,30 @@ void render_update_hud(void) {
     /* Clear */
     for (c = 0; c < PLAY_COLS; c++) {
         attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + TILE_EMPTY);
-        VDP_setTileMapXY(BG_A, attr, c, 0);
-        VDP_setTileMapXY(BG_A, attr, c, 1);
+        VDP_setTileMapXY(BG_B, attr, c, 0);
+        VDP_setTileMapXY(BG_B, attr, c, 1);
     }
 
     /* Row 0: level number */
     attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
                           TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) / 10));
-    VDP_setTileMapXY(BG_A, attr, 0, 0);
+    VDP_setTileMapXY(BG_B, attr, 0, 0);
     attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
                           TILE_USER_BASE + TILE_DIGIT_0 + ((current_level + 1) % 10));
-    VDP_setTileMapXY(BG_A, attr, 1, 0);
+    VDP_setTileMapXY(BG_B, attr, 1, 0);
 
     /* Hearts */
     for (c = 0; c < 3; c++) {
         u8 t = (player_lives >= c + 1) ? TILE_HEART : TILE_HEART_OFF;
         attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-        VDP_setTileMapXY(BG_A, attr, 6 + c, 0);
+        VDP_setTileMapXY(BG_B, attr, 6 + c, 0);
     }
 
     /* Dynamite */
     for (c = 0; c < 3; c++) {
         u8 t = (player_dynamite >= c + 1) ? TILE_DYN_ICON : TILE_DYN_OFF;
         attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-        VDP_setTileMapXY(BG_A, attr, 11 + c, 0);
+        VDP_setTileMapXY(BG_B, attr, 11 + c, 0);
     }
 
     /* Score (right-aligned) */
@@ -292,7 +292,7 @@ void render_update_hud(void) {
         for (d = 0; d < 4; d++) {
             attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE,
                                   TILE_USER_BASE + TILE_DIGIT_0 + (s % 10));
-            VDP_setTileMapXY(BG_A, attr, 39 - d, 0);
+            VDP_setTileMapXY(BG_B, attr, 39 - d, 0);
             s /= 10;
         }
     }
@@ -303,7 +303,7 @@ void render_update_hud(void) {
         for (c = 0; c < 20; c++) {
             u8 t = (c < filled) ? TILE_HUD_FILL : TILE_HUD_EMPTY;
             attr = TILE_ATTR_FULL(PAL3, 1, FALSE, FALSE, TILE_USER_BASE + t);
-            VDP_setTileMapXY(BG_A, attr, 10 + c, 1);
+            VDP_setTileMapXY(BG_B, attr, 10 + c, 1);
         }
     }
 }
