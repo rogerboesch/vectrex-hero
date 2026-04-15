@@ -97,15 +97,20 @@ int main(void) {
         if (game_state == STATE_TITLE) {
             anim_tick++;
             if (joy_pressed & (J_START | J_A)) {
-                start_new_game();
-                render_msg("LEVEL 01", 0);
+                /* Skip start_new_game — just test render_init_level */
+                current_level = 0;
+                level_w = 20;
+                level_h = 16;
+                game_state = STATE_PLAYING;
+                render_init_level();
             }
         }
         else if (game_state == STATE_LEVEL_INTRO) {
-            level_msg_timer--;
+            if (level_msg_timer > 0) level_msg_timer--;
             if (level_msg_timer == 0) {
                 game_state = STATE_PLAYING;
                 render_init_level();
+                level_msg_timer = 255; /* prevent re-trigger */
             }
         }
         else if (game_state == STATE_PLAYING) {

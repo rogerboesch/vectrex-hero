@@ -13,6 +13,9 @@
  * Tile-to-palette mapping
  * ========================================================================= */
 
+static void draw_text_centered(u8 row, const char *text);
+static u8 char_to_tile(char ch);
+
 static u8 tile_palette(u8 tile_idx) {
     if (tile_idx == 0) return PAL0;
     if (tile_idx < 64) return PAL1;       /* walls */
@@ -95,39 +98,12 @@ static void fill_parallax(void) {
  * ========================================================================= */
 
 void render_init_level(void) {
-    cam_x = 0;
-    cam_y = 0;
-    cam_tx = 0;
-    cam_ty = 0;
-
-    /* Just clear and show a test message */
+    /* Absolute minimum — just show text on BG_A */
     VDP_clearPlane(BG_A, TRUE);
-    VDP_clearPlane(BG_B, TRUE);
-
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
-    VDP_setHorizontalScroll(BG_B, 0);
-    VDP_setVerticalScroll(BG_B, 0);
 
-    /* Draw test pattern — no tile_at, just hardcoded tiles */
-    {
-        u16 attr;
-        u8 x, y;
-        for (y = 0; y < 16; y++) {
-            for (x = 0; x < 20; x++) {
-                u8 t = (x == 0 || x == 19 || y == 0 || y == 15) ? 1 : 0;
-                attr = TILE_ATTR_FULL(PAL1, 1, FALSE, FALSE,
-                                      TILE_USER_BASE + t);
-                VDP_setTileMapXY(BG_A, attr, x, y + HUD_ROWS);
-            }
-        }
-    }
-
-    /* Window plane for HUD */
-    VDP_setWindowHPos(FALSE, 0);
-    VDP_setWindowVPos(TRUE, HUD_ROWS);
-
-    render_update_hud();
+    draw_text_centered(14, "PLAYING");
 }
 
 /* =========================================================================
