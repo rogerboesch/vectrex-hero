@@ -264,33 +264,30 @@ void render_update_hud(void) {
 
 #define SPRITE_TILE_BASE (TILE_USER_BASE + 200)
 
-static Sprite* spr_player = NULL;
-
 void render_update_sprites(void) {
     s16 sx, sy;
 
-    /* Player sprite */
-    if (!spr_player) {
-        spr_player = SPR_addSprite(NULL, 0, 0, TILE_ATTR(PAL1, TRUE, FALSE, FALSE));
-        if (spr_player)
-            SPR_setVRAMTileIndex(spr_player, SPRITE_TILE_BASE);
-    }
+    sx = player_px - cam_x + 128;
+    sy = player_py - cam_y + 128 + (HUD_ROWS * 8);
 
-    if (spr_player) {
-        sx = player_px - cam_x + 128;
-        sy = player_py - cam_y + 128 + (HUD_ROWS * 8);
-        SPR_setPosition(spr_player, sx, sy);
-    }
+    /* Direct VDP sprite table write (sprite 0 = player) */
+    /* Sprite table entry: Y pos, size/link, attr, X pos */
+    VDP_setSpriteFull(0,
+        sx,                                          /* x */
+        sy,                                          /* y */
+        SPRITE_SIZE(2, 2),                           /* 16x16 */
+        TILE_ATTR_FULL(PAL1, 1, FALSE, FALSE, SPRITE_TILE_BASE),
+        1);                                          /* link to next (0 = end) */
 
-    SPR_update();
+    /* End of sprite list */
+    VDP_setSpriteFull(1, 0, 0, 0, 0, 0);
+
+    VDP_updateSprites(2, DMA);
 }
 
 void render_hide_sprites(void) {
-    if (spr_player) {
-        SPR_releaseSprite(spr_player);
-        spr_player = NULL;
-    }
-    SPR_update();
+    VDP_setSpriteFull(0, 0, 0, 0, 0, 0);
+    VDP_updateSprites(1, DMA);
 }
 
 /* =========================================================================
